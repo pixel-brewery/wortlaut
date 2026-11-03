@@ -1,0 +1,154 @@
+@if (!presenter.hasProject()) {
+  <div class="state-frame">
+    <mosaik-empty-state header="No project is open" content="Open a project from Projects to see its settings." />
+  </div>
+} @else if (presenter.settings.isLoading()) {
+  <wortlaut-loading-state label="Reading the settings" />
+} @else if (presenter.settings.isFailed()) {
+  <wortlaut-failure-state header="These settings could not be read" [message]="presenter.settings.error()" (retry)="presenter.load()" />
+} @else if (presenter.settings.value(); as settings) {
+  <wortlaut-dry-run-notice text="Saved settings wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+  <wortlaut-write-result [outcome]="presenter.outcome()" />
+  @if (presenter.message(); as message) {
+    <mosaik-message variant="danger" header="That did not work" [content]="message" />
+  }
+
+  <section aria-label="Project">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Project" subText="Where Wortlaut finds your code and your translations." />
+      <div slot="content" class="card-body">
+        <div class="field-row">
+          <div class="field-label"><span>Working directory</span><span class="note">All other paths are relative to it.</span></div>
+          <div class="field-control"><mosaik-textbox aria-label="Working directory" [value]="settings.workingDirectory" [readonly]="true" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Source root</span><span class="note">Scanned by Detect and by the unused-keys rule.</span></div>
+          <div class="field-control field-with-action">
+            <mosaik-textbox aria-label="Source root" placeholder="Not set" [value]="presenter.sourceRoot()" [readonly]="true" />
+            <mosaik-button label="Choose" variant="neutral" appearance="outline" size="small" (click)="presenter.chooseSourceRoot()" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Resource roots</span><span class="note">One or more folders with catalogs.</span></div>
+          <div class="field-control chips">
+            @for (root of presenter.resourceRoots(); track root.id) {
+              <mosaik-chip [label]="root.label" [closeable]="true" (closed)="presenter.removeResourceRoot(root)" />
+            } @empty {
+              <span class="muted">No catalog folder yet</span>
+            }
+            <mosaik-button label="Add folder" icon="add" size="small" appearance="plain" (click)="presenter.addResourceRoot()" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Framework preset</span><span class="note">Decides which file types and detectors are used.</span></div>
+          <div class="field-control">
+            <mosaik-select aria-label="Framework preset" placeholder="Choose a preset" [formField]="presenter.form.preset">
+              @for (preset of presenter.presets; track preset.id) {
+                <mosaik-select-item [value]="preset.id" [label]="preset.name" />
+              }
+            </mosaik-select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Resource format</span><span class="note">Format of the catalogs that are read.</span></div>
+          <div class="field-control">
+            <mosaik-select aria-label="Resource format" [formField]="presenter.form.format">
+              @for (format of presenter.formats; track format.id) {
+                <mosaik-select-item [value]="format.id" [label]="format.name" />
+              }
+            </mosaik-select>
+          </div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Keys">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Keys" subText="Literals with this prefix count as keys. Everything else is reported as hard-coded." />
+      <div slot="content" class="card-body">
+        <div class="field-row">
+          <div class="field-label"><span>Prefix</span><span class="note">For example loc, which covers loc.orders.title.</span></div>
+          <div class="field-control"><mosaik-textbox aria-label="Prefix" placeholder="Not set" [formField]="presenter.form.prefix" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Suffix</span><span class="note">Optional, for example .label.</span></div>
+          <div class="field-control"><mosaik-textbox aria-label="Suffix" placeholder="Not set" [formField]="presenter.form.suffix" /></div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Locales">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Locales" subText="A catalog is the set of files in one folder that differ only in the locale." />
+      <div slot="content" class="card-body">
+        <div class="field-row">
+          <div class="field-label"><span>Base locale</span><span class="note">Source for AI translation and for the missing-translations rule.</span></div>
+          <div class="field-control">
+            <mosaik-select aria-label="Base locale" [formField]="presenter.form.baseLocale">
+              @for (locale of presenter.baseLocales(); track locale.code) {
+                <mosaik-select-item [value]="locale.code" [label]="locale.label" />
+              }
+            </mosaik-select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label"><span>Target locales</span><span class="note">Found from the file names, until you declare them here. Closing one never deletes a file.</span></div>
+          <div class="field-control field-list">
+            <div class="chips">
+              @for (locale of presenter.targetLocales(); track locale) {
+                <mosaik-chip [label]="locale" [closeable]="true" (closed)="presenter.removeEntry('targetLocales', locale)" />
+              } @empty {
+                <span class="muted">None yet</span>
+              }
+            </div>
+            <div class="field-with-action">
+              <mosaik-textbox aria-label="New locale" placeholder="For example fr" size="small" [formField]="presenter.entriesForm.targetLocales" />
+              <mosaik-button label="Add locale" icon="add" size="small" appearance="plain" (click)="presenter.addEntry('targetLocales')" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Analyzer defaults">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Analyzer defaults" subText="Used by Analyze, and by the checks after every AI translation." />
+      <div slot="content" class="card-body">
+        <div class="field-row">
+          <div class="field-label"><span>Rules to run</span><span class="note">Built-in rules. Turned-off rules stay available in Analyze. Rules from packs are set under Rule packs.</span></div>
+          <div class="field-control rule-list">
+            @for (rule of presenter.rules(); track rule.id) {
+              <mosaik-checkbox [label]="rule.id" [isChecked]="rule.isChecked" (checked)="presenter.setRule(rule.id, true)" (unchecked)="presenter.setRule(rule.id, false)" />
+            }
+          </div>
+        </div>
+        @for (list of presenter.exceptionLists(); track list.id) {
+          <div class="field-row">
+            <div class="field-label"><span>{{ list.label }}</span><span class="note">{{ list.hint }}</span></div>
+            <div class="field-control field-list">
+              <div class="chips">
+                @for (item of list.items; track item) {
+                  <mosaik-chip [label]="item" [closeable]="true" (closed)="presenter.removeEntry(list.id, item)" />
+                } @empty {
+                  <span class="muted">None</span>
+                }
+              </div>
+              <div class="field-with-action">
+                <mosaik-textbox size="small" [attr.aria-label]="'New entry of ' + list.label" [formField]="presenter.entriesForm[list.id]" />
+                <mosaik-button label="Add" icon="add" size="small" appearance="plain" (click)="presenter.addEntry(list.id)" />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </mosaik-card>
+  </section>
+
+  <div class="footer-actions">
+    <mosaik-button label="Discard" appearance="plain" [disabled]="!presenter.isDirty()" (click)="presenter.discard()" />
+    <mosaik-button label="Save changes" variant="primary" appearance="solid" [disabled]="!presenter.isDirty()" [isBusy]="presenter.busy()" (click)="presenter.save()" />
+  </div>
+}

@@ -1,0 +1,166 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Detect</h1>
+        <p class="lead">Find strings in the source code that still need a key.</p>
+      </div>
+      <mosaik-button label="Scan project" variant="primary" appearance="solid" icon="play" iconSize="small" [disabled]="presenter.run.isRunning() || !presenter.form.preset().value()" (click)="presenter.scan()" />
+    </div>
+
+    @if (presenter.settings.isLoading()) {
+      <wortlaut-loading-state label="Reading the settings" />
+    } @else if (presenter.settings.isFailed()) {
+      <wortlaut-failure-state header="This project could not be read" [message]="presenter.settings.error()" (retry)="presenter.load()" />
+    } @else if (presenter.settings.value(); as settings) {
+      <wortlaut-dry-run-notice />
+
+      <div class="page-columns">
+        <section aria-label="Scan settings" class="page-column-side">
+          <mosaik-card>
+            <div slot="content" class="settings">
+              <mosaik-select label="Framework preset" [formField]="presenter.form.preset">
+                @for (preset of presenter.presets(); track preset.id) {
+                  <mosaik-select-item [value]="preset.id" [label]="preset.label" />
+                }
+              </mosaik-select>
+              <mosaik-textbox label="Source root" placeholder="Not set" [value]="settings.sourceRoot" [readonly]="true" />
+              <div class="settings-pair">
+                <mosaik-textbox label="Key prefix" placeholder="None" [value]="settings.prefix" [readonly]="true" />
+                <mosaik-textbox label="Key suffix" placeholder="None" [formField]="presenter.form.suffix" />
+              </div>
+              <div class="settings-field">
+                <mosaik-select label="Write new keys as" [value]="presenter.format()" [disabled]="true">
+                  <mosaik-select-item [value]="presenter.format()" [label]="presenter.formatLabel()" [isSelected]="true" />
+                </mosaik-select>
+                <span class="note">New keys go to the format of the project's catalogs.</span>
+              </div>
+              <div class="settings-switch">
+                <span class="settings-switch-label">Skip test files</span>
+                <mosaik-toggle-switch aria-label="Skip test files" [isChecked]="presenter.skipTests()" (checked)="presenter.setSkipTests(true)" (unchecked)="presenter.setSkipTests(false)" />
+              </div>
+              <div class="same-as row-divider">
+                <div class="same-as-label">Same as</div>
+                <code>{{ presenter.sameAs.value() }}</code>
+              </div>
+            </div>
+          </mosaik-card>
+        </section>
+
+        <div class="page-column-main">
+          @if (presenter.run.active(); as active) {
+            <wortlaut-run-progress [run]="active" (cancel)="presenter.run.cancel()" />
+          }
+
+          @if (presenter.run.failure(); as failure) {
+            <mosaik-message variant="danger" header="The scan failed" [content]="failure" />
+          } @else if (presenter.run.wasStopped()) {
+            <mosaik-message variant="info" header="The scan was stopped" content="Nothing was written. Scan again to see the hard-coded strings." />
+          }
+
+          @if (presenter.message(); as message) {
+            <mosaik-message variant="danger" header="Nothing was written" [content]="message" />
+          }
+          @if (presenter.aiNote(); as note) {
+            <mosaik-message [variant]="note.variant" [header]="note.header" [content]="note.content" />
+          }
+          <wortlaut-write-result [outcome]="presenter.outcome()" />
+
+          <section aria-label="Scan result" class="figures">
+            @for (figure of presenter.figures(); track figure.label) {
+              <mosaik-card>
+                <div slot="content" class="figure">
+                  <div class="muted">{{ figure.label }}</div>
+                  <div class="figure-value">{{ figure.value }}</div>
+                </div>
+              </mosaik-card>
+            }
+          </section>
+
+          <section aria-label="Hard-coded strings" class="card-section">
+            <mosaik-card>
+              <mosaik-card-header slot="header" text="Hard-coded strings">
+                <div slot="suffix" class="card-suffix">
+                  <mosaik-button label="Name keys with AI" variant="neutral" appearance="outline" size="small" icon="sparkle" iconSize="small" [disabled]="!presenter.canNameKeys()" [isBusy]="presenter.isNaming()" (click)="presenter.nameKeysWithAi()" />
+                  <mosaik-button label="Apply all" variant="neutral" appearance="outline" size="small" [disabled]="!presenter.canApplyAll()" [isBusy]="presenter.busy()" (click)="presenter.applyAll()" />
+                </div>
+              </mosaik-card-header>
+              <div slot="content" class="card-body">
+                @if (presenter.rows().length > 0) {
+                  <div class="table-scroll">
+                    <div class="table-min">
+                      <mosaik-table columns="minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.4fr)" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell text="String" />
+                            <mosaik-table-header-cell text="Location" />
+                            <mosaik-table-header-cell text="Generated key" />
+                            <mosaik-table-header-cell text="Hint" />
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (row of presenter.rows(); track row.id) {
+                            <mosaik-table-body-row [isSelected]="row.isSelected" (click)="presenter.select(row.id)">
+                              <mosaik-table-body-cell><span class="cell-text cell-strong">{{ row.value }}</span></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><code class="small muted cell-text">{{ row.location }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><code class="inline cell-text">{{ row.key }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><span class="muted cell-text">{{ row.hintText }}</span></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                  @if (presenter.boundNote() || presenter.hasMoreRows()) {
+                    <div class="table-footer note row-line rows-footer">
+                      <span>{{ presenter.boundNote() }}</span>
+                      @if (presenter.hasMoreRows()) {
+                        <mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" />
+                      }
+                    </div>
+                  }
+                } @else if (presenter.hasScan()) {
+                  <div class="row-line">
+                    <mosaik-empty-state header="No hard-coded strings" content="Every string the detector found is a key already." />
+                  </div>
+                } @else if (!presenter.run.isRunning()) {
+                  <div class="row-line">
+                    <mosaik-empty-state header="No scan yet" content="Scan the project to see the strings that still need a key." />
+                  </div>
+                }
+              </div>
+            </mosaik-card>
+          </section>
+
+          @if (presenter.selectedRow(); as row) {
+            <section aria-labelledby="change" class="card-section">
+              <mosaik-card>
+                <div slot="content" class="card-box">
+                  <div class="change-head">
+                    <div class="change-title">
+                      <h2 id="change">Proposed change</h2>
+                      <code class="small muted">{{ row.file }}</code>
+                    </div>
+                    <div class="actions">
+                      <mosaik-button label="Ignore" appearance="plain" size="small" (click)="presenter.ignore()" />
+                      <mosaik-button label="Apply to source and catalog" variant="neutral" appearance="outline" size="small" [disabled]="!presenter.canApply()" [isBusy]="presenter.busy()" (click)="presenter.applySelected()" />
+                    </div>
+                  </div>
+                  @if (row.canApply) {
+                    <div class="settings-field">
+                      <mosaik-textbox label="Key" [value]="presenter.selectedKey()" [invalid]="presenter.keyError() !== null" (input)="onKeyInput($event)" />
+                      @if (presenter.keyError(); as error) {
+                        <span role="alert" class="note key-error">{{ error }}</span>
+                      }
+                    </div>
+                  }
+                  <pre class="diff"><span class="diff-line diff-remove">- {{ row.before }}</span><span class="diff-line diff-add">+ {{ presenter.selectedAfter() }}</span></pre>
+                </div>
+              </mosaik-card>
+            </section>
+          }
+        </div>
+      </div>
+    }
+  </main>
+</div>

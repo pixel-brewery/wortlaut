@@ -1,0 +1,117 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 2);
+  flex-grow: 1;
+}
+
+.settings mosaik-textbox,
+.settings mosaik-select {
+  width: 100%;
+}
+
+.settings-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+}
+
+.settings-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.settings-switch-label {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.row-divider {
+  padding-top: calc(var(--mosaik-layout-space) * 1.5);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  flex-grow: 1;
+}
+
+.figure-value {
+  font: var(--mosaik-typography-headline4);
+}
+
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-min {
+  min-width: 620px;
+  padding: 0 var(--mosaik-layout-space);
+}
+
+mosaik-table-body-row {
+  cursor: pointer;
+}
+
+.cell-text {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cell-strong {
+  font-weight: 500;
+}
+
+.change-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.change-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.change-title h2 {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.key-error {
+  color: var(--mosaik-color-danger-700);
+}
+
+mosaik-textbox {
+  width: 100%;
+}
+
+.rows-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}

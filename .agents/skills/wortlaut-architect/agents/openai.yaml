@@ -1,0 +1,6 @@
+interface:
+  display_name: 'Wortlaut Architect'
+  short_description: 'Architecture, implementation and verification for Wortlaut'
+  default_prompt: 'Use $wortlaut-architect for this task and apply the shared Architecture foundations with the relevant Wortlaut project rules.'
+policy:
+  allow_implicit_invocation: true

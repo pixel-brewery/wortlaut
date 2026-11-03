@@ -1,0 +1,17 @@
+.tab-content > :not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+:host ::ng-deep wortlaut-not-available .page-title {
+  display: none;
+}
+
+:host ::ng-deep wortlaut-not-available .page {
+  padding: 0;
+}
+
+:host ::ng-deep wortlaut-not-available .page-scroll {
+  height: auto;
+}

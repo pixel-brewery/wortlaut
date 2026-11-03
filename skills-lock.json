@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "skills": {
+    "architecture": {
+      "source": "pixel-brewery/skills",
+      "ref": "ddba975005a71eab31dd3586483e798d866c50da",
+      "sourceType": "github",
+      "skillPath": "skills/architecture/SKILL.md",
+      "computedHash": "5c4b77d54eb556d31572f6020653628ec6d7da83969d04909e53e1928d8a212a"
+    }
+  }
+}

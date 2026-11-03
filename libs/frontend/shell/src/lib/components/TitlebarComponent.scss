@@ -1,0 +1,51 @@
+.titlebar {
+  min-height: var(--wortlaut-titlebar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) / 2) calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) / 2) calc(var(--mosaik-layout-space) * 1.5 + var(--wortlaut-traffic-lights));
+  background: var(--mosaik-color-neutral-50);
+  border-bottom: 1px solid var(--mosaik-scheme-highlight);
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.titlebar > * {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+  min-height: 32px;
+  padding: 0 var(--mosaik-layout-space);
+  border-radius: 6px;
+  font: var(--mosaik-typography-subtitle2);
+  white-space: nowrap;
+}
+
+.crumb:hover {
+  background: var(--mosaik-color-neutral-100);
+}
+
+.crumb-separator {
+  color: var(--mosaik-color-neutral-400);
+}
+
+.titlebar-search {
+  flex: 1 1 240px;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.titlebar-search mosaik-searchbox {
+  flex: 0 1 420px;
+  min-width: 0;
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}

@@ -1,0 +1,13 @@
+{
+  "name": "wortlaut",
+  "displayName": "Wortlaut",
+  "version": "0.2.0",
+  "description": "Keeps the texts of an application correct in every language: finds hard-coded strings, checks catalogs, and proposes translations that wait for your approval.",
+  "author": {
+    "name": "Pixel Brewery",
+    "url": "https://github.com/pixel-brewery"
+  },
+  "repository": "https://github.com/pixel-brewery/wortlaut",
+  "license": "MIT",
+  "keywords": ["i18n", "translation", "localization", "mcp"]
+}

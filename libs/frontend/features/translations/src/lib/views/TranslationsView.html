@@ -1,0 +1,196 @@
+@if (presenter.overview.isLoading()) {
+  <wortlaut-loading-state label="Reading the catalogs" />
+} @else if (presenter.overview.isFailed()) {
+  <wortlaut-failure-state header="The catalogs could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
+} @else if (presenter.overview.value(); as overview) {
+  <main class="translations">
+    <section aria-label="Namespaces" class="tree">
+      @if (presenter.prefix()) {
+        <code class="small muted tree-prefix">{{ presenter.prefix() }}</code>
+      }
+      <ul class="tree-list">
+        @for (namespace of presenter.namespaces(); track namespace.name) {
+          <li class="tree-item">
+            <mosaik-button size="small" fit="width" horizontalContentAlignment="left" [appearance]="namespace.isActive ? 'soft' : 'plain'" [label]="namespace.name" (click)="presenter.pickNamespace(namespace.name)" />
+            <span class="note tree-count">{{ namespace.label }}</span>
+          </li>
+        }
+        @if (presenter.moreNamespaces(); as more) {
+          <li class="tree-item">
+            <mosaik-button size="small" fit="width" appearance="plain" horizontalContentAlignment="left" [label]="more.label" (click)="presenter.showAllNamespaces()" />
+            <span class="note tree-count">{{ more.count }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section aria-label="Keys" class="keys">
+      <div class="toolbar">
+        <mosaik-searchbox placeholder="Search keys and values" size="small" class="toolbar-search" [formField]="presenter.searchForm.text" />
+        <mosaik-segment appearance="soft" size="small">
+          <mosaik-segment-item label="All" [isChecked]="presenter.filter() === 'all'" (click)="presenter.pickFilter('all')" />
+          <mosaik-segment-item label="Duplicates" [isChecked]="presenter.filter() === 'duplicates'" (click)="presenter.pickFilter('duplicates')" />
+          <mosaik-segment-item label="Unused" [isChecked]="presenter.filter() === 'unused'" (click)="presenter.pickFilter('unused')" />
+          <mosaik-segment-item label="Placeholders" [isChecked]="presenter.filter() === 'placeholders'" (click)="presenter.pickFilter('placeholders')" />
+        </mosaik-segment>
+        @if (presenter.targetLocales().length > 1) {
+          <mosaik-select aria-label="Target locale" size="small" class="toolbar-locale" [formField]="presenter.targetForm.code">
+            @for (locale of presenter.targetLocales(); track locale.code) {
+              <mosaik-select-item [value]="locale.code" [label]="locale.label" />
+            }
+          </mosaik-select>
+        }
+        <mosaik-button label="Add locale" variant="neutral" appearance="outline" size="small" icon="add" iconSize="small" (click)="presenter.openAddLocale()" />
+      </div>
+
+      <div class="notices">
+        <wortlaut-dry-run-notice text="Saved values wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+        <wortlaut-write-result [outcome]="presenter.outcome()" />
+        @if (presenter.message(); as message) {
+          <mosaik-message variant="danger" header="Nothing was written" [content]="message" />
+        }
+      </div>
+
+      @if (presenter.keys.isFailed()) {
+        <wortlaut-failure-state header="The keys could not be read" [message]="presenter.keys.error()" (retry)="presenter.keys.reload()" />
+      } @else if (overview.keyCount === 0) {
+        <div class="state-frame">
+          <mosaik-empty-state header="No keys yet" content="This project has no catalog with keys. Detect finds strings that need one." />
+        </div>
+      } @else if (presenter.rows().length === 0 && presenter.keys.value()) {
+        <div class="state-frame">
+          <mosaik-empty-state header="No key matches" content="Change the search or the filter to see the other keys." />
+        </div>
+      } @else {
+        <div class="table-area">
+          <div class="table-width">
+            <mosaik-table columns="minmax(240px, 3fr) minmax(0, 3.5fr) minmax(0, 3.5fr)" appearance="plain">
+              <mosaik-table-header>
+                <mosaik-table-header-row>
+                  <mosaik-table-header-cell [text]="presenter.keysHeader()" />
+                  <mosaik-table-header-cell [text]="presenter.baseHeader()" />
+                  <mosaik-table-header-cell [text]="presenter.targetHeader()" />
+                </mosaik-table-header-row>
+              </mosaik-table-header>
+              <mosaik-table-body>
+                @for (row of presenter.rows(); track row.key) {
+                  <mosaik-table-body-row [isSelected]="row.isSelected" (click)="presenter.select(row.key)">
+                    <mosaik-table-body-cell>
+                      <div class="key-cell">
+                        <code class="inline key-name">{{ row.key }}</code>
+                        @if (row.badges.length > 0) {
+                          <div class="chips">
+                            @for (badge of row.badges; track badge.id) {
+                              <mosaik-badge appearance="soft" [label]="badge.label" [variant]="badge.variant" />
+                            }
+                          </div>
+                        }
+                      </div>
+                    </mosaik-table-body-cell>
+                    <mosaik-table-body-cell><span class="value">{{ row.base }}</span></mosaik-table-body-cell>
+                    <mosaik-table-body-cell><span class="value" [class.muted]="row.target === null">{{ row.target ?? 'Missing' }}</span></mosaik-table-body-cell>
+                  </mosaik-table-body-row>
+                }
+              </mosaik-table-body>
+            </mosaik-table>
+          </div>
+          @if (presenter.hasMore()) {
+            <div class="more"><mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" /></div>
+          }
+        </div>
+      }
+    </section>
+
+    <aside aria-label="Key details" class="details">
+      @if (presenter.detail.isFailed()) {
+        <mosaik-message variant="danger" header="This key could not be read" [content]="presenter.detail.error() ?? ''" />
+      } @else if (presenter.detail.value(); as detail) {
+        <div class="detail-block">
+          <div class="note strong-note">Selected key</div>
+          <code class="inline key-name strong-code">{{ detail.key }}</code>
+        </div>
+
+        <mosaik-textbox [label]="presenter.baseHeader()" [value]="detail.base" [multiline]="true" [multilineRows]="2" [readonly]="true" />
+        @if (presenter.target()) {
+          <mosaik-textbox [label]="presenter.targetHeader()" [multiline]="true" [multilineRows]="2" [formField]="presenter.editorForm.value" />
+          @if (presenter.isDirty()) {
+            <div class="actions">
+              <mosaik-button label="Save" variant="primary" appearance="solid" size="small" [isBusy]="presenter.busy()" (click)="presenter.save()" />
+              <mosaik-button label="Revert" appearance="plain" size="small" (click)="presenter.revert()" />
+            </div>
+          }
+        } @else {
+          <span class="muted">This project has no other locale yet. Add one to translate this key.</span>
+        }
+
+        <div class="detail-block">
+          <span class="block-title">Comment</span>
+          <mosaik-textbox aria-label="Comment" placeholder="Context for translators and for the AI" [multiline]="true" [multilineRows]="2" [formField]="presenter.editorForm.comment" />
+          @if (presenter.isCommentDirty()) {
+            <div class="actions">
+              <mosaik-button label="Save comment" variant="neutral" appearance="outline" size="small" [isBusy]="presenter.busy()" (click)="presenter.saveComment()" />
+            </div>
+          }
+        </div>
+
+        <mosaik-card>
+          <div slot="content" class="card-box suggestion">
+            <div class="suggestion-title"><mosaik-icon icon="sparkle" size="small" />AI suggestion</div>
+            @if (presenter.suggestion(); as suggestion) {
+              <div class="suggestion-value">{{ suggestion.value }}</div>
+              <span class="note" [class.suggestion-problem]="suggestion.problem !== null">{{ presenter.suggestionNote() }}</span>
+              <div class="actions">
+                <mosaik-button label="Apply" variant="primary" appearance="solid" size="small" (click)="presenter.applySuggestion()" />
+                <mosaik-button label="Discard" variant="neutral" appearance="outline" size="small" (click)="presenter.discardSuggestion()" />
+              </div>
+            } @else if (!presenter.target()) {
+              <span class="muted">Add a locale to get a suggestion.</span>
+            } @else if (presenter.providers.value() && !presenter.hasProvider()) {
+              <span class="muted">No AI provider is set up yet. Suggestions use the {{ presenter.baseHeader() }} value, the comment and your project instructions.</span>
+              <mosaik-button label="Open AI settings" variant="neutral" appearance="outline" size="small" class="suggestion-action" routerLink="/settings/ai" />
+            } @else {
+              <span class="muted">Uses the {{ presenter.baseHeader() }} value, the comment and your project instructions.</span>
+              <mosaik-button variant="neutral" appearance="outline" size="small" class="suggestion-action" [label]="presenter.suggestLabel()" [isBusy]="presenter.isSuggesting()" (click)="presenter.suggest()" />
+              @if (presenter.suggestError(); as error) {
+                <span role="alert" class="note suggestion-problem">{{ error }}</span>
+              }
+            }
+          </div>
+        </mosaik-card>
+
+        <div class="detail-block">
+          <div class="block-title">Findings</div>
+          @for (finding of detail.findings; track finding) {
+            <div class="muted">{{ finding }}</div>
+          } @empty {
+            <div class="muted">No findings.</div>
+          }
+        </div>
+        <div class="detail-block">
+          <div class="block-title">Used in</div>
+          @for (usage of detail.usages; track usage.file + usage.line) {
+            <code class="small muted key-name">{{ usage.file }}:{{ usage.line }}</code>
+          } @empty {
+            <div class="muted">No usage found</div>
+          }
+        </div>
+      } @else {
+        <span class="muted">Select a key to see its details.</span>
+      }
+    </aside>
+  </main>
+
+  <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.addingLocale()" [pressEscapeToClose]="true" (closed)="presenter.closeAddLocale()">
+    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text text="Add a locale" /></mosaik-dialog-header>
+    <mosaik-dialog-content slot="content">
+      <div class="dialog-body">
+        <span class="muted">Every catalog of the base locale gets a copy, as a change set. Every value reads as identical to {{ presenter.baseName() }} until someone translates it.</span>
+        <mosaik-textbox label="Locale" placeholder="For example fr or pt-BR" [formField]="presenter.newLocaleForm.code" />
+      </div>
+    </mosaik-dialog-content>
+    <mosaik-dialog-actions slot="actions">
+      <mosaik-button label="Cancel" appearance="plain" (click)="presenter.closeAddLocale()" />
+      <mosaik-button label="Add locale" variant="primary" appearance="solid" [disabled]="!presenter.canAddLocale()" [isBusy]="presenter.busy()" (click)="presenter.addLocale()" />
+    </mosaik-dialog-actions>
+  </mosaik-dialog>
+}

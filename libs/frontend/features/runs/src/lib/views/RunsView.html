@@ -1,0 +1,93 @@
+<main class="runs">
+  <section class="history" aria-label="Run history">
+    <div class="page-title history-title">
+      <h1>Runs</h1>
+      <p class="lead">Every command, with its log and its changes.</p>
+    </div>
+    @if (presenter.active().length > 0) {
+      <div class="live" aria-label="Runs going on">
+        @for (run of presenter.active(); track run.id) {
+          <div class="live-run">
+            <code class="inline strong">{{ run.title }}</code>
+            <wortlaut-run-progress [run]="run" (cancel)="presenter.cancel(run.id)" />
+          </div>
+        }
+      </div>
+    }
+    @if (presenter.runs.isLoading()) {
+      <wortlaut-loading-state label="Loading the runs" />
+    } @else if (presenter.runs.isFailed()) {
+      <wortlaut-failure-state header="The runs could not be read" [message]="presenter.runs.error()" (retry)="presenter.load()" />
+    } @else if (presenter.runs.value()?.length) {
+      <mosaik-list>
+        @for (run of presenter.runs.value(); track run.id) {
+          <mosaik-list-item [isSelected]="run.id === presenter.selectedId()" (click)="presenter.select(run.id)">
+            <div class="run-row">
+              <span class="run-head">
+                <code class="inline strong">{{ run.title }}</code>
+                <mosaik-badge appearance="soft" [label]="presenter.badgeOf(run).label" [variant]="presenter.badgeOf(run).variant" />
+              </span>
+              @if (run.detail) {
+                <span class="note">{{ run.detail }}</span>
+              }
+              <span class="note">{{ presenter.whenOf(run) }}</span>
+            </div>
+          </mosaik-list-item>
+        }
+      </mosaik-list>
+    }
+  </section>
+
+  <section class="details" aria-label="Run details">
+    @if (presenter.runs.status() === 'ready' && !presenter.runs.value()?.length) {
+      <div class="state-frame">
+        <mosaik-empty-state header="No runs yet" content="Commands from the CLI, Nx and the app appear here, each with its log and its changes." />
+      </div>
+    } @else if (presenter.detail.isFailed()) {
+      <wortlaut-failure-state header="This run could not be read" [message]="presenter.detail.error()" (retry)="presenter.detail.reload()" />
+    } @else if (presenter.detail.value(); as run) {
+      <div class="details-head">
+        <div class="page-title">
+          <h2>{{ run.title }}</h2>
+          <p class="lead">{{ presenter.detailLine() }}</p>
+        </div>
+        <div class="actions">
+          <mosaik-button variant="neutral" appearance="outline" [label]="presenter.copied() ? 'Copied' : 'Copy command'" (click)="presenter.copyCommand()" />
+          <mosaik-button label="Run again" variant="primary" appearance="solid" icon="sync" [title]="run.canRepeat ? 'Starts this command again with the same options' : 'This command cannot start again'" [disabled]="!run.canRepeat" (click)="presenter.runAgain()" />
+        </div>
+      </div>
+
+      @if (presenter.message(); as message) {
+        <mosaik-message variant="danger" header="This run did not start" [content]="message" />
+      }
+
+      <code class="command">{{ run.equivalentCommandShown }}</code>
+
+      <mosaik-tab-strip aria-label="Run details" [hasIndicator]="true">
+        <mosaik-tab-strip-item label="Log" [isSelected]="presenter.tab() === 'log'" (click)="presenter.openTab('log')" />
+        <mosaik-tab-strip-item label="Changes" [isSelected]="presenter.tab() === 'changes'" (click)="presenter.openTab('changes')" />
+        <mosaik-tab-strip-item label="Configuration" [isSelected]="presenter.tab() === 'configuration'" (click)="presenter.openTab('configuration')" />
+      </mosaik-tab-strip>
+
+      @if (presenter.tab() === 'changes') {
+        <mosaik-card>
+          <div slot="content" class="card-body">
+            @for (change of presenter.changes(); track change.file) {
+              <div class="change">
+                <code class="inline">{{ change.file }}</code>
+                <span class="muted">{{ change.text }}</span>
+              </div>
+            } @empty {
+              <div class="change">
+                <code class="inline">No files</code>
+                <span class="muted">{{ presenter.noChanges() }}</span>
+              </div>
+            }
+          </div>
+        </mosaik-card>
+      } @else {
+        <pre class="code-block framed">{{ presenter.code() }}</pre>
+      }
+    }
+  </section>
+</main>

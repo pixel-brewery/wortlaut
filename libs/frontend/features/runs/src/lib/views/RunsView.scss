@@ -1,0 +1,116 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.runs {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.history {
+  flex: 0 1 340px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--mosaik-scheme-highlight);
+  overflow: auto;
+}
+
+.history-title {
+  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 2);
+}
+
+.live {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: 0 calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 2);
+}
+
+.live-run {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+}
+
+.run-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+  text-align: left;
+}
+
+.run-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}
+
+.strong {
+  font-weight: 500;
+}
+
+.details {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 4) calc(var(--mosaik-layout-space) * 4);
+  overflow: auto;
+}
+
+.details-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.details-head h2 {
+  font: var(--mosaik-typography-headline5);
+}
+
+.command {
+  display: block;
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 1.5);
+  border: 1px solid var(--mosaik-scheme-highlight);
+  border-radius: 8px;
+  background: var(--mosaik-color-neutral-50);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+mosaik-tab-strip {
+  flex: none;
+}
+
+mosaik-card {
+  flex: none;
+}
+
+.framed {
+  border: 1px solid var(--mosaik-scheme-highlight);
+  border-radius: var(--mosaik-layout-radius);
+}
+
+.change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 2);
+  border-bottom: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.change:last-child {
+  border-bottom: 0;
+}

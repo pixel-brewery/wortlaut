@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/pixel-brewery/wortlaut/tree/main/docs
+    about: The features, the architecture and how a release works.
+  - name: Report a vulnerability privately
+    url: https://github.com/pixel-brewery/wortlaut/security/advisories/new
+    about: Confidential reports through GitHub private vulnerability reporting.

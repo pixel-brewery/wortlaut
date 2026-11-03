@@ -1,0 +1,14 @@
+{
+  "name": "pixel-brewery",
+  "description": "Plugins of Pixel Brewery",
+  "owner": {
+    "name": "Pixel Brewery"
+  },
+  "plugins": [
+    {
+      "name": "wortlaut",
+      "source": "./libs/backend/mcp/plugins/claude",
+      "description": "Keeps the texts of an application correct in every language, with your approval."
+    }
+  ]
+}

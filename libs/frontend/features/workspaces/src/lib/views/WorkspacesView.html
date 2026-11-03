@@ -1,0 +1,108 @@
+<div class="page-scroll">
+  <div class="drag-region titlebar-strip" aria-hidden="true"></div>
+  <main class="workspaces">
+    <div class="page-title">
+      <h1>Workspaces</h1>
+      <p class="lead">A workspace holds its projects, AI connections, rule packs and shared defaults, so one customer or product stays separate from the next.</p>
+    </div>
+
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="That did not work" [content]="message" />
+    }
+
+    <div class="columns">
+      <div class="cards">
+        @if (presenter.workspaces.isLoading()) {
+          <wortlaut-loading-state label="Loading the workspaces" />
+        } @else if (presenter.workspaces.isFailed()) {
+          <wortlaut-failure-state header="The workspaces could not be read" [message]="presenter.workspaces.error()" (retry)="presenter.workspaces.reload()" />
+        } @else {
+          @for (workspace of presenter.workspaces.value(); track workspace.id) {
+            <section [attr.aria-label]="workspace.name">
+              <mosaik-card>
+                <div slot="content" class="card-box workspace-card">
+                  <div class="workspace-head">
+                    <wortlaut-workspace-tile size="large" [code]="workspace.code" [color]="workspace.color" />
+                    <div class="workspace-title">
+                      <h2>{{ workspace.name }}</h2>
+                      <code class="small muted">{{ workspace.folder }}</code>
+                    </div>
+                    <div class="actions">
+                      <mosaik-button label="Settings" appearance="plain" size="small" (click)="presenter.openSettings(workspace.id)" />
+                      <mosaik-button label="Open" variant="neutral" appearance="outline" size="small" icon="arrowRight" (click)="presenter.open(workspace.id)" />
+                    </div>
+                  </div>
+                  <dl class="facts">
+                    @for (fact of presenter.factsOf(workspace); track fact.label) {
+                      <div class="fact">
+                        <dt class="note">{{ fact.label }}</dt>
+                        <dd>{{ fact.value }}</dd>
+                      </div>
+                    }
+                  </dl>
+                  <div class="tags">
+                    @for (tag of presenter.tagsOf(workspace); track tag.label) {
+                      <mosaik-badge appearance="soft" [label]="tag.label" [variant]="tag.variant" />
+                    }
+                  </div>
+                </div>
+              </mosaik-card>
+            </section>
+          } @empty {
+            <mosaik-empty-state header="No workspaces yet" content="Create the first one with a repository folder." />
+          }
+        }
+      </div>
+
+      <section class="new-workspace" aria-label="New workspace">
+        <mosaik-card>
+          <mosaik-card-header slot="header" text="New workspace" />
+          <div slot="content" class="card-pad new-form">
+            <div class="labeled">
+              <span class="field-title">Name</span>
+              <mosaik-textbox aria-label="Name" placeholder="For example Acme" [formField]="presenter.form.name" />
+            </div>
+            <div class="code-color">
+              <mosaik-textbox label="Short code" [value]="presenter.code()" [readonly]="true" />
+              <div class="labeled">
+                <span class="field-title">Color</span>
+                <div class="swatches" aria-label="Color">
+                  @for (color of presenter.colors(); track color.id) {
+                    <mosaik-color-swatch [value]="color.token" [name]="color.id" [isChecked]="color.isChecked" (click)="presenter.pickColor(color.id)" />
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="labeled">
+              <span class="field-title">Where it runs</span>
+              <div class="actions">
+                <mosaik-segment appearance="soft" size="small">
+                  <mosaik-segment-item label="This computer" [isChecked]="true" />
+                  <mosaik-segment-item label="Cloud" [disabled]="true" />
+                </mosaik-segment>
+                <mosaik-badge label="Cloud comes later" variant="neutral" appearance="soft" />
+              </div>
+            </div>
+            <mosaik-button
+              variant="neutral"
+              appearance="outline"
+              icon="folderOpen"
+              [label]="presenter.folder()?.displayPath ?? 'Choose repository folder'"
+              (click)="presenter.chooseFolder()"
+            />
+            <span class="note">Wortlaut looks for Nx projects with a wortlaut target and for folders with catalogs.</span>
+            <mosaik-button
+              label="Create workspace"
+              variant="primary"
+              appearance="solid"
+              fit="width"
+              [disabled]="!presenter.canCreate()"
+              [isBusy]="presenter.busy()"
+              (click)="presenter.create()"
+            />
+          </div>
+        </mosaik-card>
+      </section>
+    </div>
+  </main>
+</div>

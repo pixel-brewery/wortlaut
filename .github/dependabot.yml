@@ -1,0 +1,50 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    ignore:
+      # TypeScript upgrades are chosen by maintainers.
+      - dependency-name: typescript
+      # Pixel Brewery packages are released as a coordinated fixed-version set.
+      - dependency-name: '@pixel-brewery/*'
+      # Angular, Nx, and Electron move as coordinated sets and are upgraded deliberately.
+      - dependency-name: '@angular/*'
+        update-types: [version-update:semver-major]
+      - dependency-name: '@nx/*'
+        update-types: [version-update:semver-major]
+      - dependency-name: nx
+        update-types: [version-update:semver-major]
+      - dependency-name: electron
+        update-types: [version-update:semver-major]
+    groups:
+      angular-updates:
+        patterns: ['@angular/*', '@angular-devkit/*', '@schematics/*']
+      nx-updates:
+        patterns: ['@nx/*', 'nx']
+      linting-updates:
+        patterns: ['eslint*', '@eslint/*', 'typescript-eslint', '@typescript-eslint/*', 'prettier']
+      testing-updates:
+        patterns: ['vitest', '@vitest/*', '@playwright/*', 'playwright*', 'jsdom']
+      node-types:
+        patterns: ['@types/node']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      github-actions-updates:
+        patterns: ['*']

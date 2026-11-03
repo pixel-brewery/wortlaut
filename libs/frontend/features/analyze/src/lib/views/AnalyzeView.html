@@ -1,0 +1,182 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Analyze</h1>
+        @if (presenter.lead(); as lead) {
+          <p class="lead">
+            {{ lead.text }}
+            @if (lead.sourceRoot) {
+              · sources in <code class="inline">{{ lead.sourceRoot }}</code>
+            }
+          </p>
+        }
+      </div>
+      <mosaik-button variant="primary" appearance="solid" icon="play" iconSize="small" [label]="presenter.runLabel()" [disabled]="!presenter.canRun()" (click)="presenter.analyze()" />
+    </div>
+
+    @if (presenter.overview.isLoading()) {
+      <wortlaut-loading-state label="Reading the rules" />
+    } @else if (presenter.overview.isFailed()) {
+      <wortlaut-failure-state header="This project could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
+    } @else if (presenter.overview.value()) {
+      <wortlaut-dry-run-notice text="Allow, Declare used, Merge and Delete wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+
+      @for (pack of presenter.refusedPacks(); track pack.name) {
+        <mosaik-message variant="danger" [header]="'The rule pack ' + pack.name + ' failed verification and is disabled'" [content]="pack.reason" />
+      }
+
+      @if (presenter.prepared(); as prepared) {
+        <div class="prepared">
+          <mosaik-message variant="info" header="Prepared in the test lab" [content]="'Add ' + prepared.pattern + ' to ' + prepared.listName + '.'" />
+          <div class="actions">
+            <mosaik-button label="Add it" variant="neutral" appearance="outline" size="small" [isBusy]="presenter.busy()" (click)="presenter.applyPrepared()" />
+            <mosaik-button label="Leave it" appearance="plain" size="small" (click)="presenter.dismissPrepared()" />
+          </div>
+        </div>
+      }
+
+      <div class="page-columns">
+        <section aria-label="Rules" class="page-column-side">
+          <mosaik-card>
+            <div slot="content" class="card-body">
+              @for (group of presenter.groups(); track group.label) {
+                <div class="rule-group">{{ group.label }}</div>
+                @for (rule of group.rules; track rule.id) {
+                  <div class="rule" [class.rule-selected]="rule.isSelected">
+                    <mosaik-toggle-switch class="rule-switch" [attr.aria-label]="'Run ' + rule.id" [isChecked]="rule.isOn" (checked)="presenter.setRule(rule.id, true)" (unchecked)="presenter.setRule(rule.id, false)" />
+                    <div class="rule-pick">
+                      <mosaik-clickable [attr.aria-label]="rule.id" (click)="presenter.pick(rule.id)">
+                        <div class="rule-text">
+                          <span class="rule-head">
+                            <code class="inline rule-id">{{ rule.id }}</code>
+                            <mosaik-badge appearance="soft" class="rule-badge" [label]="rule.result" [variant]="rule.variant" />
+                          </span>
+                          <span class="note">{{ rule.description }}</span>
+                        </div>
+                      </mosaik-clickable>
+                    </div>
+                  </div>
+                }
+              }
+              <div class="rules-footer">
+                <mosaik-button routerLink="/rule-packs" label="Get more rules" variant="neutral" appearance="outline" size="small" icon="skills" iconSize="small" />
+              </div>
+            </div>
+          </mosaik-card>
+        </section>
+
+        <div class="page-column-main">
+          @if (presenter.run.active(); as active) {
+            <wortlaut-run-progress [run]="active" (cancel)="presenter.run.cancel()" />
+          }
+          @if (presenter.run.failure(); as failure) {
+            <mosaik-message variant="danger" header="The analysis failed" [content]="failure" />
+          } @else if (presenter.run.wasStopped()) {
+            <mosaik-message variant="info" header="The analysis was stopped" content="Run it again to see its results." />
+          }
+          @if (presenter.message(); as message) {
+            <mosaik-message variant="danger" header="That did not work" [content]="message" />
+          }
+          <wortlaut-write-result [outcome]="presenter.outcome()" />
+
+          @if (presenter.aiMessage(); as message) {
+            <mosaik-message variant="warning" header="No proposal" [content]="message" />
+          }
+
+          @if (presenter.card(); as card) {
+            <section [attr.aria-label]="card.title" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" [text]="card.title" [subText]="card.message">
+                  @if (card.hasAi === 'translate') {
+                    <div slot="suffix" class="card-suffix">
+                      <mosaik-button label="Translate with AI" variant="neutral" appearance="outline" size="small" icon="sparkle" iconSize="small" (click)="presenter.translateWithAi()" />
+                    </div>
+                  } @else if (card.hasAi === 'patterns') {
+                    <div slot="suffix" class="card-suffix">
+                      <mosaik-button label="Suggest patterns" variant="neutral" appearance="outline" size="small" icon="sparkle" iconSize="small" [isBusy]="presenter.aiBusy()" (click)="presenter.suggestPatterns()" />
+                    </div>
+                  }
+                </mosaik-card-header>
+                <div slot="content" class="card-body">
+                  <div class="table-scroll">
+                    <div class="table-min">
+                      <mosaik-table columns="minmax(0, 1fr) minmax(0, 1.2fr) 210px" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell [text]="card.columnA" />
+                            <mosaik-table-header-cell [text]="card.columnB" />
+                            <mosaik-table-header-cell><span class="cell-right">Action</span></mosaik-table-header-cell>
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (row of presenter.rows(); track row.id) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell><code class="inline cell-text">{{ row.a }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><span class="muted cell-text">{{ row.b }}</span></mosaik-table-body-cell>
+                              <mosaik-table-body-cell>
+                                <div class="row-actions">
+                                  @if (row.isWaiting) {
+                                    <mosaik-badge label="Waiting in Review" variant="info" appearance="soft" />
+                                  } @else {
+                                    @for (action of card.actions; track action.id) {
+                                      @if (action.id !== 'allow-for-rule' || row.key) {
+                                        <mosaik-button appearance="plain" size="small" [label]="action.label" [disabled]="presenter.busy()" (click)="presenter.act(action.id, row)" />
+                                      }
+                                    }
+                                  }
+                                </div>
+                              </mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                  <div class="table-footer note row-line footer-line">
+                    {{ card.footer }}
+                    @if (presenter.hasMoreRows()) {
+                      <mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" />
+                    }
+                  </div>
+                </div>
+              </mosaik-card>
+            </section>
+          } @else if (!presenter.run.isRunning()) {
+            <div class="state-frame">
+              <mosaik-empty-state header="No analysis yet" content="Run the rules to see what they find in your catalogs." />
+            </div>
+          }
+
+          <section aria-label="Exceptions" class="card-section">
+            <mosaik-card>
+              <mosaik-card-header slot="header" text="Exceptions">
+                <div slot="suffix" class="card-suffix exception-links">
+                  <mosaik-anchor href="#/test-lab/patterns" label="Test patterns" />
+                  <mosaik-anchor href="#/settings/project" label="Edit in settings" />
+                </div>
+              </mosaik-card-header>
+              <div slot="content" class="card-pad">
+                <div class="exceptions">
+                  @for (group of presenter.exceptions(); track group.title) {
+                    <div class="exception">
+                      <div class="exception-title">{{ group.title }}</div>
+                      <div class="note">{{ group.about }}</div>
+                      <div class="chips">
+                        @for (item of group.items; track item) {
+                          <mosaik-badge variant="neutral" appearance="outline" [label]="item" />
+                        } @empty {
+                          <span class="note">None</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </mosaik-card>
+          </section>
+        </div>
+      </div>
+    }
+  </main>
+</div>

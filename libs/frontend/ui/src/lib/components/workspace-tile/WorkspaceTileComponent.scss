@@ -1,0 +1,50 @@
+:host {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font: var(--mosaik-typography-overline);
+  font-weight: 600;
+}
+
+:host([data-size='small']) {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+:host([data-size='large']) {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+:host([data-color='teal']) {
+  background: var(--mosaik-color-secondary-100);
+  color: var(--mosaik-color-secondary-700);
+}
+
+:host([data-color='blue']) {
+  background: var(--mosaik-color-info-100);
+  color: var(--mosaik-color-info-700);
+}
+
+:host([data-color='violet']) {
+  background: var(--mosaik-color-highlight-100);
+  color: var(--mosaik-color-highlight-700);
+}
+
+:host([data-color='orange']) {
+  background: var(--mosaik-color-tertiary-100);
+  color: var(--mosaik-color-tertiary-700);
+}
+
+:host([data-color='green']) {
+  background: var(--mosaik-color-success-100);
+  color: var(--mosaik-color-success-700);
+}

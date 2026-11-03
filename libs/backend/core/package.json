@@ -1,0 +1,55 @@
+{
+  "name": "@pixel-brewery/wortlaut-core",
+  "description": "Wortlaut core library",
+  "version": "0.2.0",
+  "license": "MIT",
+  "author": "Pixel Brewery (https://github.com/pixel-brewery)",
+  "repository": {
+    "url": "git+ssh://git@github.com/pixel-brewery/wortlaut.git"
+  },
+  "type": "commonjs",
+  "main": "./dist/Index.js",
+  "commonjs": "./dist/Index.js",
+  "module": "./dist/Index.js",
+  "types": "./dist/Index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --config vitest.config.mjs",
+    "lint": "eslint \"src/**/*.ts\" --quiet",
+    "clean": "rimraf ./dist ./.cache"
+  },
+  "dependencies": {
+    "@pixel-brewery/utilities": "0.1.187",
+    "cheerio": "1.2.0",
+    "diff": "9.0.0",
+    "dir-glob": "3.0.1",
+    "es-toolkit": "1.52.0",
+    "fast-glob": "3.3.3",
+    "fs-extra": "11.4.1",
+    "jsonc-parser": "3.3.1",
+    "ts-morph": "28.0.0",
+    "tslib": "2.8.1",
+    "xml2js": "0.6.2"
+  },
+  "devDependencies": {
+    "@pixel-brewery/eslint-config": "0.1.187",
+    "@types/node": "26.6.5",
+    "@vitest/coverage-v8": "5.0.5",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

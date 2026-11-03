@@ -1,0 +1,49 @@
+{
+  "name": "@pixel-brewery/wortlaut-mcp",
+  "description": "Wortlaut MCP server: the tools over the engine, with their permission levels",
+  "version": "0.2.0",
+  "license": "MIT",
+  "author": "Pixel Brewery (https://github.com/pixel-brewery)",
+  "repository": {
+    "url": "git+ssh://git@github.com/pixel-brewery/wortlaut.git"
+  },
+  "type": "commonjs",
+  "main": "./dist/Index.js",
+  "commonjs": "./dist/Index.js",
+  "module": "./dist/Index.js",
+  "types": "./dist/Index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --config vitest.config.mjs",
+    "lint": "eslint \"src/**/*.ts\" --quiet",
+    "clean": "rimraf ./dist ./.cache"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@pixel-brewery/wortlaut-contracts": "0.2.0",
+    "@pixel-brewery/wortlaut-engine": "0.2.0",
+    "tslib": "2.8.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@pixel-brewery/eslint-config": "0.1.187",
+    "@pixel-brewery/utilities": "0.1.187",
+    "@types/node": "26.6.5",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "files": [
+    "dist",
+    "plugins",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

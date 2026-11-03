@@ -1,0 +1,88 @@
+.tabs {
+  flex: none;
+}
+
+.settings-tab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.settings-table {
+  flex: 1 1 480px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-source {
+  flex: 1 1 420px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-min {
+  min-width: 640px;
+}
+
+.table-min-small {
+  min-width: 460px;
+}
+
+.source-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+.source-head h2,
+.source-empty {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.strong {
+  font-weight: 500;
+}
+
+.source-note {
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.commands-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+.commands-title {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.commands-title h2 {
+  font: var(--mosaik-typography-headline6);
+}
+
+.filter {
+  width: 220px;
+}

@@ -1,0 +1,122 @@
+{
+  "name": "wortlaut",
+  "productName": "Wortlaut",
+  "version": "0.2.0",
+  "description": "Keeps the texts of an application correct in every language.",
+  "author": "Pixel Brewery",
+  "private": true,
+  "license": "MIT",
+  "main": "dist/apps/desktop/main.cjs",
+  "packageManager": "yarn@4.18.1",
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "workspaces": [
+    "apps/cli",
+    "apps/desktop",
+    "apps/frontend/*",
+    "libs/contracts",
+    "libs/backend/*",
+    "libs/frontend/*",
+    "libs/frontend/features/*"
+  ],
+  "scripts": {
+    "start": "yarn build:app && electron .",
+    "start:built": "electron .",
+    "build:app": "nx run-many -t build --projects=wortlaut-frontend,wortlaut-desktop --parallel=1",
+    "build": "nx run-many -t build --parallel=1",
+    "test": "nx run-many -t test --parallel=1",
+    "typecheck": "nx run-many -t typecheck --parallel=1",
+    "lint": "nx run-many -t lint --parallel=1",
+    "verify:skills": "python3 .agents/scripts/sync_architect_core.py --check",
+    "verify:structure": "node tools/workspace/verify-structure.mjs",
+    "verify:paths": "node tools/workspace/verify-portable-paths.mjs",
+    "package": "nx run wortlaut-desktop:package",
+    "make": "nx run wortlaut-desktop:make",
+    "test:tooling": "node --test --test-concurrency=1 \"tools/workspace/*.spec.mjs\" \".github/scripts/*.spec.mjs\"",
+    "test:e2e": "node tools/workspace/verify-desktop.mjs",
+    "verify:public-content": "node tools/workspace/verify-public-content.mjs",
+    "verify:vendor": "node vendor/synapse/verify.mjs",
+    "verify:design": "python3 .claude/skills/mosaik-design/scripts/check_design.py --app apps/frontend/app/src libs/frontend",
+    "verify:package": "node tools/workspace/verify-package.mjs",
+    "verify:repository": "yarn verify:skills && yarn verify:public-content && yarn verify:structure && yarn verify:paths && yarn verify:vendor && yarn verify:design && yarn test:tooling",
+    "verify": "yarn verify:repository && yarn lint && yarn typecheck && yarn test && yarn build",
+    "release": "yarn run release:patch",
+    "release:patch": "gh workflow run release.yml --ref main -f specifier=patch",
+    "release:minor": "gh workflow run release.yml --ref main -f specifier=minor",
+    "release:major": "gh workflow run release.yml --ref main -f specifier=major",
+    "release:dry-run": "yarn run release:nx --specifier=patch --dry-run",
+    "release:nx": "nx release --skip-publish",
+    "release:audit": "node tools/workspace/release-audit.mjs"
+  },
+  "devDependencies": {
+    "@angular-devkit/core": "22.2.5",
+    "@angular-devkit/schematics": "22.2.5",
+    "@angular-eslint/eslint-plugin": "22.6.0",
+    "@angular-eslint/eslint-plugin-template": "22.6.0",
+    "@angular-eslint/template-parser": "22.6.0",
+    "@angular/build": "22.2.5",
+    "@angular/compiler-cli": "22.2.4",
+    "@electron-forge/cli": "8.0.1",
+    "@electron-forge/core": "8.0.1",
+    "@electron-forge/maker-dmg": "8.0.1",
+    "@electron-forge/maker-squirrel": "8.0.1",
+    "@electron-forge/maker-zip": "8.0.1",
+    "@electron/asar": "4.3.1",
+    "@eslint/js": "10.0.1",
+    "@eslint/json": "2.1.1",
+    "@eslint/markdown": "8.0.3",
+    "@html-eslint/eslint-plugin": "0.67.0",
+    "@html-eslint/parser": "0.67.0",
+    "@nx/js": "24.0.0",
+    "@pixel-brewery/eslint-config": "0.1.187",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@types/node": "26.6.5",
+    "angular-eslint": "22.6.0",
+    "electron": "45.1.0",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "eslint-plugin-import-x": "4.17.1",
+    "eslint-plugin-lit": "2.3.1",
+    "globals": "17.13.0",
+    "jsdom": "30.1.3",
+    "nx": "24.0.0",
+    "rimraf": "6.1.3",
+    "sass": "1.107.0",
+    "tslib": "2.8.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "resolutions": {
+    "@pixel-brewery/synapse-auth": "file:./vendor/synapse/synapse-auth-0.0.3.tgz",
+    "@pixel-brewery/synapse-core": "file:./vendor/synapse/synapse-core-0.0.3.tgz",
+    "@pixel-brewery/synapse-provider-claude": "file:./vendor/synapse/synapse-provider-claude-0.0.3.tgz",
+    "@pixel-brewery/synapse-provider-codex": "file:./vendor/synapse/synapse-provider-codex-0.0.3.tgz",
+    "@pixel-brewery/synapse-provider-opencode": "file:./vendor/synapse/synapse-provider-opencode-0.0.3.tgz",
+    "@pixel-brewery/synapse-runtime": "file:./vendor/synapse/synapse-runtime-0.0.3.tgz"
+  },
+  "config": {
+    "forge": "./apps/desktop/forge.config.mjs"
+  },
+  "dependenciesMeta": {
+    "electron-winstaller": {
+      "built": true
+    },
+    "fs-xattr": {
+      "built": true
+    },
+    "macos-alias": {
+      "built": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixel-brewery/wortlaut.git"
+  },
+  "nx": {
+    "includedScripts": [],
+    "projectType": "application"
+  }
+}

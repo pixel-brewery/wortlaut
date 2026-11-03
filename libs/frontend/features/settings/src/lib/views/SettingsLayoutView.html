@@ -1,0 +1,19 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-title">
+      <h1>Settings</h1>
+    </div>
+    <div class="settings-layout">
+      <nav class="settings-nav" aria-label="Settings">
+        @for (section of sections; track section.route) {
+          <a routerLinkActive #active="routerLinkActive" [routerLink]="section.route" [attr.aria-current]="active.isActive ? 'page' : null">
+            <mosaik-menu-item [label]="section.label" [icon]="section.icon" [isActive]="active.isActive" />
+          </a>
+        }
+      </nav>
+      <div class="settings-content">
+        <router-outlet />
+      </div>
+    </div>
+  </main>
+</div>

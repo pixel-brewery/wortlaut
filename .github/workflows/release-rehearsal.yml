@@ -1,0 +1,35 @@
+name: Rehearse the release
+
+# Runs the whole release from `dev` on the real runners without publishing anything, so a change to
+# the release can be proven before it reaches `main`. It stops short of the push, the packages and the
+# GitHub release.
+on:
+  push:
+    branches: [dev]
+    paths:
+      - .github/workflows/release.yml
+      - .github/workflows/release-rehearsal.yml
+      - apps/desktop/forge.config.mjs
+      - nx.json
+      - package.json
+      - tools/workspace/prepare-release-assets.mjs
+      - tools/workspace/release-audit.mjs
+      - tools/workspace/verify-desktop.mjs
+      - tools/workspace/verify-package.mjs
+      - tools/workspace/verify-release-assets.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rehearse:
+    # A called workflow gets no more than this. Each of its jobs narrows it again, and the job that
+    # would use the write access does not run in a rehearsal.
+    permissions:
+      actions: write
+      contents: write
+      packages: write
+    uses: ./.github/workflows/release.yml
+    with:
+      rehearsal: true

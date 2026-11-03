@@ -1,0 +1,43 @@
+.switch-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.switch-row mosaik-toggle-switch {
+  flex: none;
+}
+
+.field-row-center {
+  align-items: center;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.command-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.environment {
+  margin: 0;
+}
+
+.environment dd {
+  margin: 0;
+}

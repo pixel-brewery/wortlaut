@@ -1,0 +1,51 @@
+{
+  "name": "frontend-feature-runs",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/frontend/features/runs/src",
+  "tags": [
+    "runtime:frontend",
+    "kind:feature"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --project libs/frontend/features/runs/tsconfig.lib.json"
+      },
+      "cache": true,
+      "outputs": [
+        "{workspaceRoot}/dist/libs/frontend/features/runs"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --project libs/frontend/features/runs/tsconfig.lib.json --noEmit --emitDeclarationOnly false"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "eslint \"src/**/*.ts\" --quiet"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config tools/testing/frontend.vitest.config.mjs libs/frontend/features/runs"
+      },
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ]
+    }
+  }
+}

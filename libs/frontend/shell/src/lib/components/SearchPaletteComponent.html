@@ -1,0 +1,39 @@
+<mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.isOpen()" [pressEscapeToClose]="true" (closed)="presenter.close()">
+  <mosaik-dialog-content slot="content">
+    @if (presenter.isOpen()) {
+    <div class="palette" role="search" (keydown)="presenter.onKey($event)">
+      <mosaik-searchbox #box aria-label="Search keys, files and commands" placeholder="Search keys, files and commands" [isBusy]="presenter.isBusy()" [formField]="presenter.form.text" />
+      @if (presenter.message(); as message) {
+        <mosaik-message variant="danger" header="That did not work" [content]="message" />
+      }
+      @if (presenter.isEmpty()) {
+        <mosaik-empty-state header="Nothing found" content="Try another word." />
+      } @else {
+        <div class="palette-results">
+          @for (group of presenter.groups(); track group.label) {
+            <div class="palette-group">
+              <span class="note palette-label">{{ group.label }}</span>
+              <mosaik-list>
+                @for (item of group.items; track item.id) {
+                  <mosaik-list-item [isSelected]="item.id === presenter.activeId()" [attr.data-active]="item.id === presenter.activeId() ? 'true' : null" (click)="presenter.choose(item)">
+                    <span class="palette-item">
+                      <mosaik-icon size="small" [icon]="item.icon" />
+                      <span class="palette-text">
+                        <span class="palette-name">{{ item.label }}</span>
+                        <span class="note palette-detail">{{ item.detail }}</span>
+                      </span>
+                    </span>
+                  </mosaik-list-item>
+                }
+              </mosaik-list>
+            </div>
+          }
+        </div>
+      }
+      @if (presenter.isTruncated()) {
+        <span class="note">There is more. A longer text finds it.</span>
+      }
+    </div>
+    }
+  </mosaik-dialog-content>
+</mosaik-dialog>

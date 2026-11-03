@@ -1,0 +1,249 @@
+.run-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.run-title {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+  min-width: 0;
+}
+
+.run-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: calc(var(--mosaik-layout-space) * 2);
+  flex-grow: 1;
+}
+
+.progress-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.progress-keys {
+  font: var(--mosaik-typography-headline5);
+}
+
+.progress-figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.cell {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--mosaik-color-neutral-200);
+}
+
+.cell-done {
+  background: var(--mosaik-color-primary-500);
+}
+
+.cell-running {
+  background: var(--mosaik-color-info-500);
+}
+
+.cell-failed {
+  background: var(--mosaik-color-danger-500);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  font: var(--mosaik-typography-caption);
+  color: var(--mosaik-scheme-lowlight);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+}
+
+.review-columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.review-main {
+  flex: 999 1 560px;
+  min-width: 0;
+}
+
+.review-side {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.review-body {
+  flex-grow: 1;
+}
+
+.review-notice {
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2) 0;
+}
+
+.review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+.review-head h2 {
+  font: var(--mosaik-typography-headline6);
+}
+
+.review-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.review-reason {
+  padding: 0 calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 1.5);
+  text-align: right;
+}
+
+.review-table {
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.review-width {
+  min-width: 680px;
+}
+
+.review-empty {
+  padding: calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.base-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.base-value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.key-name {
+  overflow-wrap: anywhere;
+}
+
+.value-cell {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+  width: 100%;
+  min-width: 0;
+}
+
+.value-cell mosaik-textbox {
+  width: 100%;
+}
+
+.row-note {
+  font: var(--mosaik-typography-caption);
+  font-weight: 500;
+}
+
+.note-danger {
+  color: var(--mosaik-color-danger-700);
+}
+
+.note-warning {
+  color: var(--mosaik-color-warning-700);
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  padding: var(--mosaik-layout-space);
+}
+
+.checks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mosaik-layout-space);
+  padding: 10px calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.check-icon {
+  display: flex;
+  flex: none;
+  margin-top: 2px;
+}
+
+.check-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.check-title {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.log {
+  margin: 0;
+  padding: 0 calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 1.5);
+  max-height: 280px;
+  overflow: auto;
+  font: var(--mosaik-typography-caption);
+  font-family: var(--mosaik-typography-code-font-family, monospace);
+  color: var(--mosaik-scheme-lowlight);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,78 @@
+<div class="page-scroll">
+  <div class="drag-region" aria-hidden="true"></div>
+  <main class="welcome">
+    <div class="brand">
+      <wortlaut-logo />
+      <div class="brand-text">
+        <h1>Wortlaut</h1>
+        <p class="lead">Find, check, translate and convert the texts of your app.</p>
+      </div>
+    </div>
+
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="This folder cannot be opened" [content]="message" />
+    }
+
+    <div class="columns">
+      <section class="column" aria-labelledby="open">
+        <mosaik-drop-zone data-folder-drop>
+          <div class="drop-content">
+            <mosaik-icon icon="folder" size="medium" />
+            <div class="drop-text">
+              <h2 id="open">Open a project</h2>
+              <p class="lead">Drop a folder here. Wortlaut finds the framework and the catalogs.</p>
+            </div>
+            <mosaik-button label="Choose folder" variant="primary" appearance="solid" (click)="presenter.chooseFolder()" />
+          </div>
+        </mosaik-drop-zone>
+      </section>
+
+      @if (presenter.recent.isFailed()) {
+        <section class="column" aria-label="Recent">
+          <mosaik-card>
+            <mosaik-card-header slot="header" text="Recent" />
+            <div slot="content" class="card-pad">
+              <mosaik-message variant="danger" header="The recent workspaces cannot be read" [content]="presenter.recent.error() ?? ''" />
+            </div>
+          </mosaik-card>
+        </section>
+      } @else if (presenter.recent.value()?.length) {
+        <section class="column" aria-label="Recent">
+          <mosaik-card>
+            <mosaik-card-header slot="header" text="Recent">
+              <div slot="suffix" class="card-suffix">
+                <mosaik-anchor href="#/workspaces" label="All workspaces" />
+              </div>
+            </mosaik-card-header>
+            <div slot="content" class="card-body">
+              <mosaik-list>
+                @for (workspace of presenter.recent.value(); track workspace.id) {
+                  <mosaik-list-item (click)="presenter.open(workspace.id)">
+                    <div class="recent-row">
+                      <wortlaut-workspace-tile [code]="workspace.code" [color]="workspace.color" />
+                      <span class="recent-text">
+                        <span class="recent-name">{{ workspace.name }}</span>
+                        <span class="note">{{ presenter.detailOf(workspace) }}</span>
+                      </span>
+                      <mosaik-icon icon="chevronRight" size="small" />
+                    </div>
+                  </mosaik-list-item>
+                }
+              </mosaik-list>
+            </div>
+          </mosaik-card>
+        </section>
+      }
+    </div>
+
+    <section class="features" aria-label="What Wortlaut does">
+      @for (feature of features; track feature.title) {
+        <div class="feature">
+          <mosaik-icon size="small" [icon]="feature.icon" />
+          <div class="feature-title">{{ feature.title }}</div>
+          <div class="muted">{{ feature.text }}</div>
+        </div>
+      }
+    </section>
+  </main>
+</div>

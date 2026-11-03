@@ -1,0 +1,37 @@
+{
+  "name": "@pixel-brewery/wortlaut-desktop",
+  "description": "Wortlaut desktop app: Electron main and sandboxed preload",
+  "version": "0.2.0",
+  "private": true,
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --config vitest.config.mjs && node --test --test-concurrency=1 forge.config.spec.mjs",
+    "lint": "eslint \"src/**/*.ts\" --quiet"
+  },
+  "dependencies": {
+    "@pixel-brewery/synapse-core": "0.0.3",
+    "@pixel-brewery/synapse-provider-claude": "0.0.3",
+    "@pixel-brewery/synapse-provider-codex": "0.0.3",
+    "@pixel-brewery/synapse-provider-opencode": "0.0.3",
+    "@pixel-brewery/synapse-runtime": "0.0.3",
+    "@pixel-brewery/utilities": "0.1.187",
+    "@pixel-brewery/wortlaut-ai": "workspace:^",
+    "@pixel-brewery/wortlaut-contracts": "workspace:^",
+    "@pixel-brewery/wortlaut-engine": "workspace:^",
+    "@pixel-brewery/wortlaut-mcp": "workspace:^",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@pixel-brewery/eslint-config": "0.1.187",
+    "@types/node": "26.6.5",
+    "electron": "45.1.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

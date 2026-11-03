@@ -1,0 +1,11 @@
+:host {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--mosaik-layout-radius) * 1);
+  background: var(--mosaik-color-primary-500);
+  color: var(--mosaik-color-primary-0);
+}

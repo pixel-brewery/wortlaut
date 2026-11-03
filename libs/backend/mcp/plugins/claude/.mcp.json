@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wortlaut": {
+      "command": "npx",
+      "args": ["-y", "@pixel-brewery/wortlaut-app", "mcp"]
+    }
+  }
+}

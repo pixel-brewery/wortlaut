@@ -1,0 +1,87 @@
+{
+  "name": "wortlaut-desktop",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/desktop/src",
+  "tags": [
+    "runtime:desktop",
+    "kind:app"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node apps/desktop/tools/build.mjs"
+      },
+      "inputs": [
+        "production",
+        "^production"
+      ],
+      "cache": true,
+      "outputs": [
+        "{workspaceRoot}/dist/apps/desktop"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "yarn run typecheck"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "yarn run test"
+      },
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "yarn run lint"
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron-forge package"
+      },
+      "dependsOn": [
+        {
+          "projects": [
+            "wortlaut-frontend"
+          ],
+          "target": "build"
+        },
+        "build"
+      ]
+    },
+    "make": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron-forge make"
+      },
+      "dependsOn": [
+        {
+          "projects": [
+            "wortlaut-frontend"
+          ],
+          "target": "build"
+        },
+        "build"
+      ]
+    }
+  }
+}

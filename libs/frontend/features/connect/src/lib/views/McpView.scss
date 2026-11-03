@@ -1,0 +1,105 @@
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.status,
+.client-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+  min-width: 0;
+}
+
+.step-title {
+  font-weight: 500;
+}
+
+.step-code {
+  display: flex;
+  flex-grow: 1;
+  align-items: flex-start;
+  gap: var(--mosaik-layout-space);
+  padding: var(--mosaik-layout-space) var(--mosaik-layout-space) var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.step-text {
+  flex-grow: 1;
+  min-width: 0;
+  margin: 0;
+  padding: calc(var(--mosaik-layout-space) * 0.75) 0;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.tools {
+  flex: 999 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-min {
+  min-width: 560px;
+}
+
+.tool-text {
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.dimmed {
+  color: var(--mosaik-scheme-disabled);
+}
+
+.activity-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}
+
+.activity-when {
+  flex: none;
+}
+
+.strong {
+  font-weight: 500;
+}

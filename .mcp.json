@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mosaik": {
+      "type": "http",
+      "url": "https://beta.mosaik-api.breadstone.de/api/mcp"
+    }
+  }
+}

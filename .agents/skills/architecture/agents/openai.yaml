@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture"
+  short_description: "Shared architecture foundations for project skills"
+  default_prompt: "Use $architecture with this repository's local architecture skill to complete the requested engineering task."

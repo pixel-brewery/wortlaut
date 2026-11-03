@@ -1,0 +1,41 @@
+<header class="titlebar">
+  @if (presenter.session.workspace(); as workspace) {
+    <a class="crumb" routerLink="/workspaces" title="Switch workspace">
+      <wortlaut-workspace-tile size="small" [code]="workspace.code" [color]="workspace.color" />
+      {{ workspace.name }}
+      <mosaik-icon icon="chevronRight" size="tiny" />
+    </a>
+  }
+  @if (presenter.project(); as project) {
+    <span class="crumb-separator" aria-hidden="true">/</span>
+    <a class="crumb" routerLink="/projects" title="Switch project">
+      {{ project.name }}
+      <mosaik-icon icon="chevronRight" size="tiny" />
+    </a>
+  }
+  <div class="titlebar-search">
+    <mosaik-searchbox
+      size="small"
+      aria-label="Search keys, files and commands"
+      [placeholder]="palette.placeholder()"
+      [readonly]="true"
+      (click)="palette.open()"
+      (keydown.enter)="palette.open()"
+    />
+  </div>
+  <mosaik-button
+    routerLink="/settings/ai"
+    size="small"
+    appearance="plain"
+    [label]="presenter.session.providerLabel()"
+  />
+  <mosaik-toggle-switch
+    label="Dry run"
+    labelPosition="before"
+    [title]="presenter.session.dryRun() ? 'Dry run is on: changes wait in Review and nothing is written' : 'Dry run is off: controls write to your repository'"
+    [isChecked]="presenter.session.dryRun()"
+    (checked)="presenter.session.setDryRun(true)"
+    (unchecked)="presenter.session.setDryRun(false)"
+  />
+</header>
+<wortlaut-search-palette />

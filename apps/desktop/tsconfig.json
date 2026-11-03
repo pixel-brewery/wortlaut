@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "noEmit": true,
+    "types": ["node"],
+    "tsBuildInfoFile": "./.cache/.tscbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "node_modules", "dist"]
+}

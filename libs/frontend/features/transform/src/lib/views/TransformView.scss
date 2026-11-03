@@ -1,0 +1,53 @@
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.format {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.format-note {
+  padding-left: calc(var(--mosaik-layout-space) * 3.5);
+}
+
+.sort-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.command-line {
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  flex-grow: 1;
+}
+
+.table-min {
+  min-width: 480px;
+  padding: 0 var(--mosaik-layout-space);
+}
+
+mosaik-table-body-row {
+  cursor: pointer;
+}
+
+.cell-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.preview {
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+  background: var(--mosaik-color-neutral-50);
+  font-size: 12px;
+  line-height: 18px;
+  max-height: 480px;
+  overflow: auto;
+  white-space: pre;
+}

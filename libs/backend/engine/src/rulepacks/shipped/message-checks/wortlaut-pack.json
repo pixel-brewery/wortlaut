@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "message-checks",
+  "name": "Message checks",
+  "description": "Placeholders, ICU syntax, text length and punctuation.",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "placeholder-consistency",
+      "description": "Placeholders match the base locale.",
+      "severity": "error",
+      "title": "{count} values lost or added a placeholder",
+      "message": "A translation has to keep the placeholders of the base locale. Fix these values.",
+      "passTitle": "Placeholders match",
+      "passMessage": "The values of {locale} use the same placeholders as {baseLocale}.",
+      "column": "What changed",
+      "check": {
+        "name": "placeholder-comparison"
+      }
+    },
+    {
+      "id": "icu-syntax",
+      "description": "Plural and select messages are valid.",
+      "severity": "error",
+      "title": "{count} values are invalid messages",
+      "message": "Braces have to match, and a plural or select message needs an other case.",
+      "passTitle": "Messages are valid",
+      "passMessage": "No key of {locale} uses an invalid plural or select message.",
+      "column": "What is wrong",
+      "check": {
+        "name": "icu-parsing"
+      }
+    },
+    {
+      "id": "text-expansion",
+      "description": "A translation is over 150% of the length of the base locale.",
+      "severity": "warning",
+      "title": "{count} values are much longer than the base locale",
+      "message": "Check them in the layout, or allow them.",
+      "passTitle": "Lengths fit",
+      "passMessage": "No value of {locale} is over 150% of the length of {baseLocale}.",
+      "column": "Base and translation",
+      "check": {
+        "name": "length-ratio",
+        "maxRatio": 1.5,
+        "minBaseLength": 8
+      }
+    },
+    {
+      "id": "trailing-punctuation",
+      "description": "Final punctuation matches the base locale.",
+      "severity": "warning",
+      "title": "{count} values end differently from the base locale",
+      "message": "A sentence and its translation should end with the same punctuation.",
+      "passTitle": "Punctuation matches",
+      "passMessage": "The values of {locale} end with the same punctuation as {baseLocale}.",
+      "column": "Base and translation",
+      "check": {
+        "name": "punctuation"
+      }
+    }
+  ]
+}

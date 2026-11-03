@@ -1,0 +1,115 @@
+@if (presenter.settings.isLoading() && !presenter.values()) {
+  <wortlaut-loading-state label="Loading the settings" />
+} @else if (presenter.settings.isFailed()) {
+  <wortlaut-failure-state header="The settings could not be read" [message]="presenter.settings.error()" (retry)="presenter.load()" />
+} @else if (presenter.values(); as values) {
+  @if (presenter.message(); as message) {
+    <mosaik-message variant="danger" header="That did not work" [content]="message" />
+  }
+  @if (presenter.note(); as note) {
+    <mosaik-message variant="success" [header]="note" />
+  }
+
+  <section aria-label="Running commands">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Running commands" subText="How commands behave unless a run says otherwise." />
+      <div slot="content" class="card-body">
+        <div class="switch-row">
+          <div class="field-label">
+            <span>Start in dry run</span>
+            <span class="note">Commands show what they would change and write nothing, until you turn it off in the title bar.</span>
+          </div>
+          <mosaik-toggle-switch aria-label="Start in dry run" [isChecked]="values.startInDryRun" (checked)="presenter.setStartInDryRun(true)" (unchecked)="presenter.setStartInDryRun(false)" />
+        </div>
+        <div class="switch-row">
+          <div class="field-label">
+            <span>Verbose log</span>
+            <span class="note">Adds extended debug output to the log of every run.</span>
+          </div>
+          <mosaik-toggle-switch aria-label="Verbose log" [isChecked]="values.verboseLog" (checked)="presenter.setVerboseLog(true)" (unchecked)="presenter.setVerboseLog(false)" />
+        </div>
+        <div class="switch-row">
+          <div class="field-label">
+            <span>Cache results</span>
+            <span class="note">Reuses results of files that did not change.</span>
+          </div>
+          <mosaik-toggle-switch aria-label="Cache results" [isChecked]="values.cacheResults" (checked)="presenter.setCacheResults(true)" (unchecked)="presenter.setCacheResults(false)" />
+        </div>
+        <div class="field-row">
+          <div class="field-label">
+            <span>Cache folder</span>
+            <span class="note">Relative to the working directory.</span>
+          </div>
+          <div class="field-control"><mosaik-textbox aria-label="Cache folder" [value]="values.cacheFolder" [readonly]="true" /></div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Appearance">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Appearance" subText="Wortlaut uses the Mosaik Soho theme." />
+      <div slot="content" class="card-body">
+        <div class="field-row field-row-center">
+          <div class="field-label"><span>Color mode</span></div>
+          <div class="field-control">
+            <mosaik-segment aria-label="Color mode" appearance="soft" size="small">
+              <mosaik-segment-item label="Light" [isChecked]="values.activeColorMode === 'light'" (click)="presenter.setColorMode('light')" />
+              <mosaik-segment-item label="Dark" [isChecked]="values.activeColorMode === 'dark'" (click)="presenter.setColorMode('dark')" />
+            </mosaik-segment>
+          </div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Keyboard shortcuts">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Keyboard shortcuts" />
+      <div slot="content" class="card-body">
+        @for (shortcut of presenter.shortcuts(); track shortcut.label) {
+          <div class="shortcut-row">
+            <span>{{ shortcut.label }}</span>
+            <mosaik-kbd>{{ shortcut.keys }}</mosaik-kbd>
+          </div>
+        }
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Command line and CI">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Command line and CI" subText="The app and the CLI share one engine, so a setup that works here also works in a pipeline. A pipeline takes keys from the environment: wortlaut ai status shows what it finds." />
+      <div slot="content" class="card-body">
+        <div class="command-row">
+          <code class="small">{{ presenter.installCommand }}</code>
+          <div class="actions">
+            <mosaik-button label="Copy" variant="neutral" appearance="outline" size="small" (click)="presenter.copyInstallCommand()" />
+            <mosaik-button label="Export run configuration" variant="neutral" appearance="outline" size="small" (click)="presenter.exportRunConfiguration()" />
+            <mosaik-button routerLink="/cli-nx" label="Open CLI and Nx" variant="neutral" appearance="outline" size="small" icon="arrowRight" />
+          </div>
+        </div>
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Environment">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Environment">
+        <div slot="suffix" class="card-suffix">
+          <mosaik-button label="Copy for bug report" variant="neutral" appearance="outline" size="small" (click)="presenter.copyBugReport()" />
+        </div>
+      </mosaik-card-header>
+      <div slot="content" class="card-body">
+        <dl class="environment">
+          @for (entry of presenter.environment(); track entry.label) {
+            <div class="shortcut-row">
+              <dt class="muted">{{ entry.label }}</dt>
+              <dd><code class="small">{{ entry.value }}</code></dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </mosaik-card>
+  </section>
+}

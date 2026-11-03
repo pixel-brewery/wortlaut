@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "packs": {
+    "message-checks": {
+      "name": "Message checks",
+      "source": "wortlaut:message-checks",
+      "version": "1.0.0",
+      "commit": null,
+      "hash": "sha256:916458dd99904f9ac94df2d21cd40781724e57cdfbe5260dd26f3ffe312df4fc",
+      "rules": {
+        "icu-syntax": "sha256:de00bade1b10fe594a70427a9cbc58b99b5b649a4aed93cc6d4bfa07ea4a2f1c",
+        "placeholder-consistency": "sha256:22f87482a342b602140aad7b8ca8759260a62a1452c2ac67f6ea8046c2f2723b",
+        "text-expansion": "sha256:fd6c939d8c9c6e716c90da87840fbe8f51e464ffb5054f5e47b1bed21013c966",
+        "trailing-punctuation": "sha256:3addb6c9378c87ef0ebd366833a12f2c7059846de848c00f86f7821e0d06df75"
+      }
+    },
+    "our-pack": {
+      "name": "Our pack",
+      "source": "github:owner/rules",
+      "version": "1.0.0",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "hash": "sha256:f3af1d5f897f900297d3dfc0d7a3d4405ed45754c01e6629ef68c945915220cc",
+      "rules": {
+        "no-todo": "sha256:4d8780976c0c5343725ffb7d5f4599e6ee0a724bd0e52e08ff642b5286f36372",
+        "same-placeholders": "sha256:fcb265c75d30274caeb4ca7ed6ec6e53f253b8ff581f70557df3f25e03654f1c",
+        "short-values": "sha256:a159e8afd9e838bedc7dea04e0da7339c81bda3b4b391076f07ac697df0d88db"
+      }
+    }
+  }
+}

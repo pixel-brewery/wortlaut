@@ -1,0 +1,44 @@
+.palette {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  width: min(640px, 80vw);
+}
+
+.palette-results {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  max-height: min(420px, 60vh);
+  overflow-y: auto;
+}
+
+.palette-group {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+  min-width: 0;
+}
+
+.palette-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.palette-name,
+.palette-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-name {
+  font: var(--mosaik-typography-subtitle2);
+}

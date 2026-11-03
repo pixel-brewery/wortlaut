@@ -1,0 +1,194 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-title">
+      <h1>CLI and Nx</h1>
+      <p class="lead">The app sits on top. Your files stay the source, and the CLI and Nx keep working without it. A change here is a normal diff in your repository.</p>
+    </div>
+
+    <mosaik-tab-strip class="tabs" aria-label="CLI and Nx" [hasIndicator]="true">
+      <mosaik-tab-strip-item label="Settings" [isSelected]="presenter.tab() === 'settings'" (click)="presenter.openTab('settings')" />
+      <mosaik-tab-strip-item label="Nx" [isSelected]="presenter.tab() === 'nx'" (click)="presenter.openTab('nx')" />
+      <mosaik-tab-strip-item label="Commands" [isSelected]="presenter.tab() === 'commands'" (click)="presenter.openTab('commands')" />
+    </mosaik-tab-strip>
+
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="That did not work" [content]="message" />
+    }
+
+    @switch (presenter.tab()) {
+      @case ('settings') {
+        @if (!presenter.hasProject()) {
+          <div class="state-frame">
+            <mosaik-empty-state header="No project is open" content="Open a project from Projects to see its effective settings." />
+          </div>
+        } @else if (presenter.effective.isLoading()) {
+          <wortlaut-loading-state label="Resolving the settings" />
+        } @else if (presenter.effective.isFailed()) {
+          <wortlaut-failure-state header="These settings could not be resolved" [message]="presenter.effective.error()" (retry)="presenter.effective.reload()" />
+        } @else {
+          <div class="settings-tab">
+            <section aria-label="Effective settings" class="settings-table">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Effective settings" subText="What a run of this project uses, and which file it comes from. Later sources win." />
+                <div slot="content" class="card-body">
+                  <div class="table-scroll">
+                    <div class="table-min-small">
+                      <mosaik-table columns="150px minmax(0, 1fr) 190px" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell text="Setting" />
+                            <mosaik-table-header-cell text="Value" />
+                            <mosaik-table-header-cell text="Comes from" />
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (row of presenter.settingRows(); track row.key) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell [text]="row.label" />
+                              <mosaik-table-body-cell><code class="inline wrap">{{ row.value }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="row.from" [variant]="row.variant" /></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                </div>
+              </mosaik-card>
+            </section>
+            <section aria-labelledby="source-file" class="settings-source">
+              <mosaik-card>
+                <div slot="content" class="card-body">
+                  @if (presenter.source.isFailed()) {
+                    <div class="source-head"><span class="muted">{{ presenter.source.error() }}</span></div>
+                  } @else if (presenter.source.value()?.file; as file) {
+                    <div class="source-head">
+                      <h2 id="source-file"><code class="inline strong">{{ file.name }}</code></h2>
+                      <mosaik-button label="Open in editor" size="small" variant="neutral" appearance="outline" icon="open" (click)="presenter.openSourceFile()" />
+                    </div>
+                    <pre class="code-block row-line">{{ file.text }}</pre>
+                  } @else {
+                    <div class="source-head">
+                      <h2 id="source-file" class="source-empty">No settings file</h2>
+                    </div>
+                    <div class="row-line source-note">
+                      <span class="muted">The settings of this project come from Project setup and live on this computer. Nothing was written into your repository.</span>
+                    </div>
+                  }
+                </div>
+              </mosaik-card>
+            </section>
+          </div>
+        }
+      }
+      @case ('nx') {
+        @if (!presenter.hasProject()) {
+          <div class="state-frame">
+            <mosaik-empty-state header="No project is open" content="Open a project from Projects to see its Nx targets." />
+          </div>
+        } @else if (presenter.nx.isLoading()) {
+          <wortlaut-loading-state label="Reading the Nx targets" />
+        } @else if (presenter.nx.isFailed()) {
+          <wortlaut-failure-state header="The Nx targets could not be read" [message]="presenter.nx.error()" (retry)="presenter.nx.reload()" />
+        } @else if (presenter.nx.value(); as nx) {
+          <section aria-label="Nx targets" class="card-section">
+            <mosaik-card>
+              <mosaik-card-header slot="header" text="Nx targets" [subText]="nx.executor ? 'Found in ' + nx.projectCount + ' projects through ' + nx.executor + '. Nothing changes in your setup.' : ''" />
+              <div slot="content" class="card-body">
+                @if (nx.commands.length > 0 || nx.scripts.length > 0) {
+                  <div class="table-scroll">
+                    <div class="table-min">
+                      <mosaik-table columns="140px minmax(0, 1fr) 80px" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell text="Configuration" />
+                            <mosaik-table-header-cell text="Command" />
+                            <mosaik-table-header-cell text="Copy" />
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (row of nx.commands; track row.label) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell [text]="row.label" />
+                              <mosaik-table-body-cell><code class="inline wrap">{{ row.command }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><mosaik-button icon="copy" iconSize="small" size="small" appearance="plain" aria-label="Copy command" [label]="presenter.copied() === row.command ? 'Copied' : ''" (click)="presenter.copy(row.command)" /></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                          @for (row of nx.scripts; track row.label) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell [text]="row.label" />
+                              <mosaik-table-body-cell><code class="inline wrap">{{ row.command }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><mosaik-button icon="copy" iconSize="small" size="small" appearance="plain" aria-label="Copy command" [label]="presenter.copied() === row.command ? 'Copied' : ''" (click)="presenter.copy(row.command)" /></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="row-line">
+                    <mosaik-empty-state header="No Nx target" content="This project has no Nx target that runs Wortlaut, and no script of the repository calls it." />
+                  </div>
+                }
+              </div>
+            </mosaik-card>
+          </section>
+          <section aria-label="Projects without Nx" class="card-section">
+            <mosaik-card>
+              <mosaik-card-header slot="header" text="Projects without Nx" />
+              <div slot="content" class="card-pad">
+                <span class="muted">The same settings live in <code class="inline">wortlaut.config.json</code>. The schema is the same as the executor options.</span>
+                <pre class="code-block rounded">{{ nx.configPreview }}</pre>
+              </div>
+            </mosaik-card>
+          </section>
+        }
+      }
+      @default {
+        <section aria-labelledby="commands" class="card-section">
+          <mosaik-card>
+            <div slot="content" class="card-body">
+              <div class="commands-head">
+                <div class="commands-title">
+                  <h2 id="commands">Everything from the command line</h2>
+                  <span class="muted">Add <code class="inline">--json</code> for scripts and CI.</span>
+                </div>
+                <mosaik-searchbox placeholder="Filter commands" size="small" class="filter" [formField]="presenter.searchForm.text" />
+              </div>
+              @if (presenter.commands.isLoading()) {
+                <wortlaut-loading-state label="Loading the commands" />
+              } @else if (presenter.commands.isFailed()) {
+                <wortlaut-failure-state header="The commands could not be listed" [message]="presenter.commands.error()" (retry)="presenter.commands.reload()" />
+              } @else if (presenter.filteredCommands().length > 0) {
+                <div class="table-scroll">
+                  <div class="table-min">
+                    <mosaik-table columns="minmax(0, 1fr) minmax(0, 2fr)" appearance="plain">
+                      <mosaik-table-header>
+                        <mosaik-table-header-row>
+                          <mosaik-table-header-cell text="In the app" />
+                          <mosaik-table-header-cell text="Command" />
+                        </mosaik-table-header-row>
+                      </mosaik-table-header>
+                      <mosaik-table-body>
+                        @for (row of presenter.filteredCommands(); track row.label) {
+                          <mosaik-table-body-row>
+                            <mosaik-table-body-cell [text]="row.label" />
+                            <mosaik-table-body-cell><code class="inline wrap">{{ row.command }}</code></mosaik-table-body-cell>
+                          </mosaik-table-body-row>
+                        }
+                      </mosaik-table-body>
+                    </mosaik-table>
+                  </div>
+                </div>
+              } @else {
+                <div class="row-line">
+                  <mosaik-empty-state header="No command matches" content="Change the filter to see the other commands." />
+                </div>
+              }
+            </div>
+          </mosaik-card>
+        </section>
+      }
+    }
+  </main>
+</div>

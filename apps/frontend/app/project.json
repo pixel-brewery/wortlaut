@@ -1,0 +1,68 @@
+{
+  "name": "wortlaut-frontend",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "wortlaut",
+  "sourceRoot": "apps/frontend/app/src",
+  "tags": ["runtime:frontend", "kind:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "inputs": ["production", "^production"],
+      "outputs": ["{options.outputPath}"],
+      "cache": true,
+      "dependsOn": ["^build"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/frontend/app",
+        "browser": "apps/frontend/app/src/main.ts",
+        "tsConfig": "apps/frontend/app/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "styles": [
+          "node_modules/@fontsource/inter/latin-400.css",
+          "node_modules/@fontsource/inter/latin-500.css",
+          "node_modules/@fontsource/inter/latin-600.css",
+          "node_modules/@fontsource/inter/latin-700.css",
+          "libs/frontend/ui/src/styles/wortlaut.scss",
+          "apps/frontend/app/src/styles.scss"
+        ],
+        "index": "apps/frontend/app/src/index.html",
+        "baseHref": "./index.html"
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            { "type": "initial", "maximumWarning": "6mb", "maximumError": "8mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "8kb", "maximumError": "16kb" }
+          ],
+          "outputHashing": "all",
+          "optimization": {
+            "scripts": true,
+            "styles": { "minify": true, "inlineCritical": false },
+            "fonts": false
+          }
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "yarn run typecheck"
+      },
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "yarn run lint"
+      }
+    }
+  }
+}

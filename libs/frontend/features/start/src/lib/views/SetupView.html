@@ -1,0 +1,162 @@
+<div class="page-scroll">
+  <div class="drag-region" aria-hidden="true"></div>
+  <main class="setup">
+    <ol class="rail" aria-label="Setup steps">
+      @for (step of presenter.steps(); track step.id) {
+        <li class="rail-step" [class.is-current]="step.isCurrent" [attr.aria-current]="step.isCurrent ? 'step' : null">
+          <span class="rail-mark" [class.is-reached]="step.isDone || step.isCurrent">{{ step.isDone ? '✓' : step.number }}</span>
+          {{ step.label }}
+        </li>
+      }
+    </ol>
+
+    <section class="content" aria-labelledby="step-title">
+      @if (presenter.inspection.isLoading()) {
+        <wortlaut-loading-state label="Looking through the folder" />
+      } @else if (presenter.inspection.isFailed()) {
+        <wortlaut-failure-state header="This folder could not be inspected" [message]="presenter.inspection.error()" (retry)="presenter.inspection.reload()" />
+      } @else if (presenter.inspection.value(); as inspection) {
+        <div class="page-title">
+          <h1 id="step-title">{{ presenter.title() }}</h1>
+          <p class="lead">{{ presenter.lead() }}</p>
+        </div>
+
+        @if (presenter.message(); as message) {
+          <mosaik-message variant="danger" header="That did not work" [content]="message" />
+        }
+
+        @switch (presenter.step()) {
+          @case ('catalogs') {
+            <div class="narrow-field">
+              <mosaik-select label="Add to workspace" [formField]="presenter.form.workspace">
+                @for (workspace of presenter.workspaces.value(); track workspace.id) {
+                  <mosaik-select-item [value]="workspace.id" [label]="workspace.name" />
+                }
+                <mosaik-select-item label="New workspace" [value]="presenter.newWorkspaceValue" />
+              </mosaik-select>
+            </div>
+            @if (presenter.isNewWorkspace()) {
+              <div class="narrow-field">
+                <mosaik-textbox label="Name of the new workspace" [formField]="presenter.form.newName" />
+              </div>
+            }
+            <div class="evidence-grid">
+              <div class="evidence">
+                <mosaik-select label="Framework preset" placeholder="Choose a preset" [formField]="presenter.form.preset">
+                  @for (preset of presenter.presets; track preset.id) {
+                    <mosaik-select-item [value]="preset.id" [label]="preset.name" />
+                  }
+                </mosaik-select>
+                <span class="note">{{ inspection.preset.evidence }}</span>
+              </div>
+              <div class="evidence">
+                <mosaik-textbox label="Source root" [value]="inspection.sourceRoot.value" [readonly]="true" />
+                <span class="note">{{ inspection.sourceRoot.evidence }}</span>
+              </div>
+              <div class="evidence">
+                <mosaik-textbox label="Key prefix" [value]="inspection.prefix.value" [readonly]="true" />
+                <span class="note">{{ inspection.prefix.evidence }}</span>
+              </div>
+            </div>
+            @if (inspection.configuration; as configuration) {
+              <mosaik-message variant="info" header="This project brings its configuration" [content]="'Wortlaut reads ' + configuration.file + ' and writes nothing.'" />
+            }
+            <mosaik-card aria-label="Catalogs found">
+              <mosaik-card-header slot="header" text="Catalogs found" />
+              <div slot="content" class="card-body">
+                @if (inspection.catalogs.length > 0) {
+                  <div class="table-scroll">
+                    <div class="table-min">
+                      <mosaik-table columns="minmax(0, 1fr) minmax(0, 1fr) 72px 72px" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell text="Folder" />
+                            <mosaik-table-header-cell text="Files" />
+                            <mosaik-table-header-cell text="Keys" />
+                            <mosaik-table-header-cell text="Format" />
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (catalog of inspection.catalogs; track catalog.folder) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell><code class="inline wrap">{{ catalog.folder }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><code class="inline wrap muted">{{ catalog.files.join(', ') }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><span class="muted">{{ catalog.keys }}</span></mosaik-table-body-cell>
+                              <mosaik-table-body-cell><span class="muted">{{ formatName(catalog.format) }}</span></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="row-line">
+                    <mosaik-empty-state header="No catalogs found" content="You can continue without them and add them later." />
+                  </div>
+                }
+                <div class="add-folder row-line">
+                  <mosaik-button label="Add another folder" variant="neutral" appearance="outline" size="small" (click)="presenter.addCatalogFolder()" />
+                </div>
+              </div>
+            </mosaik-card>
+            @if (inspection.truncated) {
+              <span class="note">This repository is very big, so the search stopped early. Add a folder if a catalog is missing.</span>
+            }
+          }
+          @case ('locales') {
+            <div class="narrow-field">
+              <mosaik-select label="Base locale" [formField]="presenter.form.baseLocale">
+                @for (locale of presenter.baseLocales(); track locale.code) {
+                  <mosaik-select-item [value]="locale.code" [label]="locale.label" />
+                }
+              </mosaik-select>
+            </div>
+            <div class="targets">
+              <span id="target-label" class="field-title">Target locales</span>
+              <div class="target-grid" role="group" aria-labelledby="target-label">
+                @for (locale of presenter.localeChoices(); track locale.code) {
+                  <div class="target">
+                    <mosaik-chip [label]="locale.name" [isCheckable]="true" [isChecked]="locale.isChecked" (checked)="presenter.setLocale(locale.code, true)" (unchecked)="presenter.setLocale(locale.code, false)" />
+                    <span class="note">{{ locale.note }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @default {
+            <mosaik-choice-group orientation="horizontal" aria-label="AI provider">
+              @for (provider of presenter.providerChoices(); track provider.id) {
+                <mosaik-choice [additional]="provider.note" [label]="provider.name" [value]="provider.id" [isChecked]="provider.isChecked" (click)="presenter.pickProvider(provider.id)" />
+              }
+            </mosaik-choice-group>
+            @if (presenter.needsKey()) {
+              <div class="key-field">
+                <span class="key-label">API key</span>
+                <mosaik-passwordbox aria-label="API key" placeholder="Paste your API key" [revealable]="true" [value]="presenter.aiKey()" (input)="onKey($event)" />
+                <span class="note">Stored in the system keychain, never in the project.</span>
+              </div>
+            }
+            @if (presenter.providerHint(); as hint) {
+              <span class="note">{{ hint }}</span>
+            }
+            @if (presenter.writeNote(); as note) {
+              <mosaik-message variant="info" [header]="note.header" [content]="note.content" />
+            }
+          }
+        }
+
+        <div class="setup-footer">
+          <mosaik-button label="Back" appearance="plain" (click)="presenter.back()" />
+          <div class="actions">
+            @if (presenter.step() === 'ai') {
+              <mosaik-button label="Skip AI for now" variant="neutral" appearance="outline" [disabled]="!presenter.canFinish()" (click)="presenter.finish(true)" />
+              <mosaik-button label="Open project" variant="primary" appearance="solid" [disabled]="!presenter.canFinish()" [isBusy]="presenter.busy()" (click)="presenter.finish()" />
+            } @else {
+              <mosaik-button label="Continue" variant="primary" appearance="solid" (click)="presenter.next()" />
+            }
+          </div>
+        </div>
+      }
+    </section>
+  </main>
+</div>

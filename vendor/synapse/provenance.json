@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "familyVersion": "0.0.3",
+  "sourceRepository": "https://github.com/pixel-brewery/synapse",
+  "sourceRevision": "050ec502133aa0e0311dec8bc96023457d3f52aa",
+  "license": "MIT",
+  "origin": "Unmodified official package-consumer archives from Synapse artifacts/packages. Runtime APIs and all compiled dist files were checked against the source checkout; v0.0.4 changes only package versions and architecture instructions.",
+  "packages": [
+    {
+      "name": "@pixel-brewery/synapse-core",
+      "version": "0.0.3",
+      "sha256": "8d70a58bf1085dfef3de1b345e005689b4f2e3188a91b83adc34b3ad9d77552e",
+      "bytes": 20802,
+      "file": "synapse-core-0.0.3.tgz"
+    },
+    {
+      "name": "@pixel-brewery/synapse-runtime",
+      "version": "0.0.3",
+      "sha256": "a9956a53307773a8dac3b29820cbe8c1bc7c3fc00e545747896f0a89e08d2536",
+      "bytes": 49136,
+      "file": "synapse-runtime-0.0.3.tgz"
+    },
+    {
+      "name": "@pixel-brewery/synapse-auth",
+      "version": "0.0.3",
+      "sha256": "e18b700e532bf28356e52eebe35f47793b8384a146ae0a6a8b83a6e20c65b9f9",
+      "bytes": 29268,
+      "file": "synapse-auth-0.0.3.tgz"
+    },
+    {
+      "name": "@pixel-brewery/synapse-provider-codex",
+      "version": "0.0.3",
+      "sha256": "276d5d6ceb9328b944edfff0ee3f933942b00646201c874e03a0bcf5491abe13",
+      "bytes": 34046,
+      "file": "synapse-provider-codex-0.0.3.tgz"
+    },
+    {
+      "name": "@pixel-brewery/synapse-provider-claude",
+      "version": "0.0.3",
+      "sha256": "8ddb2d02b62d2a2afb8fd07b281dab4a55b39fc6082063490d74c4b71c2a251c",
+      "bytes": 21078,
+      "file": "synapse-provider-claude-0.0.3.tgz"
+    },
+    {
+      "name": "@pixel-brewery/synapse-provider-opencode",
+      "version": "0.0.3",
+      "sha256": "d36d541781ac701250a7c8fd0c48269ae7715b2883c49618c9a3c7a9c469d652",
+      "bytes": 22712,
+      "file": "synapse-provider-opencode-0.0.3.tgz"
+    }
+  ]
+}

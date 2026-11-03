@@ -1,0 +1,104 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.provider,
+.provider-group,
+.field-row {
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.provider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+}
+
+.provider-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+.provider-text {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.provider-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.provider-key {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.provider-key mosaik-passwordbox {
+  width: 100%;
+}
+
+.provider-hint {
+  overflow-wrap: anywhere;
+}
+
+.provider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.provider-group h3,
+.name {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.provider-group p {
+  margin: 0;
+}
+
+.note-danger {
+  color: var(--mosaik-color-danger-700);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  align-items: start;
+  gap: var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 4);
+}
+
+.field-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.field-row mosaik-textbox,
+.field-row mosaik-select {
+  width: 100%;
+}
+
+.save-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}

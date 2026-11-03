@@ -1,0 +1,178 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Overview</h1>
+        @if (presenter.subtitle(); as subtitle) {
+          <p class="lead">
+            {{ subtitle.name }}
+            @if (subtitle.root) {
+              · <code class="inline">{{ subtitle.root }}</code>
+            }
+            · {{ subtitle.rest }}
+          </p>
+        }
+      </div>
+      <div class="actions">
+        <mosaik-button routerLink="/analyze" label="Run analysis" variant="neutral" appearance="outline" icon="clipboardTask" iconSize="small" />
+        <mosaik-button routerLink="/generate" label="Translate with AI" variant="primary" appearance="solid" icon="sparkle" iconSize="small" />
+      </div>
+    </div>
+
+    @if (presenter.summary.isLoading()) {
+      <wortlaut-loading-state label="Reading the catalogs" />
+    } @else if (presenter.summary.isFailed()) {
+      <wortlaut-failure-state header="This project could not be read" [message]="presenter.summary.error()" (retry)="presenter.load()" />
+    } @else if (presenter.summary.value(); as summary) {
+      @if (!summary.hasCatalogs) {
+        <mosaik-empty-state header="No catalogs found" content="Wortlaut looked in this project and found no catalog files. Settings: project shows where it looks.">
+          <mosaik-button slot="actions" routerLink="/settings/project" label="Open project settings" variant="neutral" appearance="outline" />
+        </mosaik-empty-state>
+      } @else {
+        <section class="figures" aria-label="Key figures">
+          @for (figure of presenter.figures(); track figure.label) {
+            <mosaik-card>
+              <div slot="content" class="figure">
+                <div class="muted">{{ figure.label }}</div>
+                <div class="figure-value">{{ figure.value }}</div>
+                <div class="note">{{ figure.note }}</div>
+              </div>
+            </mosaik-card>
+          }
+        </section>
+
+        @if (presenter.nextSteps().length > 0) {
+          <section class="next-steps" aria-labelledby="next-steps">
+            <h2 id="next-steps">Next steps</h2>
+            <div class="step-grid">
+              @for (step of presenter.nextSteps(); track step.title) {
+                <mosaik-card>
+                  <div slot="content" class="card-box">
+                    <div class="step-text">
+                      <div class="step-title">{{ step.title }}</div>
+                      <div class="muted">{{ step.text }}</div>
+                    </div>
+                    <mosaik-button variant="neutral" appearance="outline" size="small" class="step-action" [routerLink]="step.route" [label]="step.action" />
+                  </div>
+                </mosaik-card>
+              }
+            </div>
+          </section>
+        }
+
+        <div class="columns">
+          <div class="column-wide">
+            <section aria-label="Locale coverage" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Locale coverage">
+                  <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/settings/project" label="Manage locales" /></div>
+                </mosaik-card-header>
+                <div slot="content" class="card-body">
+                  <div class="table-scroll">
+                    <div class="table-min">
+                      <mosaik-table columns="minmax(0, 1fr) minmax(0, 1fr) 220px 120px" appearance="plain">
+                        <mosaik-table-header>
+                          <mosaik-table-header-row>
+                            <mosaik-table-header-cell text="Locale" />
+                            <mosaik-table-header-cell text="File" />
+                            <mosaik-table-header-cell text="Translated" />
+                            <mosaik-table-header-cell text="State" />
+                          </mosaik-table-header-row>
+                        </mosaik-table-header>
+                        <mosaik-table-body>
+                          @for (locale of presenter.locales(); track locale.code) {
+                            <mosaik-table-body-row>
+                              <mosaik-table-body-cell>
+                                <div class="locale-name"><span class="strong">{{ locale.name }}</span><code class="small muted">{{ locale.code }}</code></div>
+                              </mosaik-table-body-cell>
+                              <mosaik-table-body-cell><code class="inline muted">{{ locale.file }}</code></mosaik-table-body-cell>
+                              <mosaik-table-body-cell>
+                                <div class="progress" [title]="locale.count">
+                                  <div class="progress-bar"><mosaik-progress-bar [min]="0" [max]="locale.total || 1" [value]="locale.done" /></div>
+                                  <span class="note">{{ locale.count }}</span>
+                                </div>
+                              </mosaik-table-body-cell>
+                              <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="locale.state" [variant]="locale.variant" /></mosaik-table-body-cell>
+                            </mosaik-table-body-row>
+                          }
+                        </mosaik-table-body>
+                      </mosaik-table>
+                    </div>
+                  </div>
+                </div>
+              </mosaik-card>
+            </section>
+
+            <section aria-label="Keys by namespace" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Keys by namespace">
+                  <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/translations" label="Open translations" /></div>
+                </mosaik-card-header>
+                <div slot="content" class="card-pad">
+                  <div class="bars">
+                    @for (namespace of presenter.namespaces(); track namespace.name) {
+                      <div class="bar-row" [title]="namespace.name + ': ' + namespace.label + ' keys'">
+                        <code class="inline bar-name">{{ namespace.name }}</code>
+                        <div class="bar-track"><div class="bar" [style.width]="namespace.width"></div></div>
+                        <span class="note bar-count">{{ namespace.label }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </mosaik-card>
+            </section>
+          </div>
+
+          <div class="column-narrow">
+            <section aria-label="Analyzer rules" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Analyzer rules">
+                  <div slot="suffix" class="card-suffix"><span class="note">{{ presenter.rulesNote() }}</span></div>
+                </mosaik-card-header>
+                <div slot="content" class="card-body">
+                  @if (presenter.rules().length > 0) {
+                    <ul class="rows">
+                      @for (rule of presenter.rules(); track rule.id) {
+                        <li class="rule row-line">
+                          <mosaik-icon size="small" [icon]="rule.passed ? 'checkmarkCircle' : 'warning'" [variant]="rule.passed ? 'success' : 'warning'" />
+                          <code class="inline rule-name">{{ rule.id }}</code>
+                          <span class="note">{{ rule.result }}</span>
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <div class="row-line card-text"><span class="muted">No analysis yet. The results appear here after the first one.</span></div>
+                  }
+                </div>
+              </mosaik-card>
+            </section>
+
+            <section aria-label="Recent runs" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Recent runs">
+                  <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/runs" label="All runs" /></div>
+                </mosaik-card-header>
+                <div slot="content" class="card-body">
+                  @if (presenter.runs.isFailed()) {
+                    <div class="row-line card-text"><span class="muted">{{ presenter.runs.error() }}</span></div>
+                  } @else if (presenter.runs.value()?.length) {
+                    <ul class="rows">
+                      @for (run of presenter.runs.value(); track run.id) {
+                        <li class="run row-line">
+                          <div class="run-head"><code class="inline strong">{{ run.title }}</code><span class="note">{{ presenter.whenOf(run) }}</span></div>
+                          <div class="note">{{ run.detail }}</div>
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <div class="row-line card-text"><span class="muted">No runs yet.</span></div>
+                  }
+                </div>
+              </mosaik-card>
+            </section>
+          </div>
+        </div>
+      }
+    }
+  </main>
+</div>

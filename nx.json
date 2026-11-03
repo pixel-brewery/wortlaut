@@ -1,0 +1,78 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/*.spec.ts"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/yarn.lock",
+      "{workspaceRoot}/tools/testing/**/*",
+      "{workspaceRoot}/tools/linting/**/*"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "inputs": [
+        "production",
+        "^production"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production"
+      ]
+    }
+  },
+  "release": {
+    "groups": {
+      "wortlaut": {
+        "projects": [
+          "wortlaut",
+          "wortlaut-contracts",
+          "wortlaut-core",
+          "wortlaut-ai",
+          "wortlaut-engine",
+          "wortlaut-mcp",
+          "wortlaut-app"
+        ],
+        "projectsRelationship": "fixed",
+        "releaseTag": {
+          "pattern": "v{version}"
+        }
+      }
+    },
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "fallbackCurrentVersionResolver": "disk",
+      "preserveLocalDependencyProtocols": true,
+      "versionActionsOptions": {
+        "installIgnoreScripts": true
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": false,
+        "file": "{workspaceRoot}/CHANGELOG.md"
+      },
+      "projectChangelogs": false,
+      "automaticFromRef": true
+    },
+    "git": {
+      "commit": true,
+      "commitMessage": "chore(release): publish {version} [skip ci]",
+      "tag": true,
+      "push": false
+    }
+  },
+  "analytics": false
+}

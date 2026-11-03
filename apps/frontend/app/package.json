@@ -1,0 +1,39 @@
+{
+  "name": "@pixel-brewery/wortlaut-frontend",
+  "description": "Wortlaut desktop app: the thin Angular root",
+  "version": "0.2.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "ngc --noEmit -p tsconfig.app.json",
+    "lint": "eslint \"src/**/*.ts\" --quiet"
+  },
+  "dependencies": {
+    "@angular/compiler": "22.2.4",
+    "@angular/core": "22.2.4",
+    "@angular/platform-browser": "22.2.4",
+    "@angular/router": "22.2.4",
+    "@pixel-brewery/wortlaut-frontend-core": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-analyze": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-connect": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-detect": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-generate": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-overview": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-review": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-rules": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-runs": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-settings": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-start": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-test-lab": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-transform": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-translations": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-feature-workspaces": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-shell": "workspace:^",
+    "@pixel-brewery/wortlaut-frontend-ui": "workspace:^",
+    "tslib": "2.8.1"
+  },
+  "nx": {
+    "includedScripts": []
+  }
+}

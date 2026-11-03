@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "language": "en",
+  "project": {
+    "name": "Wortlaut",
+    "slug": "wortlaut",
+    "website": "https://github.com/pixel-brewery/wortlaut",
+    "repository": "https://github.com/pixel-brewery/wortlaut"
+  },
+  "description": "Wortlaut helps keep application text correct and consistent across languages. It finds hard-coded strings and catalog errors, translates with AI, and lets you review proposed changes before writing them.",
+  "image": {
+    "file": "project-card.webp",
+    "format": "webp",
+    "width": 960,
+    "height": 540,
+    "alt": "Wortlaut's translation mark beside English and German catalog panels and a review check."
+  },
+  "artwork": {
+    "kind": "illustration",
+    "generator": "Built-in Imagegen",
+    "generatedOn": "2026-11-03",
+    "prompt": "Use case: ads-marketing. Asset: compact portfolio project card in a SEVEN-PROJECT MATCHED SERIES. Image 1 is the Mosaik MASTER CARD: match its 16:9 landscape framing, composition, typography scale, pure white / very light warm-gray seamless background, soft studio lighting, grounded shadows, restrained tactile ceramic/glass materials, generous 7% safe margins and premium editorial quality. Request target 1280x720. Brand lockup occupies LEFT THIRD with large exact black project name and existing mark when available, sculptural product-specific still life occupies RIGHT TWO THIRDS. Match the master; do not repeat its mosaic subject. Physical metaphor artwork, NOT a screenshot or proposed interface; no operating UI controls, dense text or dashboards. The text must remain readable at 600px wide. No tagline, subtitles, other prose, people, robot, brains, stock clip art, watermark, unrelated logos or background gradients.\n\nPROJECT SPECIFICATION:\nImage2 is Wortlaut's canonical black app tile with exact white translation glyph, preserve it above the large exact black word \"Wortlaut\" in the left brand area. Image3 provides product context only. Right: a precise sculptural translation-catalog metaphor: three gently stacked off-white ceramic text panels, one small translucent glass translation bridge linking two of them, and a small separate review/check tile. Restrained black line engravings suggest rows of catalog text; just \"EN\" and \"DE\" may appear as tiny clear language labels, no other prose. White, charcoal, pale gray and one muted green check accent. Calm, orderly multilingual application text and reviewable edits, no globe, flags or generic AI sparkle."
+  }
+}

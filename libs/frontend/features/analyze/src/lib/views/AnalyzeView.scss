@@ -1,0 +1,131 @@
+.card-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.rule-group {
+  padding: var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 1.5);
+  background: var(--mosaik-color-neutral-50);
+  border-bottom: 1px solid var(--mosaik-scheme-highlight);
+  font: var(--mosaik-typography-caption);
+  font-weight: 500;
+  color: var(--mosaik-scheme-lowlight);
+}
+
+.rule {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 1.5);
+  border-bottom: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.rule-selected {
+  background: var(--mosaik-color-neutral-100);
+}
+
+.rule-switch {
+  flex: none;
+}
+
+.rule-pick {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.rule-pick mosaik-clickable {
+  display: block;
+  width: 100%;
+}
+
+.rule-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--mosaik-scheme-foreground);
+  text-align: left;
+}
+
+.rule-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}
+
+.rule-id {
+  min-width: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.rule-badge {
+  flex: none;
+  pointer-events: none;
+}
+
+.rules-footer {
+  display: flex;
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.table-min {
+  min-width: 620px;
+  padding: 0 var(--mosaik-layout-space);
+}
+
+.cell-right {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.cell-text {
+  align-self: flex-start;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.row-actions {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--mosaik-layout-space) / 2);
+}
+
+.footer-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}
+
+.exception-links {
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.exceptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.exception {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+  min-width: 0;
+}
+
+.exception-title {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.prepared {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+}

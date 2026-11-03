@@ -1,0 +1,4 @@
+# .github/CODEOWNERS
+# Pixel Brewery owns the repository; the named maintainer owns code review.
+# Add narrower rules below the fallback because the last matching rule wins.
+*       @RueDeRennes

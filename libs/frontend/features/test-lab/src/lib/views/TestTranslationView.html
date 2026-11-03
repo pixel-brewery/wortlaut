@@ -1,0 +1,139 @@
+@if (presenter.sample.isLoading()) {
+  <wortlaut-loading-state label="Reading the catalogs" />
+} @else if (presenter.sample.isFailed()) {
+  <wortlaut-failure-state header="The sample could not be read" [message]="presenter.sample.error()" (retry)="presenter.load()" />
+} @else if (presenter.sample.value(); as sample) {
+  <section aria-labelledby="setup" class="setups">
+    <h2 id="setup">Compare two setups</h2>
+    <div class="setup-grid">
+      @for (entry of presenter.setups(); track entry.index) {
+        <div class="setup-card">
+          <mosaik-card>
+            <div slot="content" class="card-box">
+              <div class="setup-head">
+                <span class="setup-name">Setup {{ entry.name }}</span>
+                <span class="note">{{ entry.result }}</span>
+              </div>
+              <div class="setup-fields">
+                <mosaik-select label="Provider" [formField]="entry.index === 0 ? presenter.form.providerA : presenter.form.providerB">
+                  @for (provider of presenter.providers.value(); track provider.id) {
+                    <mosaik-select-item [value]="provider.id" [label]="provider.name" />
+                  }
+                </mosaik-select>
+                @if (entry.isKey) {
+                  <mosaik-textbox label="Model" [value]="entry.setup.model" (input)="onModel(entry.index, $event)" />
+                  <mosaik-textbox label="Temperature" [value]="entry.setup.temperature + ''" (input)="onTemperature(entry.index, $event)" />
+                } @else {
+                  <mosaik-textbox label="Model" value="Assistant default" [readonly]="true" />
+                  <mosaik-textbox label="Temperature" value="Assistant default" [readonly]="true" />
+                }
+              </div>
+              @if (entry.failure; as failure) {
+                <mosaik-message variant="danger" [header]="'Setup ' + entry.name + ' failed'" [content]="failure" />
+              }
+            </div>
+          </mosaik-card>
+        </div>
+      }
+      <div class="setup-card">
+        <mosaik-card>
+          <div slot="content" class="card-box">
+            <div class="sample-text">
+              <span class="note strong-note">Sample</span>
+              <span>{{ presenter.sampleText() }}</span>
+            </div>
+            <div class="setup-fields">
+              <mosaik-select label="Namespace" placeholder="All keys" [formField]="presenter.form.namespace">
+                <mosaik-select-item value="" label="All keys" />
+                @for (namespace of sample.namespaces; track namespace.path) {
+                  <mosaik-select-item [value]="namespace.path" [label]="namespace.path" />
+                }
+              </mosaik-select>
+              <mosaik-select label="Target locale" [formField]="presenter.form.locale">
+                @for (locale of sample.locales; track locale) {
+                  <mosaik-select-item [value]="locale" [label]="locale" />
+                }
+              </mosaik-select>
+            </div>
+            @if (presenter.isRunning()) {
+              <mosaik-button label="Stop" variant="neutral" appearance="outline" fit="width" (click)="presenter.cancel()" />
+            } @else {
+              <mosaik-button variant="primary" appearance="solid" icon="play" iconSize="small" fit="width" [label]="presenter.runLabel()" [disabled]="!presenter.canRun()" (click)="presenter.run()" />
+            }
+          </div>
+        </mosaik-card>
+      </div>
+    </div>
+  </section>
+
+  @if (presenter.message(); as message) {
+    <mosaik-message variant="danger" header="That did not work" [content]="message" />
+  }
+
+  <section aria-label="Result" class="card-section">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="Result">
+        <div slot="suffix" class="card-suffix">
+          <div class="actions">
+            <mosaik-button label="Use setup A" variant="neutral" appearance="outline" size="small" (click)="presenter.useSetup(0)" />
+            <mosaik-button label="Use setup B" variant="neutral" appearance="outline" size="small" (click)="presenter.useSetup(1)" />
+          </div>
+        </div>
+      </mosaik-card-header>
+      <div slot="content" class="card-body">
+        @if (presenter.rows().length > 0) {
+          <div class="table-scroll result-table">
+            <div class="result-width">
+              <mosaik-table columns="minmax(0, 3fr) minmax(0, 3.5fr) minmax(0, 3.5fr)" appearance="plain">
+                <mosaik-table-header>
+                  <mosaik-table-header-row>
+                    <mosaik-table-header-cell [text]="presenter.baseName()" />
+                    <mosaik-table-header-cell text="Setup A" />
+                    <mosaik-table-header-cell text="Setup B" />
+                  </mosaik-table-header-row>
+                </mosaik-table-header>
+                <mosaik-table-body>
+                  @for (row of presenter.rows(); track row.key) {
+                    <mosaik-table-body-row>
+                      <mosaik-table-body-cell><span class="muted cell-text">{{ row.base }}</span></mosaik-table-body-cell>
+                      <mosaik-table-body-cell>
+                        <div class="result-cell">
+                          <div class="cell-text">{{ row.a.value }}</div>
+                          @if (row.a.note; as note) {
+                            <div class="cell-note">{{ note }}</div>
+                          }
+                        </div>
+                      </mosaik-table-body-cell>
+                      <mosaik-table-body-cell>
+                        <div class="result-cell">
+                          <div class="cell-text">{{ row.b.value }}</div>
+                          @if (row.b.note; as note) {
+                            <div class="cell-note">{{ note }}</div>
+                          }
+                        </div>
+                      </mosaik-table-body-cell>
+                    </mosaik-table-body-row>
+                  }
+                </mosaik-table-body>
+              </mosaik-table>
+            </div>
+          </div>
+        } @else {
+          <div class="result-empty muted">{{ presenter.isRunning() ? 'Both setups are working on the sample.' : 'Run the sample to compare the two setups.' }}</div>
+        }
+      </div>
+    </mosaik-card>
+  </section>
+
+  <section aria-label="Try your own text" class="card-section">
+    <mosaik-card>
+      <div slot="content" class="own-text">
+        <div class="own-field">
+          <span class="field-label">Try your own text</span>
+          <mosaik-textbox aria-label="Try your own text" placeholder="Paste a string, for example: Your recording is saved." [formField]="presenter.form.text" />
+        </div>
+        <mosaik-button label="Add to sample" variant="neutral" appearance="outline" [disabled]="!presenter.canAddText()" (click)="presenter.addText()" />
+      </div>
+    </mosaik-card>
+  </section>
+}

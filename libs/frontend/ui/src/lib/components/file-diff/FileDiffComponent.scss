@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.diff-block {
+  padding: var(--mosaik-layout-space) 0;
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+  background: var(--mosaik-color-neutral-50);
+  font-size: 12px;
+  line-height: 20px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.hunk {
+  display: block;
+}
+
+.hunk + .hunk {
+  margin-top: var(--mosaik-layout-space);
+  padding-top: var(--mosaik-layout-space);
+  border-top: 1px dashed var(--mosaik-scheme-highlight);
+}
+
+.line-number {
+  display: inline-block;
+  width: 40px;
+  padding-right: var(--mosaik-layout-space);
+  text-align: right;
+  color: var(--mosaik-scheme-lowlight);
+}
+
+.line-sign {
+  display: inline-block;
+  width: calc(var(--mosaik-layout-space) * 2);
+}
+
+.file-note {
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}

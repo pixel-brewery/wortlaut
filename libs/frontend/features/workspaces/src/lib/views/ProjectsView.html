@@ -1,0 +1,164 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1>Projects</h1>
+        @if (presenter.list.value()) {
+          <p class="lead">{{ presenter.subtitle() }}</p>
+        }
+      </div>
+      <mosaik-button label="Add project" variant="neutral" appearance="outline" icon="add" (click)="presenter.addProject()" />
+    </div>
+
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="That did not work" [content]="message" />
+    }
+
+    @if (presenter.list.isLoading()) {
+      <wortlaut-loading-state label="Loading the projects" />
+    } @else if (presenter.list.isFailed()) {
+      <wortlaut-failure-state header="The projects could not be read" [message]="presenter.list.error()" (retry)="presenter.list.reload()" />
+    } @else if (presenter.list.value(); as list) {
+      <section aria-label="Run on all projects" class="card-section">
+        <mosaik-card>
+          <mosaik-card-header slot="header" text="Run on all projects">
+            <div slot="suffix" class="card-suffix">
+              <mosaik-segment appearance="soft" size="small">
+                @for (command of presenter.commands(); track command.id) {
+                  <mosaik-segment-item [label]="command.label" [isChecked]="command.isChecked" (click)="presenter.pickCommand(command.id)" />
+                }
+              </mosaik-segment>
+              <mosaik-button variant="primary" appearance="solid" size="small" icon="play" [label]="presenter.runLabel()" [disabled]="!presenter.canRun()" (click)="presenter.runAll()" />
+            </div>
+          </mosaik-card-header>
+          <div slot="content" class="card-pad">
+            <span class="note">{{ presenter.runNote() }}</span>
+            <wortlaut-dry-run-notice text="Transform, Sort and Generate leave one change set per repository in Review. Nothing is written to your repository." />
+            @if (presenter.batchRows().length > 0) {
+              <div class="batch-head">
+                <span class="batch-title">{{ presenter.batchTitle() }}: {{ presenter.batchProgress().text }}</span>
+                @if (presenter.isRunning()) {
+                  <mosaik-button label="Cancel" variant="neutral" appearance="outline" size="small" (click)="presenter.cancelAll()" />
+                }
+              </div>
+              <mosaik-progress-bar aria-label="Projects finished" [min]="0" [max]="presenter.batchProgress().total || 1" [value]="presenter.batchProgress().finished" />
+              <div class="table-scroll batch-rows">
+                <div class="table-min">
+                  <mosaik-table columns="minmax(0, 1fr) 110px minmax(0, 2fr)" appearance="plain">
+                    <mosaik-table-header>
+                      <mosaik-table-header-row>
+                        <mosaik-table-header-cell text="Project" />
+                        <mosaik-table-header-cell text="State" />
+                        <mosaik-table-header-cell text="Result" />
+                      </mosaik-table-header-row>
+                    </mosaik-table-header>
+                    <mosaik-table-body>
+                      @for (row of presenter.batchRows(); track row.runId) {
+                        <mosaik-table-body-row>
+                          <mosaik-table-body-cell><mosaik-anchor [label]="row.projectName" (click)="presenter.open(row.projectId)" /></mosaik-table-body-cell>
+                          <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="row.badge.label" [variant]="row.badge.variant" /></mosaik-table-body-cell>
+                          <mosaik-table-body-cell>
+                            @if (row.state === 'running') {
+                              <div class="batch-progress">
+                                <span class="note">{{ row.phase }}</span>
+                                <mosaik-progress-bar [attr.aria-label]="row.projectName" [min]="0" [max]="row.total || 1" [value]="row.completed" />
+                              </div>
+                            } @else if (row.failure) {
+                              <span class="batch-failure">{{ row.failure }}</span>
+                            } @else {
+                              <span class="note">{{ row.summary }}</span>
+                            }
+                          </mosaik-table-body-cell>
+                        </mosaik-table-body-row>
+                      }
+                    </mosaik-table-body>
+                  </mosaik-table>
+                </div>
+              </div>
+            }
+            @if (presenter.sameAs(); as sameAs) {
+              <code class="small wrap muted">Same as: {{ sameAs }}</code>
+            }
+          </div>
+        </mosaik-card>
+      </section>
+
+      <section aria-label="All projects" class="card-section">
+        <mosaik-card>
+          <mosaik-card-header slot="header" text="All projects">
+            <div slot="suffix" class="card-suffix">
+              <mosaik-searchbox placeholder="Filter projects" size="small" class="filter" [formField]="presenter.searchForm.text" />
+              <mosaik-segment appearance="soft" size="small">
+                <mosaik-segment-item label="All" [isChecked]="presenter.filter() === 'all'" (click)="presenter.pickFilter('all')" />
+                <mosaik-segment-item label="Needs attention" [isChecked]="presenter.filter() === 'attention'" (click)="presenter.pickFilter('attention')" />
+              </mosaik-segment>
+            </div>
+          </mosaik-card-header>
+          <div slot="content" class="card-body">
+            @if (presenter.rows().length > 0) {
+              <div class="table-scroll">
+                <div class="table-min">
+                  <mosaik-table columns="minmax(0, 2fr) minmax(0, 2fr) 90px 170px 140px" appearance="plain">
+                    <mosaik-table-header>
+                      <mosaik-table-header-row>
+                        <mosaik-table-header-cell text="Project" />
+                        <mosaik-table-header-cell text="Folder" />
+                        <mosaik-table-header-cell text="Keys" />
+                        <mosaik-table-header-cell text="Locales" />
+                        <mosaik-table-header-cell text="State" />
+                      </mosaik-table-header-row>
+                    </mosaik-table-header>
+                    <mosaik-table-body>
+                      @for (row of presenter.rows(); track row.id) {
+                        <mosaik-table-body-row>
+                          <mosaik-table-body-cell><mosaik-anchor [label]="row.name" (click)="presenter.open(row.id)" /></mosaik-table-body-cell>
+                          <mosaik-table-body-cell><code class="small muted">{{ row.folder }}</code></mosaik-table-body-cell>
+                          <mosaik-table-body-cell [text]="presenter.keysOf(row)" />
+                          <mosaik-table-body-cell [text]="row.locales.join(', ')" />
+                          <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="presenter.stateOf(row).label" [variant]="presenter.stateOf(row).variant" /></mosaik-table-body-cell>
+                        </mosaik-table-body-row>
+                      }
+                    </mosaik-table-body>
+                  </mosaik-table>
+                </div>
+              </div>
+              <div class="table-footer note row-line">{{ presenter.footer() }}</div>
+            } @else if (list.rows.length > 0) {
+              <div class="row-line">
+                <mosaik-empty-state header="No project matches" content="Change the filter to see the other projects." />
+              </div>
+            } @else {
+              <div class="row-line">
+                <mosaik-empty-state header="No projects yet" content="Add a folder with catalogs to this workspace." />
+              </div>
+            }
+          </div>
+        </mosaik-card>
+      </section>
+
+      @if (list.sharedDefaults; as shared) {
+        <section aria-labelledby="inherited" class="card-section">
+          <mosaik-card>
+            <div slot="content" class="card-box">
+              <div class="shared-head">
+                <div class="page-title">
+                  <h2 id="inherited" class="shared-title">Shared by all projects</h2>
+                  <span class="muted">From <code class="inline">targetDefaults</code> in <code class="inline">nx.json</code>. Wortlaut reads it and keeps it as your source.</span>
+                </div>
+                <mosaik-anchor href="#/cli-nx" label="Open CLI and Nx" />
+              </div>
+              <dl class="shared">
+                @for (value of shared; track value.label) {
+                  <div class="fact">
+                    <dt class="note">{{ value.label }}</dt>
+                    <dd>{{ value.value }}</dd>
+                  </div>
+                }
+              </dl>
+            </div>
+          </mosaik-card>
+        </section>
+      }
+    }
+  </main>
+</div>

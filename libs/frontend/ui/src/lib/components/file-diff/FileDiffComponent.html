@@ -1,0 +1,8 @@
+@if (file().hunks.length > 0) {
+  <pre class="diff-block">@for (hunk of file().hunks; track $index) {<span class="hunk">@for (line of hunk.lines; track $index) {<span class="diff-line" [class.diff-add]="line.kind === 'add'" [class.diff-remove]="line.kind === 'remove'"><span class="line-number" aria-hidden="true">{{ line.oldLine ?? '' }}</span><span class="line-number" aria-hidden="true">{{ line.newLine ?? '' }}</span><span class="line-sign">{{ line.kind === 'add' ? '+' : line.kind === 'remove' ? '−' : ' ' }}</span>{{ line.text }}</span>}</span>}</pre>
+} @else {
+  <div class="row-line file-note"><span class="muted">This change is too big to show line by line.</span></div>
+}
+@if (file().truncated && file().hunks.length > 0) {
+  <div class="row-line file-note"><span class="note">The rest of this diff is too long to show. Approving writes all of it.</span></div>
+}

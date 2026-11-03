@@ -1,0 +1,13 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-title">
+      <h1>{{ title }}</h1>
+    </div>
+    <div class="state-frame">
+      <!-- The slot, because the element does not render a content property that changes after its first render. -->
+      <mosaik-empty-state header="Not available yet">
+        <span slot="content" class="muted">{{ description }}</span>
+      </mosaik-empty-state>
+    </div>
+  </main>
+</div>

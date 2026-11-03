@@ -1,0 +1,42 @@
+.import-preview {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  min-width: min(560px, 80vw);
+}
+
+.import-name,
+.import-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.import-row > :last-child {
+  margin-left: auto;
+}
+
+.import-name .name,
+.import-group .name {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.import-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.import-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.import-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+}

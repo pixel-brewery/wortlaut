@@ -1,0 +1,171 @@
+@if (presenter.providers.isLoading()) {
+  <wortlaut-loading-state label="Asking the providers" />
+} @else if (presenter.providers.isFailed()) {
+  <wortlaut-failure-state header="The providers could not be read" [message]="presenter.providers.error()" (retry)="presenter.load()" />
+} @else {
+  <section aria-label="AI" class="card-section">
+    <mosaik-card>
+      <mosaik-card-header slot="header" text="AI" subText="Translate with the assistants already installed on this computer. They use their own login, so no API key is needed. There is no chat in Wortlaut." />
+      <div slot="content" class="card-body">
+        @for (provider of presenter.assistants(); track provider.id) {
+          <div class="provider">
+            <div class="provider-row">
+              <div class="provider-text">
+                <div class="provider-name">
+                  <span class="name">{{ provider.name }}</span>
+                  <mosaik-badge appearance="soft" [label]="provider.badge.label" [variant]="provider.badge.variant" />
+                </div>
+                <span class="note">{{ provider.description }}</span>
+              </div>
+              <mosaik-button variant="neutral" appearance="outline" [label]="provider.action" [isBusy]="provider.isBusy" (click)="presenter.actOnAssistant(provider)" />
+            </div>
+            @if (provider.hint; as hint) {
+              <span class="note provider-hint">{{ hint }}</span>
+            }
+          </div>
+        }
+        <div class="provider-group">
+          <h3>With an API key</h3>
+          <p class="note">Keys are stored in the system keychain and never enter project files.</p>
+        </div>
+        @for (provider of presenter.keyed(); track provider.id) {
+          <div class="provider">
+            <div class="provider-row">
+              <div class="provider-text">
+                <div class="provider-name">
+                  <span class="name">{{ provider.name }}</span>
+                  <mosaik-badge appearance="soft" [label]="provider.badge.label" [variant]="provider.badge.variant" />
+                </div>
+                <span class="note">{{ provider.description }}</span>
+              </div>
+              <div class="provider-key">
+                <mosaik-passwordbox [attr.aria-label]="provider.keyLabel" [placeholder]="provider.placeholder" [revealable]="true" [value]="provider.typed" (input)="onKey(provider.id, $event)" />
+              </div>
+              <div class="actions">
+                <mosaik-button variant="neutral" appearance="outline" [label]="provider.action" [disabled]="!provider.canAct" [isBusy]="provider.isBusy" (click)="presenter.actOnKey($any(provider.id))" />
+                @if (provider.hasKey) {
+                  <mosaik-button label="Clear" appearance="plain" [disabled]="provider.isBusy" (click)="presenter.clearKey($any(provider.id))" />
+                }
+              </div>
+            </div>
+            @if (provider.test; as test) {
+              <span class="note" [class.note-danger]="!test.ok">{{ test.message }}</span>
+            }
+          </div>
+        }
+        @if (presenter.providerMessage(); as message) {
+          <div class="provider"><mosaik-message variant="danger" header="That did not work" [content]="message" /></div>
+        }
+      </div>
+    </mosaik-card>
+  </section>
+
+  @if (presenter.defaults.isFailed()) {
+    <wortlaut-failure-state header="The settings could not be read" [message]="presenter.defaults.error()" (retry)="presenter.load()" />
+  } @else if (presenter.defaults.value()) {
+    <wortlaut-dry-run-notice text="Saved defaults wait in Review until you turn off dry run in the title bar. Nothing is written to your repository. The default assistant goes to your profile at once." />
+
+    <section aria-label="Defaults" class="card-section">
+      <mosaik-card>
+        <mosaik-card-header slot="header" text="Defaults" subText="Starting values for a new translation run. You can change them per run." />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-text"><span class="name">Default assistant</span><span class="note">Used when a run does not choose one.</span></div>
+            <mosaik-select aria-label="Default assistant" [formField]="presenter.form.defaultProvider">
+              <mosaik-select-item value="none" label="None" />
+              @for (provider of presenter.providers.value(); track provider.id) {
+                <mosaik-select-item [value]="provider.id" [label]="provider.name" />
+              }
+            </mosaik-select>
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Model</span><span class="note">Listed from the selected provider.</span></div>
+            @if (presenter.isLocalDefault()) {
+              <mosaik-select aria-label="Model" value="local" [disabled]="true">
+                <mosaik-select-item value="local" label="Default of the assistant" [isSelected]="true" />
+              </mosaik-select>
+            } @else {
+              <mosaik-select aria-label="Model" [formField]="presenter.form.model">
+                @for (model of presenter.models(); track model) {
+                  <mosaik-select-item [value]="model" [label]="model" />
+                }
+              </mosaik-select>
+            }
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Temperature</span><span class="note">Only for providers with an API key. The tool default is 0.7.</span></div>
+            <mosaik-textbox aria-label="Temperature" [disabled]="presenter.isLocalDefault()" [formField]="presenter.form.temperature" />
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Chunk size</span><span class="note">Keys per request. Smaller chunks fail less, larger ones cost fewer requests.</span></div>
+            <mosaik-textbox aria-label="Chunk size" [formField]="presenter.form.chunkSize" />
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Limit</span><span class="note">Maximum number of keys per run. Empty means no limit.</span></div>
+            <mosaik-textbox aria-label="Limit" placeholder="No limit" [formField]="presenter.form.limit" />
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="Instructions" class="card-section">
+      <mosaik-card>
+        <mosaik-card-header slot="header" text="Instructions" subText="Added to the prompt. Use them for tone, terminology and product names." />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-text"><span class="name">For all locales</span><span class="note">Project-wide rules.</span></div>
+            <mosaik-textbox aria-label="For all locales" [multiline]="true" [multilineRows]="3" [formField]="presenter.form.instructions" />
+          </div>
+          @for (field of presenter.localeFields(); track field.code) {
+            <div class="field-row">
+              <div class="field-text"><span class="name">{{ field.name }}</span><span class="note">Added for {{ field.code }}.</span></div>
+              <mosaik-textbox [attr.aria-label]="field.name" [multiline]="true" [multilineRows]="3" [value]="field.value" (input)="onLocaleInstructions(field.code, $event)" />
+            </div>
+          }
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="Safety" class="card-section">
+      <mosaik-card>
+        <mosaik-card-header slot="header" text="Safety" subText="What happens between the AI response and your files." />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-text"><span class="name">Review before writing</span><span class="note">Translations wait in a review list. Turn off to approve them automatically when a run ends.</span></div>
+            <mosaik-toggle-switch aria-label="Review before writing" [isChecked]="presenter.safety().reviewBeforeWriting" (checked)="presenter.setSafety('reviewBeforeWriting', true)" (unchecked)="presenter.setSafety('reviewBeforeWriting', false)" />
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Protect placeholders</span><span class="note">Flagged results that change {{ '{0}' }} or {{ '{{ name }}' }} cannot be accepted until they are corrected.</span></div>
+            <mosaik-toggle-switch aria-label="Protect placeholders" [isChecked]="presenter.safety().protectPlaceholders" (checked)="presenter.setSafety('protectPlaceholders', true)" (unchecked)="presenter.setSafety('protectPlaceholders', false)" />
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Keep partial results</span><span class="note">If a run stops or a chunk fails, finished keys wait in Review as a partial change set. Nothing is merged into the target file.</span></div>
+            <mosaik-toggle-switch aria-label="Keep partial results" [isChecked]="presenter.safety().keepPartialResults" (checked)="presenter.setSafety('keepPartialResults', true)" (unchecked)="presenter.setSafety('keepPartialResults', false)" />
+          </div>
+          <div class="field-row">
+            <div class="field-text"><span class="name">Keep raw AI output</span><span class="note">Stores each response in a temporary file for debugging.</span></div>
+            <mosaik-toggle-switch aria-label="Keep raw AI output" [isChecked]="presenter.safety().keepRawOutput" (checked)="presenter.setSafety('keepRawOutput', true)" (unchecked)="presenter.setSafety('keepRawOutput', false)" />
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    @if (presenter.error(); as error) {
+      <mosaik-message variant="warning" header="Not saved yet" [content]="error" />
+    }
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="Nothing was written" [content]="message" />
+    }
+    <wortlaut-write-result [outcome]="presenter.outcome()" />
+
+    <div class="save-row">
+      <span class="note">Everything but the default assistant goes to {{ presenter.sourceFile() }}.</span>
+      <div class="actions">
+        <mosaik-button label="Discard" appearance="plain" [disabled]="!presenter.isDirty()" (click)="presenter.discard()" />
+        <mosaik-button label="Save changes" variant="primary" appearance="solid" [disabled]="!presenter.canSave()" [isBusy]="presenter.busy()" (click)="presenter.save()" />
+      </div>
+    </div>
+  } @else {
+    <mosaik-empty-state header="No project is open" content="Defaults, instructions and safety belong to a project. Open one to edit them." />
+  }
+}

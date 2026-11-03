@@ -1,0 +1,198 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.translations {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.tree {
+  flex: 0 0 196px;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  padding: calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 1.5);
+  border-right: 1px solid var(--mosaik-scheme-highlight);
+  overflow: auto;
+}
+
+.tree-prefix {
+  padding: 0 var(--mosaik-layout-space);
+  overflow-wrap: anywhere;
+}
+
+.tree-list {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tree-item {
+  position: relative;
+}
+
+.tree-item mosaik-button {
+  width: 100%;
+}
+
+.tree-count {
+  position: absolute;
+  top: var(--mosaik-layout-space);
+  right: var(--mosaik-layout-space);
+  pointer-events: none;
+}
+
+.keys {
+  flex: 1 1 480px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-bottom: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.toolbar-search {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.toolbar-locale {
+  flex: 0 0 160px;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+  padding: 0 calc(var(--mosaik-layout-space) * 2);
+}
+
+.notices:has(*) {
+  padding-top: calc(var(--mosaik-layout-space) * 1.5);
+  padding-bottom: calc(var(--mosaik-layout-space) * 0.5);
+}
+
+.table-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--mosaik-layout-space);
+}
+
+.table-width {
+  min-width: 640px;
+}
+
+mosaik-table-body-row {
+  cursor: pointer;
+}
+
+.key-cell {
+  align-self: flex-start;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) / 2);
+  white-space: normal;
+}
+
+.key-name {
+  overflow-wrap: anywhere;
+}
+
+.value {
+  align-self: flex-start;
+  min-width: 0;
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.more {
+  padding: var(--mosaik-layout-space);
+  text-align: center;
+}
+
+.details {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 2);
+  border-left: 1px solid var(--mosaik-scheme-highlight);
+  background: var(--mosaik-color-neutral-50);
+  overflow: auto;
+}
+
+.details mosaik-textbox {
+  width: 100%;
+}
+
+.details mosaik-card {
+  flex: none;
+}
+
+.detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+}
+
+.strong-note {
+  font-weight: 500;
+}
+
+.strong-code {
+  font-weight: 500;
+}
+
+.block-title {
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.suggestion {
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.suggestion-title {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--mosaik-layout-space) * 0.75);
+  font: var(--mosaik-typography-subtitle2);
+}
+
+.suggestion-action {
+  align-self: flex-start;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  min-width: 360px;
+}
+
+.dialog-body mosaik-textbox {
+  width: 100%;
+}
+
+.suggestion-value {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.suggestion-problem {
+  color: var(--mosaik-color-danger-700);
+}

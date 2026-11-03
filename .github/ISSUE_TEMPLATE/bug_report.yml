@@ -1,0 +1,28 @@
+name: Report a bug
+description: Describe a reproducible problem in Wortlaut.
+title: '[Bug]: '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use invented strings. Do not share API keys, credentials or the private catalogs of a project.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and a minimal reproduction.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Version or commit, OS, surface (desktop app, CLI, Nx, Vite or MCP) and the assistant or provider.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Sanitized logs or screenshots.

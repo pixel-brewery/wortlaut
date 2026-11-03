@@ -1,0 +1,164 @@
+name: Desktop quality
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Classify changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      documentation_only: ${{ steps.changes.outputs.documentation_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.15.0
+          package-manager-cache: false
+      - name: Compare the complete event diff
+        id: changes
+        run: node .github/scripts/classifyCiChanges.mjs
+      - name: Check public documentation and portable paths
+        run: |
+          node tools/workspace/verify-public-content.mjs
+          node tools/workspace/verify-portable-paths.mjs
+
+  verify:
+    name: Build and exercise desktop (${{ matrix.os }})
+    needs: changes
+    # Keep every required platform check name without allocating native runners for documentation.
+    runs-on: ${{ needs.changes.outputs.documentation_only == 'true' && 'ubuntu-latest' || matrix.os }}
+    timeout-minutes: 75
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Explain documentation-only verification skip
+        if: needs.changes.outputs.documentation_only == 'true'
+        run: echo "Documentation-only change. Tests, builds and packaging are skipped; this preserves the required platform check name."
+
+      - name: Checkout
+        if: needs.changes.outputs.documentation_only == 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        if: needs.changes.outputs.documentation_only == 'false'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.15.0
+          package-manager-cache: false
+
+      - name: Enable pinned Yarn
+        if: needs.changes.outputs.documentation_only == 'false'
+        run: |
+          corepack enable
+          corepack prepare yarn@4.18.1 --activate
+
+      # The default of Windows runners is a short 8.3 name, which every real path spells differently.
+      - name: Use a temporary folder with its real name
+        if: needs.changes.outputs.documentation_only == 'false' && runner.os == 'Windows'
+        run: |
+          echo "TEMP=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "TMP=$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Install the immutable dependency graph
+        if: needs.changes.outputs.documentation_only == 'false'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: yarn install --immutable
+
+      # Each check runs even after another one failed, so one run shows everything that is wrong.
+      - name: Verify provenance, structure, skills and tooling
+        if: needs.changes.outputs.documentation_only == 'false'
+        run: yarn verify:repository
+
+      - name: Lint
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: yarn lint
+
+      - name: Check types
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
+        run: yarn typecheck
+
+      - name: Test behavior
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
+        run: yarn test
+
+      - name: Build
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
+        run: yarn build
+
+      - name: Exercise the built app
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' && runner.os != 'Linux' }}
+        run: yarn test:e2e
+
+      - name: Package the native app
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' && runner.os != 'Linux' }}
+        run: yarn package
+
+      - name: Check the package contents
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' && runner.os != 'Linux' }}
+        run: yarn verify:package
+
+      - name: Exercise the actual packaged executable
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' && runner.os != 'Linux' }}
+        run: yarn test:e2e --packaged
+
+      - name: Upload bounded verification evidence
+        if: always() && needs.changes.outputs.documentation_only == 'false'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: desktop-evidence-${{ matrix.os }}
+          path: |
+            .codex-work/desktop-smoke-*/evidence.json
+            .codex-work/desktop-smoke-*/failure.png
+            .codex-work/out/package-verification.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+  quality-gate:
+    name: Quality Gate
+    if: always()
+    needs: [changes, verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Require verification or a confirmed documentation-only diff
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          DOCUMENTATION_ONLY: ${{ needs.changes.outputs.documentation_only }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: |
+          case "$CHANGES_RESULT:$DOCUMENTATION_ONLY:$VERIFY_RESULT" in
+            success:true:success) echo "Documentation-only change: required check names preserved; desktop verification skipped." ;;
+            success:false:success) echo "Verification succeeded on every platform." ;;
+            *) echo "Change classification or required verification did not succeed."; exit 1 ;;
+          esac

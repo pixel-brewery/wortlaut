@@ -1,0 +1,113 @@
+@if (presenter.presets.isLoading()) {
+  <wortlaut-loading-state label="Loading the samples" />
+} @else if (presenter.presets.isFailed()) {
+  <wortlaut-failure-state header="The samples could not be read" [message]="presenter.presets.error()" (retry)="presenter.load()" />
+} @else {
+  <div class="settings">
+    <div class="setting">
+      <span class="setting-label">Preset</span>
+      <mosaik-segment appearance="soft" size="small" aria-label="Preset">
+        @for (preset of presenter.presetTabs(); track preset.id) {
+          <mosaik-segment-item [label]="preset.name" [isChecked]="preset.isChecked" (click)="presenter.pickPreset(preset.id)" />
+        }
+      </mosaik-segment>
+    </div>
+    <div class="setting">
+      <span class="setting-label">Sample</span>
+      <mosaik-segment appearance="soft" size="small" aria-label="Sample">
+        @for (sample of presenter.sampleTabs(); track sample.fileName) {
+          <mosaik-segment-item [label]="sample.fileName" [isChecked]="sample.isChecked" (click)="presenter.pickSample(sample.fileName)" />
+        }
+      </mosaik-segment>
+    </div>
+    <div class="setting-prefix">
+      <mosaik-textbox label="Key prefix" placeholder="None" [value]="presenter.result.value()?.prefix ?? ''" [readonly]="true" />
+    </div>
+    <div class="setting-detector">
+      <span class="note">Detector for this file</span>
+      <code class="inline">{{ presenter.result.value()?.detector ?? 'None' }}</code>
+    </div>
+  </div>
+
+  @if (presenter.result.value()?.failure; as failure) {
+    <mosaik-message variant="danger" header="The detector could not read this" [content]="failure" />
+  }
+
+  <div class="panels">
+    <section aria-label="Source code" class="panel-source">
+      <mosaik-card appearance="soft">
+        <div slot="content" class="card-body">
+          <div class="source-head">
+            Source
+            @if (presenter.isPasting()) {
+              <mosaik-button label="Show matches" variant="neutral" appearance="outline" size="small" (click)="presenter.finishPasting()" />
+            } @else {
+              <mosaik-button label="Paste your code" variant="neutral" appearance="outline" size="small" icon="copy" iconSize="small" (click)="presenter.startPasting()" />
+            }
+          </div>
+          @if (presenter.isPasting()) {
+            <div class="source-paste">
+              <mosaik-textbox aria-label="Your code" placeholder="Paste your code here" [multiline]="true" [multilineRows]="14" [formField]="presenter.pasteForm.text" />
+            </div>
+          } @else {
+            <div class="source-lines">
+              @for (line of presenter.lines(); track line.number) {
+                <div class="source-line" [class.source-match]="line.isMatch">
+                  <span class="source-number" aria-hidden="true">{{ line.number }}</span>
+                  <code class="source-text">{{ line.text }}</code>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </mosaik-card>
+    </section>
+
+    <div class="panel-results">
+      <section [attr.aria-label]="presenter.matchesTitle()" class="card-section">
+        <mosaik-card>
+          <mosaik-card-header slot="header" [text]="presenter.matchesTitle()" />
+          <div slot="content" class="card-body">
+            @if (presenter.matches().length > 0) {
+              <div class="table-scroll">
+                <div class="table-min">
+                  <mosaik-table columns="150px minmax(0, 1fr) 120px" appearance="plain">
+                    <mosaik-table-header>
+                      <mosaik-table-header-row>
+                        <mosaik-table-header-cell text="Position" />
+                        <mosaik-table-header-cell text="Match" />
+                        <mosaik-table-header-cell text="Type" />
+                      </mosaik-table-header-row>
+                    </mosaik-table-header>
+                    <mosaik-table-body>
+                      @for (match of presenter.matches(); track match.id) {
+                        <mosaik-table-body-row>
+                          <mosaik-table-body-cell><span class="muted nowrap">{{ match.position }}</span></mosaik-table-body-cell>
+                          <mosaik-table-body-cell><code class="inline cell-text">{{ match.value }}</code></mosaik-table-body-cell>
+                          <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="match.type" [variant]="match.variant" /></mosaik-table-body-cell>
+                        </mosaik-table-body-row>
+                      }
+                    </mosaik-table-body>
+                  </mosaik-table>
+                </div>
+              </div>
+            } @else {
+              <div class="row-line">
+                <mosaik-empty-state header="No matches" content="The detector found no string in this text." />
+              </div>
+            }
+          </div>
+        </mosaik-card>
+      </section>
+
+      <section aria-label="Extracted resource" class="card-section">
+        <mosaik-card>
+          <mosaik-card-header slot="header" text="Extracted resource" />
+          <div slot="content" class="card-body">
+            <pre class="resource">{{ presenter.result.value()?.resource }}</pre>
+          </div>
+        </mosaik-card>
+      </section>
+    </div>
+  </div>
+}

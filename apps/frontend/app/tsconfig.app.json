@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc",
+    "incremental": false,
+    "types": [],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "rootDir": "../../.."
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../../libs/frontend/core/src/**/*.ts",
+    "../../../libs/frontend/ui/src/**/*.ts",
+    "../../../libs/frontend/shell/src/**/*.ts",
+    "../../../libs/frontend/features/*/src/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts",
+    "../../../libs/frontend/**/*.spec.ts"
+  ]
+}

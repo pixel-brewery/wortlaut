@@ -1,0 +1,18 @@
+<div class="page-scroll">
+  <main class="page">
+    <div class="page-title">
+      <h1>Test lab</h1>
+      <p class="lead">{{ presenter.lead() }}</p>
+    </div>
+    <nav aria-label="Test lab">
+      <mosaik-tab-strip [hasIndicator]="true">
+        @for (tab of presenter.tabs(); track tab.id) {
+          <mosaik-tab-strip-item [label]="tab.label" [isSelected]="tab.isSelected" (click)="presenter.open(tab.route)" />
+        }
+      </mosaik-tab-strip>
+    </nav>
+    <div class="tab-content">
+      <router-outlet />
+    </div>
+  </main>
+</div>
