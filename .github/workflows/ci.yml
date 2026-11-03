@@ -114,6 +114,13 @@ jobs:
         if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
         run: yarn build
 
+      - name: Exercise the packed packages in fresh consumers
+        if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: yarn verify:consumer
+
       - name: Exercise the built app
         if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' && runner.os != 'Linux' }}
         run: yarn test:e2e

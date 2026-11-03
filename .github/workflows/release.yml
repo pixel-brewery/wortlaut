@@ -220,41 +220,11 @@ jobs:
       - env:
           NODE_OPTIONS: --max-old-space-size=6144
         run: yarn verify
-      - name: Exercise the packed packages in a fresh consumer
+      - name: Exercise the packed packages in fresh consumers
         env:
           GITHUB_TOKEN: ${{ github.token }}
           NODE_AUTH_TOKEN: ${{ github.token }}
-          NODE_PATH: ''
-        run: |
-          set -euo pipefail
-          consumer="$(mktemp -d)"
-          trap 'rm -rf "$consumer"' EXIT
-          for package in contracts core ai engine mcp app; do
-            yarn workspace "@pixel-brewery/wortlaut-${package}" pack --out "$consumer/${package}.tgz"
-          done
-          cd "$consumer"
-          printf '%s\n' '{"name":"wortlaut-package-consumer","version":"0.0.0","private":true}' > package.json
-          printf '%s\n' '@pixel-brewery:registry=https://npm.pkg.github.com' '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' > .npmrc
-          npm install --ignore-scripts --no-audit --no-fund ./*.tgz
-          node <<'NODE'
-          const assert = require('node:assert/strict');
-          const { execFileSync } = require('node:child_process');
-          const { realpathSync } = require('node:fs');
-          const { join, sep } = require('node:path');
-          const modules = realpathSync('node_modules') + sep;
-          for (const name of ['contracts', 'core', 'ai', 'engine', 'mcp', 'app']) {
-            const entry = require.resolve(`@pixel-brewery/wortlaut-${name}`);
-            assert.ok(realpathSync(entry).startsWith(modules), `Package ${name} escaped the consumer install.`);
-            assert.ok(Object.keys(require(entry)).length > 0, `Package ${name} exports nothing.`);
-          }
-          const app = require('@pixel-brewery/wortlaut-app/package.json');
-          assert.equal(app.version, process.env.RELEASE_VERSION);
-          assert.equal(app.bin.localizator, app.bin.wortlaut);
-          const cli = join(process.cwd(), 'node_modules/@pixel-brewery/wortlaut-app', app.bin.wortlaut);
-          const env = { ...process.env, WORTLAUT_HOME: join(process.cwd(), 'profile'), WORTLAUT_SECRET_STORE: 'memory' };
-          execFileSync(process.execPath, [cli, '--help'], { env, stdio: 'pipe' });
-          console.log('All six installed packages and the CLI passed without workspace dependencies.');
-          NODE
+        run: yarn verify:consumer
       - run: yarn test:e2e
       - name: Make native installers without platform certificates
         run: yarn make
