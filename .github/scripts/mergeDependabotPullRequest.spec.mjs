@@ -11,14 +11,14 @@ const merged = 'c'.repeat(40);
 const context = {
   eventName: 'workflow_run',
   repository: 'pixel-brewery/wortlaut',
-  repositoryId: 1442982809,
+  repositoryId: 1444820071,
   defaultBranch: 'main',
   runId: 202,
   runAttempt: 2,
 };
 
 function fixture() {
-  const identity = { id: 1442982809, full_name: context.repository };
+  const identity = { id: 1444820071, full_name: context.repository };
   const records = {
     repository: {
       ...identity,
@@ -74,7 +74,7 @@ function fixture() {
     if (method === 'PUT' && endpoint === `${prefix}/pulls/7/merge`)
       return { merged: true, sha: merged };
     if (method !== 'GET') throw new Error('Unexpected fixture write.');
-    if (endpoint === 'repositories/1442982809') return structuredClone(records.repository);
+    if (endpoint === 'repositories/1444820071') return structuredClone(records.repository);
     if (endpoint === `${prefix}/actions/workflows/ci.yml`) return structuredClone(records.workflow);
     if (endpoint === `${prefix}/actions/runs/202`) return structuredClone(records.run);
     if (endpoint === `${prefix}/pulls/7`) return structuredClone(records.pull);

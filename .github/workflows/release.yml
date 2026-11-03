@@ -73,7 +73,7 @@ jobs:
   configure:
     name: Prepare one immutable release candidate
     needs: changes
-    if: github.repository_id == '1442982809' && (inputs.rehearsal || github.ref == 'refs/heads/main') && needs.changes.outputs.documentation_only == 'false'
+    if: github.repository_id == '1444820071' && (inputs.rehearsal || github.ref == 'refs/heads/main') && needs.changes.outputs.documentation_only == 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -99,7 +99,7 @@ jobs:
             echo 'The requested dependency merge is no longer the selected release source.' >&2
             exit 1
           fi
-          gh api repositories/1442982809 --jq 'select(.id == 1442982809 and .full_name == "pixel-brewery/wortlaut" and .private == false and .default_branch == "main") | .full_name' | grep -Fx "$GITHUB_REPOSITORY"
+          gh api repositories/1444820071 --jq 'select(.id == 1444820071 and .full_name == "pixel-brewery/wortlaut" and .private == false and .default_branch == "main") | .full_name' | grep -Fx "$GITHUB_REPOSITORY"
           git fetch origin main --tags
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
@@ -386,7 +386,7 @@ jobs:
         run: |
           set -euo pipefail
           test -z "$EXPECTED_SOURCE_SHA" || test "$EXPECTED_SOURCE_SHA" = "$GITHUB_SHA"
-          gh api repositories/1442982809 --jq 'select(.id == 1442982809 and .full_name == "pixel-brewery/wortlaut" and .private == false and .default_branch == "main") | .full_name' | grep -Fx "$GITHUB_REPOSITORY"
+          gh api repositories/1444820071 --jq 'select(.id == 1444820071 and .full_name == "pixel-brewery/wortlaut" and .private == false and .default_branch == "main") | .full_name' | grep -Fx "$GITHUB_REPOSITORY"
           git bundle verify "$RUNNER_TEMP/release-metadata/release.bundle"
           git fetch --no-tags "$RUNNER_TEMP/release-metadata/release.bundle" "refs/tags/${RELEASE_TAG}:refs/tags/${RELEASE_TAG}"
           test "$(git rev-parse "${RELEASE_TAG}^{commit}")" = "$RELEASE_COMMIT"

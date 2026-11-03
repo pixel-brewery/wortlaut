@@ -288,7 +288,7 @@ test('release preparation consumes the classification while explicit reusable ca
   assert.ok(condition);
   assert.match(configure, /^    needs: changes$/mu);
   const shouldPrepare = new Function('github', 'inputs', 'needs', `return Boolean(${condition});`);
-  const github = { repository_id: '1442982809', ref: 'refs/heads/main' };
+  const github = { repository_id: '1444820071', ref: 'refs/heads/main' };
   const decision = (documentationOnly) => ({ changes: { outputs: { documentation_only: documentationOnly } } });
 
   // Act / Assert: the production expression must require an explicit full-verification classification.

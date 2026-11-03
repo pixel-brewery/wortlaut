@@ -7,10 +7,10 @@ import { requestMergedRelease } from './requestMergedRelease.mjs';
 const repository = 'pixel-brewery/wortlaut';
 const prefix = `repos/${repository}`;
 const sourceSha = 'a'.repeat(40);
-const context = { eventName: 'workflow_run', repository, repositoryId: 1442982809, sourceSha };
+const context = { eventName: 'workflow_run', repository, repositoryId: 1444820071, sourceSha };
 
 function fixture() {
-  const identity = { id: 1442982809, full_name: repository };
+  const identity = { id: 1444820071, full_name: repository };
   const records = {
     repository: { ...identity, default_branch: 'main', private: false, fork: false },
     main: { name: 'main', commit: { sha: sourceSha } },
@@ -36,7 +36,7 @@ function fixture() {
   let mainReads = 0;
   const request = async (method, endpoint, body) => {
     calls.push({ method, endpoint, body });
-    if (method === 'GET' && endpoint === 'repositories/1442982809')
+    if (method === 'GET' && endpoint === 'repositories/1444820071')
       return structuredClone(records.repository);
     if (method === 'GET' && endpoint === `${prefix}/branches/main`) {
       mainReads++;

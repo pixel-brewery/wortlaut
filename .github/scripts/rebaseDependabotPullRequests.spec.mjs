@@ -10,12 +10,12 @@ const context = {
   eventName: 'push',
   ref: 'refs/heads/main',
   repository: 'pixel-brewery/wortlaut',
-  repositoryId: 1442982809,
+  repositoryId: 1444820071,
   defaultBranch: 'main',
 };
 
 function fixture() {
-  const identity = { id: 1442982809, full_name: context.repository };
+  const identity = { id: 1444820071, full_name: context.repository };
   const records = {
     repository: {
       ...identity,
@@ -42,7 +42,7 @@ function fixture() {
     calls.push({ method, endpoint, body });
     if (method === 'POST' && endpoint === `${prefix}/issues/7/comments`)
       return { id: 123, body: body.body };
-    if (endpoint === 'repositories/1442982809') return structuredClone(records.repository);
+    if (endpoint === 'repositories/1444820071') return structuredClone(records.repository);
     if (endpoint === `${prefix}/branches/main`) return structuredClone(records.main);
     if (endpoint === `${prefix}/pulls?state=open&base=main&per_page=100&page=1`)
       return [structuredClone(records.pull)];

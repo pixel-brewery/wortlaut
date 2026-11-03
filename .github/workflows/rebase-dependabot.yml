@@ -14,7 +14,7 @@ concurrency:
 jobs:
   rebase:
     if: >-
-      ${{ github.repository_id == '1442982809' &&
+      ${{ github.repository_id == '1444820071' &&
           github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
