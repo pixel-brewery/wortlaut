@@ -26,13 +26,34 @@ configuration and verified runtime behavior take precedence over older prose.
   root through Git, and never write a personal absolute path into a repository file.
 - Use the ignored `.codex-work/` directory for scratch work, helper scripts, logs and manual
   verification artifacts.
-- Never create or switch branches, create clones or worktrees, or open pull requests unless
-  `RueDeRennes` explicitly requests that specific action. A general request to implement,
-  commit or push does not grant that permission.
-- Commit or push only on request. Releases and package publishing belong to the owner, see
-  [Releasing](docs/release.md). Never push to `main`: a merge there starts a release.
+- Implementation and fix requests include task-scoped commits and pushes to `dev`, unless
+  the owner requests analysis, a draft or local-only work. Use a `codex/` branch and a pull
+  request when protection requires it, and remain responsible through the requested merge.
+  Use the designated checkout; do not create extra clones or worktrees without a specific
+  request. A change targeting `main` requires the owner's release authorization: never push
+  directly to `main`. See [Releasing](docs/release.md).
 - Run one heavy install, build, typecheck or test job at a time.
 - Reference checkouts of Mosaik, Resonanz, Symphony and Synapse are read-only.
+
+## Git delivery and completion
+
+- Assign one owner for Git staging, commits and refs in this repository. Parallel agents
+  may edit disjoint files under that owner's coordination. Inspect existing work before
+  staging and preserve unrelated changes; never silently include another task's work.
+- Inspect current branch protection and workflow effects before delivery. Run an available
+  local Ship-it review before creating a PR, resolve blockers and verify required checks
+  at its current head. Do not bypass checks or weaken protection to finish.
+- A requested PR merge is complete only when GitHub reports `MERGED` and its result is
+  present on the destination branch. Enabling auto-merge or opening a PR is not completion.
+- Before reporting completion, fetch, safely fast-forward the designated checkout and
+  verify no staged, unstaged or non-ignored untracked changes remain. Each retained local
+  branch must match its own upstream; development and release branches may differ.
+- Remove temporary branches and worktrees only after proving their work is integrated.
+  Preserve unique commits, untracked files and necessary ignored data first. Keep the
+  designated checkout and permanent integration branches; never force-reset away work.
+- If delivery is blocked, report the exact blocker and preserved work instead of calling
+  the task complete. This policy does not authorize releases, package publication,
+  deployment, visibility changes or protected-history rewrites.
 
 ## Production owners
 
