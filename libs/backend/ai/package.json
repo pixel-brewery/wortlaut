@@ -1,7 +1,7 @@
 {
   "name": "@pixel-brewery/wortlaut-ai",
   "description": "Wortlaut ai library",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "MIT",
   "author": "Pixel Brewery (https://github.com/pixel-brewery)",
   "repository": {
@@ -31,7 +31,7 @@
     "@pixel-brewery/synapse-provider-opencode": "0.0.3",
     "@pixel-brewery/synapse-runtime": "0.0.3",
     "@pixel-brewery/utilities": "0.1.187",
-    "@pixel-brewery/wortlaut-core": "0.2.3",
+    "@pixel-brewery/wortlaut-core": "0.2.4",
     "@toon-format/toon": "4.4.0",
     "ai": "7.0.148",
     "dir-glob": "3.0.1",
