@@ -1,0 +1,14 @@
+{
+  "executors": {
+    "wortlaut": {
+      "implementation": "./dist/executor/Executor",
+      "schema": "./schema.json",
+      "description": "Runs detect, analyze, transform, sort or generate of Wortlaut as a target."
+    },
+    "localizator": {
+      "implementation": "./dist/executor/Executor",
+      "schema": "./schema.json",
+      "description": "The old name of the wortlaut executor, for repositories that have not moved yet."
+    }
+  }
+}

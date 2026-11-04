@@ -17,7 +17,7 @@ const readJson = (path) => JSON.parse(readFileSync(join(root, path), 'utf8'));
 const domains = ['start', 'workspaces', 'overview', 'translations', 'detect', 'analyze', 'generate', 'transform', 'test-lab', 'review', 'rules', 'connect', 'runs', 'settings'];
 const builtDomains = readdirSync(join(root, 'libs/frontend/features'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
 const frontendLibraries = [...['core', 'ui', 'shell'].map((name) => `libs/frontend/${name}`), ...builtDomains.map((domain) => `libs/frontend/features/${domain}`)];
-const backendLibraries = ['core', 'ai', 'engine', 'mcp'].map((name) => `libs/backend/${name}`);
+const backendLibraries = ['core', 'ai', 'engine', 'mcp', 'nx-tasks', 'eslint-rules'].map((name) => `libs/backend/${name}`);
 const applicationRoots = ['apps/cli', 'apps/desktop', 'apps/frontend/app'];
 
 /**
@@ -158,6 +158,14 @@ function allowedImports(path) {
 
     if (path.startsWith('libs/backend/mcp/')) {
         return (name) => ['contracts', 'engine', 'mcp'].includes(name);
+    }
+
+    if (path.startsWith('libs/backend/nx-tasks/')) {
+        return (name) => ['app', 'nx-tasks'].includes(name);
+    }
+
+    if (path.startsWith('libs/backend/eslint-rules/')) {
+        return (name) => ['core', 'eslint-rules'].includes(name);
     }
 
     if (path.startsWith('apps/cli/')) {

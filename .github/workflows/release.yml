@@ -47,6 +47,7 @@ env:
     package.json yarn.lock CHANGELOG.md
     apps/cli/package.json libs/contracts/package.json libs/backend/core/package.json
     libs/backend/ai/package.json libs/backend/engine/package.json libs/backend/mcp/package.json
+    libs/backend/nx-tasks/package.json libs/backend/eslint-rules/package.json
 
 jobs:
   changes:
@@ -303,7 +304,7 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ github.token }}
         run: yarn install --immutable
-      - run: yarn nx run-many -t build -p wortlaut-contracts wortlaut-core wortlaut-ai wortlaut-engine wortlaut-mcp wortlaut-app --parallel=1
+      - run: yarn nx run-many -t build -p wortlaut-contracts wortlaut-core wortlaut-ai wortlaut-engine wortlaut-mcp wortlaut-app wortlaut-nx-tasks wortlaut-eslint-rules --parallel=1
       # A dry run needs no login and uploads nothing, so it proves neither on its own: the token has
       # to be accepted, and only the words of the dry run show where the packages would go.
       - name: Pack every package without publishing it
@@ -314,7 +315,7 @@ jobs:
           set -euo pipefail
           npm whoami --registry=https://npm.pkg.github.com
           yarn nx release publish --group=wortlaut --parallel=1 --dry-run | tee "$RUNNER_TEMP/publish.log"
-          test "$(grep -c 'Would publish to https://npm.pkg.github.com with tag' "$RUNNER_TEMP/publish.log")" = 6
+          test "$(grep -c 'Would publish to https://npm.pkg.github.com with tag' "$RUNNER_TEMP/publish.log")" = 8
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-rehearsal
@@ -423,7 +424,7 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ github.token }}
         run: yarn install --immutable
-      - run: yarn nx run-many -t build -p wortlaut-contracts wortlaut-core wortlaut-ai wortlaut-engine wortlaut-mcp wortlaut-app --parallel=1
+      - run: yarn nx run-many -t build -p wortlaut-contracts wortlaut-core wortlaut-ai wortlaut-engine wortlaut-mcp wortlaut-app wortlaut-nx-tasks wortlaut-eslint-rules --parallel=1
       - name: Publish the packages of the exact release commit
         env:
           GITHUB_TOKEN: ${{ github.token }}

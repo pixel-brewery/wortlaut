@@ -2,7 +2,7 @@
 
 Wortlaut keeps the texts of an application correct in every language: it detects hard-coded
 strings, analyzes catalogs, translates with AI, converts formats and sorts keys. One engine
-serves the desktop app, the CLI, the Nx executor, the Vite plugin and the MCP server. Read
+serves the desktop app, the CLI, the Nx executor, the ESLint rules and the MCP server. Read
 `docs/README.md` and the relevant feature documentation before making changes. Executable
 configuration and verified runtime behavior take precedence over older prose.
 
@@ -66,6 +66,8 @@ configuration and verified runtime behavior take precedence over older prose.
 - `libs/contracts`: Zod schemas and types for IPC, runs and settings, the one typed contract that
   crosses main and renderer.
 - `libs/backend/mcp`: the MCP server and its tools over the engine, their levels and the plugins.
+- `libs/backend/nx-tasks`: the Nx executor, thin over `run()` of the app package.
+- `libs/backend/eslint-rules`: the ESLint plugin over the analyzer rules of the core package.
 - `libs/frontend/core`: the IPC client, the session of the app, formatting and providers.
 - `libs/frontend/ui`: reusable components and the Soho theme on Mosaik.
 - `libs/frontend/shell`: title bar, sidebar and the frame of the views.

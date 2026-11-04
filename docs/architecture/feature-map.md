@@ -5,7 +5,7 @@ on a board is a requirement. A sample value on a board is not: real values come 
 screen shows its true empty state when there are none. Cloud is shown as "Later" and is not built.
 
 Wortlaut is the renamed `tools/localizator` from the Mosaik repository, growing into a desktop app with
-a CLI, an Nx executor, a Vite plugin and an MCP server on one engine.
+a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 
 ## How to read this map
 
@@ -67,8 +67,8 @@ a CLI, an Nx executor, a Vite plugin and an MCP server on one engine.
 
 **Conflicts**
 
-- The Vite plugin is a required surface but no board draws it. This map assumes it has no UI and keeps
-  using `libs/backend/core` from `infra/vite-plugins`, switched in the Mosaik integration step.
+- No repository uses the Vite plugin of `infra/vite-plugins`. It leaves Mosaik with the integration step, and Wortlaut
+  publishes none.
 - "JSON, RESX, PO, TS" does not say read or write. Today JSON, RESX and PO can be read, and TS can only
   be written. This map keeps TS as output only.
 
@@ -1141,6 +1141,6 @@ Each phase ends in something that runs.
    translations, they appear in the review list, and approval writes them.
 8. **Fleet and polish.** Run on all projects, result cache, workspace export and import, ⌘K, shortcuts, run configuration
    export, packaging. *Runs:* an installed app analyzes all projects of an Nx workspace.
-9. **Mosaik integration.** After the owner's first release, `infra/nx-tasks`, `infra/vite-plugins` and `infra/eslint-rules`
-   move to the published packages. Until then `tools/localizator` in Mosaik stays untouched. *Runs:* Mosaik's targets and
-   the Vite plugin work on the released packages.
+9. **Mosaik integration.** Mosaik does not use Wortlaut itself, so the executor and the resource rules leave it: Wortlaut publishes
+   them as `wortlaut-nx-tasks` and `wortlaut-eslint-rules`, the consumer repositories move, and Mosaik removes `tools/localizator`,
+   its executor, its Vite plugin and its resource rules. *Runs:* the consumer repositories' real targets work on the released packages.

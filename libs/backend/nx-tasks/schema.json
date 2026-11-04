@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Wortlaut",
+  "description": "Runs one command of Wortlaut. A repository usually sets the options once in targetDefaults and picks the mode through a configuration.",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["sort", "analyze", "transform", "generate", "detect"],
+      "description": "The command to run."
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Only reports what would change."
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Logs more."
+    },
+    "envFile": {
+      "type": "string",
+      "description": "A .env file relative to the project, for the values that options read as {env.NAME}."
+    },
+    "cache": {
+      "type": "object",
+      "description": "Reuses the results of files that did not change, for analyze and detect.",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "actions": {
+      "type": "object",
+      "description": "The options of each command: detect, analyze, transform, sort and generate.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
