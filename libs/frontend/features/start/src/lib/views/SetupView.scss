@@ -280,3 +280,8 @@
     gap: calc(var(--mosaik-layout-space) / 2);
   }
 }
+
+.empty-targets {
+  grid-column: 1 / -1;
+  margin: 0;
+}

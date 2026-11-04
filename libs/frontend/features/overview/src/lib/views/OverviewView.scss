@@ -86,9 +86,14 @@ mosaik-card-header {
 
 .locale-name {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  flex-wrap: wrap;
   gap: calc(var(--mosaik-layout-space) * 0.75);
   min-width: 0;
+}
+
+.locale-name > code {
+  white-space: nowrap;
 }
 
 .progress {

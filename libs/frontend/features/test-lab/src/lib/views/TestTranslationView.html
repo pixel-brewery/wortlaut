@@ -56,8 +56,15 @@
                 }
               </mosaik-select>
               <mosaik-select label="Target locale" [formField]="presenter.form.locale">
+                @if (presenter.form.locale().value() | localeFlag; as flag) {
+                  <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
+                }
                 @for (locale of sample.locales; track locale) {
-                  <mosaik-select-item [value]="locale" [label]="locale" />
+                  <mosaik-select-item [value]="locale" [label]="locale">
+                    @if (locale | localeFlag; as flag) {
+                      <mosaik-icon class="locale-flag" slot="icon" [icon]="flag" size="small" aria-hidden="true" />
+                    }
+                  </mosaik-select-item>
                 }
               </mosaik-select>
             </div>
@@ -89,7 +96,7 @@
               <mosaik-table columns="minmax(0, 3fr) minmax(0, 3.5fr) minmax(0, 3.5fr)" appearance="plain">
                 <mosaik-table-header>
                   <mosaik-table-header-row>
-                    <mosaik-table-header-cell [text]="presenter.baseName()" />
+                    <mosaik-table-header-cell><wortlaut-locale-label [code]="sample.baseLocale" [label]="presenter.baseName()" /></mosaik-table-header-cell>
                     <mosaik-table-header-cell text="Setup A" />
                     <mosaik-table-header-cell text="Setup B" />
                   </mosaik-table-header-row>

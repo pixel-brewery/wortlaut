@@ -85,7 +85,7 @@
                           @for (locale of presenter.locales(); track locale.code) {
                             <mosaik-table-body-row>
                               <mosaik-table-body-cell>
-                                <div class="locale-name"><span class="strong">{{ locale.name }}</span><code class="small muted">{{ locale.code }}</code></div>
+                                <div class="locale-name"><wortlaut-locale-label class="strong" [code]="locale.code" [label]="locale.name" /><code class="small muted">{{ locale.code }}</code></div>
                               </mosaik-table-body-cell>
                               <mosaik-table-body-cell><code class="inline muted">{{ locale.file }}</code></mosaik-table-body-cell>
                               <mosaik-table-body-cell>
@@ -139,7 +139,7 @@
                           <mosaik-icon size="small" [icon]="rule.passed ? 'checkmarkCircle' : 'warning'" [variant]="rule.passed ? 'success' : 'warning'" />
                           <code class="inline rule-name">{{ rule.id }}</code>
                           <mosaik-tooltip #resultTooltip [content]="rule.detail" (focusin)="resultTooltip.open()" (focusout)="resultTooltip.close()">
-                            <mosaik-badge appearance="soft" [variant]="rule.passed ? 'success' : 'warning'" [label]="rule.result" tabindex="0" [attr.aria-label]="rule.detail" [attr.test-id]="'overview-rule-result-' + rule.id" />
+                            <mosaik-badge class="locale-flag" appearance="soft" [icon]="(rule.resultLocale | localeFlag) ?? ''" [variant]="rule.passed ? 'success' : 'warning'" [label]="rule.result" tabindex="0" [attr.aria-label]="rule.detail" [attr.test-id]="'overview-rule-result-' + rule.id" />
                           </mosaik-tooltip>
                         </li>
                       }

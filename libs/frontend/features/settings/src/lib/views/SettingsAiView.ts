@@ -11,7 +11,7 @@ import { PasswordBoxComponent } from '@pixel-brewery/mosaik-elements-angular/com
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, LocaleLabelComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { SettingsAiViewPresenter } from '../view-presenters/SettingsAiViewPresenter';
 
 // #endregion
@@ -32,6 +32,7 @@ import { SettingsAiViewPresenter } from '../view-presenters/SettingsAiViewPresen
         FailureStateComponent,
         FormFieldDirective,
         LoadingStateComponent,
+        LocaleLabelComponent,
         MessageComponent,
         PasswordBoxComponent,
         SelectComponent,

@@ -1,5 +1,6 @@
 export { FileDiffComponent } from './lib/components/file-diff/FileDiffComponent';
 export { LogoComponent } from './lib/components/logo/LogoComponent';
+export { LocaleLabelComponent } from './lib/components/locale-label/LocaleLabelComponent';
 export { RunProgressComponent } from './lib/components/run-progress/RunProgressComponent';
 export { DryRunNoticeComponent } from './lib/components/write-result/DryRunNoticeComponent';
 export { describeWrite, WriteResultComponent } from './lib/components/write-result/WriteResultComponent';
@@ -10,3 +11,4 @@ export { provideWortlautDesign } from './lib/theme/provideWortlautDesign';
 export { wortlautIcons } from './lib/theme/wortlautIcons';
 export { PaneSizeDirective } from './lib/layout/PaneSizeDirective';
 export { TextWindowComponent } from './lib/components/text-window/TextWindowComponent';
+export { LocaleFlagPipe } from './lib/locales/LocaleFlagPipe';

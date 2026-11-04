@@ -6,7 +6,7 @@
       <div class="run-header">
         <div class="run-title">
           <div class="run-heading">
-            <h1>{{ presenter.title() }}</h1>
+            <h1><wortlaut-locale-label [code]="run.baseLocale" [label]="presenter.baseName()" /> to <wortlaut-locale-label [code]="run.locale" [label]="presenter.targetName()" /></h1>
             <mosaik-badge appearance="soft" [label]="presenter.status().label" [variant]="presenter.status().variant" />
           </div>
           <p class="lead">{{ presenter.subtitle() }}<code class="inline">{{ presenter.current()?.target }}</code></p>
@@ -40,7 +40,7 @@
       @if (presenter.localeSwitch().length > 0) {
         <mosaik-segment appearance="soft" size="small" aria-label="Locale">
           @for (locale of presenter.localeSwitch(); track locale.code) {
-            <mosaik-segment-item [label]="locale.name" [isChecked]="locale.isChecked" (click)="presenter.pickLocale(locale.code)" />
+            <mosaik-segment-item class="locale-flag" [icon]="(locale.code | localeFlag) ?? ''" [label]="locale.name" [isChecked]="locale.isChecked" (click)="presenter.pickLocale(locale.code)" />
           }
         </mosaik-segment>
       }
@@ -119,8 +119,8 @@
                     <mosaik-table columns="minmax(0, 2fr) minmax(0, 5fr) 96px" appearance="plain">
                       <mosaik-table-header>
                         <mosaik-table-header-row>
-                          <mosaik-table-header-cell [text]="presenter.baseName()" />
-                          <mosaik-table-header-cell [text]="presenter.targetName()" />
+                          <mosaik-table-header-cell><wortlaut-locale-label [code]="run.baseLocale" [label]="presenter.baseName()" /></mosaik-table-header-cell>
+                          <mosaik-table-header-cell><wortlaut-locale-label [code]="run.locale" [label]="presenter.targetName()" /></mosaik-table-header-cell>
                           <mosaik-table-header-cell text="Accept" />
                         </mosaik-table-header-row>
                       </mosaik-table-header>

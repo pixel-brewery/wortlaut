@@ -12,7 +12,7 @@ import { ProgressBarComponent } from '@pixel-brewery/mosaik-elements-angular/com
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TooltipComponent } from '@pixel-brewery/mosaik-elements-angular/components/tooltip';
-import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, LocaleLabelComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { OverviewViewPresenter } from '../view-presenters/OverviewViewPresenter';
 
 // #endregion
@@ -33,6 +33,8 @@ import { OverviewViewPresenter } from '../view-presenters/OverviewViewPresenter'
         FailureStateComponent,
         IconComponent,
         LoadingStateComponent,
+        LocaleFlagPipe,
+        LocaleLabelComponent,
         ProgressBarComponent,
         RouterLink,
         SplitComponent,

@@ -26,6 +26,7 @@ import {
     reiconSettings,
     reiconSparkle
 } from '@pixel-brewery/mosaik-icons/reicon';
+import { localeFlagIcons } from '../locales/localeFlagIcons';
 
 // #endregion
 
@@ -33,6 +34,7 @@ import {
  * The icons of the app under the names the design uses.
  */
 export const wortlautIcons = {
+    ...localeFlagIcons,
     add: reiconAdd,
     aiClaude: lobeClaudecode,
     aiCodex: lobeCodex,

@@ -48,6 +48,43 @@ Cancel and Escape discard the draft. Existing locale identifiers, including regi
 codes, are preserved; choosing a new language creates no translation file.
 The 184 offered ISO languages have portable English names when the desktop runtime
 does not provide them through `Intl.DisplayNames`.
+The target list starts with detected catalog locales and explicitly added targets.
+Unselected language suggestions do not create cards; the empty state points to Plus.
+
+## Language identity
+
+Structured locale labels and language choices use the rounded Reicon flag assets
+from the installed `@pixel-brewery/mosaik-icons/reicon/flags` package, alongside
+the existing textual name and locale code. The flag is decorative. Explicit regions
+are retained; language-only identifiers use a representative region, with GB for
+English and PT for Portuguese. Unknown, non-country and unsupported regions keep
+their text without a substitute country flag. Script variants follow the locale's
+likely region. Catalog identifiers and persisted settings remain unchanged.
+
+The shared UI owner maps supported ISO regions to actual Mosaik definitions and
+registers stable aliases for controls whose icon input requires a string. Selects
+use the public icon slot for options and the prefix slot for the selected value.
+Reicon paths without a fill keep SVG's intrinsic black through the public symbol
+and icon parts, so dark mode does not recolor national flags.
+
+The Mosaik MCP catalog was unavailable for this addition after an availability
+retry. The installed 0.1.187 Icon, Select, SelectItem, Chip, Badge and Segment APIs
+and Soho tokens supplied the component evidence. No new Studio tree was authored.
+
+Language identity passed `yarn verify`; the final label and list wrapping refinements
+also passed the renderer build. The application checker inspected 215 files with
+zero errors, warnings or exceptions. Framework mode does not count components;
+source inspection found 506 Mosaik elements across the 12 modified existing
+templates and one in the new shared locale label.
+
+Native checks inspected locale labels in Overview, Translations, Analyze, Generate
+setup, Test Translation, Workspace/Project/AI settings and Projects in light and
+dark modes, including regional identifiers and an unknown code without a flag.
+Setup's empty target state and German/French picker selection were exercised in
+dark mode. Widths of 1440 and 1800 CSS pixels were inspected. These are focused
+checks of language identity, not a repeat of every workflow. A completed Generate
+run and live AI inference were not exercised natively; the former retains its
+presenter test coverage. No user catalog change was applied.
 
 ## Catalog references
 
@@ -66,7 +103,7 @@ compact and wide desktop sizes. Static checking alone is not interaction evidenc
 
 The application checker reports zero errors, warnings and exceptions for the three
 authored onboarding templates. Its framework mode does not count component use;
-source inspection counts 84 Mosaik elements across those templates.
+source inspection counts 86 Mosaik elements across those templates.
 
 Local verification includes `yarn verify`, native package verification on macOS
 arm64, and the built and packaged desktop acceptance runner. The runner exercises

@@ -81,8 +81,8 @@ describe('describeLocale', () => {
 
 describe('describeRule', () => {
     it('writes the result of a rule per locale', () => {
-        expect(describeRule({ id: 'a', passed: true, locales: [] })).toEqual({ id: 'a', passed: true, result: 'Pass', detail: 'Pass' });
-        expect(describeRule({ id: 'a', passed: false, locales: [{ locale: 'en', count: 22 }, { locale: 'de', count: 16 }] })).toMatchObject({ result: 'en 22 +1', detail: 'en 22 · de 16' });
+        expect(describeRule({ id: 'a', passed: true, locales: [] })).toEqual({ id: 'a', passed: true, result: 'Pass', detail: 'Pass', resultLocale: null });
+        expect(describeRule({ id: 'a', passed: false, locales: [{ locale: 'en', count: 22 }, { locale: 'de', count: 16 }] })).toMatchObject({ result: 'en 22 +1', detail: 'en 22 · de 16', resultLocale: 'en' });
         expect(describeRule({ id: 'a', passed: false, locales: [{ locale: 'de', count: null }] }).result).toBe('de');
         expect(describeRule({ id: 'a', passed: false, locales: [] }).result).toBe('Failed');
     });
@@ -139,7 +139,7 @@ describe('OverviewViewPresenter', () => {
         expect(presenter.figures()[2]).toEqual({ label: 'Failing rules', value: '2 of 3', note: 'unused-keys, missing-translations' });
         expect(presenter.figures()[3]).toEqual({ label: 'Unused keys', value: '215', note: 'No source below apps/web/src uses them' });
         expect(presenter.rulesNote()).toBe('1 of 3 pass');
-        expect(presenter.rules()[1]).toEqual({ id: 'unused-keys', passed: false, result: 'en 215', detail: 'en 215' });
+        expect(presenter.rules()[1]).toEqual({ id: 'unused-keys', passed: false, result: 'en 215', detail: 'en 215', resultLocale: 'en' });
     });
 
     it('says when no rule fails and no key is unused', async () => {

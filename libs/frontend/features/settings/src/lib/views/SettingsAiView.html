@@ -119,7 +119,7 @@
           </div>
           @for (field of presenter.localeFields(); track field.code) {
             <div class="field-row">
-              <div class="field-text"><span class="name">{{ field.name }}</span><span class="note">Added for {{ field.code }}.</span></div>
+              <div class="field-text"><wortlaut-locale-label class="name" [code]="field.code" [label]="field.name" /><span class="note">Added for {{ field.code }}.</span></div>
               <mosaik-textbox [attr.aria-label]="field.name" [multiline]="true" [multilineRows]="3" [value]="field.value" (input)="onLocaleInstructions(field.code, $event)" />
             </div>
           }

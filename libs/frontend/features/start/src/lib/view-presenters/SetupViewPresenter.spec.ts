@@ -101,16 +101,50 @@ describe('SetupViewPresenter', () => {
         expect(presenter.canFinish()).toBe(true);
     });
 
-    it('preselects the locales that exist and marks each one', async () => {
+    it('shows and preselects only the target locales detected in catalogs', async () => {
         const { presenter } = setUp();
 
         await presenter.load();
 
         expect(presenter.localeChoices()).toEqual([
-            { code: 'de', name: 'German', note: 'Exists, 2 keys', isChecked: true },
-            { code: 'fr', name: 'French', note: 'New', isChecked: false },
-            { code: 'nl', name: 'Dutch', note: 'New', isChecked: false }
+            { code: 'de', name: 'German', note: 'Exists, 2 keys', isChecked: true }
         ]);
+    });
+
+    it('starts without unsolicited target languages and keeps explicitly added picker choices through reinspection and registration', async () => {
+        // arrange
+        const { presenter, request } = setUp({ inspection: {
+            ...INSPECTION,
+            catalogs: [],
+            locales: [],
+            suggestedLocales: ['de', 'fr', 'nl', 'es', 'it']
+        } });
+
+        // act
+        await presenter.load();
+
+        // assert
+        expect(presenter.localeChoices()).toEqual([]);
+        expect(presenter.targetLocaleCount()).toBe(0);
+        expect(presenter.localePickerExcludedCodes()).toEqual(['en']);
+
+        // act
+        presenter.addLocales(['ja', 'fr', 'ja', 'en']);
+        await presenter.inspection.reload();
+
+        // assert
+        expect(presenter.localeChoices().map(({ code, isChecked }) => ({ code, isChecked }))).toEqual([
+            { code: 'ja', isChecked: true },
+            { code: 'fr', isChecked: true }
+        ]);
+        expect(presenter.targetLocaleCount()).toBe(2);
+        expect(presenter.localePickerExcludedCodes()).toEqual(['en', 'ja', 'fr']);
+
+        // act
+        await presenter.finish(true);
+
+        // assert
+        expect(registerPayload(request).targetLocales).toEqual(['ja', 'fr']);
     });
 
     it('takes the state a chip reports without flipping it', async () => {
@@ -127,7 +161,7 @@ describe('SetupViewPresenter', () => {
 
         presenter.setLocale('fr', true);
         presenter.setLocale('de', false);
-        expect(presenter.localeChoices().map((choice) => choice.isChecked)).toEqual([false, true, false]);
+        expect(presenter.localeChoices().map((choice) => choice.isChecked)).toEqual([false, true]);
     });
 
     it('offers existing workspaces and a new one, preselecting the one it was opened for', async () => {
@@ -306,7 +340,7 @@ describe('SetupViewPresenter', () => {
         expect(plain.presenter.choosingSourceRoot()).toBe(false);
     });
 
-    it('offers the complete language repertoire and adds languages beyond the suggestions', async () => {
+    it('offers the complete language repertoire and adds explicitly chosen languages', async () => {
         const { presenter, request } = setUp();
 
         await presenter.load();

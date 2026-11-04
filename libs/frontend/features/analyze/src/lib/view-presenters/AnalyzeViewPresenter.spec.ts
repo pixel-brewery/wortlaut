@@ -94,6 +94,7 @@ describe('AnalyzeViewPresenter', () => {
         // assert
         expect(presenter.runLabel()).toBe('Run 2 rules');
         expect(presenter.canRun()).toBe(true);
+        expect(presenter.rules().find((rule) => rule.id === 'missing-translations')?.resultLocale).toBe('de');
 
         // act
         presenter.setRule('empty-values', false);
@@ -103,6 +104,7 @@ describe('AnalyzeViewPresenter', () => {
         expect(presenter.runLabel()).toBe('Run 0 rules');
         expect(presenter.canRun()).toBe(false);
         expect(presenter.rules().find((rule) => rule.id === 'unused-keys')?.result).toBe('Off');
+        expect(presenter.rules().find((rule) => rule.id === 'missing-translations')?.resultLocale).toBeNull();
     });
 
     it('shows the first rule that failed, and the result of a rule that is picked', async () => {
@@ -117,6 +119,7 @@ describe('AnalyzeViewPresenter', () => {
         // assert
         expect(presenter.selectedId()).toBe('missing-translations');
         expect(presenter.rows()[0].a).toBe('loc.pdf');
+        expect(presenter.rows()[0].localeA).toBeNull();
 
         // act
         presenter.pick('empty-values');

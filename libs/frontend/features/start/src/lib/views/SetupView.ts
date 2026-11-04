@@ -17,7 +17,7 @@ import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, Tabl
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import type { AiProviderId } from '@pixel-brewery/wortlaut-contracts';
 import { formatName } from '@pixel-brewery/wortlaut-frontend-core';
-import { FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe } from '@pixel-brewery/wortlaut-frontend-ui';
 import { LocalePickerComponent } from '../components/locale-picker/LocalePickerComponent';
 import { SetupViewPresenter } from '../view-presenters/SetupViewPresenter';
 
@@ -42,6 +42,7 @@ import { SetupViewPresenter } from '../view-presenters/SetupViewPresenter';
         FormFieldDirective,
         IconComponent,
         LocalePickerComponent,
+        LocaleFlagPipe,
         LoadingStateComponent,
         MessageComponent,
         PasswordBoxComponent,

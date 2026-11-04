@@ -76,7 +76,7 @@ export function describeLocale(locale: LocaleCoverage): ILocaleRow {
 export function describeRule(rule: RuleResult): IRuleRow {
     const result = summarizeRuleResult(rule.locales, rule.passed);
 
-    return { id: rule.id, passed: rule.passed, result: result.label, detail: result.detail };
+    return { id: rule.id, passed: rule.passed, result: result.label, detail: result.detail, resultLocale: result.locale };
 }
 
 /**

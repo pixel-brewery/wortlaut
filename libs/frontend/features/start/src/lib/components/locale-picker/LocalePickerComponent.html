@@ -40,7 +40,9 @@
               [isChecked]="selected().has(language.code)"
               (checked)="setSelected(language.code, true)"
               (unchecked)="setSelected(language.code, false)"
-            />
+            >
+              <wortlaut-locale-label slot="label" [code]="language.code" [label]="language.name" />
+            </mosaik-checkbox>
             <code>{{ language.code }}</code>
           </div>
         } @empty {

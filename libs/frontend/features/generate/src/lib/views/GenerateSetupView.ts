@@ -18,7 +18,7 @@ import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/component
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import type { AiProvider } from '@pixel-brewery/wortlaut-contracts';
-import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, LocaleLabelComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupViewPresenter';
 
 // #endregion
@@ -47,6 +47,8 @@ import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupView
         FailureStateComponent,
         FormFieldDirective,
         LoadingStateComponent,
+        LocaleFlagPipe,
+        LocaleLabelComponent,
         MessageComponent,
         PaneSizeDirective,
         SegmentComponent,

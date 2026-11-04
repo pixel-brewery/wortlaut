@@ -39,4 +39,5 @@ export interface IRuleRow {
     passed: boolean;
     result: string;
     detail: string;
+    resultLocale: string | null;
 }

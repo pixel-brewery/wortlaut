@@ -45,8 +45,15 @@
           </mosaik-segment>
           @if (presenter.targetLocales().length > 1) {
             <mosaik-select aria-label="Target locale" size="small" class="toolbar-locale" [formField]="presenter.targetForm.code">
+              @if (presenter.target() | localeFlag; as flag) {
+                <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
+              }
               @for (locale of presenter.targetLocales(); track locale.code) {
-                <mosaik-select-item [value]="locale.code" [label]="locale.label" />
+                <mosaik-select-item [value]="locale.code" [label]="locale.label">
+                  @if (locale.code | localeFlag; as flag) {
+                    <mosaik-icon class="locale-flag" slot="icon" [icon]="flag" size="small" aria-hidden="true" />
+                  }
+                </mosaik-select-item>
               }
             </mosaik-select>
           }
@@ -79,8 +86,14 @@
                 <mosaik-table-header>
                   <mosaik-table-header-row>
                     <mosaik-table-header-cell [text]="presenter.keysHeader()" />
-                    <mosaik-table-header-cell [text]="presenter.baseHeader()" />
-                    <mosaik-table-header-cell [text]="presenter.targetHeader()" />
+                    <mosaik-table-header-cell><wortlaut-locale-label [code]="overview.baseLocale" [label]="presenter.baseHeader()" /></mosaik-table-header-cell>
+                    <mosaik-table-header-cell>
+                      @if (presenter.target(); as target) {
+                        <wortlaut-locale-label [code]="target" [label]="presenter.targetHeader()" />
+                      } @else {
+                        {{ presenter.targetHeader() }}
+                      }
+                    </mosaik-table-header-cell>
                   </mosaik-table-header-row>
                 </mosaik-table-header>
                 <mosaik-table-body>
@@ -131,9 +144,17 @@
             <code class="inline key-name strong-code">{{ detail.key }}</code>
           </div>
 
-          <mosaik-textbox [label]="presenter.baseHeader()" [value]="detail.base" [multiline]="true" [multilineRows]="2" [readonly]="true" />
+          <mosaik-textbox [label]="presenter.baseHeader()" [value]="detail.base" [multiline]="true" [multilineRows]="2" [readonly]="true">
+            @if (overview.baseLocale | localeFlag; as flag) {
+              <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
+            }
+          </mosaik-textbox>
           @if (presenter.target()) {
-            <mosaik-textbox [label]="presenter.targetHeader()" [multiline]="true" [multilineRows]="2" [formField]="presenter.editorForm.value" />
+            <mosaik-textbox [label]="presenter.targetHeader()" [multiline]="true" [multilineRows]="2" [formField]="presenter.editorForm.value">
+              @if (presenter.target() | localeFlag; as flag) {
+                <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
+              }
+            </mosaik-textbox>
             @if (presenter.isDirty()) {
               <div class="actions">
                 <mosaik-button label="Save" variant="primary" appearance="solid" size="small" [isBusy]="presenter.busy()" (click)="presenter.save()" />

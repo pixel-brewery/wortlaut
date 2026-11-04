@@ -130,8 +130,15 @@
                 </div>
                 <div slot="content" class="base-language">
                   <mosaik-select label="Base locale" [formField]="presenter.form.baseLocale">
+                    @if (presenter.form.baseLocale().value() | localeFlag; as flag) {
+                      <mosaik-icon slot="prefix" class="locale-flag" [icon]="flag" size="small" aria-hidden="true" />
+                    }
                     @for (locale of presenter.baseLocales(); track locale.code) {
-                      <mosaik-select-item [value]="locale.code" [label]="locale.label" />
+                      <mosaik-select-item [value]="locale.code" [label]="locale.label">
+                        @if (locale.code | localeFlag; as flag) {
+                          <mosaik-icon slot="icon" class="locale-flag" [icon]="flag" size="small" aria-hidden="true" />
+                        }
+                      </mosaik-select-item>
                     }
                   </mosaik-select>
                   <p class="note">Existing catalog names and regional locale codes are preserved.</p>
@@ -146,9 +153,11 @@
                   <div class="target-grid" role="group" aria-label="Target locales">
                     @for (locale of presenter.localeChoices(); track locale.code) {
                       <div class="target" [class.is-selected]="locale.isChecked">
-                        <mosaik-chip [label]="locale.name + ' (' + locale.code + ')'" [isCheckable]="true" [isChecked]="locale.isChecked" (checked)="presenter.setLocale(locale.code, true)" (unchecked)="presenter.setLocale(locale.code, false)" />
+                        <mosaik-chip class="locale-flag" [icon]="(locale.code | localeFlag) ?? ''" [label]="locale.name + ' (' + locale.code + ')'" [isCheckable]="true" [isChecked]="locale.isChecked" (checked)="presenter.setLocale(locale.code, true)" (unchecked)="presenter.setLocale(locale.code, false)" />
                         <span class="note">{{ locale.note }}</span>
                       </div>
+                    } @empty {
+                      <p class="note empty-targets" role="status">No target languages yet. Use + to add languages.</p>
                     }
                   </div>
                   <p class="note">New languages start empty. No translation file is created until you review and apply a change.</p>

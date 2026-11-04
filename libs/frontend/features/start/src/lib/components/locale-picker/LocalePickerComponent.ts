@@ -7,6 +7,7 @@ import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/componen
 import { CheckboxComponent } from '@pixel-brewery/mosaik-elements-angular/components/check-box';
 import { DialogActionsComponent, DialogComponent, DialogHeaderComponent, DialogHeaderTextComponent } from '@pixel-brewery/mosaik-elements-angular/components/dialog';
 import { SearchBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/search-box';
+import { LocaleLabelComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { localePickerOptions, selectedLocaleCodes } from './localePickerOptions';
 
 // #endregion
@@ -17,7 +18,7 @@ import { localePickerOptions, selectedLocaleCodes } from './localePickerOptions'
  */
 @Component({
     selector: 'wortlaut-locale-picker',
-    imports: [ButtonComponent, CheckboxComponent, DialogActionsComponent, DialogComponent, DialogHeaderComponent, DialogHeaderTextComponent, FormFieldDirective, SearchBoxComponent],
+    imports: [ButtonComponent, CheckboxComponent, DialogActionsComponent, DialogComponent, DialogHeaderComponent, DialogHeaderTextComponent, FormFieldDirective, LocaleLabelComponent, SearchBoxComponent],
     templateUrl: './LocalePickerComponent.html',
     styleUrl: './LocalePickerComponent.scss',
     changeDetection: ChangeDetectionStrategy.OnPush

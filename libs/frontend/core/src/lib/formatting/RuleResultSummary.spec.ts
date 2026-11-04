@@ -15,17 +15,17 @@ describe('summarizeRuleResult', () => {
             { locale: 'uk', count: 1 }
         ];
 
-        expect(summarizeRuleResult(locales, false)).toEqual({ label: 'de 198 +2', detail: 'de 198 · en 187 · uk 1' });
+        expect(summarizeRuleResult(locales, false)).toEqual({ label: 'de 198 +2', detail: 'de 198 · en 187 · uk 1', locale: 'de' });
     });
 
     it('preserves zero, uncounted and locale-independent findings', () => {
-        expect(summarizeRuleResult([{ locale: 'de', count: 0 }], false)).toEqual({ label: 'de 0', detail: 'de 0' });
-        expect(summarizeRuleResult([{ locale: null, count: null }], false)).toEqual({ label: 'All locales', detail: 'All locales' });
-        expect(summarizeRuleResult([{ locale: 'de', count: null }, { locale: 'de', count: 7 }], false)).toEqual({ label: 'de 7+', detail: 'de 7+' });
+        expect(summarizeRuleResult([{ locale: 'de', count: 0 }], false)).toEqual({ label: 'de 0', detail: 'de 0', locale: 'de' });
+        expect(summarizeRuleResult([{ locale: null, count: null }], false)).toEqual({ label: 'All locales', detail: 'All locales', locale: null });
+        expect(summarizeRuleResult([{ locale: 'de', count: null }, { locale: 'de', count: 7 }], false)).toEqual({ label: 'de 7+', detail: 'de 7+', locale: 'de' });
     });
 
     it('keeps the outcome when there are no per-locale findings', () => {
-        expect(summarizeRuleResult([], false)).toEqual({ label: 'Failed', detail: 'Failed' });
-        expect(summarizeRuleResult([{ locale: 'de', count: 7 }], true)).toEqual({ label: 'Pass', detail: 'Pass' });
+        expect(summarizeRuleResult([], false)).toEqual({ label: 'Failed', detail: 'Failed', locale: null });
+        expect(summarizeRuleResult([{ locale: 'de', count: 7 }], true)).toEqual({ label: 'Pass', detail: 'Pass', locale: null });
     });
 });

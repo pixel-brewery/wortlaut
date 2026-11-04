@@ -552,3 +552,15 @@ mosaik-message {
   flex-direction: column;
   gap: var(--mosaik-layout-space);
 }
+
+// Reicon flags use SVG's intrinsic black for paths without an explicit fill.
+// Preserve that color in both modes through the controls' public icon parts.
+mosaik-chip.locale-flag::part(icon),
+mosaik-badge.locale-flag::part(icon),
+mosaik-segment-item.locale-flag::part(icon) {
+  color: var(--soho-color-light-primary-900);
+}
+
+mosaik-icon.locale-flag::part(symbol) {
+  fill: initial;
+}

@@ -41,6 +41,10 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - **Long work:** reports progress, can be cancelled, lives in main or a utility process and survives a
   renderer reload.
 - **Paths:** chosen through native dialogs. Main checks that later requests stay inside the chosen roots.
+- **Locale identity:** structured language choices, table headers and locale rows pair their text with
+  decorative Reicon flags from Mosaik. Explicit regional identifiers retain their country; unsupported
+  or non-country regions keep their text without a substitute flag. Catalog IDs, settings and technical
+  output remain unchanged. Country colors stay intrinsic in both app color modes.
 - **Native view frame:** views share a bounded `page-frame` host and a shrinkable `page-content` area.
   Titles, navigation and primary actions stay visible while card bodies, tables or long form stacks
   scroll within their content area. Standalone views keep the native drag strip outside that area.
@@ -143,7 +147,8 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - Catalogs found: table of folder, files, keys, format. Add another folder opens a native dialog.
   No catalogs found is an empty state, and the user can still continue.
 - Locales: choose the base locale from the language repertoire or a discovered regional catalog ID.
-  Toggle target locale chips, each marked "Exists, N keys" or "New". Plus opens a searchable Mosaik
+  Target cards contain only detected catalogs and explicitly added languages, with no unsolicited
+  default suggestions. Toggle target locale chips, each marked "Exists, N keys" or "New". Plus opens a searchable Mosaik
   dialog with a repertoire of 184 ISO language codes and portable English names. Confirming adds the checked
   languages; Cancel or Escape discards the draft. Existing locale IDs are preserved, and the base
   locale is excluded from targets. A new locale creates no file; Overview shows it as "Not created".

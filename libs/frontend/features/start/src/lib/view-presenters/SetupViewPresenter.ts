@@ -284,7 +284,7 @@ export class SetupViewPresenter {
         const base = this._model().baseLocale;
         const targets = this._targets() ?? new Set<string>();
         const existing = new Map((inspection?.locales ?? []).map((locale) => [locale.code, locale]));
-        const codes = new Set([...existing.keys(), ...(inspection?.suggestedLocales ?? []), ...targets]);
+        const codes = new Set([...existing.keys(), ...targets]);
 
         return [...codes].filter((code) => code !== base).map((code) => ({
             code,
