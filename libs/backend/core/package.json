@@ -5,7 +5,9 @@
   "license": "MIT",
   "author": "Pixel Brewery (https://github.com/pixel-brewery)",
   "repository": {
-    "url": "git+ssh://git@github.com/pixel-brewery/wortlaut.git"
+    "type": "git",
+    "url": "git+https://github.com/pixel-brewery/wortlaut.git",
+    "directory": "libs/backend/core"
   },
   "type": "commonjs",
   "main": "./dist/Index.js",
