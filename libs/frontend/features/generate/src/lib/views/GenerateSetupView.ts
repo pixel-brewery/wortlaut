@@ -14,10 +14,11 @@ import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/compone
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
 import { SliderComponent } from '@pixel-brewery/mosaik-elements-angular/components/slider';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import type { AiProvider } from '@pixel-brewery/wortlaut-contracts';
-import { FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupViewPresenter';
 
 // #endregion
@@ -27,6 +28,7 @@ import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupView
  */
 @Component({
     selector: 'wortlaut-generate-setup',
+    host: { class: 'page-frame' },
     imports: [
         AnchorComponent,
         ButtonComponent,
@@ -46,11 +48,13 @@ import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupView
         FormFieldDirective,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         SegmentComponent,
         SegmentItemComponent,
         SelectComponent,
         SelectItemComponent,
         SliderComponent,
+        SplitComponent,
         TextBoxComponent,
         ToggleSwitchComponent
     ],

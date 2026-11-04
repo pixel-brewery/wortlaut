@@ -10,7 +10,7 @@ import { EffectiveSettingsSchema, LabeledCommandSchema, NxTargetsSchema, Setting
 import { McpActivitySchema, McpClientSchema, McpLevelRequestSchema, McpStatusSchema, McpToolSchema } from './dto/McpDtos.js';
 import { LocaleTagSchema } from '../settings/ProjectOptions.js';
 import { ProjectInspectionSchema, ProjectInspectRequestSchema, ProjectListSchema, ProjectRegisterRequestSchema, ProjectRegisterResultSchema, ProjectSettingsChangesSchema, ProjectSettingsSchema, ProjectSummarySchema } from './dto/ProjectDtos.js';
-import { ReviewDetailSchema, ReviewItemSchema } from './dto/ReviewDtos.js';
+import { ReviewDetailRequestSchema, ReviewDetailSchema, ReviewItemSchema } from './dto/ReviewDtos.js';
 import { RulePackAvailableSchema, RulePackCheckSchema, RulePackEntrySchema, RulePackSourceRequestSchema, RulePackTargetSchema, RulePackUpdateSchema, RulePackWriteSchema } from './dto/RulePackDtos.js';
 import { RunDetailSchema, RunSummarySchema } from './dto/RunDtos.js';
 import { SearchQueryRequestSchema, SearchResultsSchema } from './dto/SearchDtos.js';
@@ -169,7 +169,7 @@ export const IPC_CONTRACT = {
     'test.detect': { request: TestDetectRequestSchema, response: TestDetectResultSchema },
     'test.pattern': { request: TestPatternRequestSchema, response: TestPatternResultSchema },
     'changes.list': { request: WorkspaceIdSchema, response: z.array(ReviewItemSchema) },
-    'changes.get': { request: ChangeSetIdSchema, response: ReviewDetailSchema },
+    'changes.get': { request: ReviewDetailRequestSchema, response: ReviewDetailSchema },
     'changes.apply': { request: ChangeSetIdSchema, response: WriteOutcomeSchema },
     'changes.discard': { request: ChangeSetIdSchema, response: EmptySchema },
     'changes.recovered': { request: EmptySchema, response: z.array(z.strictObject({ outcome: z.enum(['finished', 'restored', 'nothing-written', 'failed']), message: z.string() })) },

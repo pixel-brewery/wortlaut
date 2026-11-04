@@ -9,9 +9,10 @@ import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { ProgressBarComponent } from '@pixel-brewery/mosaik-elements-angular/components/progress-bar';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, TextWindowComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPresenter';
 
 // #endregion
@@ -21,6 +22,7 @@ import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPres
  */
 @Component({
     selector: 'wortlaut-generate-run',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,
@@ -31,9 +33,11 @@ import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPres
         IconComponent,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         ProgressBarComponent,
         SegmentComponent,
         SegmentItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,
@@ -42,6 +46,7 @@ import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPres
         TableHeaderComponent,
         TableHeaderRowComponent,
         TextBoxComponent,
+        TextWindowComponent,
         WriteResultComponent
     ],
     providers: [GenerateRunViewPresenter],

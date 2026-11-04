@@ -1,5 +1,5 @@
+<div class="drag-region titlebar-strip" aria-hidden="true"></div>
 <div class="page-scroll">
-  <div class="drag-region titlebar-strip" aria-hidden="true"></div>
   <main class="workspaces">
     <div class="page-title">
       <h1>Workspaces</h1>
@@ -10,51 +10,56 @@
       <mosaik-message variant="danger" header="That did not work" [content]="message" />
     }
 
-    <div class="columns">
-      <div class="cards">
-        @if (presenter.workspaces.isLoading()) {
-          <wortlaut-loading-state label="Loading the workspaces" />
-        } @else if (presenter.workspaces.isFailed()) {
-          <wortlaut-failure-state header="The workspaces could not be read" [message]="presenter.workspaces.error()" (retry)="presenter.workspaces.reload()" />
-        } @else {
-          @for (workspace of presenter.workspaces.value(); track workspace.id) {
-            <section [attr.aria-label]="workspace.name">
-              <mosaik-card>
-                <div slot="content" class="card-box workspace-card">
-                  <div class="workspace-head">
-                    <wortlaut-workspace-tile size="large" [code]="workspace.code" [color]="workspace.color" />
-                    <div class="workspace-title">
-                      <h2>{{ workspace.name }}</h2>
-                      <code class="small muted">{{ workspace.folder }}</code>
-                    </div>
-                    <div class="actions">
-                      <mosaik-button label="Settings" appearance="plain" size="small" (click)="presenter.openSettings(workspace.id)" />
-                      <mosaik-button label="Open" variant="neutral" appearance="outline" size="small" icon="arrowRight" (click)="presenter.open(workspace.id)" />
-                    </div>
-                  </div>
-                  <dl class="facts">
-                    @for (fact of presenter.factsOf(workspace); track fact.label) {
-                      <div class="fact">
-                        <dt class="note">{{ fact.label }}</dt>
-                        <dd>{{ fact.value }}</dd>
+    <mosaik-split class="pane-split page-content" paneSizeKey="workspaces.workspace" paneSize="55%" min="300px" max="65%" [intl]="{ resizeLabel: 'Resize workspace list' }" test-id="workspaces-workspace-split">
+      <div slot="start" class="pane-start">
+        <div class="cards">
+          @if (presenter.workspaces.isLoading()) {
+            <wortlaut-loading-state label="Loading the workspaces" />
+          } @else if (presenter.workspaces.isFailed()) {
+            <wortlaut-failure-state header="The workspaces could not be read" [message]="presenter.workspaces.error()" (retry)="presenter.workspaces.reload()" />
+          } @else {
+            @for (workspace of presenter.cards(); track workspace.id) {
+              <section [attr.aria-label]="workspace.name">
+                <mosaik-card>
+                  <div slot="content" class="card-box workspace-card">
+                    <div class="workspace-head">
+                      <wortlaut-workspace-tile size="large" [code]="workspace.code" [color]="workspace.color" />
+                      <div class="workspace-title">
+                        <h2>{{ workspace.name }}</h2>
+                        <code class="small muted">{{ workspace.folder }}</code>
                       </div>
-                    }
-                  </dl>
-                  <div class="tags">
-                    @for (tag of presenter.tagsOf(workspace); track tag.label) {
-                      <mosaik-badge appearance="soft" [label]="tag.label" [variant]="tag.variant" />
-                    }
+                      <div class="actions">
+                        <mosaik-button label="Settings" appearance="plain" size="small" (click)="presenter.openSettings(workspace.id)" />
+                        <mosaik-button label="Open" variant="neutral" appearance="outline" size="small" icon="arrowRight" (click)="presenter.open(workspace.id)" />
+                      </div>
+                    </div>
+                    <dl class="facts">
+                      @for (fact of presenter.factsOf(workspace); track fact.label) {
+                        <div class="fact">
+                          <dt class="note">{{ fact.label }}</dt>
+                          <dd>{{ fact.value }}</dd>
+                        </div>
+                      }
+                    </dl>
+                    <div class="tags">
+                      @for (tag of presenter.tagsOf(workspace); track tag.label) {
+                        <mosaik-badge appearance="soft" [label]="tag.label" [variant]="tag.variant" />
+                      }
+                    </div>
                   </div>
-                </div>
-              </mosaik-card>
-            </section>
-          } @empty {
-            <mosaik-empty-state header="No workspaces yet" content="Create the first one with a repository folder." />
+                </mosaik-card>
+              </section>
+            } @empty {
+              <mosaik-empty-state header="No workspaces yet" content="Create the first one with a repository folder." />
+            }
+            @if (presenter.hasMore()) {
+              <mosaik-button label="Show more" appearance="plain" size="small" test-id="workspaces-more-items" (click)="presenter.showMore()" />
+            }
           }
-        }
+        </div>
       </div>
 
-      <section class="new-workspace" aria-label="New workspace">
+      <section slot="end" class="new-workspace pane-end" aria-label="New workspace">
         <mosaik-card>
           <mosaik-card-header slot="header" text="New workspace" />
           <div slot="content" class="card-pad new-form">
@@ -91,6 +96,8 @@
               (click)="presenter.chooseFolder()"
             />
             <span class="note">Wortlaut looks for Nx projects with a wortlaut target and for folders with catalogs.</span>
+          </div>
+          <div slot="footer" class="create-footer">
             <mosaik-button
               label="Create workspace"
               variant="primary"
@@ -103,6 +110,6 @@
           </div>
         </mosaik-card>
       </section>
-    </div>
+    </mosaik-split>
   </main>
 </div>

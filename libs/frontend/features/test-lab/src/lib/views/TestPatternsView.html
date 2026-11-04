@@ -1,5 +1,5 @@
-<div class="panels">
-  <div class="panel-left">
+<mosaik-split class="pane-split page-content" test-id="test-patterns-split" paneSizeKey="test.patterns" paneSize="50%" min="30%" max="70%" [intl]="{ resizeLabel: 'Resize pattern options and matching keys' }">
+  <div slot="start" class="panel-left pane-start">
     <section aria-label="Pattern" class="card-section">
       <mosaik-card>
         <div slot="content" class="card-box">
@@ -56,7 +56,7 @@
     </section>
   </div>
 
-  <section [attr.aria-label]="presenter.title()" class="panel-right">
+  <section slot="end" [attr.aria-label]="presenter.title()" class="panel-right pane-end">
     <mosaik-card>
       <mosaik-card-header slot="header" [text]="presenter.title()" />
       <div slot="content" class="card-body">
@@ -76,15 +76,20 @@
               </li>
             }
           </ul>
-          @if (presenter.hiddenKeys() > 0) {
-            <div class="table-footer note row-line">{{ presenter.hiddenKeys() }} more keys do not show.</div>
-          }
         } @else {
           <div class="row-line">
             <mosaik-empty-state header="No keys yet" content="This project has no catalog with keys to test on." />
           </div>
         }
       </div>
+      @if (presenter.hiddenKeys() > 0) {
+        <div slot="footer" class="table-footer note row-line actions">
+          <span>{{ presenter.hiddenKeys() }} more keys do not show.</span>
+          @if (presenter.hasMoreKeys()) {
+            <mosaik-button test-id="test-patterns-more-keys" label="Show more" appearance="plain" size="small" (click)="presenter.showMoreKeys()" />
+          }
+        </div>
+      }
     </mosaik-card>
   </section>
-</div>
+</mosaik-split>

@@ -21,6 +21,7 @@ import { SettingsAiViewPresenter } from '../view-presenters/SettingsAiViewPresen
  */
 @Component({
     selector: 'wortlaut-settings-ai',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,

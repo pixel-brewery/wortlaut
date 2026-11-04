@@ -526,7 +526,7 @@ export function createDesktopRequests(init: IDesktopRequestsInit): IpcHandlers {
         'test.detect': ({ projectId, preset, fileName, content }) => engine.testLab.detect(preset, fileName, content, projectId ? engine.projects.settings(projectId).prefix : ''),
         'test.pattern': ({ projectId, pattern, list }) => engine.testLab.pattern(pattern, list, engine.catalogs.allKeys(projectId)),
         'changes.list': ({ workspaceId }) => engine.review.list(workspaceId),
-        'changes.get': ({ id }) => engine.review.detail(id),
+        'changes.get': ({ id, fileOffset, fileLimit }) => engine.review.detail(id, { fileOffset, fileLimit }),
         'changes.apply': async ({ id }) => {
             if (session.dryRun) {
                 throw new EngineError('invalid-arguments', 'Dry run is on, so nothing is written. Turn it off in the title bar to apply this change set.');

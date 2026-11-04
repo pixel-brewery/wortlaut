@@ -28,6 +28,7 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - **States:** every view has empty, loading, failure and success, even where only one is drawn.
 - **Writes:** a write control builds a change set. Applying rechecks every file and writes all or
   nothing. A file that changed meanwhile fails the apply and names the file.
+  Review permits approval or discard only after the loaded detail matches the selected change set.
 - **Dry run:** only Generate says what happens to a write control while dry run is on. The engine has three
   write modes: `apply` writes the change set straight away, `review` leaves it pending in the review list, `dry-run`
   only reports it and stores nothing. The CLI and `run()` apply by default, because existing targets depend on it,
@@ -40,6 +41,32 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - **Long work:** reports progress, can be cancelled, lives in main or a utility process and survives a
   renderer reload.
 - **Paths:** chosen through native dialogs. Main checks that later requests stay inside the chosen roots.
+- **Native view frame:** views share a bounded `page-frame` host and a shrinkable `page-content` area.
+  Titles, navigation and primary actions stay visible while card bodies, tables or long form stacks
+  scroll within their content area. Standalone views keep the native drag strip outside that area.
+  Compact windows shrink columns without overlapping them; horizontal table scrolling stays local to
+  the table. Nested Settings and Test lab routes receive the remaining height from their parent view.
+  Card headings and their actions wrap onto separate lines when a pane is too narrow for both.
+- **Resizable panes:** real Mosaik `Split` controls divide navigation, list/detail workspaces and
+  comparison/result areas. Horizontal and vertical dividers keep the panels' own scroll owners.
+  `PaneSizeDirective` restores the device-local size for each stable pane key after Mosaik measures
+  the layout; `PaneSizeMemory` treats unavailable or invalid browser storage as a missing preference.
+  Unlocked panes remember a percentage so both panels shrink proportionally with the window; locked
+  sidebars and editors remember pixels. Restoring a preference does not count as a user adjustment.
+  Mosaik owns pointer/keyboard resizing and clamps sizes to each view's minimum and maximum. The
+  Symphony pane-size pattern is the reference; no project settings or catalog files store these sizes.
+- **Large collections:** Translations requests fixed pages of 200 matching keys with an offset; changing
+  its namespace, search, filter or target locale returns to the first page. It does not grow a request
+  beyond the IPC limit. Other long lists expose explicit load-more batches while totals and bulk
+  operations retain their full scope.
+  Desktop Review requests five files per page and computes diffs only for those files. Complete file
+  counts and conflicts still cover the whole change set. Existing callers without a file page retain
+  the complete read contract. A diff preview is bounded to 4,000 lines and 131,072 displayed characters
+  per file, with an explicit shortened-preview notice; approval still writes the complete file.
+  `FileDiffComponent` mounts 200 lines per page while keeping hunk boundaries and line numbers.
+  `TextWindowComponent` pages logs, configuration and extracted resource text in 32,768-character
+  windows, including text without line breaks. Every retained character remains reachable. A new
+  record/tab resets its page; appending to a live log preserves the current page.
 
 ---
 
@@ -232,6 +259,11 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
   translations goes to Translations.
 - Analyzer rules: each rule with pass or its result, plus "N of M pass". Recent runs: last three, with
   All runs going to Runs.
+- The page header stays in the window. Dashboard cards bound their content to the available height and
+  scroll independently. Rule results combine repeated catalog counts per locale: the badge shows the
+  first locale and `+N` more, with every locale total available in a hover or keyboard-focus tooltip.
+- Dashboard columns shrink within the window without overlapping. Next-step actions stay in their
+  card footers while their descriptions scroll, including at the minimum native window size.
 
 **Engine use cases**
 
@@ -264,9 +296,15 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - Details: full key, base value read-only, target value editable. Save and Revert appear only when
   dirty. Save builds a change set for that catalog.
 - Comment: context for translators and for the AI.
+- Saving the value preserves an unsaved comment, and saving the comment preserves an unsaved value.
+  Edits made while a save is in flight remain in the editor after that save completes.
+  A search link selects its initial key; later saves refresh data without reopening that initial key.
 - AI suggestion: Suggest uses the base value, the comment and the project instructions. The result shows
   provider and placeholder check. Apply fills the editor without saving. Discard goes back. Without a
   provider the button leads to Settings: AI.
+- Changing the target locale discards the previous proposal and cancels an in-flight suggestion, so a
+  late answer cannot be applied to another language. In compact windows the namespace rail becomes a
+  horizontal strip above the keys and editor.
 - Findings: rule results for the key, or "No findings." Used in: `file:line` list, or "No usage found".
 
 **Engine use cases**
@@ -278,7 +316,8 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 
 **IPC reads**
 
-- `catalog.namespaces`: name, count. `catalog.keys`: key, flags, base value, target value, totals.
+- `catalog.namespaces`: name, count. `catalog.keys`: key, flags, base value, target value, totals,
+  with a bounded `limit` and optional `offset` (default zero).
 - `catalog.keyDetail`: values, comment, findings, usages.
 
 **Conflicts**
@@ -348,6 +387,11 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - Run N rules: the count follows the switches, and zero disables the button.
 - Rule list, grouped as built-in rules and "Pack: <name>": a switch per rule, the id, a result badge
   ("Off" when off) and a short description. Click to show the rule's result.
+- The rule badge shows one locale total and `+N` additional locales; hover or focus reveals all locale
+  totals. Counts from several catalogs of the same locale are combined. A trailing `+` on a count
+  means some findings for that locale have no reported count.
+- The page heading and run action stay fixed. Rule-list, result-table and exception contents scroll
+  within their cards; card headers and the rule/result footers remain visible.
 - Without a source root `unused-keys` is not run by default, as today.
 - Get more rules: goes to Rule packs.
 - Result card: title, message, table and "Showing N of M". Row action by rule: Merge keys on
@@ -493,6 +537,8 @@ failed and done.
 - Review: filter All or Needs attention with its count. Each row shows the base value, the key, an editable
   translation and an Accept checkbox. Clean rows start accepted, flagged rows start not accepted with a note.
   An edit validates again.
+- Queued edits retain their run and locale when switching languages. Write and Run again wait for
+  queued or in-flight row edits; an edit failure preserves the draft and prevents either action.
 - Write N accepted: builds and applies a change set with the accepted rows.
 - Automatic checks: placeholders, row count, identical to the base, keys unchanged, each with a result.
 - Log: live.
@@ -826,7 +872,8 @@ pressing Escape does not close it.
   Click to select. No runs yet: empty state.
 - Details: title, instant, duration, summary, and the equivalent command.
 - Copy command: without secrets. Run again: repeats the stored options as a new run under the current dry run.
-- Log tab: the full log. Configuration tab: the options used, without secrets.
+- Log tab: the retained log in bounded text pages. Configuration tab: the options used, without secrets,
+  through the same text pager.
 - Changes tab: file and what happened to it, or "No files" with the reason.
 
 **Engine use cases**
@@ -1011,10 +1058,16 @@ pressing Escape does not close it.
 - Workspace crumb: code, color, name; goes to Workspaces. Project crumb: goes to Projects, hidden when no project
   is open.
 - Search keys, files and commands (⌘K): results open the key, file or view.
+- The search palette follows the Symphony command-palette composition: a dimmed backdrop and a
+  viewport-bounded card, with a fixed search header and keyboard-hint footer around scrolling result
+  groups. Typing keeps focus in the field, arrows select a result, Enter opens it, and Escape or the
+  backdrop closes the palette and restores focus. Tab stays inside the search field.
 - Provider button: shows the active provider; goes to Settings: AI. None set up: says so.
 - Dry run: the visible switch. The state lives in main and starts from Settings: application. It applies to commands
   started from the app. A running run keeps the value it started with.
 - The window dots are the native window controls.
+- Free title-bar space moves the native window and supports the operating system's double-click
+  behavior. Breadcrumbs, search and title-bar controls remain interactive; window edges resize natively.
 
 **Engine use cases**
 

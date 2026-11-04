@@ -8,8 +8,9 @@ import { CheckboxComponent } from '@pixel-brewery/mosaik-elements-angular/compon
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TransformViewPresenter } from '../view-presenters/TransformViewPresenter';
 
 // #endregion
@@ -19,6 +20,7 @@ import { TransformViewPresenter } from '../view-presenters/TransformViewPresente
  */
 @Component({
     selector: 'wortlaut-transform',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,
@@ -30,9 +32,11 @@ import { TransformViewPresenter } from '../view-presenters/TransformViewPresente
         FailureStateComponent,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         RunProgressComponent,
         SegmentComponent,
         SegmentItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,

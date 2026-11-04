@@ -38,4 +38,5 @@ export interface IRuleRow {
     id: string;
     passed: boolean;
     result: string;
+    detail: string;
 }

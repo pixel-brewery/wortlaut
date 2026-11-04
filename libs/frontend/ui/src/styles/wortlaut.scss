@@ -71,6 +71,113 @@ a {
   overflow: auto;
 }
 
+// Native views keep their frame in place and give remaining height to their content.
+.page-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page-frame > .page-scroll {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page-frame > .page-scroll > .page {
+  height: 100%;
+  min-height: 0;
+}
+
+:where(.page-frame > .page-scroll > .page) > :where(:not(.page-content)) {
+  flex: none;
+}
+
+.page-content {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+// Resizable workspaces keep Mosaik's divider and each pane's own scroll owner.
+.pane-split {
+  --split-divider-width: var(--mosaik-layout-thickness);
+  --split-divider-hit-area: calc(var(--mosaik-layout-space) * 1.5);
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pane-split > [slot='start'],
+.pane-split > [slot='end'] {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pane-split > .pane-start {
+  padding-inline-end: var(--mosaik-layout-space);
+}
+
+.pane-split > .pane-end {
+  padding-inline-start: var(--mosaik-layout-space);
+}
+
+.pane-split-vertical > .pane-start {
+  padding-inline-end: 0;
+  padding-block-end: var(--mosaik-layout-space);
+}
+
+.pane-split-vertical > .pane-end {
+  padding-inline-start: 0;
+  padding-block-start: var(--mosaik-layout-space);
+}
+
+.page-content-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.page-content-scroll > * {
+  flex: none;
+  min-width: 0;
+}
+
+.page-frame mosaik-card {
+  min-height: 0;
+}
+
+.page-frame .card-section {
+  min-width: 0;
+  min-height: 0;
+}
+
+.page-frame mosaik-card::part(content) {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+
+.page-frame .state-frame {
+  min-height: 0;
+}
+
+@media (max-width: 1200px), (max-height: 800px) {
+  .page-frame > .page-scroll > .page {
+    gap: calc(var(--mosaik-layout-space) * 2);
+    padding: calc(var(--mosaik-layout-space) * 2);
+  }
+}
+
 .page {
   min-width: 0;
   display: flex;
@@ -171,6 +278,15 @@ mosaik-card-header {
   --card-header-padding-right: calc(var(--mosaik-layout-space) * 2);
   --card-header-padding-bottom: calc(var(--mosaik-layout-space) * 1.5);
   --card-header-padding-left: calc(var(--mosaik-layout-space) * 2);
+  flex-wrap: wrap;
+}
+
+mosaik-card-header::part(heading) {
+  flex: 1 1 calc(var(--mosaik-layout-space) * 20);
+}
+
+mosaik-card-header > .card-suffix {
+  max-width: 100%;
 }
 
 // A table inside a card stands on the surface of the card.

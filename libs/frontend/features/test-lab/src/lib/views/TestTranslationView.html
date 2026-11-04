@@ -1,9 +1,15 @@
-@if (presenter.sample.isLoading()) {
-  <wortlaut-loading-state label="Reading the catalogs" />
+@if (presenter.sample.isLoading() || presenter.providers.isLoading()) {
+  <wortlaut-loading-state label="Reading the catalogs and providers" />
 } @else if (presenter.sample.isFailed()) {
   <wortlaut-failure-state header="The sample could not be read" [message]="presenter.sample.error()" (retry)="presenter.load()" />
+} @else if (presenter.providers.isFailed()) {
+  <wortlaut-failure-state header="The providers could not be read" [message]="presenter.providers.error()" (retry)="presenter.load()" />
 } @else if (presenter.sample.value(); as sample) {
-  <section aria-labelledby="setup" class="setups">
+  @if (presenter.message(); as message) {
+    <mosaik-message variant="danger" header="That did not work" [content]="message" />
+  }
+  <mosaik-split class="pane-split pane-split-vertical page-content" test-id="test-translation-split" orientation="vertical" paneSizeKey="test.translation.workspace" paneSize="200px" lock="start" min="140px" max="65%" [intl]="{ resizeLabel: 'Resize translation setups and comparison results' }">
+  <section slot="start" aria-labelledby="setup" class="setups pane-start">
     <h2 id="setup">Compare two setups</h2>
     <div class="setup-grid">
       @for (entry of presenter.setups(); track entry.index) {
@@ -66,11 +72,7 @@
     </div>
   </section>
 
-  @if (presenter.message(); as message) {
-    <mosaik-message variant="danger" header="That did not work" [content]="message" />
-  }
-
-  <section aria-label="Result" class="card-section">
+  <section slot="end" aria-label="Result" class="card-section result-section pane-end">
     <mosaik-card>
       <mosaik-card-header slot="header" text="Result">
         <div slot="suffix" class="card-suffix">
@@ -125,7 +127,9 @@
     </mosaik-card>
   </section>
 
-  <section aria-label="Try your own text" class="card-section">
+  </mosaik-split>
+
+  <section aria-label="Try your own text" class="card-section own-section">
     <mosaik-card>
       <div slot="content" class="own-text">
         <div class="own-field">

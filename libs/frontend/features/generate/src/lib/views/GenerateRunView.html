@@ -61,7 +61,7 @@
       }
       <wortlaut-write-result [outcome]="presenter.outcome()" />
 
-      <section aria-label="Progress" class="card-section">
+      <section aria-label="Progress" class="card-section progress-section">
         <mosaik-card>
           <div slot="content" class="progress">
             <div class="progress-head">
@@ -80,13 +80,19 @@
               <span class="legend-item"><span class="cell cell-waiting"></span>Waiting</span>
             </div>
           </div>
+          @if (presenter.hasMoreCells()) {
+            <div slot="footer" class="table-footer note actions">
+              <span>{{ presenter.cells().length }} of {{ presenter.chunkCount() }} chunks</span>
+              <mosaik-button test-id="generate-more-chunks" label="Show more chunks" appearance="plain" size="small" (click)="presenter.showMoreCells()" />
+            </div>
+          }
         </mosaik-card>
       </section>
 
-      <div class="review-columns">
-        <section aria-labelledby="review" class="review-main card-section">
+      <mosaik-split class="pane-split page-content" test-id="generate-review-split" paneSizeKey="generate.review" paneSize="280px" lock="end" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize translation checks and log' }">
+        <section slot="start" aria-labelledby="review" class="review-main card-section pane-start">
           <mosaik-card>
-            <div slot="content" class="review-body">
+            <div slot="header" class="review-toolbar">
               @if (presenter.dryRun()) {
                 <div class="review-notice">
                   <mosaik-message variant="info" header="Dry run is on" content="Accepted translations stay in this list until you turn off dry run in the title bar." />
@@ -105,6 +111,8 @@
               @if (presenter.writeBlocker(); as blocker) {
                 <div class="review-reason note">{{ blocker }}</div>
               }
+            </div>
+            <div slot="content" class="review-body">
               @if (presenter.rows().length > 0) {
                 <div class="table-scroll review-table">
                   <div class="review-width">
@@ -127,7 +135,7 @@
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
                               <div class="value-cell">
-                                <mosaik-textbox [attr.aria-label]="presenter.targetName() + ' for ' + row.key" [value]="row.value" [invalid]="row.isDanger" [readonly]="row.written" (input)="onEdit(row.key, $event)" />
+                                <mosaik-textbox [attr.aria-label]="presenter.targetName() + ' for ' + row.key" [value]="row.value" [invalid]="row.isDanger" [readonly]="row.written || presenter.busy()" (input)="onEdit(row.key, $event)" />
                                 @if (row.note) {
                                   <div class="row-note" [class]="row.noteClass">{{ row.note }}</div>
                                 } @else if (row.written) {
@@ -136,7 +144,7 @@
                               </div>
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
-                              <mosaik-checkbox [attr.aria-label]="'Accept ' + row.key" [isChecked]="row.accepted" [disabled]="!row.canAccept || row.written" (checked)="presenter.accept(row, true)" (unchecked)="presenter.accept(row, false)" />
+                              <mosaik-checkbox [attr.aria-label]="'Accept ' + row.key" [isChecked]="row.accepted" [disabled]="!row.canAccept || row.written || presenter.busy()" (checked)="presenter.accept(row, true)" (unchecked)="presenter.accept(row, false)" />
                             </mosaik-table-body-cell>
                           </mosaik-table-body-row>
                         }
@@ -144,17 +152,17 @@
                     </mosaik-table>
                   </div>
                 </div>
-                @if (presenter.hasMoreRows()) {
-                  <div class="more"><mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" /></div>
-                }
               } @else {
                 <div class="review-empty muted">{{ presenter.filter() === 'attention' ? 'No row needs attention.' : 'Translations show up here as chunks finish.' }}</div>
               }
             </div>
+            @if (presenter.rows().length > 0 && presenter.hasMoreRows()) {
+              <div slot="footer" class="more"><mosaik-button test-id="generate-review-show-more" label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" /></div>
+            }
           </mosaik-card>
         </section>
 
-        <aside aria-label="Automatic checks and log" class="review-side">
+        <aside slot="end" aria-label="Automatic checks and log" class="review-side pane-end">
           <section aria-label="Automatic checks" class="card-section">
             <mosaik-card>
               <mosaik-card-header slot="header" text="Automatic checks" />
@@ -176,11 +184,11 @@
           <section aria-label="Log" class="card-section">
             <mosaik-card appearance="soft">
               <mosaik-card-header slot="header" text="Log" />
-              <div slot="content"><pre class="log">{{ presenter.log() }}</pre></div>
+              <div slot="content" class="log-body"><wortlaut-text-window [text]="presenter.log()" [pageKey]="run.runId + ':log'" test-id="generate-log" /></div>
             </mosaik-card>
           </section>
         </aside>
-      </div>
+      </mosaik-split>
     } @else {
       <wortlaut-loading-state label="Reading the run" />
     }

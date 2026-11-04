@@ -1,95 +1,122 @@
 <main class="review">
-  <section class="queue" aria-label="Change sets">
-    <div class="page-title queue-title">
-      <h1>Review</h1>
-      <p class="lead">Changes wait here until you approve them.</p>
-    </div>
-    @for (entry of presenter.recovered(); track entry.message) {
-      <mosaik-message [variant]="entry.outcome === 'failed' ? 'danger' : 'warning'" header="An interrupted write" [content]="entry.message" />
-    }
-    @if (presenter.list.isLoading()) {
-      <wortlaut-loading-state label="Loading the change sets" />
-    } @else if (presenter.list.isFailed()) {
-      <wortlaut-failure-state header="The change sets could not be read" [message]="presenter.list.error()" (retry)="presenter.load()" />
-    } @else if (presenter.list.value()?.length) {
-      <mosaik-list>
-        @for (item of presenter.list.value(); track item.id) {
-          <mosaik-list-item [isSelected]="item.id === presenter.selectedId()" (click)="presenter.select(item.id)">
-            <div class="item">
-              <span class="item-head">
-                <span class="strong">{{ presenter.titleOf(item) }}</span>
-                @if (item.conflicts.length > 0) {
-                  <mosaik-badge label="Changed on disk" variant="danger" appearance="soft" />
-                } @else if (item.partial) {
-                  <mosaik-badge label="Partial" variant="warning" appearance="soft" />
-                } @else {
-                  <mosaik-badge appearance="soft" variant="neutral" [label]="presenter.filesOf(item)" />
-                }
-              </span>
-              @if (item.detail) {
-                <span class="note">{{ item.detail }}</span>
-              }
-              <span class="note">{{ presenter.whenOf(item) }}</span>
-            </div>
-          </mosaik-list-item>
-        }
-      </mosaik-list>
-    }
-  </section>
-
-  <section class="details" aria-label="Change set">
-    <wortlaut-write-result [outcome]="presenter.outcome()" />
-    @if (presenter.message(); as message) {
-      <mosaik-message variant="danger" header="This change set was not written" [content]="message" />
-    }
-    @if (presenter.list.status() === 'ready' && !presenter.list.value()?.length) {
-      <div class="state-frame">
-        <mosaik-empty-state header="Nothing to review" content="Changes wait here while Dry run is on, and when a command leaves them for review." />
+  <mosaik-split class="pane-split page-content" paneSizeKey="review.workspace" paneSize="280px" lock="start" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize change set list' }" test-id="review-workspace-split">
+    <section slot="start" class="queue pane-start" aria-label="Change sets">
+      <div class="page-title queue-title">
+        <h1>Review</h1>
+        <p class="lead">Changes wait here until you approve them.</p>
       </div>
-    } @else if (presenter.detail.isFailed()) {
-      <wortlaut-failure-state header="This change set could not be read" [message]="presenter.detail.error()" (retry)="presenter.detail.reload()" />
-    } @else if (presenter.detail.value(); as detail) {
-      <div class="details-head">
-        <div class="page-title">
-          <h2>{{ presenter.title() }}</h2>
-          <p class="lead">{{ presenter.line() }}</p>
-        </div>
-        <div class="actions">
-          <mosaik-button label="Discard" variant="neutral" appearance="outline" [disabled]="presenter.busy()" (click)="presenter.discard()" />
-          <mosaik-button label="Approve and write" variant="primary" appearance="solid" [disabled]="!presenter.canApply()" [isBusy]="presenter.busy()" (click)="presenter.approve()" />
-        </div>
-      </div>
-
-      <wortlaut-dry-run-notice text="This change set stays in this list until you turn off dry run in the title bar." />
-
-      @if (detail.conflicts.length > 0) {
-        <mosaik-message variant="danger" header="Files changed since this was built" [content]="detail.conflicts.join(', ') + ' changed, so this change set cannot be written. Discard it and run the command again.'" />
+      <div class="page-content page-content-scroll queue-body">
+      @for (entry of presenter.recovered(); track entry.message) {
+        <mosaik-message [variant]="entry.outcome === 'failed' ? 'danger' : 'warning'" header="An interrupted write" [content]="entry.message" />
       }
-      @if (detail.partial) {
-        <mosaik-message variant="warning" header="This holds only what a run finished" content="The run failed or was stopped. Approving writes what it finished." />
-      }
-      @for (finding of detail.findings; track finding) {
-        <mosaik-message variant="info" [content]="finding" />
-      }
-
-      @for (file of detail.files; track file.file) {
-        <section [attr.aria-label]="file.file" class="file">
-          <mosaik-card>
-            <mosaik-card-header slot="header" [text]="file.file">
-              <div slot="suffix" class="card-suffix">
-                <span class="note">+{{ file.additions }} −{{ file.deletions }}</span>
-                @if (file.hasConflict) {
-                  <mosaik-badge label="Changed on disk" variant="danger" appearance="soft" />
+      @if (presenter.list.isLoading()) {
+        <wortlaut-loading-state label="Loading the change sets" />
+      } @else if (presenter.list.isFailed()) {
+        <wortlaut-failure-state header="The change sets could not be read" [message]="presenter.list.error()" (retry)="presenter.load()" />
+      } @else if (presenter.list.value()?.length) {
+        <mosaik-list>
+          @for (item of presenter.items(); track item.id) {
+            <mosaik-list-item [isSelected]="item.id === presenter.selectedId()" (click)="presenter.select(item.id)">
+              <div class="item">
+                <span class="item-head">
+                  <span class="strong">{{ presenter.titleOf(item) }}</span>
+                  @if (item.conflicts.length > 0) {
+                    <mosaik-badge label="Changed on disk" variant="danger" appearance="soft" />
+                  } @else if (item.partial) {
+                    <mosaik-badge label="Partial" variant="warning" appearance="soft" />
+                  } @else {
+                    <mosaik-badge appearance="soft" variant="neutral" [label]="presenter.filesOf(item)" />
+                  }
+                </span>
+                @if (item.detail) {
+                  <span class="note">{{ item.detail }}</span>
                 }
-                <mosaik-badge appearance="soft" [label]="file.action === 'create' ? 'New file' : 'Changed'" [variant]="file.action === 'create' ? 'success' : 'neutral'" />
+                <span class="note">{{ presenter.whenOf(item) }}</span>
               </div>
-            </mosaik-card-header>
-            <div slot="content" class="card-body">
-              <wortlaut-file-diff [file]="file" />
-            </div>
-          </mosaik-card>
-        </section>
+            </mosaik-list-item>
+          }
+        </mosaik-list>
+        @if (presenter.hasMoreItems()) {
+          <mosaik-button label="Show more" appearance="plain" size="small" test-id="review-more-items" (click)="presenter.showMoreItems()" />
+        }
       }
-    }
-  </section>
+      </div>
+    </section>
+
+    <section slot="end" class="details pane-end" aria-label="Change set">
+      <wortlaut-write-result [outcome]="presenter.outcome()" />
+      @if (presenter.message(); as message) {
+        <mosaik-message variant="danger" header="This change set was not written" [content]="message" />
+      }
+      @if (presenter.list.status() === 'ready' && !presenter.list.value()?.length) {
+        <div class="state-frame">
+          <mosaik-empty-state header="Nothing to review" content="Changes wait here while Dry run is on, and when a command leaves them for review." />
+        </div>
+      } @else if (presenter.detail.isFailed()) {
+        <wortlaut-failure-state header="This change set could not be read" [message]="presenter.detail.error()" (retry)="presenter.detail.reload()" />
+      } @else if (presenter.detail.value(); as detail) {
+        <div class="details-head">
+          <div class="page-title">
+            <h2>{{ presenter.title() }}</h2>
+            <p class="lead">{{ presenter.line() }}</p>
+          </div>
+          <div class="actions">
+            <mosaik-button label="Discard" variant="neutral" appearance="outline" [disabled]="!presenter.canDiscard()" (click)="presenter.discard()" />
+            <mosaik-button label="Approve and write" variant="primary" appearance="solid" [disabled]="!presenter.canApply()" [isBusy]="presenter.busy()" (click)="presenter.approve()" />
+          </div>
+        </div>
+
+        <div #fileScroller class="page-content page-content-scroll detail-body">
+        <wortlaut-dry-run-notice text="This change set stays in this list until you turn off dry run in the title bar." />
+
+        @if (detail.conflicts.length > 0) {
+          <mosaik-message variant="danger" header="Files changed since this was built" [content]="detail.conflicts.join(', ') + ' changed, so this change set cannot be written. Discard it and run the command again.'" />
+        }
+        @if (detail.partial) {
+          <mosaik-message variant="warning" header="This holds only what a run finished" content="The run failed or was stopped. Approving writes what it finished." />
+        }
+        @for (finding of presenter.findings(); track finding) {
+          <mosaik-message variant="info" [content]="finding" />
+        }
+        @if (presenter.hasMoreFindings()) {
+          <mosaik-button label="Show more findings" appearance="plain" size="small" test-id="review-more-findings" (click)="presenter.showMoreFindings()" />
+        }
+
+        @for (file of detail.files; track file.file) {
+          <section [attr.aria-label]="file.file" class="file">
+            <mosaik-card>
+              <mosaik-card-header slot="header" [text]="file.file">
+                <div slot="suffix" class="card-suffix">
+                  <span class="note">+{{ file.additions }} −{{ file.deletions }}</span>
+                  @if (file.hasConflict) {
+                    <mosaik-badge label="Changed on disk" variant="danger" appearance="soft" />
+                  }
+                  <mosaik-badge appearance="soft" [label]="file.action === 'create' ? 'New file' : 'Changed'" [variant]="file.action === 'create' ? 'success' : 'neutral'" />
+                </div>
+              </mosaik-card-header>
+              <div slot="content" class="card-body">
+                <wortlaut-file-diff [file]="file" />
+              </div>
+            </mosaik-card>
+          </section>
+        }
+        </div>
+        @if (detail.fileCount > presenter.filePageSize) {
+          <mosaik-paginator
+            class="file-pages"
+            test-id="review-file-pages"
+            [total]="detail.fileCount"
+            [size]="presenter.filePageSize"
+            [currentPage]="presenter.filePage()"
+            [showPageLinks]="false"
+            [showSizes]="false"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Files {first}–{last} of {totalRecords}"
+            [disabled]="presenter.detail.status() === 'loading'"
+            (pageChanged)="presenter.setFilePage($event.page)"
+          />
+        }
+      }
+    </section>
+  </mosaik-split>
 </main>

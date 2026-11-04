@@ -16,6 +16,11 @@
   display: block;
 }
 
+.page-start {
+  display: block;
+  height: 0;
+}
+
 .hunk + .hunk {
   margin-top: var(--mosaik-layout-space);
   padding-top: var(--mosaik-layout-space);
@@ -37,4 +42,9 @@
 
 .file-note {
   padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+}
+
+mosaik-paginator::part(navigation-container) {
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }

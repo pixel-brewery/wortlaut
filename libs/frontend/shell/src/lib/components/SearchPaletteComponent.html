@@ -1,39 +1,54 @@
-<mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.isOpen()" [pressEscapeToClose]="true" (closed)="presenter.close()">
-  <mosaik-dialog-content slot="content">
-    @if (presenter.isOpen()) {
-    <div class="palette" role="search" (keydown)="presenter.onKey($event)">
-      <mosaik-searchbox #box aria-label="Search keys, files and commands" placeholder="Search keys, files and commands" [isBusy]="presenter.isBusy()" [formField]="presenter.form.text" />
-      @if (presenter.message(); as message) {
-        <mosaik-message variant="danger" header="That did not work" [content]="message" />
-      }
-      @if (presenter.isEmpty()) {
-        <mosaik-empty-state header="Nothing found" content="Try another word." />
-      } @else {
-        <div class="palette-results">
-          @for (group of presenter.groups(); track group.label) {
-            <div class="palette-group">
-              <span class="note palette-label">{{ group.label }}</span>
-              <mosaik-list>
+@if (presenter.isOpen()) {
+  <div class="palette-layer">
+    <mosaik-backdrop class="palette-backdrop" test-id="search-palette-backdrop" (click)="presenter.close()" />
+    <div class="palette-position">
+      <mosaik-card class="palette" test-id="search-palette" role="dialog" aria-modal="true" aria-label="Search keys, files and commands" elevation="extrabold" (keydown)="onKeydown($event)">
+        <div slot="header" class="palette-header">
+          <mosaik-searchbox class="palette-search" test-id="search-palette-search" appearance="plain" aria-label="Search keys, files and commands" placeholder="Search keys, files and commands" [isBusy]="presenter.isBusy()" [formField]="presenter.form.text" />
+          <mosaik-kbd class="palette-key" aria-hidden="true">esc</mosaik-kbd>
+          <span class="visually-hidden" aria-live="polite" aria-atomic="true">
+            @if (activeItem(); as item) {
+              {{ item.label }} · {{ item.detail }}
+            } @else if (presenter.isEmpty()) {
+              Nothing found
+            }
+          </span>
+        </div>
+
+        <div slot="content" class="palette-results" test-id="search-palette-results" role="listbox" aria-label="Results">
+          @if (presenter.message(); as message) {
+            <mosaik-message variant="danger" header="That did not work" [content]="message" />
+          }
+          @if (presenter.isEmpty()) {
+            <mosaik-empty-state class="palette-empty" test-id="search-palette-empty" icon="search" header="Nothing found" content="Try another word." />
+          } @else {
+            @for (group of presenter.groups(); track group.label) {
+              <section class="palette-group" role="group" [attr.aria-label]="group.label">
+                <span class="note palette-label">{{ group.label }}</span>
                 @for (item of group.items; track item.id) {
-                  <mosaik-list-item [isSelected]="item.id === presenter.activeId()" [attr.data-active]="item.id === presenter.activeId() ? 'true' : null" (click)="presenter.choose(item)">
-                    <span class="palette-item">
-                      <mosaik-icon size="small" [icon]="item.icon" />
-                      <span class="palette-text">
-                        <span class="palette-name">{{ item.label }}</span>
-                        <span class="note palette-detail">{{ item.detail }}</span>
-                      </span>
+                  <mosaik-clickable class="palette-option" role="option" tabindex="-1" [attr.test-id]="'search-palette-option-' + item.id" [attr.aria-selected]="item.id === presenter.activeId()" [attr.data-active]="item.id === presenter.activeId() ? 'true' : null" (mousedown)="$event.preventDefault()" (click)="presenter.choose(item)" (keydown.enter)="$event.stopPropagation(); presenter.choose(item)">
+                    <mosaik-icon class="palette-icon" size="small" [icon]="item.icon" />
+                    <span class="palette-text">
+                      <span class="palette-name">{{ item.label }}</span>
+                      <span class="note palette-detail">{{ item.detail }}</span>
                     </span>
-                  </mosaik-list-item>
+                    @if (item.id === presenter.activeId()) {
+                      <mosaik-kbd class="palette-key" aria-hidden="true">↵</mosaik-kbd>
+                    }
+                  </mosaik-clickable>
                 }
-              </mosaik-list>
-            </div>
+              </section>
+            }
           }
         </div>
-      }
-      @if (presenter.isTruncated()) {
-        <span class="note">There is more. A longer text finds it.</span>
-      }
+
+        <div slot="footer" class="palette-footer">
+          <span class="note">↑↓ to move · ↵ to open · esc to close</span>
+          @if (presenter.isTruncated()) {
+            <span class="note">There is more. A longer text finds it.</span>
+          }
+        </div>
+      </mosaik-card>
     </div>
-    }
-  </mosaik-dialog-content>
-</mosaik-dialog>
+  </div>
+}

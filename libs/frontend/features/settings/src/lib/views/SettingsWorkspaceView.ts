@@ -24,6 +24,7 @@ import { SettingsWorkspaceViewPresenter } from '../view-presenters/SettingsWorks
  */
 @Component({
     selector: 'wortlaut-settings-workspace',
+    host: { class: 'page-frame' },
     imports: [BadgeComponent, ButtonComponent, CardComponent, CardHeaderComponent, ChipComponent, ColorSwatchComponent, DialogActionsComponent, DialogComponent, DialogContentComponent, DialogHeaderComponent, DialogHeaderTextComponent, FailureStateComponent, FormFieldDirective, LoadingStateComponent, MessageComponent, RouterLink, SegmentComponent, SegmentItemComponent, SelectComponent, SelectItemComponent, TextBoxComponent, ToggleSwitchComponent, WorkspaceTileComponent],
     providers: [SettingsWorkspaceViewPresenter],
     templateUrl: './SettingsWorkspaceView.html',

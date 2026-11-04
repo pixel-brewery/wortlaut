@@ -1,7 +1,7 @@
 <wortlaut-titlebar />
-<div class="shell-body">
-  <wortlaut-sidebar />
-  <div class="shell-view">
+<mosaik-split class="shell-body pane-split" test-id="shell-workspace-split" paneSizeKey="shell.sidebar" paneSize="232px" lock="start" min="184px" max="28%" [intl]="{ resizeLabel: 'Resize navigation and workspace' }">
+  <wortlaut-sidebar slot="start" />
+  <div slot="end" class="shell-view">
     <router-outlet />
   </div>
-</div>
+</mosaik-split>

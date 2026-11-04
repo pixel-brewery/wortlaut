@@ -8,3 +8,5 @@ export { LoadingStateComponent } from './lib/components/view-states/LoadingState
 export { WorkspaceTileComponent } from './lib/components/workspace-tile/WorkspaceTileComponent';
 export { provideWortlautDesign } from './lib/theme/provideWortlautDesign';
 export { wortlautIcons } from './lib/theme/wortlautIcons';
+export { PaneSizeDirective } from './lib/layout/PaneSizeDirective';
+export { TextWindowComponent } from './lib/components/text-window/TextWindowComponent';

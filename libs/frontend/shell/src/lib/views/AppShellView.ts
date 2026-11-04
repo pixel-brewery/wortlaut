@@ -2,6 +2,8 @@
 
 import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
+import { PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { SidebarComponent } from '../components/SidebarComponent';
 import { TitlebarComponent } from '../components/TitlebarComponent';
 import { AppShellViewPresenter } from '../view-presenters/AppShellViewPresenter';
@@ -14,7 +16,7 @@ import { SearchPalettePresenter } from '../view-presenters/SearchPalettePresente
  */
 @Component({
     selector: 'wortlaut-app-shell',
-    imports: [RouterOutlet, SidebarComponent, TitlebarComponent],
+    imports: [RouterOutlet, SidebarComponent, TitlebarComponent, SplitComponent, PaneSizeDirective],
     providers: [AppShellViewPresenter, SearchPalettePresenter],
     templateUrl: './AppShellView.html',
     styleUrl: './AppShellView.scss',

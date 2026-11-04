@@ -15,6 +15,7 @@
       <mosaik-message variant="danger" header="That did not work" [content]="message" />
     }
 
+    <div class="page-content cli-content">
     @switch (presenter.tab()) {
       @case ('settings') {
         @if (!presenter.hasProject()) {
@@ -58,19 +59,18 @@
             </section>
             <section aria-labelledby="source-file" class="settings-source">
               <mosaik-card>
+                <div slot="header" class="source-head">
+                  <h2 id="source-file"><code class="inline strong">{{ presenter.source.value()?.file?.name ?? 'No settings file' }}</code></h2>
+                  @if (presenter.source.value()?.file) {
+                    <mosaik-button label="Open in editor" size="small" variant="neutral" appearance="outline" icon="open" (click)="presenter.openSourceFile()" />
+                  }
+                </div>
                 <div slot="content" class="card-body">
                   @if (presenter.source.isFailed()) {
-                    <div class="source-head"><span class="muted">{{ presenter.source.error() }}</span></div>
+                    <div class="source-note"><span class="muted">{{ presenter.source.error() }}</span></div>
                   } @else if (presenter.source.value()?.file; as file) {
-                    <div class="source-head">
-                      <h2 id="source-file"><code class="inline strong">{{ file.name }}</code></h2>
-                      <mosaik-button label="Open in editor" size="small" variant="neutral" appearance="outline" icon="open" (click)="presenter.openSourceFile()" />
-                    </div>
                     <pre class="code-block row-line">{{ file.text }}</pre>
                   } @else {
-                    <div class="source-head">
-                      <h2 id="source-file" class="source-empty">No settings file</h2>
-                    </div>
                     <div class="row-line source-note">
                       <span class="muted">The settings of this project come from Project setup and live on this computer. Nothing was written into your repository.</span>
                     </div>
@@ -147,14 +147,14 @@
       @default {
         <section aria-labelledby="commands" class="card-section">
           <mosaik-card>
-            <div slot="content" class="card-body">
-              <div class="commands-head">
+              <div slot="header" class="commands-head">
                 <div class="commands-title">
                   <h2 id="commands">Everything from the command line</h2>
                   <span class="muted">Add <code class="inline">--json</code> for scripts and CI.</span>
                 </div>
                 <mosaik-searchbox placeholder="Filter commands" size="small" class="filter" [formField]="presenter.searchForm.text" />
               </div>
+            <div slot="content" class="card-body">
               @if (presenter.commands.isLoading()) {
                 <wortlaut-loading-state label="Loading the commands" />
               } @else if (presenter.commands.isFailed()) {
@@ -190,5 +190,6 @@
         </section>
       }
     }
+    </div>
   </main>
 </div>

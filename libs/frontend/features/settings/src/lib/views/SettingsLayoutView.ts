@@ -11,8 +11,10 @@ import { MenuItemComponent } from '@pixel-brewery/mosaik-elements-angular/compon
  */
 @Component({
     selector: 'wortlaut-settings-layout',
+    host: { class: 'page-frame' },
     imports: [MenuItemComponent, RouterLink, RouterLinkActive, RouterOutlet],
     templateUrl: './SettingsLayoutView.html',
+    styleUrl: './SettingsLayoutView.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsLayoutView {

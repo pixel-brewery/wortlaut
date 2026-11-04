@@ -5,7 +5,7 @@
         <h1>Detect</h1>
         <p class="lead">Find strings in the source code that still need a key.</p>
       </div>
-      <mosaik-button label="Scan project" variant="primary" appearance="solid" icon="play" iconSize="small" [disabled]="presenter.run.isRunning() || !presenter.form.preset().value()" (click)="presenter.scan()" />
+      <mosaik-button test-id="detect-scan" label="Scan project" variant="primary" appearance="solid" icon="play" iconSize="small" [disabled]="presenter.run.isRunning() || !presenter.form.preset().value()" (click)="presenter.scan()" />
     </div>
 
     @if (presenter.settings.isLoading()) {
@@ -15,8 +15,8 @@
     } @else if (presenter.settings.value(); as settings) {
       <wortlaut-dry-run-notice />
 
-      <div class="page-columns">
-        <section aria-label="Scan settings" class="page-column-side">
+      <mosaik-split class="pane-split page-content" test-id="detect-split" paneSizeKey="detect.workspace" paneSize="280px" lock="start" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize detector settings' }">
+        <section slot="start" aria-label="Scan settings" class="page-column-side pane-start">
           <mosaik-card>
             <div slot="content" class="settings">
               <mosaik-select label="Framework preset" [formField]="presenter.form.preset">
@@ -47,7 +47,7 @@
           </mosaik-card>
         </section>
 
-        <div class="page-column-main">
+        <div slot="end" class="page-column-main pane-end">
           @if (presenter.run.active(); as active) {
             <wortlaut-run-progress [run]="active" (cancel)="presenter.run.cancel()" />
           }
@@ -77,7 +77,7 @@
             }
           </section>
 
-          <section aria-label="Hard-coded strings" class="card-section">
+          <section aria-label="Hard-coded strings" class="card-section results-section">
             <mosaik-card>
               <mosaik-card-header slot="header" text="Hard-coded strings">
                 <div slot="suffix" class="card-suffix">
@@ -100,7 +100,7 @@
                         </mosaik-table-header>
                         <mosaik-table-body>
                           @for (row of presenter.rows(); track row.id) {
-                            <mosaik-table-body-row [isSelected]="row.isSelected" (click)="presenter.select(row.id)">
+                            <mosaik-table-body-row tabindex="0" [attr.test-id]="'detect-result-' + row.id" [attr.aria-selected]="row.isSelected" [isSelected]="row.isSelected" (click)="presenter.select(row.id)" (keydown.enter)="presenter.select(row.id)" (keydown.space)="$event.preventDefault(); presenter.select(row.id)">
                               <mosaik-table-body-cell><span class="cell-text cell-strong">{{ row.value }}</span></mosaik-table-body-cell>
                               <mosaik-table-body-cell><code class="small muted cell-text">{{ row.location }}</code></mosaik-table-body-cell>
                               <mosaik-table-body-cell><code class="inline cell-text">{{ row.key }}</code></mosaik-table-body-cell>
@@ -111,14 +111,6 @@
                       </mosaik-table>
                     </div>
                   </div>
-                  @if (presenter.boundNote() || presenter.hasMoreRows()) {
-                    <div class="table-footer note row-line rows-footer">
-                      <span>{{ presenter.boundNote() }}</span>
-                      @if (presenter.hasMoreRows()) {
-                        <mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" />
-                      }
-                    </div>
-                  }
                 } @else if (presenter.hasScan()) {
                   <div class="row-line">
                     <mosaik-empty-state header="No hard-coded strings" content="Every string the detector found is a key already." />
@@ -129,11 +121,19 @@
                   </div>
                 }
               </div>
+              @if (presenter.rows().length > 0 && (presenter.boundNote() || presenter.hasMoreRows())) {
+                <div slot="footer" class="table-footer note rows-footer">
+                  <span>{{ presenter.boundNote() }}</span>
+                  @if (presenter.hasMoreRows()) {
+                    <mosaik-button test-id="detect-show-more" label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" />
+                  }
+                </div>
+              }
             </mosaik-card>
           </section>
 
           @if (presenter.selectedRow(); as row) {
-            <section aria-labelledby="change" class="card-section">
+            <section aria-labelledby="change" class="card-section change-section">
               <mosaik-card>
                 <div slot="content" class="card-box">
                   <div class="change-head">
@@ -160,7 +160,7 @@
             </section>
           }
         </div>
-      </div>
+      </mosaik-split>
     }
   </main>
 </div>

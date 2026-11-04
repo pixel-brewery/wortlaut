@@ -15,8 +15,8 @@
     } @else if (presenter.overview.value(); as overview) {
       <wortlaut-dry-run-notice />
 
-      <div class="page-columns">
-        <div class="page-column-side">
+      <mosaik-split class="pane-split page-content" test-id="transform-split" paneSizeKey="transform.workspace" paneSize="280px" lock="start" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize transform settings' }">
+        <div slot="start" class="page-column-side pane-start">
           <section aria-label="Target formats" class="card-section">
             <mosaik-card>
               <mosaik-card-header slot="header" text="Target formats" />
@@ -34,16 +34,17 @@
 
           <section aria-label="Sort keys" class="card-section">
             <mosaik-card>
-              <mosaik-card-header slot="header" text="Sort keys" subText="Sorted files keep diffs small across locales." />
+              <mosaik-card-header slot="header" text="Sort keys" />
               <div slot="content" class="card-pad">
+                <p class="muted">Sorted files keep diffs small across locales.</p>
+                <span class="muted">{{ presenter.sortNote() }}</span>
+              </div>
+              <div slot="footer" class="sort-actions">
                 <mosaik-segment appearance="soft" size="small" aria-label="Sort order">
                   <mosaik-segment-item label="Ascending" [isChecked]="presenter.order() === 'asc'" (click)="presenter.setOrder('asc')" />
                   <mosaik-segment-item label="Descending" [isChecked]="presenter.order() === 'desc'" (click)="presenter.setOrder('desc')" />
                 </mosaik-segment>
-                <div class="sort-line">
-                  <span class="muted">{{ presenter.sortNote() }}</span>
-                  <mosaik-button label="Sort files" variant="neutral" appearance="outline" size="small" [disabled]="presenter.isRunning()" (click)="presenter.sort()" />
-                </div>
+                <mosaik-button test-id="transform-sort" label="Sort files" variant="neutral" appearance="outline" size="small" [disabled]="presenter.isRunning()" (click)="presenter.sort()" />
               </div>
             </mosaik-card>
           </section>
@@ -60,7 +61,7 @@
           </section>
         </div>
 
-        <div class="page-column-main">
+        <div slot="end" class="page-column-main pane-end">
           @if (presenter.active(); as active) {
             <wortlaut-run-progress [run]="active" (cancel)="cancel()" />
           }
@@ -88,7 +89,7 @@
                         </mosaik-table-header>
                         <mosaik-table-body>
                           @for (row of presenter.rows(); track row.file) {
-                            <mosaik-table-body-row [isSelected]="row.isSelected" (click)="presenter.pick(row.file)">
+                            <mosaik-table-body-row tabindex="0" [attr.test-id]="'transform-result-' + row.file" [attr.aria-selected]="row.isSelected" [isSelected]="row.isSelected" (click)="presenter.pick(row.file)" (keydown.enter)="presenter.pick(row.file)" (keydown.space)="$event.preventDefault(); presenter.pick(row.file)">
                               <mosaik-table-body-cell><code class="inline cell-text">{{ row.file }}</code></mosaik-table-body-cell>
                               <mosaik-table-body-cell><span class="muted">{{ row.keysLabel }}</span></mosaik-table-body-cell>
                               <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="row.badge.label" [variant]="row.badge.variant" /></mosaik-table-body-cell>
@@ -123,7 +124,7 @@
             </section>
           }
         </div>
-      </div>
+      </mosaik-split>
     }
   </main>
 </div>

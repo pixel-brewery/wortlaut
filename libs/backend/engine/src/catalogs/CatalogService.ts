@@ -125,17 +125,41 @@ export class CatalogService {
      * @param request What to show.
      * @returns The rows.
      */
-    public keys(request: { projectId: string; namespace: string | null; search: string; filter: 'all' | 'duplicates' | 'unused' | 'placeholders'; targetLocale: string | null; limit: number }): CatalogKeys {
+    public keys(request: { projectId: string; namespace: string | null; search: string; filter: 'all' | 'duplicates' | 'unused' | 'placeholders'; targetLocale: string | null; offset?: number; limit: number }): CatalogKeys {
         const index = this.indexOf(request.projectId);
         const target = request.targetLocale ?? this.defaultTarget(index);
-        const inNamespace = index.keys.filter((key) => request.namespace === null || index.namespaceOf(key) === request.namespace);
         const search = request.search.trim().toLowerCase();
-        const matching = inNamespace
-            .map((key) => this.rowOf(index, key, target))
-            .filter((row) => request.filter === 'all' || row.flags.includes(({ duplicates: 'duplicate', unused: 'unused', placeholders: 'placeholder' } as const)[request.filter]))
-            .filter((row) => !search || row.key.toLowerCase().includes(search) || row.base.toLowerCase().includes(search) || (row.target ?? '').toLowerCase().includes(search));
+        const flag = request.filter === 'all' ? null : ({ duplicates: 'duplicate', unused: 'unused', placeholders: 'placeholder' } as const)[request.filter];
+        const offset = request.offset ?? 0;
+        const rows: Array<CatalogKeyRow> = [];
+        let total = 0;
+        let matching = 0;
 
-        return { rows: matching.slice(0, request.limit), matching: matching.length, total: inNamespace.length };
+        for (const key of index.keys) {
+            if (request.namespace !== null && index.namespaceOf(key) !== request.namespace) {
+                continue;
+            }
+
+            total++;
+
+            const row = this.rowOf(index, key, target);
+
+            if (flag && !row.flags.includes(flag)) {
+                continue;
+            }
+
+            if (search && !row.key.toLowerCase().includes(search) && !row.base.toLowerCase().includes(search) && !(row.target ?? '').toLowerCase().includes(search)) {
+                continue;
+            }
+
+            if (matching >= offset && rows.length < request.limit) {
+                rows.push(row);
+            }
+
+            matching++;
+        }
+
+        return { rows, matching, total };
     }
 
     /**

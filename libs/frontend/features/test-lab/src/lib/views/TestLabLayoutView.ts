@@ -12,6 +12,7 @@ import { TestLabLayoutViewPresenter } from '../view-presenters/TestLabLayoutView
  */
 @Component({
     selector: 'wortlaut-test-lab',
+    host: { class: 'page-frame' },
     imports: [RouterOutlet, TabStripComponent, TabStripItemComponent],
     providers: [TestLabLayoutViewPresenter],
     templateUrl: './TestLabLayoutView.html',

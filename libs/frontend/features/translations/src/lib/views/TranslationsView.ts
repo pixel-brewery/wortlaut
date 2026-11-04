@@ -10,12 +10,14 @@ import { DialogActionsComponent, DialogComponent, DialogContentComponent, Dialog
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
+import { PaginatorComponent } from '@pixel-brewery/mosaik-elements-angular/components/paginator';
 import { SearchBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/search-box';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, PaneSizeDirective, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TranslationsViewPresenter } from '../view-presenters/TranslationsViewPresenter';
 
 // #endregion
@@ -41,12 +43,15 @@ import { TranslationsViewPresenter } from '../view-presenters/TranslationsViewPr
         IconComponent,
         LoadingStateComponent,
         MessageComponent,
+        PaginatorComponent,
+        PaneSizeDirective,
         RouterLink,
         SearchBoxComponent,
         SegmentComponent,
         SegmentItemComponent,
         SelectComponent,
         SelectItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,

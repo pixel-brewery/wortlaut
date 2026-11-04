@@ -9,14 +9,19 @@ import { AsyncValue, bindShortcuts, DesktopApi, formatCount, localeName, ShellSe
 // #endregion
 
 /**
- * How many rows the table shows at first.
+ * How many rows one server-backed page holds.
  */
 const PAGE_SIZE = 200;
 
 /**
- * How many namespaces the tree shows before "N more".
+ * How many namespaces the tree reveals at a time.
  */
 const LISTED_NAMESPACES = 13;
+
+/**
+ * How many source usages the details reveal at a time.
+ */
+const USAGE_PAGE_SIZE = 50;
 
 /**
  * What a locale tag looks like.
@@ -59,10 +64,12 @@ export class TranslationsViewPresenter {
     private readonly _search = signal({ text: '' });
     private readonly _targetModel = signal({ code: '' });
     private readonly _target = computed(() => this._targetModel().code || null);
-    private readonly _limit = signal(PAGE_SIZE);
+    private readonly _page = signal(0);
+    private _pageQuery = '';
     private readonly _selectedKey = signal<string | null>(null);
     private readonly _editor = signal({ value: '', comment: '' });
-    private readonly _showAllNamespaces = signal(false);
+    private readonly _namespaceLimit = signal(LISTED_NAMESPACES);
+    private readonly _usageLimit = signal(USAGE_PAGE_SIZE);
     private readonly _outcome = signal<WriteOutcome | null>(null);
     private readonly _message = signal<string | null>(null);
     private readonly _busy = signal(false);
@@ -99,13 +106,20 @@ export class TranslationsViewPresenter {
 
         // Search and filters ask main again. Reading the catalogs happens once, so this stays quick.
         effect(() => {
-            this._namespace();
-            this._filter();
-            this._search();
-            this._target();
-            this._limit();
+            const query = JSON.stringify([this._namespace(), this._filter(), this._search().text, this._target()]);
+            const page = this._page();
 
             untracked(() => {
+                if (query !== this._pageQuery) {
+                    this._pageQuery = query;
+
+                    if (page !== 0) {
+                        this._page.set(0);
+
+                        return;
+                    }
+                }
+
                 if (this.overview.value()) {
                     void this.keys.reload();
                 }
@@ -129,9 +143,26 @@ export class TranslationsViewPresenter {
 
             untracked(() => {
                 if (this._selectedKey()) {
+                    this.discardSuggestion();
+                    this._usageLimit.set(USAGE_PAGE_SIZE);
                     void this.reloadDetail();
                 }
             });
+        });
+
+        // Editing or reloading a catalog can remove the matches of its last page.
+        effect(() => {
+            const keys = this.keys.value();
+            const status = this.keys.status();
+            const page = this._page();
+
+            if (keys && status === 'ready') {
+                const last = Math.max(0, Math.ceil(keys.matching / PAGE_SIZE) - 1);
+
+                if (page > last) {
+                    this._page.set(last);
+                }
+            }
         });
     }
 
@@ -157,7 +188,8 @@ export class TranslationsViewPresenter {
         search: this._search().text,
         filter: this._filter(),
         targetLocale: this._target(),
-        limit: this._limit()
+        offset: this._page() * PAGE_SIZE,
+        limit: PAGE_SIZE
     }));
 
     /**
@@ -213,7 +245,7 @@ export class TranslationsViewPresenter {
      */
     public readonly namespaces = computed(() => {
         const all = this.overview.value()?.namespaces ?? [];
-        const listed = this._showAllNamespaces() ? all : all.slice(0, LISTED_NAMESPACES);
+        const listed = all.slice(0, this._namespaceLimit());
 
         return listed.map((namespace) => ({ ...namespace, label: formatCount(namespace.count), isActive: namespace.name === this._namespace() }));
     });
@@ -225,7 +257,7 @@ export class TranslationsViewPresenter {
      */
     public readonly moreNamespaces = computed(() => {
         const all = this.overview.value()?.namespaces ?? [];
-        const rest = this._showAllNamespaces() ? [] : all.slice(LISTED_NAMESPACES);
+        const rest = all.slice(this._namespaceLimit());
 
         return rest.length > 0 ? { label: `${rest.length} more`, count: formatCount(rest.reduce((sum, namespace) => sum + namespace.count, 0)) } : null;
     });
@@ -301,15 +333,39 @@ export class TranslationsViewPresenter {
     public readonly rows = computed(() => (this.keys.value()?.rows ?? []).map((row) => ({ ...row, badges: flagsOf(row), isSelected: row.key === this._selectedKey() })));
 
     /**
-     * Gets whether more rows can show.
+     * Gets the zero-based page of keys.
      *
      * @readonly
      */
-    public readonly hasMore = computed(() => {
-        const keys = this.keys.value();
+    public readonly page = this._page.asReadonly();
 
-        return keys ? keys.matching > keys.rows.length : false;
-    });
+    /**
+     * Gets how many rows a page can hold.
+     *
+     * @readonly
+     */
+    public readonly pageSize = PAGE_SIZE;
+
+    /**
+     * Gets how many keys match the current query across all pages.
+     *
+     * @readonly
+     */
+    public readonly matchingCount = computed(() => this.keys.value()?.matching ?? 0);
+
+    /**
+     * Gets the revealed source usages of the selected key.
+     *
+     * @readonly
+     */
+    public readonly usages = computed(() => (this.detail.value()?.usages ?? []).slice(0, this._usageLimit()));
+
+    /**
+     * Gets how many usages have not been revealed yet.
+     *
+     * @readonly
+     */
+    public readonly moreUsages = computed(() => Math.max(0, (this.detail.value()?.usages.length ?? 0) - this._usageLimit()));
 
     /**
      * Gets the selected key.
@@ -449,23 +505,12 @@ export class TranslationsViewPresenter {
      * @returns When it is loaded.
      */
     public async load(): Promise<void> {
-        void this.providers.reload();
-        await this.overview.reload();
+        await this.reload();
 
-        const overview = this.overview.value();
+        const key = this._route?.snapshot.queryParamMap.get('key');
 
-        if (overview) {
-            if (!overview.locales.some((locale) => locale.code === this._target() && locale.file !== null)) {
-                this._targetModel.set({ code: overview.locales.find((locale) => locale.file !== null && locale.code !== overview.baseLocale)?.code ?? '' });
-            }
-
-            await this.keys.reload();
-
-            const key = this._route?.snapshot.queryParamMap.get('key');
-
-            if (key) {
-                await this.open(key);
-            }
+        if (key && this.overview.value()) {
+            await this.open(key);
         }
     }
 
@@ -476,6 +521,7 @@ export class TranslationsViewPresenter {
      * @returns When its details are loaded.
      */
     public async open(key: string): Promise<void> {
+        this._page.set(0);
         this._namespace.set(null);
         this._filter.set('all');
         this._search.set({ text: key });
@@ -505,14 +551,14 @@ export class TranslationsViewPresenter {
      */
     public pickNamespace(name: string | null): void {
         this._namespace.set(name === this._namespace() ? null : name);
-        this._limit.set(PAGE_SIZE);
+        this._page.set(0);
     }
 
     /**
-     * Shows the namespaces beyond the first ones.
+     * Reveals the next group of namespaces.
      */
-    public showAllNamespaces(): void {
-        this._showAllNamespaces.set(true);
+    public showMoreNamespaces(): void {
+        this._namespaceLimit.update((limit) => limit + LISTED_NAMESPACES);
     }
 
     /**
@@ -522,14 +568,27 @@ export class TranslationsViewPresenter {
      */
     public pickFilter(filter: CatalogFilter): void {
         this._filter.set(filter);
-        this._limit.set(PAGE_SIZE);
+        this._page.set(0);
     }
 
     /**
-     * Shows more rows.
+     * Selects a bounded page without changing the selected key or editor draft.
+     *
+     * @param page - The zero-based page index.
      */
-    public showMore(): void {
-        this._limit.update((limit) => limit + PAGE_SIZE);
+    public pickPage(page: number): void {
+        if (Number.isInteger(page)) {
+            const last = Math.max(0, Math.ceil(this.matchingCount() / PAGE_SIZE) - 1);
+
+            this._page.set(Math.max(0, Math.min(page, last)));
+        }
+    }
+
+    /**
+     * Reveals the next group of source usages.
+     */
+    public showMoreUsages(): void {
+        this._usageLimit.update((limit) => limit + USAGE_PAGE_SIZE);
     }
 
     /**
@@ -540,6 +599,7 @@ export class TranslationsViewPresenter {
      */
     public async select(key: string): Promise<void> {
         this.discardSuggestion();
+        this._usageLimit.set(USAGE_PAGE_SIZE);
         this._selectedKey.set(key);
         this._outcome.set(null);
         this._message.set(null);
@@ -556,7 +616,7 @@ export class TranslationsViewPresenter {
         const locale = this._target();
 
         if (key && locale && this.isDirty()) {
-            await this.write(() => this._api.request('catalog.setValue', { projectId: this.requireProject(), key, locale, value: this._editor().value }));
+            await this.write(() => this._api.request('catalog.setValue', { projectId: this.requireProject(), key, locale, value: this._editor().value }), 'value');
         }
     }
 
@@ -566,7 +626,7 @@ export class TranslationsViewPresenter {
     public revert(): void {
         const detail = this.detail.value();
 
-        this._editor.set({ value: detail?.target ?? '', comment: detail?.comment ?? '' });
+        this._editor.update((editor) => ({ ...editor, value: detail?.target ?? '' }));
     }
 
     /**
@@ -642,7 +702,7 @@ export class TranslationsViewPresenter {
         const locale = this._target() ?? this.overview.value()?.baseLocale;
 
         if (key && locale && this.isCommentDirty()) {
-            await this.write(() => this._api.request('catalog.setComment', { projectId: this.requireProject(), key, locale, comment: this._editor().comment }));
+            await this.write(() => this._api.request('catalog.setComment', { projectId: this.requireProject(), key, locale, comment: this._editor().comment }), 'comment');
         }
     }
 
@@ -668,7 +728,7 @@ export class TranslationsViewPresenter {
      */
     public async addLocale(): Promise<void> {
         if (this.canAddLocale()) {
-            await this.write(() => this._api.request('catalog.addLocale', { projectId: this.requireProject(), locale: this._newLocale().code.trim() }));
+            await this.write(() => this._api.request('catalog.addLocale', { projectId: this.requireProject(), locale: this._newLocale().code.trim() }), null);
             this._addingLocale.set(false);
         }
     }
@@ -676,7 +736,15 @@ export class TranslationsViewPresenter {
     /**
      * @private
      */
-    private async write(request: () => Promise<WriteOutcome>): Promise<void> {
+    private async write(request: () => Promise<WriteOutcome>, field: 'value' | 'comment' | null): Promise<void> {
+        if (this._busy()) {
+            return;
+        }
+
+        const key = this._selectedKey();
+        const locale = this._target();
+        const submitted = this._editor();
+
         this._busy.set(true);
         this._message.set(null);
 
@@ -686,10 +754,16 @@ export class TranslationsViewPresenter {
             this._outcome.set(outcome);
 
             if (outcome.state === 'applied') {
-                await this.load();
-                await this.reloadDetail();
-            } else if (outcome.state === 'pending') {
-                this.revert();
+                await this.reload();
+                await this.detail.reload();
+            }
+
+            if (field && outcome.state !== 'unchanged' && key === this._selectedKey() && locale === this._target()) {
+                const detail = this.detail.value();
+                const saved = field === 'value' ? detail?.target ?? '' : detail?.comment ?? '';
+
+                // Saving one field leaves the other draft, and any edits made during the save, in place.
+                this._editor.update((editor) => editor[field] === submitted[field] ? { ...editor, [field]: saved } : editor);
             }
         } catch (error) {
             this._message.set(error instanceof Error ? error.message : String(error));
@@ -699,11 +773,34 @@ export class TranslationsViewPresenter {
     }
 
     /**
+     * Refreshes catalog data without reopening a route's initial key or replacing editor drafts.
+     *
+     * @private
+     */
+    private async reload(): Promise<void> {
+        void this.providers.reload();
+        await this.overview.reload();
+
+        const overview = this.overview.value();
+
+        if (overview) {
+            if (!overview.locales.some((locale) => locale.code === this._target() && locale.file !== null)) {
+                this._targetModel.set({ code: overview.locales.find((locale) => locale.file !== null && locale.code !== overview.baseLocale)?.code ?? '' });
+            }
+
+            await this.keys.reload();
+        }
+    }
+
+    /**
      * @private
      */
     private async reloadDetail(): Promise<void> {
         await this.detail.reload();
-        this.revert();
+
+        const detail = this.detail.value();
+
+        this._editor.set({ value: detail?.target ?? '', comment: detail?.comment ?? '' });
     }
 
     /**

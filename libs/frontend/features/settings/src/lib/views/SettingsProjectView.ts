@@ -20,9 +20,11 @@ import { SettingsProjectViewPresenter } from '../view-presenters/SettingsProject
  */
 @Component({
     selector: 'wortlaut-settings-project',
+    host: { class: 'page-frame' },
     imports: [ButtonComponent, CardComponent, CardHeaderComponent, CheckboxComponent, ChipComponent, DryRunNoticeComponent, EmptyStateComponent, FailureStateComponent, FormFieldDirective, LoadingStateComponent, MessageComponent, SelectComponent, SelectItemComponent, TextBoxComponent, WriteResultComponent],
     providers: [SettingsProjectViewPresenter],
     templateUrl: './SettingsProjectView.html',
+    styleUrl: './SettingsProjectView.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsProjectView implements OnInit {

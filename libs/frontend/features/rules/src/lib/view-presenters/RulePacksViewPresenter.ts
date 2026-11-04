@@ -6,6 +6,9 @@ import { AsyncValue, countOf, DesktopApi, RunCenter, ShellSession } from '@pixel
 
 // #endregion
 
+const LIST_PAGE_SIZE = 50;
+const RULE_PAGE_SIZE = 100;
+
 /**
  * The severities a rule can have.
  */
@@ -102,6 +105,8 @@ export class RulePacksViewPresenter {
     private readonly _checking = signal(false);
     private readonly _reviewing = signal<string | null>(null);
     private readonly _revision = signal(0);
+    private readonly _packLimit = signal(LIST_PAGE_SIZE);
+    private readonly _ruleLimit = signal(RULE_PAGE_SIZE);
 
     // #endregion
 
@@ -164,6 +169,16 @@ export class RulePacksViewPresenter {
     })));
 
     /**
+     * The visible portion of installed packs.
+     */
+    public readonly visiblePacks = computed(() => this.packs().slice(0, this._packLimit()));
+
+    /**
+     * Whether more installed packs can be shown.
+     */
+    public readonly hasMorePacks = computed(() => this.packs().length > this._packLimit());
+
+    /**
      * Gets the selected pack: the one picked, or the first that failed its verification, or the first.
      *
      * @readonly
@@ -184,6 +199,16 @@ export class RulePacksViewPresenter {
 
         return (this.selected()?.rules ?? []).map((rule) => ({ ...rule, track: `${rule.id}:${rule.severity}:${revision}` }));
     });
+
+    /**
+     * The visible portion of the selected pack's rules.
+     */
+    public readonly visibleRules = computed(() => this.rules().slice(0, this._ruleLimit()));
+
+    /**
+     * Whether more rules can be shown without changing their configuration.
+     */
+    public readonly hasMoreRules = computed(() => this.rules().length > this._ruleLimit());
 
     /**
      * Gets what the source of the selected pack says now.
@@ -315,7 +340,22 @@ export class RulePacksViewPresenter {
      */
     public async pick(id: string): Promise<void> {
         this._pickedId.set(id);
+        this._ruleLimit.set(RULE_PAGE_SIZE);
         await this.checkUpdate();
+    }
+
+    /**
+     * Shows the next portion of installed packs.
+     */
+    public showMorePacks(): void {
+        this._packLimit.update((limit) => limit + LIST_PAGE_SIZE);
+    }
+
+    /**
+     * Shows the next portion of the selected pack's rules.
+     */
+    public showMoreRules(): void {
+        this._ruleLimit.update((limit) => limit + RULE_PAGE_SIZE);
     }
 
     /**

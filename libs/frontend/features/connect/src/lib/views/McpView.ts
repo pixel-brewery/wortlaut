@@ -22,6 +22,7 @@ import { McpViewPresenter } from '../view-presenters/McpViewPresenter';
  */
 @Component({
     selector: 'wortlaut-mcp',
+    host: { class: 'page-frame' },
     imports: [
         AnchorComponent,
         BadgeComponent,

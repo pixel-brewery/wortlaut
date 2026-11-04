@@ -7,6 +7,7 @@
 } @else if (presenter.settings.isFailed()) {
   <wortlaut-failure-state header="These settings could not be read" [message]="presenter.settings.error()" (retry)="presenter.load()" />
 } @else if (presenter.settings.value(); as settings) {
+  <div class="page-content page-content-scroll">
   <wortlaut-dry-run-notice text="Saved settings wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
   <wortlaut-write-result [outcome]="presenter.outcome()" />
   @if (presenter.message(); as message) {
@@ -32,7 +33,7 @@
           <div class="field-label"><span>Resource roots</span><span class="note">One or more folders with catalogs.</span></div>
           <div class="field-control chips">
             @for (root of presenter.resourceRoots(); track root.id) {
-              <mosaik-chip [label]="root.label" [closeable]="true" (closed)="presenter.removeResourceRoot(root)" />
+              <mosaik-chip [label]="root.label" [title]="root.label" [closeable]="true" (closed)="presenter.removeResourceRoot(root)" />
             } @empty {
               <span class="muted">No catalog folder yet</span>
             }
@@ -98,7 +99,7 @@
           <div class="field-control field-list">
             <div class="chips">
               @for (locale of presenter.targetLocales(); track locale) {
-                <mosaik-chip [label]="locale" [closeable]="true" (closed)="presenter.removeEntry('targetLocales', locale)" />
+                <mosaik-chip [label]="locale" [title]="locale" [closeable]="true" (closed)="presenter.removeEntry('targetLocales', locale)" />
               } @empty {
                 <span class="muted">None yet</span>
               }
@@ -131,7 +132,7 @@
             <div class="field-control field-list">
               <div class="chips">
                 @for (item of list.items; track item) {
-                  <mosaik-chip [label]="item" [closeable]="true" (closed)="presenter.removeEntry(list.id, item)" />
+                  <mosaik-chip [label]="item" [title]="item" [closeable]="true" (closed)="presenter.removeEntry(list.id, item)" />
                 } @empty {
                   <span class="muted">None</span>
                 }
@@ -146,6 +147,8 @@
       </div>
     </mosaik-card>
   </section>
+
+  </div>
 
   <div class="footer-actions">
     <mosaik-button label="Discard" appearance="plain" [disabled]="!presenter.isDirty()" (click)="presenter.discard()" />

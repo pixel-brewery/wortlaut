@@ -9,8 +9,10 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { ProgressBarComponent } from '@pixel-brewery/mosaik-elements-angular/components/progress-bar';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
-import { FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { TooltipComponent } from '@pixel-brewery/mosaik-elements-angular/components/tooltip';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { OverviewViewPresenter } from '../view-presenters/OverviewViewPresenter';
 
 // #endregion
@@ -20,6 +22,7 @@ import { OverviewViewPresenter } from '../view-presenters/OverviewViewPresenter'
  */
 @Component({
     selector: 'wortlaut-overview',
+    host: { class: 'page-frame' },
     imports: [
         AnchorComponent,
         BadgeComponent,
@@ -32,13 +35,16 @@ import { OverviewViewPresenter } from '../view-presenters/OverviewViewPresenter'
         LoadingStateComponent,
         ProgressBarComponent,
         RouterLink,
+        SplitComponent,
+        PaneSizeDirective,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,
         TableComponent,
         TableHeaderCellComponent,
         TableHeaderComponent,
-        TableHeaderRowComponent
+        TableHeaderRowComponent,
+        TooltipComponent
     ],
     providers: [OverviewViewPresenter],
     templateUrl: './OverviewView.html',

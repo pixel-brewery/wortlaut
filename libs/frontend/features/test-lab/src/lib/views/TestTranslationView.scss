@@ -5,6 +5,7 @@
 }
 
 .setups {
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: calc(var(--mosaik-layout-space) * 1.5);
@@ -15,16 +16,32 @@
 }
 
 .setup-grid {
+  flex: 1 1 0;
+  min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
   gap: calc(var(--mosaik-layout-space) * 2);
 }
 
 .setup-card,
 .card-section {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.result-section {
+  flex: 1 1 0;
+}
+
+.own-section {
+  flex: 0 0 calc(var(--mosaik-layout-space) * 13);
+}
+
+:host > mosaik-message {
+  flex: none;
 }
 
 .setup-head {

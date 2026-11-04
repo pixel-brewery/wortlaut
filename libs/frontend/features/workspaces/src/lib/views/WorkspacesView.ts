@@ -10,7 +10,8 @@ import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/comp
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent, WorkspaceTileComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, WorkspaceTileComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { WorkspacesViewPresenter } from '../view-presenters/WorkspacesViewPresenter';
 
 // #endregion
@@ -20,6 +21,7 @@ import { WorkspacesViewPresenter } from '../view-presenters/WorkspacesViewPresen
  */
 @Component({
     selector: 'wortlaut-workspaces',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,
@@ -30,7 +32,9 @@ import { WorkspacesViewPresenter } from '../view-presenters/WorkspacesViewPresen
         FailureStateComponent,
         FormFieldDirective,
         LoadingStateComponent,
+        PaneSizeDirective,
         MessageComponent,
+        SplitComponent,
         SegmentComponent,
         SegmentItemComponent,
         TextBoxComponent,

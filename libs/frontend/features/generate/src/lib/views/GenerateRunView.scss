@@ -21,8 +21,13 @@
 }
 
 .card-section {
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.progress-section {
+  flex: 0 1 calc(var(--mosaik-layout-space) * 17);
 }
 
 .progress {
@@ -91,23 +96,16 @@
   gap: calc(var(--mosaik-layout-space) * 0.75);
 }
 
-.review-columns {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: calc(var(--mosaik-layout-space) * 2);
-}
-
 .review-main {
-  flex: 999 1 560px;
   min-width: 0;
 }
 
 .review-side {
-  flex: 1 1 280px;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: calc(var(--mosaik-layout-space) * 2);
 }
 
@@ -236,14 +234,20 @@
   font: var(--mosaik-typography-subtitle2);
 }
 
-.log {
-  margin: 0;
-  padding: 0 calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 1.5);
-  max-height: 280px;
-  overflow: auto;
-  font: var(--mosaik-typography-caption);
-  font-family: var(--mosaik-typography-code-font-family, monospace);
-  color: var(--mosaik-scheme-lowlight);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+.log-body {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (max-width: 1200px), (max-height: 800px) {
+  .progress-section {
+    flex-basis: calc(var(--mosaik-layout-space) * 12);
+  }
+
+  .progress {
+    gap: var(--mosaik-layout-space);
+    padding: var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 1.5);
+  }
 }

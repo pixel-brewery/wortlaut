@@ -1,11 +1,13 @@
 // #region Imports
 
-import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, viewChild } from '@angular/core';
+import { afterRenderEffect, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, viewChild } from '@angular/core';
 import { FormFieldDirective } from '@pixel-brewery/mosaik-elements-angular';
-import { DialogComponent, DialogContentComponent } from '@pixel-brewery/mosaik-elements-angular/components/dialog';
+import { BackdropComponent } from '@pixel-brewery/mosaik-elements-angular/components/backdrop';
+import { CardComponent } from '@pixel-brewery/mosaik-elements-angular/components/card';
+import { ClickableComponent } from '@pixel-brewery/mosaik-elements-angular/components/clickable';
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
-import { ListComponent, ListItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/list';
+import { KbdComponent } from '@pixel-brewery/mosaik-elements-angular/components/kbd';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SearchBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/search-box';
 import { SearchPalettePresenter } from '../view-presenters/SearchPalettePresenter';
@@ -17,7 +19,7 @@ import { SearchPalettePresenter } from '../view-presenters/SearchPalettePresente
  */
 @Component({
     selector: 'wortlaut-search-palette',
-    imports: [DialogComponent, DialogContentComponent, EmptyStateComponent, FormFieldDirective, IconComponent, ListComponent, ListItemComponent, MessageComponent, SearchBoxComponent],
+    imports: [BackdropComponent, CardComponent, ClickableComponent, EmptyStateComponent, FormFieldDirective, IconComponent, KbdComponent, MessageComponent, SearchBoxComponent],
     templateUrl: './SearchPaletteComponent.html',
     styleUrl: './SearchPaletteComponent.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -26,8 +28,9 @@ export class SearchPaletteComponent {
 
     // #region Fields
 
-    private readonly _box = viewChild('box', { read: ElementRef });
+    private readonly _box = viewChild(SearchBoxComponent);
     private readonly _host = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _opener: HTMLElement | null = null;
 
     // #endregion
 
@@ -37,25 +40,34 @@ export class SearchPaletteComponent {
      * Constructs a new instance of the `SearchPaletteComponent` class.
      */
     public constructor() {
-        // The box takes the keys as soon as the dialog shows it.
         effect(() => {
-            const box = this._box()?.nativeElement as HTMLElement | undefined;
+            if (this.presenter.isOpen()) {
+                const opener = this._host.nativeElement.ownerDocument.activeElement;
 
-            if (this.presenter.isOpen() && box) {
-                requestAnimationFrame(() => {
-                    box.focus();
-                });
+                this._opener = opener instanceof HTMLElement ? opener : null;
+            } else {
+                this.restoreFocus();
             }
         });
 
-        // The result that Enter opens stays in sight.
-        effect(() => {
-            if (this.presenter.activeId()) {
-                requestAnimationFrame(() => {
-                    this._host.nativeElement.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest' });
-                });
+        // The field's own render can follow Angular's, so retry focus on the next frame.
+        afterRenderEffect((onCleanup) => {
+            if (this.presenter.isOpen() && this._box()) {
+                this.focusSearchField();
+
+                const frame = requestAnimationFrame(() => this.focusSearchField());
+
+                onCleanup(() => cancelAnimationFrame(frame));
             }
         });
+
+        afterRenderEffect(() => {
+            if (this.presenter.isOpen() && this.presenter.activeId()) {
+                this._host.nativeElement.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest' });
+            }
+        });
+
+        inject(DestroyRef).onDestroy(() => this.restoreFocus());
     }
 
     // #endregion
@@ -68,6 +80,68 @@ export class SearchPaletteComponent {
      * @readonly
      */
     protected readonly presenter = inject(SearchPalettePresenter);
+
+    /**
+     * Gets the result announced while the search field keeps keyboard focus.
+     *
+     * @protected
+     * @readonly
+     */
+    protected readonly activeItem = computed(() => this.presenter.items().find((item) => item.id === this.presenter.activeId()) ?? null);
+
+    // #endregion
+
+    // #region Methods
+
+    /**
+     * Keeps keyboard navigation inside the palette and delegates result selection.
+     *
+     * @protected
+     * @param event - The key pressed in the palette.
+     */
+    protected onKeydown(event: KeyboardEvent): void {
+        if (event.isComposing) {
+            return;
+        }
+
+        if (event.key === 'Escape' || event.key === 'Tab') {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (event.key === 'Escape') {
+                this.presenter.close();
+            } else {
+                this.focusSearchField();
+            }
+
+            return;
+        }
+
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter') {
+            event.stopPropagation();
+            void this.presenter.onKey(event);
+        }
+    }
+
+    /**
+     * @private
+     */
+    private focusSearchField(): void {
+        this._box()?.elementRef.nativeElement.focus();
+    }
+
+    /**
+     * @private
+     */
+    private restoreFocus(): void {
+        const opener = this._opener;
+
+        this._opener = null;
+
+        if (opener?.isConnected) {
+            opener.focus();
+        }
+    }
 
     // #endregion
 

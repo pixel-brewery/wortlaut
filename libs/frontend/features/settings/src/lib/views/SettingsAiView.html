@@ -1,3 +1,4 @@
+<div class="page-content page-content-scroll">
 @if (presenter.providers.isLoading()) {
   <wortlaut-loading-state label="Asking the providers" />
 } @else if (presenter.providers.isFailed()) {
@@ -158,6 +159,14 @@
     }
     <wortlaut-write-result [outcome]="presenter.outcome()" />
 
+
+  } @else {
+    <mosaik-empty-state header="No project is open" content="Defaults, instructions and safety belong to a project. Open one to edit them." />
+  }
+}
+</div>
+
+@if (!presenter.providers.isLoading() && !presenter.providers.isFailed() && !presenter.defaults.isFailed() && presenter.defaults.value()) {
     <div class="save-row">
       <span class="note">Everything but the default assistant goes to {{ presenter.sourceFile() }}.</span>
       <div class="actions">
@@ -165,7 +174,4 @@
         <mosaik-button label="Save changes" variant="primary" appearance="solid" [disabled]="!presenter.canSave()" [isBusy]="presenter.busy()" (click)="presenter.save()" />
       </div>
     </div>
-  } @else {
-    <mosaik-empty-state header="No project is open" content="Defaults, instructions and safety belong to a project. Open one to edit them." />
-  }
 }
