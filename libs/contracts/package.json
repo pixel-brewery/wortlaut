@@ -1,7 +1,7 @@
 {
   "name": "@pixel-brewery/wortlaut-contracts",
   "description": "Wortlaut contracts: Zod schemas and types for runs, change sets and settings",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "MIT",
   "author": "Pixel Brewery (https://github.com/pixel-brewery)",
   "repository": {
