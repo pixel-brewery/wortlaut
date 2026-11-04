@@ -1,4 +1,20 @@
+.page-column-side {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 2fr) minmax(calc(var(--mosaik-layout-space) * 20), 1.4fr) minmax(0, 1fr);
+}
+
+.page-column-main {
+  min-height: 0;
+}
+
+.page-column-main > .card-section {
+  flex: 1 1 0;
+}
+
 .card-section {
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -14,11 +30,16 @@
   padding-left: calc(var(--mosaik-layout-space) * 3.5);
 }
 
-.sort-line {
+.sort-actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(var(--mosaik-layout-space) * 1.5);
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
+}
+
+.sort-actions mosaik-button {
+  align-self: flex-end;
 }
 
 .command-line {
@@ -47,7 +68,5 @@ mosaik-table-body-row {
   background: var(--mosaik-color-neutral-50);
   font-size: 12px;
   line-height: 18px;
-  max-height: 480px;
-  overflow: auto;
   white-space: pre;
 }

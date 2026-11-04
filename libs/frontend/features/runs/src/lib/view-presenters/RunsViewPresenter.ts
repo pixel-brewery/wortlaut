@@ -17,6 +17,8 @@ export type RunTab = 'log' | 'changes' | 'configuration';
  */
 const COPIED_MS = 2000;
 
+const PAGE_SIZE = 100;
+
 /**
  * Commands that never change a file, whatever mode they run in.
  */
@@ -107,6 +109,8 @@ export class RunsViewPresenter {
     private readonly _center = inject(RunCenter);
     private readonly _selectedId = signal<string | null>(this._route.snapshot.paramMap.get('runId'));
     private readonly _tab = signal<RunTab>('log');
+    private readonly _runLimit = signal(PAGE_SIZE);
+    private readonly _changeLimit = signal(PAGE_SIZE);
     private readonly _copied = signal(false);
     private readonly _now = signal(new Date());
     private readonly _message = signal<string | null>(null);
@@ -143,6 +147,16 @@ export class RunsViewPresenter {
      * @readonly
      */
     public readonly runs = new AsyncValue<Array<RunSummary>>(() => this._api.request('run.list', { projectId: this._shell.project()?.id ?? null, limit: null }));
+
+    /**
+     * The bounded portion of the stored history currently shown.
+     */
+    public readonly rows = computed(() => (this.runs.value() ?? []).slice(0, this._runLimit()));
+
+    /**
+     * Whether more stored run summaries can be shown.
+     */
+    public readonly hasMoreRuns = computed(() => (this.runs.value()?.length ?? 0) > this._runLimit());
 
     /**
      * Gets the details of the selected run.
@@ -231,7 +245,12 @@ export class RunsViewPresenter {
      *
      * @readonly
      */
-    public readonly changes = computed(() => (this.detail.value()?.changes ?? []).map((change) => ({ file: change.file, text: describeChange(change) })));
+    public readonly changes = computed(() => (this.detail.value()?.changes ?? []).slice(0, this._changeLimit()).map((change) => ({ file: change.file, text: describeChange(change) })));
+
+    /**
+     * Whether more changed-file summaries remain available.
+     */
+    public readonly hasMoreChanges = computed(() => (this.detail.value()?.changes.length ?? 0) > this._changeLimit());
 
     /**
      * Gets why the selected run has no files.
@@ -276,8 +295,23 @@ export class RunsViewPresenter {
      */
     public async select(id: string): Promise<void> {
         this._selectedId.set(id);
+        this._changeLimit.set(PAGE_SIZE);
         await this._router.navigate(['/runs', id]);
         await this.detail.reload();
+    }
+
+    /**
+     * Shows the next portion of stored run summaries.
+     */
+    public showMoreRuns(): void {
+        this._runLimit.update((limit) => limit + PAGE_SIZE);
+    }
+
+    /**
+     * Shows the next portion of the selected run's changed files.
+     */
+    public showMoreChanges(): void {
+        this._changeLimit.update((limit) => limit + PAGE_SIZE);
     }
 
     /**

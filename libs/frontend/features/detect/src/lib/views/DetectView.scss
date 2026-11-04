@@ -1,3 +1,17 @@
+.page-column-side,
+.page-column-main,
+.card-section {
+  min-height: 0;
+}
+
+.results-section {
+  flex: 1 1 0;
+}
+
+.change-section {
+  flex: 0 1 38%;
+}
+
 .settings {
   display: flex;
   flex-direction: column;
@@ -40,8 +54,11 @@
 }
 
 .figures {
+  flex: 0 1 calc(var(--mosaik-layout-space) * 13);
+  min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
   gap: calc(var(--mosaik-layout-space) * 1.5);
 }
 
@@ -114,4 +131,14 @@ mosaik-textbox {
   align-items: center;
   justify-content: space-between;
   gap: var(--mosaik-layout-space);
+}
+
+@media (max-width: 1200px), (max-height: 800px) {
+  .figure {
+    padding: var(--mosaik-layout-space);
+  }
+
+  .figure-value {
+    font: var(--mosaik-typography-headline6);
+  }
 }

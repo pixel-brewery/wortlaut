@@ -20,6 +20,7 @@ import { CliNxViewPresenter } from '../view-presenters/CliNxViewPresenter';
  */
 @Component({
     selector: 'wortlaut-cli-nx',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,

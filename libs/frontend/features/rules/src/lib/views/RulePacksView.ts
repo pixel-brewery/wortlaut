@@ -12,7 +12,8 @@ import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elem
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import type { RuleSeverity } from '@pixel-brewery/wortlaut-contracts';
-import { DryRunNoticeComponent, FailureStateComponent, FileDiffComponent, LoadingStateComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
+import { DryRunNoticeComponent, FailureStateComponent, FileDiffComponent, LoadingStateComponent, PaneSizeDirective, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { RulePacksViewPresenter } from '../view-presenters/RulePacksViewPresenter';
 
 // #endregion
@@ -23,6 +24,7 @@ import { RulePacksViewPresenter } from '../view-presenters/RulePacksViewPresente
  */
 @Component({
     selector: 'wortlaut-rule-packs',
+    host: { class: 'page-frame' },
     imports: [
         BadgeComponent,
         ButtonComponent,
@@ -39,7 +41,9 @@ import { RulePacksViewPresenter } from '../view-presenters/RulePacksViewPresente
         FailureStateComponent,
         FileDiffComponent,
         LoadingStateComponent,
+        PaneSizeDirective,
         MessageComponent,
+        SplitComponent,
         RouterLink,
         RouterOutlet,
         SelectComponent,

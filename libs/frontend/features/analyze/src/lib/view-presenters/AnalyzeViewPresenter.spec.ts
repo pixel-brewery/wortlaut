@@ -5,7 +5,7 @@ import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import type { AnalyzeOverview, AnalyzeRuleResult } from '@pixel-brewery/wortlaut-contracts';
 import { AiHandoff, DesktopApi, ShellSession } from '@pixel-brewery/wortlaut-frontend-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { AnalyzeViewPresenter, describeResult, describeRule } from './AnalyzeViewPresenter';
+import { AnalyzeViewPresenter, describeRule } from './AnalyzeViewPresenter';
 
 // #endregion
 
@@ -66,13 +66,6 @@ function setUp(write: 'applied' | 'pending' = 'pending', query: Record<string, s
 
     return { presenter: TestBed.inject(AnalyzeViewPresenter), session: TestBed.inject(ShellSession), request };
 }
-
-describe('describeResult', () => {
-    it('writes what a rule found per locale', () => {
-        expect(describeResult([{ locale: 'en', count: 22 }, { locale: 'de', count: 16 }], false)).toBe('en 22 · de 16');
-        expect(describeResult([], true)).toBe('Pass');
-    });
-});
 
 describe('describeRule', () => {
     it('offers the action of each rule', () => {

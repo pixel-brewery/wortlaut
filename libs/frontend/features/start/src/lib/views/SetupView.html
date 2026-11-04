@@ -1,5 +1,5 @@
+<div class="drag-region" aria-hidden="true"></div>
 <div class="page-scroll">
-  <div class="drag-region" aria-hidden="true"></div>
   <main class="setup">
     <ol class="rail" aria-label="Setup steps">
       @for (step of presenter.steps(); track step.id) {
@@ -25,6 +25,7 @@
           <mosaik-message variant="danger" header="That did not work" [content]="message" />
         }
 
+        <div class="page-content page-content-scroll">
         @switch (presenter.step()) {
           @case ('catalogs') {
             <div class="narrow-field">
@@ -144,6 +145,8 @@
             }
           }
         }
+
+        </div>
 
         <div class="setup-footer">
           <mosaik-button label="Back" appearance="plain" (click)="presenter.back()" />

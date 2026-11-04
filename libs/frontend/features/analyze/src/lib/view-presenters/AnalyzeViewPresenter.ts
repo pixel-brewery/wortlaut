@@ -3,7 +3,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { AnalyzeOverview, AnalyzeRow, AnalyzeRuleResult, ExceptionListName, WriteOutcome } from '@pixel-brewery/wortlaut-contracts';
-import { AiHandoff, AsyncValue, bindShortcuts, CommandRun, countOf, DesktopApi, formatCount, localeList, localeName, RunCenter, ShellSession } from '@pixel-brewery/wortlaut-frontend-core';
+import { AiHandoff, AsyncValue, bindShortcuts, CommandRun, countOf, DesktopApi, formatCount, localeList, localeName, RunCenter, ShellSession, summarizeRuleResult } from '@pixel-brewery/wortlaut-frontend-core';
 
 // #endregion
 
@@ -37,21 +37,6 @@ export interface IRuleCard {
     actions: ReadonlyArray<{ id: RowAction; label: string }>;
     footer: string;
     hasAi: 'translate' | 'patterns' | null;
-}
-
-/**
- * Writes the badge of a rule.
- *
- * @param locales What the rule found per locale.
- * @param passed Whether it passed.
- * @returns For example `en 22 · de 16` or `Pass`.
- */
-export function describeResult(locales: ReadonlyArray<{ locale: string | null; count: number | null }>, passed: boolean): string {
-    if (passed) {
-        return 'Pass';
-    }
-
-    return locales.map((entry) => [entry.locale, entry.count].filter((part) => part !== null).join(' ')).join(' · ') || 'Failed';
 }
 
 /**
@@ -212,6 +197,7 @@ export class AnalyzeViewPresenter {
             const current = results.find((result) => result.id === rule.id);
             const last = current ?? rule.last;
             const severity = current?.severity ?? rule.severity;
+            const result = !isOn ? { label: 'Off', detail: 'Off' } : last ? summarizeRuleResult(last.locales, last.passed) : { label: 'Not run', detail: 'Not run' };
 
             return {
                 id: rule.id,
@@ -219,7 +205,8 @@ export class AnalyzeViewPresenter {
                 group: rule.group,
                 isOn,
                 isSelected: rule.id === this.selectedId(),
-                result: !isOn ? 'Off' : last ? describeResult(last.locales, last.passed) : 'Not run',
+                result: result.label,
+                resultDetail: result.detail,
                 variant: !isOn || !last ? 'neutral' as const : last.passed ? 'success' as const : severity === 'error' ? 'danger' as const : 'warning' as const
             };
         });

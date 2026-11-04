@@ -6,9 +6,10 @@ import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/componen
 import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elements-angular/components/card';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TestTranslationViewPresenter } from '../view-presenters/TestTranslationViewPresenter';
 
 // #endregion
@@ -18,6 +19,7 @@ import { TestTranslationViewPresenter } from '../view-presenters/TestTranslation
  */
 @Component({
     selector: 'wortlaut-test-translation',
+    host: { class: 'page-content' },
     imports: [
         ButtonComponent,
         CardComponent,
@@ -26,8 +28,10 @@ import { TestTranslationViewPresenter } from '../view-presenters/TestTranslation
         FormFieldDirective,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         SelectComponent,
         SelectItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,

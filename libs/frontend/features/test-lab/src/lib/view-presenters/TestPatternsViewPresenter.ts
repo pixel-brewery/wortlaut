@@ -9,6 +9,11 @@ import { AiHandoff, AsyncValue, DesktopApi, formatCount, ShellSession } from '@p
 // #endregion
 
 /**
+ * The most pattern results added to the view at once.
+ */
+const PAGE_SIZE = 100;
+
+/**
  * The list a pattern is tested for, whose grammar it follows.
  */
 export type PatternList = 'usedKeys' | 'identicalKeys';
@@ -42,6 +47,7 @@ export class TestPatternsViewPresenter {
     private readonly _model = signal({ pattern: '' });
     private readonly _list = signal<PatternList>('usedKeys');
     private readonly _proposal = signal<string | null>(null);
+    private readonly _limit = signal(PAGE_SIZE);
 
     // #endregion
 
@@ -64,6 +70,7 @@ export class TestPatternsViewPresenter {
             this._list();
 
             untracked(() => {
+                this._limit.set(PAGE_SIZE);
                 void this.result.reload();
             });
         });
@@ -143,7 +150,15 @@ export class TestPatternsViewPresenter {
      *
      * @readonly
      */
-    public readonly keys = computed(() => this.result.value()?.keys ?? []);
+    public readonly keys = computed(() => (this.result.value()?.keys ?? []).slice(0, this._limit()));
+
+    /**
+     * Gets whether more of the returned keys can be displayed.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly hasMoreKeys = computed(() => (this.result.value()?.keys.length ?? 0) > this._limit());
 
     /**
      * Gets how many keys do not show.
@@ -153,7 +168,7 @@ export class TestPatternsViewPresenter {
     public readonly hiddenKeys = computed(() => {
         const result = this.result.value();
 
-        return result ? result.total - result.keys.length : 0;
+        return result ? result.total - this.keys().length : 0;
     });
 
     /**
@@ -190,6 +205,15 @@ export class TestPatternsViewPresenter {
      */
     public setList(list: PatternList): void {
         this._list.set(list);
+    }
+
+    /**
+     * Displays the next page while preserving the result's full match count.
+     *
+     * @public
+     */
+    public showMoreKeys(): void {
+        this._limit.update((limit) => limit + PAGE_SIZE);
     }
 
     /**

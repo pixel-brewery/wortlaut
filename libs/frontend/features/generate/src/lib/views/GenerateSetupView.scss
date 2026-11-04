@@ -1,24 +1,31 @@
-.setup-columns {
+.active-run {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: calc(var(--mosaik-layout-space) * 2);
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+}
+
+.active-run mosaik-message {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 .setup-main {
-  flex: 999 1 520px;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: calc(var(--mosaik-layout-space) * 2);
 }
 
 .setup-side {
-  flex: 1 1 300px;
   min-width: 0;
+  min-height: 0;
 }
 
 .card-section {
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -111,14 +118,12 @@
   font-family: var(--mosaik-typography-code-font-family, monospace);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  max-height: 320px;
-  overflow-y: auto;
 }
 
 .summary {
   margin: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 1.5);
 }
 
@@ -130,6 +135,7 @@
   margin: 0;
   font-weight: 500;
   text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .row-divider {
@@ -161,6 +167,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+  border-top: 1px solid var(--mosaik-scheme-highlight);
 }
 
 .start mosaik-button {
@@ -176,4 +184,14 @@
 mosaik-textbox,
 mosaik-select {
   width: 100%;
+}
+
+mosaik-choice-group::part(root) {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+mosaik-choice {
+  flex: 1 1 140px;
+  min-width: 0;
 }

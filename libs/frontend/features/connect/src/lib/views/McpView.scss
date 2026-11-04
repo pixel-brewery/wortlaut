@@ -1,6 +1,12 @@
 .card-section {
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.access-card {
+  flex: 0 1 calc(var(--mosaik-layout-space) * 16);
 }
 
 .status,
@@ -42,15 +48,16 @@
 }
 
 .columns {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: calc(var(--mosaik-layout-space) * 2);
 }
 
 .tools {
   flex: 999 1 520px;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -58,6 +65,7 @@
 .activity {
   flex: 1 1 280px;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -102,4 +110,11 @@
 
 .strong {
   font-weight: 500;
+}
+
+@media (max-height: 800px), (max-width: 1200px) {
+  .page {
+    padding: calc(var(--mosaik-layout-space) * 2);
+    gap: calc(var(--mosaik-layout-space) * 2);
+  }
 }

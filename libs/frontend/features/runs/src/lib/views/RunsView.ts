@@ -8,7 +8,8 @@ import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/comp
 import { ListComponent, ListItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/list';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { TabStripComponent, TabStripItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
-import { FailureStateComponent, LoadingStateComponent, RunProgressComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, TextWindowComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { RunsViewPresenter } from '../view-presenters/RunsViewPresenter';
 
 // #endregion
@@ -18,7 +19,8 @@ import { RunsViewPresenter } from '../view-presenters/RunsViewPresenter';
  */
 @Component({
     selector: 'wortlaut-runs',
-    imports: [BadgeComponent, ButtonComponent, CardComponent, EmptyStateComponent, FailureStateComponent, ListComponent, ListItemComponent, LoadingStateComponent, MessageComponent, RunProgressComponent, TabStripComponent, TabStripItemComponent],
+    host: { class: 'page-frame' },
+    imports: [BadgeComponent, ButtonComponent, CardComponent, EmptyStateComponent, FailureStateComponent, ListComponent, ListItemComponent, LoadingStateComponent, PaneSizeDirective, MessageComponent, SplitComponent, RunProgressComponent, TabStripComponent, TabStripItemComponent, TextWindowComponent],
     providers: [RunsViewPresenter],
     templateUrl: './RunsView.html',
     styleUrl: './RunsView.scss',

@@ -28,6 +28,21 @@ describe('WorkspacesViewPresenter', () => {
         TestBed.resetTestingModule();
     });
 
+    it('bounds workspace cards and keeps the final workspace reachable', async () => {
+        // arrange
+        const cards = Array.from({ length: 76 }, (_, index) => ({ ...CARD, id: `workspace-${index}` }));
+        const { presenter } = setUp(() => Promise.resolve(cards));
+        await presenter.workspaces.reload();
+        expect(presenter.cards()).toHaveLength(50);
+
+        // act
+        presenter.showMore();
+
+        // assert
+        expect(presenter.cards().at(-1)?.id).toBe('workspace-75');
+        expect(presenter.hasMore()).toBe(false);
+    });
+
     it('writes facts and tags from the last known state', () => {
         const { presenter } = setUp(() => Promise.resolve(null));
 

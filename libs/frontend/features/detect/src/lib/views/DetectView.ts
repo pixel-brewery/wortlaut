@@ -7,10 +7,11 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { DetectViewPresenter } from '../view-presenters/DetectViewPresenter';
 
 // #endregion
@@ -20,6 +21,7 @@ import { DetectViewPresenter } from '../view-presenters/DetectViewPresenter';
  */
 @Component({
     selector: 'wortlaut-detect',
+    host: { class: 'page-frame' },
     imports: [
         ButtonComponent,
         CardComponent,
@@ -30,9 +32,11 @@ import { DetectViewPresenter } from '../view-presenters/DetectViewPresenter';
         FormFieldDirective,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         RunProgressComponent,
         SelectComponent,
         SelectItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,

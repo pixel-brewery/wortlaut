@@ -87,6 +87,45 @@ describe('RulePacksViewPresenter', () => {
         TestBed.resetTestingModule();
     });
 
+    it('bounds installed packs and reaches the last pack without changing the selected rule scope', async () => {
+        // arrange
+        const packs = Array.from({ length: 60 }, (_, index) => ({ ...PACK, id: `pack-${index}` }));
+        const { presenter } = setUp([BUILT_IN, ...packs]);
+        await presenter.load();
+        expect(presenter.visiblePacks()).toHaveLength(50);
+
+        // act
+        presenter.showMorePacks();
+
+        // assert
+        expect(presenter.visiblePacks().at(-1)?.id).toBe('pack-59');
+        expect(presenter.hasMorePacks()).toBe(false);
+        expect(presenter.selected()?.id).toBe('builtin');
+    });
+
+    it('bounds rule controls, reaches the last rule, and resets on a different pack', async () => {
+        // arrange
+        const rules = Array.from({ length: 150 }, (_, index) => ({ ...PACK.rules[0], id: `rule-${index}` }));
+        const { presenter } = setUp([BUILT_IN, { ...PACK, rules }, { ...PACK, id: 'other-pack', rules }]);
+        await presenter.load();
+        await presenter.pick('message-checks');
+        expect(presenter.visibleRules()).toHaveLength(100);
+
+        // act
+        presenter.showMoreRules();
+
+        // assert
+        expect(presenter.visibleRules().at(-1)?.id).toBe('rule-149');
+        expect(presenter.rules()).toHaveLength(150);
+
+        // act
+        await presenter.pick('other-pack');
+
+        // assert
+        expect(presenter.visibleRules()).toHaveLength(100);
+        expect(presenter.hasMoreRules()).toBe(true);
+    });
+
     it('shows the packs, and asks the source of a pack it selects', async () => {
         // arrange
         const { presenter, request } = setUp();

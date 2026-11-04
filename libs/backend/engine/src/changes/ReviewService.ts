@@ -1,7 +1,7 @@
 // #region Imports
 
 import { existsSync, readFileSync } from 'node:fs';
-import type { ChangeSet, ChangeSetFile, ReviewDetail, ReviewFile, ReviewItem, ReviewLine, WorkspaceRecord } from '@pixel-brewery/wortlaut-contracts';
+import type { ChangeSet, ChangeSetFile, ReviewDetail, ReviewDetailRequest, ReviewFile, ReviewItem, ReviewLine, WorkspaceRecord } from '@pixel-brewery/wortlaut-contracts';
 import { structuredPatch } from 'diff';
 import { PathResolver } from '../paths/PathResolver.js';
 import type { WorkspaceService } from '../workspaces/WorkspaceService.js';
@@ -14,6 +14,11 @@ import type { ReviewList } from './ReviewList.js';
  * The most lines of a diff that one file shows.
  */
 const MAX_DIFF_LINES = 4000;
+
+/**
+ * The most diff text one file preview exposes, including a file with a single very long line.
+ */
+const MAX_DIFF_TEXT_LENGTH = 128 * 1024;
 
 /**
  * How long working out one diff may take.
@@ -81,16 +86,19 @@ export class ReviewService {
      *
      * @public
      * @param id The change set.
+     * @param paging The requested file previews; omitted fields preserve the complete detail.
      * @returns The details.
      * @throws EngineError when the review list does not hold it.
      */
-    public detail(id: string): ReviewDetail {
+    public detail(id: string, paging?: Pick<ReviewDetailRequest, 'fileOffset' | 'fileLimit'>): ReviewDetail {
         const changeSet = this._reviewList.get(id);
         const workspace = this.workspaceOf(changeSet);
+        const offset = paging?.fileOffset ?? 0;
+        const files = changeSet.files.slice(offset, paging?.fileLimit === undefined ? undefined : offset + paging.fileLimit);
 
         return {
             ...this.itemOf(changeSet, workspace),
-            files: changeSet.files.map((file) => this.fileOf(file)),
+            files: files.map((file) => this.fileOf(file)),
             findings: changeSet.findings.map((finding) => finding.message)
         };
     }
@@ -185,6 +193,7 @@ export class ReviewService {
         let additions = 0;
         let deletions = 0;
         let shown = 0;
+        let shownText = 0;
         let truncated = false;
 
         for (const hunk of patch.hunks) {
@@ -205,13 +214,22 @@ export class ReviewService {
                     deletions++;
                 }
 
-                if (shown >= MAX_DIFF_LINES) {
+                if (shown >= MAX_DIFF_LINES || shownText >= MAX_DIFF_TEXT_LENGTH) {
                     truncated = true;
                 } else {
+                    const text = line.slice(1);
+                    const remaining = MAX_DIFF_TEXT_LENGTH - shownText;
+                    const preview = text.slice(0, remaining);
+
+                    if (preview.length < text.length) {
+                        truncated = true;
+                    }
+
                     shown++;
+                    shownText += preview.length;
                     lines.push({
                         kind: sign === '+' ? 'add' : sign === '-' ? 'remove' : 'context',
-                        text: line.slice(1),
+                        text: preview,
                         oldLine: sign === '+' ? null : oldLine,
                         newLine: sign === '-' ? null : newLine
                     });

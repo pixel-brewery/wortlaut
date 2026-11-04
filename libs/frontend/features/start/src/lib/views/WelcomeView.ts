@@ -18,6 +18,7 @@ import { WelcomeViewPresenter } from '../view-presenters/WelcomeViewPresenter';
  */
 @Component({
     selector: 'wortlaut-welcome',
+    host: { class: 'page-frame' },
     imports: [AnchorComponent, ButtonComponent, CardComponent, CardHeaderComponent, DropZoneComponent, IconComponent, ListComponent, ListItemComponent, LogoComponent, MessageComponent, WorkspaceTileComponent],
     providers: [WelcomeViewPresenter],
     templateUrl: './WelcomeView.html',

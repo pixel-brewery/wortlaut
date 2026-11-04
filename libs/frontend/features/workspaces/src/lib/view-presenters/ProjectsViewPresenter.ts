@@ -8,6 +8,8 @@ import { AsyncValue, bindShortcuts, countOf, DesktopApi, formatCount, RunCenter,
 
 // #endregion
 
+const PAGE_SIZE = 100;
+
 /**
  * The commands of "Run on all projects".
  */
@@ -81,6 +83,8 @@ export class ProjectsViewPresenter {
     private readonly _search = signal({ text: '' });
     private readonly _message = signal<string | null>(null);
     private readonly _batch = signal<RunBatch | null>(null);
+    private readonly _rowLimit = signal(PAGE_SIZE);
+    private readonly _batchLimit = signal(PAGE_SIZE);
     private _seenFinished = 0;
 
     // #endregion
@@ -92,6 +96,12 @@ export class ProjectsViewPresenter {
      */
     public constructor() {
         bindShortcuts({ run: () => this.runAll() });
+
+        effect(() => {
+            this._search();
+            this._filter();
+            this._rowLimit.set(PAGE_SIZE);
+        });
 
         // A project of Run on all projects started or ended.
         effect(() => {
@@ -206,6 +216,16 @@ export class ProjectsViewPresenter {
     });
 
     /**
+     * The visible portion of batch results; progress and cancellation still cover the complete batch.
+     */
+    public readonly visibleBatchRows = computed(() => this.batchRows().slice(0, this._batchLimit()));
+
+    /**
+     * Whether more batch results can be shown.
+     */
+    public readonly hasMoreBatchRows = computed(() => this.batchRows().length > this._batchLimit());
+
+    /**
      * Gets how far Run on all projects is, for the bar above its rows.
      *
      * @readonly
@@ -257,6 +277,16 @@ export class ProjectsViewPresenter {
     });
 
     /**
+     * The visible portion of the filtered project list.
+     */
+    public readonly visibleRows = computed(() => this.rows().slice(0, this._rowLimit()));
+
+    /**
+     * Whether more matching projects can be shown.
+     */
+    public readonly hasMoreRows = computed(() => this.rows().length > this._rowLimit());
+
+    /**
      * Gets the line below the title.
      *
      * @readonly
@@ -280,7 +310,7 @@ export class ProjectsViewPresenter {
      */
     public readonly footer = computed(() => {
         const total = this.list.value()?.rows.length ?? 0;
-        const shown = this.rows().length;
+        const shown = this.visibleRows().length;
 
         return shown === total ? countOf(total, 'project') : `${formatCount(shown)} of ${countOf(total, 'project')}`;
     });
@@ -295,6 +325,20 @@ export class ProjectsViewPresenter {
     // #endregion
 
     // #region Methods
+
+    /**
+     * Shows the next portion of matching projects without narrowing Run on all projects.
+     */
+    public showMoreRows(): void {
+        this._rowLimit.update((limit) => limit + PAGE_SIZE);
+    }
+
+    /**
+     * Shows the next portion of batch results.
+     */
+    public showMoreBatchRows(): void {
+        this._batchLimit.update((limit) => limit + PAGE_SIZE);
+    }
 
     /**
      * Writes the keys of a row.

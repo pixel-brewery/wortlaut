@@ -23,6 +23,7 @@ import { SetupViewPresenter } from '../view-presenters/SetupViewPresenter';
  */
 @Component({
     selector: 'wortlaut-setup',
+    host: { class: 'page-frame' },
     imports: [
         ButtonComponent,
         CardComponent,

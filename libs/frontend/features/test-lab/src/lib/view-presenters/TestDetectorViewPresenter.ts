@@ -8,6 +8,11 @@ import { AsyncValue, DesktopApi, ShellSession } from '@pixel-brewery/wortlaut-fr
 // #endregion
 
 /**
+ * The most source lines or matches added to the view at once.
+ */
+const PAGE_SIZE = 100;
+
+/**
  * Owns Test lab: detector. It runs the real detector on the text in the view, in main, and nothing is written.
  */
 @Injectable()
@@ -21,6 +26,10 @@ export class TestDetectorViewPresenter {
     private readonly _fileName = signal<string | null>(null);
     private readonly _pasted = signal({ text: '' });
     private readonly _isPasting = signal(false);
+    private readonly _lineLimit = signal(PAGE_SIZE);
+    private readonly _matchLimit = signal(PAGE_SIZE);
+    private readonly _sourceLines = computed(() => this.content().split('\n'));
+    private readonly _matchedLines = computed(() => new Set((this.result.value()?.matches ?? []).map((match) => match.line)));
 
     // #endregion
 
@@ -32,10 +41,14 @@ export class TestDetectorViewPresenter {
     public constructor() {
         // The result follows the preset, the file and the text.
         effect(() => {
+            this._presetId();
             this.content();
             this.fileName();
 
             untracked(() => {
+                this._lineLimit.set(PAGE_SIZE);
+                this._matchLimit.set(PAGE_SIZE);
+
                 if (this.presets.value()) {
                     void this.result.reload();
                 }
@@ -122,18 +135,34 @@ export class TestDetectorViewPresenter {
      * @readonly
      */
     public readonly lines = computed(() => {
-        const matched = new Set((this.result.value()?.matches ?? []).map((match) => match.line));
+        const matched = this._matchedLines();
 
-        return this.content().split('\n')
+        return this._sourceLines().slice(0, this._lineLimit())
             .map((text, index) => ({ number: index + 1, text, isMatch: matched.has(index + 1) }));
     });
+
+    /**
+     * Gets the total source line count, including lines not displayed yet.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly lineCount = computed(() => this._sourceLines().length);
+
+    /**
+     * Gets whether more source lines can be displayed.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly hasMoreLines = computed(() => this.lineCount() > this._lineLimit());
 
     /**
      * Gets the matches for the table.
      *
      * @readonly
      */
-    public readonly matches = computed(() => (this.result.value()?.matches ?? []).map((match, index) => ({
+    public readonly matches = computed(() => (this.result.value()?.matches ?? []).slice(0, this._matchLimit()).map((match, index) => ({
         id: index,
         position: `Line ${match.line}, column ${match.column}`,
         value: match.value,
@@ -142,12 +171,28 @@ export class TestDetectorViewPresenter {
     })));
 
     /**
+     * Gets the full match count, including matches not displayed yet.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly matchCount = computed(() => this.result.value()?.matches.length ?? 0);
+
+    /**
+     * Gets whether more matches can be displayed.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly hasMoreMatches = computed(() => this.matchCount() > this._matchLimit());
+
+    /**
      * Gets the title of the matches.
      *
      * @readonly
      */
     public readonly matchesTitle = computed(() => {
-        const count = this.matches().length;
+        const count = this.matchCount();
 
         return count === 1 ? '1 match' : `${count} matches`;
     });
@@ -200,6 +245,24 @@ export class TestDetectorViewPresenter {
      */
     public finishPasting(): void {
         this._isPasting.set(false);
+    }
+
+    /**
+     * Displays the next page of the current source without changing the detector input.
+     *
+     * @public
+     */
+    public showMoreLines(): void {
+        this._lineLimit.update((limit) => limit + PAGE_SIZE);
+    }
+
+    /**
+     * Displays the next page of the current result without rerunning the detector.
+     *
+     * @public
+     */
+    public showMoreMatches(): void {
+        this._matchLimit.update((limit) => limit + PAGE_SIZE);
     }
 
     /**

@@ -1,7 +1,10 @@
-.tab-content > :not(router-outlet) {
+.tab-content {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--mosaik-layout-space) * 2);
+}
+
+.tab-content > router-outlet {
+  display: none;
 }
 
 :host ::ng-deep wortlaut-not-available .page-title {

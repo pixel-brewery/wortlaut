@@ -25,53 +25,59 @@
         }
       }
 
-      <div class="page-columns">
-        <div class="page-column-side packs">
-          <h2 class="column-title">In this workspace</h2>
-          @for (card of presenter.packs(); track card.id) {
-            <mosaik-card [isSelected]="card.isSelected">
-              <div slot="content" class="card-body">
-                <mosaik-clickable class="pack-pick" [attr.aria-label]="card.name" (click)="presenter.pick(card.id)">
-                  <div class="pack-text">
-                    <span class="pack-head">
-                      <span class="pack-name">{{ card.name }}</span>
-                      @if (card.isRefused) {
-                        <mosaik-badge class="pack-badge" label="Refused" variant="danger" appearance="soft" />
-                      } @else if (card.isOff) {
-                        <mosaik-badge class="pack-badge" label="Off" variant="neutral" appearance="soft" />
-                      } @else {
-                        <mosaik-badge class="pack-badge" variant="neutral" appearance="soft" [label]="card.count" />
-                      }
-                    </span>
-                    <span class="note">{{ card.about }}</span>
-                  </div>
-                </mosaik-clickable>
-              </div>
-            </mosaik-card>
-          }
-
-          <h2 class="column-title available-title">Available</h2>
-          @if (presenter.available.isFailed()) {
-            <span class="note">{{ presenter.available.error() }}</span>
-          }
-          @for (available of presenter.available.value(); track available.id) {
-            <mosaik-card>
-              <div slot="content" class="available">
-                <div class="available-text">
-                  <span class="pack-name">{{ available.name }}</span>
-                  <span class="note">{{ available.description }}</span>
+      <mosaik-split class="pane-split page-content" paneSizeKey="rule-packs.workspace" paneSize="260px" lock="start" min="220px" max="45%" [intl]="{ resizeLabel: 'Resize rule pack list' }" test-id="rule-packs-workspace-split">
+        <div slot="start" class="pane-start">
+          <div class="packs">
+            <h2 class="column-title">In this workspace</h2>
+            @for (card of presenter.visiblePacks(); track card.id) {
+              <mosaik-card [isSelected]="card.isSelected">
+                <div slot="content" class="card-body">
+                  <mosaik-clickable class="pack-pick" role="button" tabindex="0" [attr.aria-label]="card.name" [attr.aria-pressed]="card.isSelected" [attr.test-id]="'rule-pack-' + card.id" (click)="presenter.pick(card.id)" (keydown.enter)="presenter.pick(card.id)" (keydown.space)="$event.preventDefault(); presenter.pick(card.id)">
+                    <div class="pack-text">
+                      <span class="pack-head">
+                        <span class="pack-name">{{ card.name }}</span>
+                        @if (card.isRefused) {
+                          <mosaik-badge class="pack-badge" label="Refused" variant="danger" appearance="soft" />
+                        } @else if (card.isOff) {
+                          <mosaik-badge class="pack-badge" label="Off" variant="neutral" appearance="soft" />
+                        } @else {
+                          <mosaik-badge class="pack-badge" variant="neutral" appearance="soft" [label]="card.count" />
+                        }
+                      </span>
+                      <span class="note">{{ card.about }}</span>
+                    </div>
+                  </mosaik-clickable>
                 </div>
-                <mosaik-button routerLink="/rule-packs/add" label="Add" variant="neutral" appearance="outline" size="small" class="available-add" [queryParams]="{ source: available.source }" />
-              </div>
-            </mosaik-card>
-          } @empty {
-            @if (!presenter.available.isFailed()) {
-              <span class="note">Every pack that ships with Wortlaut is in this workspace.</span>
+              </mosaik-card>
             }
-          }
+
+            @if (presenter.hasMorePacks()) {
+              <mosaik-button label="Show more" appearance="plain" size="small" test-id="rule-packs-more-items" (click)="presenter.showMorePacks()" />
+            }
+
+            <h2 class="column-title available-title">Available</h2>
+            @if (presenter.available.isFailed()) {
+              <span class="note">{{ presenter.available.error() }}</span>
+            }
+            @for (available of presenter.available.value(); track available.id) {
+              <mosaik-card>
+                <div slot="content" class="available">
+                  <div class="available-text">
+                    <span class="pack-name">{{ available.name }}</span>
+                    <span class="note">{{ available.description }}</span>
+                  </div>
+                  <mosaik-button routerLink="/rule-packs/add" label="Add" variant="neutral" appearance="outline" size="small" class="available-add" [queryParams]="{ source: available.source }" />
+                </div>
+              </mosaik-card>
+            } @empty {
+              @if (!presenter.available.isFailed()) {
+                <span class="note">Every pack that ships with Wortlaut is in this workspace.</span>
+              }
+            }
+          </div>
         </div>
 
-        <div class="page-column-main">
+        <div slot="end" class="page-column-main pane-end">
           <section class="card-section" [attr.aria-label]="pack.name">
             <mosaik-card>
               <mosaik-card-header slot="header" [text]="pack.name">
@@ -96,7 +102,7 @@
                         </mosaik-table-header-row>
                       </mosaik-table-header>
                       <mosaik-table-body>
-                        @for (rule of presenter.rules(); track rule.track) {
+                        @for (rule of presenter.visibleRules(); track rule.track) {
                           <mosaik-table-body-row>
                             <mosaik-table-body-cell>
                               <div class="rule-text">
@@ -121,6 +127,11 @@
                   </div>
                 </div>
               </div>
+              @if (presenter.hasMoreRules()) {
+                <div slot="footer" class="table-footer">
+                  <mosaik-button label="Show more rules" appearance="plain" size="small" test-id="rule-packs-more-rules" (click)="presenter.showMoreRules()" />
+                </div>
+              }
             </mosaik-card>
           </section>
 
@@ -151,7 +162,7 @@
             </mosaik-card>
           </section>
         </div>
-      </div>
+      </mosaik-split>
     }
   </main>
 </div>

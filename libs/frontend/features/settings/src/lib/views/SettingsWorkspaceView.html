@@ -3,6 +3,7 @@
 } @else if (presenter.workspace.isFailed()) {
   <wortlaut-failure-state header="This workspace could not be read" [message]="presenter.workspace.error()" (retry)="presenter.load()" />
 } @else if (presenter.workspace.value()) {
+  <div class="page-content page-content-scroll">
   @if (presenter.message(); as message) {
     <mosaik-message variant="danger" header="That did not work" [content]="message" />
   }
@@ -162,13 +163,15 @@
     </mosaik-card>
   </section>
 
+  </div>
+
   <div class="footer-actions">
     <mosaik-button label="Discard" appearance="plain" [disabled]="!presenter.isDirty()" (click)="presenter.discard()" />
     <mosaik-button label="Save changes" variant="primary" appearance="solid" [disabled]="!presenter.canSave()" [isBusy]="presenter.busy()" (click)="presenter.save()" />
   </div>
 
   <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.importPreview() !== null" [pressEscapeToClose]="true" (closed)="presenter.cancelImport()">
-    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text text="Import this workspace?" /></mosaik-dialog-header>
+    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text slot="header" text="Import this workspace?" /></mosaik-dialog-header>
     <mosaik-dialog-content slot="content">
       @if (presenter.importPreview(); as preview) {
         <div class="import-preview">
@@ -217,7 +220,7 @@
   </mosaik-dialog>
 
   <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.confirmingRemove()" [pressEscapeToClose]="true" (closed)="presenter.cancelRemove()">
-    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text text="Remove this workspace?" /></mosaik-dialog-header>
+    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text slot="header" text="Remove this workspace?" /></mosaik-dialog-header>
     <mosaik-dialog-content slot="content"><span class="muted">It goes from Wortlaut. Your repositories and their files stay where they are.</span></mosaik-dialog-content>
     <mosaik-dialog-actions slot="actions">
       <mosaik-button label="Keep it" appearance="plain" (click)="presenter.cancelRemove()" />

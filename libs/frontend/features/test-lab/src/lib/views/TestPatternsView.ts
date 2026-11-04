@@ -8,9 +8,10 @@ import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/comp
 import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TestPatternsViewPresenter } from '../view-presenters/TestPatternsViewPresenter';
 
 // #endregion
@@ -20,6 +21,7 @@ import { TestPatternsViewPresenter } from '../view-presenters/TestPatternsViewPr
  */
 @Component({
     selector: 'wortlaut-test-patterns',
+    host: { class: 'page-content' },
     imports: [
         ButtonComponent,
         CardComponent,
@@ -29,8 +31,10 @@ import { TestPatternsViewPresenter } from '../view-presenters/TestPatternsViewPr
         FormFieldDirective,
         IconComponent,
         MessageComponent,
+        PaneSizeDirective,
         SegmentComponent,
         SegmentItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,

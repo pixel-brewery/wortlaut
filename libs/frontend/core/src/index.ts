@@ -1,4 +1,5 @@
 export { countOf, formatCount, formatDuration, formatInstant, formatName, localeList, localeName, presetName, surfaceName } from './lib/formatting/Format';
+export { summarizeRuleResult } from './lib/formatting/RuleResultSummary';
 export { AiHandoff, describeProviderState, formatTokens, formatTokensAtLeast, type IGenerateSeed, type IPatternSeed, type ITestTranslationSeed } from './lib/ai/AiHandoff';
 export { AsyncValue, type AsyncStatus } from './lib/ipc/AsyncValue';
 export { DesktopApi } from './lib/ipc/DesktopApi';

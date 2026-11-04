@@ -1,8 +1,11 @@
 @if (file().hunks.length > 0) {
-  <pre class="diff-block">@for (hunk of file().hunks; track $index) {<span class="hunk">@for (line of hunk.lines; track $index) {<span class="diff-line" [class.diff-add]="line.kind === 'add'" [class.diff-remove]="line.kind === 'remove'"><span class="line-number" aria-hidden="true">{{ line.oldLine ?? '' }}</span><span class="line-number" aria-hidden="true">{{ line.newLine ?? '' }}</span><span class="line-sign">{{ line.kind === 'add' ? '+' : line.kind === 'remove' ? '−' : ' ' }}</span>{{ line.text }}</span>}</span>}</pre>
+  <pre class="diff-block"><span #pageStart class="page-start" aria-hidden="true"></span>@for (hunk of current().hunks; track $index) {<span class="hunk">@for (line of hunk.lines; track $index) {<span class="diff-line" [class.diff-add]="line.kind === 'add'" [class.diff-remove]="line.kind === 'remove'"><span class="line-number" aria-hidden="true">{{ line.oldLine ?? '' }}</span><span class="line-number" aria-hidden="true">{{ line.newLine ?? '' }}</span><span class="line-sign">{{ line.kind === 'add' ? '+' : line.kind === 'remove' ? '−' : ' ' }}</span>{{ line.text }}</span>}</span>}</pre>
 } @else {
   <div class="row-line file-note"><span class="muted">This change is too big to show line by line.</span></div>
 }
 @if (file().truncated && file().hunks.length > 0) {
-  <div class="row-line file-note"><span class="note">The rest of this diff is too long to show. Approving writes all of it.</span></div>
+  <div class="row-line file-note"><span class="note">This preview is shortened. Approving writes the complete file.</span></div>
+}
+@if (current().total > pageSize) {
+  <mosaik-paginator test-id="file-diff-pages" [total]="current().total" [size]="pageSize" [currentPage]="current().page" [showPageLinks]="false" [showFirstLastIcon]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Page {currentPage} of {totalPages} · {totalRecords} diff lines" (pageChanged)="showPage($event.page)" />
 }

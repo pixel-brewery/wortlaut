@@ -1,0 +1,31 @@
+.settings-layout {
+  display: grid;
+  grid-template-columns: minmax(128px, 180px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.settings-nav {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.settings-content {
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+@media (max-height: 800px), (max-width: 1200px) {
+  .page {
+    padding: calc(var(--mosaik-layout-space) * 2);
+    gap: calc(var(--mosaik-layout-space) * 2);
+  }
+
+  .settings-layout {
+    grid-template-columns: 128px minmax(0, 1fr);
+    gap: calc(var(--mosaik-layout-space) * 2);
+  }
+}

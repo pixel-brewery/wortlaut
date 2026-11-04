@@ -9,6 +9,8 @@ import { AsyncValue, countOf, DesktopApi, formatCount, WORKSPACE_COLORS, workspa
 
 // #endregion
 
+const PAGE_SIZE = 50;
+
 /**
  * Owns the list of workspaces and the form for a new one. Creating one writes only to the user's profile.
  */
@@ -24,6 +26,7 @@ export class WorkspacesViewPresenter {
     private readonly _folder = signal<FolderSelection | null>(null);
     private readonly _message = signal<string | null>(null);
     private readonly _busy = signal(false);
+    private readonly _limit = signal(PAGE_SIZE);
 
     // #endregion
 
@@ -35,6 +38,16 @@ export class WorkspacesViewPresenter {
      * @readonly
      */
     public readonly workspaces = new AsyncValue(() => this._api.request('workspace.list', {}));
+
+    /**
+     * The visible workspace cards.
+     */
+    public readonly cards = computed(() => (this.workspaces.value() ?? []).slice(0, this._limit()));
+
+    /**
+     * Whether more workspace cards can be shown.
+     */
+    public readonly hasMore = computed(() => (this.workspaces.value()?.length ?? 0) > this._limit());
 
     /**
      * Gets the form of a new workspace.
@@ -91,6 +104,13 @@ export class WorkspacesViewPresenter {
     // #endregion
 
     // #region Methods
+
+    /**
+     * Shows the next portion of workspace cards.
+     */
+    public showMore(): void {
+        this._limit.update((limit) => limit + PAGE_SIZE);
+    }
 
     /**
      * Writes the facts of a card, from the last known state.

@@ -22,6 +22,7 @@ import { ProjectsViewPresenter } from '../view-presenters/ProjectsViewPresenter'
  */
 @Component({
     selector: 'wortlaut-projects',
+    host: { class: 'page-frame' },
     imports: [
         AnchorComponent,
         BadgeComponent,

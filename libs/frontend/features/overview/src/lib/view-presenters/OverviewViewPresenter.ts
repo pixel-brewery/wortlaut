@@ -3,7 +3,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import type { LocaleCoverage, NextStep, ProjectSummary, RuleResult, RunSummary } from '@pixel-brewery/wortlaut-contracts';
 import type { IFigure, ILocaleRow, INextStepCard, IRuleRow } from '../contracts/IOverviewModels';
-import { AsyncValue, countOf, DesktopApi, formatCount, formatInstant, formatName, localeList, localeName, presetName, ShellSession } from '@pixel-brewery/wortlaut-frontend-core';
+import { AsyncValue, countOf, DesktopApi, formatCount, formatInstant, formatName, localeList, localeName, presetName, ShellSession, summarizeRuleResult } from '@pixel-brewery/wortlaut-frontend-core';
 
 // #endregion
 
@@ -74,11 +74,9 @@ export function describeLocale(locale: LocaleCoverage): ILocaleRow {
  * @returns The row.
  */
 export function describeRule(rule: RuleResult): IRuleRow {
-    if (rule.passed) {
-        return { id: rule.id, passed: true, result: 'Pass' };
-    }
+    const result = summarizeRuleResult(rule.locales, rule.passed);
 
-    return { id: rule.id, passed: false, result: rule.locales.map((entry) => [entry.locale, entry.count].filter((part) => part !== null).join(' ')).join(' · ') || 'Failed' };
+    return { id: rule.id, passed: rule.passed, result: result.label, detail: result.detail };
 }
 
 /**

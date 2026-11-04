@@ -6,6 +6,10 @@ import { AsyncValue, countOf, DesktopApi, formatInstant, RunCenter, ShellSession
 
 // #endregion
 
+const FILE_PAGE_SIZE = 5;
+const LIST_PAGE_SIZE = 50;
+const FINDING_PAGE_SIZE = 100;
+
 /**
  * The names of the commands that leave a change set.
  */
@@ -47,6 +51,9 @@ export class ReviewViewPresenter {
     private readonly _shell = inject(ShellSession);
     private readonly _runs = inject(RunCenter);
     private readonly _selectedId = signal<string | null>(null);
+    private readonly _filePage = signal(0);
+    private readonly _listLimit = signal(LIST_PAGE_SIZE);
+    private readonly _findingLimit = signal(FINDING_PAGE_SIZE);
     private readonly _message = signal<string | null>(null);
     private readonly _outcome = signal<WriteOutcome | null>(null);
     private readonly _busy = signal(false);
@@ -106,8 +113,38 @@ export class ReviewViewPresenter {
     public readonly detail = new AsyncValue<ReviewDetail | null>(async () => {
         const id = this._selectedId();
 
-        return id ? this._api.request('changes.get', { id }) : null;
+        return id ? this._api.request('changes.get', { id, fileOffset: this._filePage() * FILE_PAGE_SIZE, fileLimit: FILE_PAGE_SIZE }) : null;
     });
+
+    /**
+     * The bounded visible portion of the pending queue.
+     */
+    public readonly items = computed(() => (this.list.value() ?? []).slice(0, this._listLimit()));
+
+    /**
+     * Whether more pending summaries can be shown.
+     */
+    public readonly hasMoreItems = computed(() => (this.list.value()?.length ?? 0) > this._listLimit());
+
+    /**
+     * The zero-based file preview page.
+     */
+    public readonly filePage = this._filePage.asReadonly();
+
+    /**
+     * The fixed number of file previews requested from main.
+     */
+    public readonly filePageSize = FILE_PAGE_SIZE;
+
+    /**
+     * The visible findings of the complete change set.
+     */
+    public readonly findings = computed(() => (this.detail.value()?.findings ?? []).slice(0, this._findingLimit()));
+
+    /**
+     * Whether more findings remain available.
+     */
+    public readonly hasMoreFindings = computed(() => (this.detail.value()?.findings.length ?? 0) > this._findingLimit());
 
     /**
      * Gets the selected change set.
@@ -145,11 +182,18 @@ export class ReviewViewPresenter {
     public readonly dryRun = this._shell.dryRun;
 
     /**
+     * Gets whether the displayed change set is ready to be discarded.
+     *
+     * @readonly
+     */
+    public readonly canDiscard = computed(() => !this._busy() && this.detail.status() === 'ready' && this.detail.value()?.id === this._selectedId());
+
+    /**
      * Gets whether the selected change set can be written now.
      *
      * @readonly
      */
-    public readonly canApply = computed(() => !this._busy() && !this.dryRun() && (this.detail.value()?.conflicts.length ?? 1) === 0);
+    public readonly canApply = computed(() => !this._busy() && !this.dryRun() && this.detail.status() === 'ready' && this.detail.value()?.id === this._selectedId() && (this.detail.value()?.conflicts.length ?? 1) === 0);
 
     /**
      * Gets the name of the selected change set.
@@ -196,8 +240,41 @@ export class ReviewViewPresenter {
      */
     public async select(id: string): Promise<void> {
         this._selectedId.set(id);
+        this._filePage.set(0);
+        this._findingLimit.set(FINDING_PAGE_SIZE);
         this._message.set(null);
         await this.detail.reload();
+    }
+
+    /**
+     * Replaces the displayed file previews with one fixed-size page.
+     *
+     * @param page The zero-based page selected by the paginator.
+     */
+    public async setFilePage(page: number): Promise<void> {
+        const count = this.detail.value()?.fileCount ?? 0;
+        const last = Math.max(0, Math.ceil(count / FILE_PAGE_SIZE) - 1);
+
+        if (!Number.isInteger(page) || page < 0 || page > last || page === this._filePage()) {
+            return;
+        }
+
+        this._filePage.set(page);
+        await this.detail.reload();
+    }
+
+    /**
+     * Shows the next portion of pending summaries.
+     */
+    public showMoreItems(): void {
+        this._listLimit.update((limit) => limit + LIST_PAGE_SIZE);
+    }
+
+    /**
+     * Shows the next portion of findings without changing the write scope.
+     */
+    public showMoreFindings(): void {
+        this._findingLimit.update((limit) => limit + FINDING_PAGE_SIZE);
     }
 
     /**
@@ -225,7 +302,7 @@ export class ReviewViewPresenter {
     public async discard(): Promise<void> {
         const id = this._selectedId();
 
-        if (id) {
+        if (id && this.canDiscard()) {
             await this.act(async () => {
                 await this._api.request('changes.discard', { id });
                 this._outcome.set(null);
@@ -293,7 +370,13 @@ export class ReviewViewPresenter {
 
         if (!items.some((item) => item.id === this._selectedId())) {
             this._selectedId.set(items[0]?.id ?? null);
+            this._filePage.set(0);
+            this._findingLimit.set(FINDING_PAGE_SIZE);
         }
+
+        const count = items.find((item) => item.id === this._selectedId())?.fileCount ?? 0;
+
+        this._filePage.update((page) => Math.min(page, Math.max(0, Math.ceil(count / FILE_PAGE_SIZE) - 1)));
 
         await this.detail.reload();
     }

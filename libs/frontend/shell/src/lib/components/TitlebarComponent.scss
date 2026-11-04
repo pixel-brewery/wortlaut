@@ -8,9 +8,13 @@
   border-bottom: 1px solid var(--mosaik-scheme-highlight);
   -webkit-app-region: drag;
   app-region: drag;
+  user-select: none;
 }
 
-.titlebar > * {
+.titlebar .crumb,
+.titlebar mosaik-button,
+.titlebar mosaik-searchbox,
+.titlebar mosaik-toggle-switch {
   -webkit-app-region: no-drag;
   app-region: no-drag;
 }
@@ -46,6 +50,4 @@
 .titlebar-search mosaik-searchbox {
   flex: 0 1 420px;
   min-width: 0;
-  -webkit-app-region: no-drag;
-  app-region: no-drag;
 }

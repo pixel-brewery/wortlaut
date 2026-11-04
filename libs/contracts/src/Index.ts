@@ -232,7 +232,7 @@ export {
     type RulePackUpdate,
     type RulePackWrite
 } from './ipc/dto/RulePackDtos.js';
-export { ReviewDetailSchema, ReviewFileSchema, ReviewItemSchema, ReviewLineSchema, type ReviewDetail, type ReviewFile, type ReviewItem, type ReviewLine } from './ipc/dto/ReviewDtos.js';
+export { ReviewDetailRequestSchema, ReviewDetailSchema, ReviewFileSchema, ReviewItemSchema, ReviewLineSchema, type ReviewDetailRequest, type ReviewDetail, type ReviewFile, type ReviewItem, type ReviewLine } from './ipc/dto/ReviewDtos.js';
 export {
     TestDetectRequestSchema,
     TestDetectResultSchema,

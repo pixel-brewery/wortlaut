@@ -19,6 +19,7 @@ import { SettingsAppViewPresenter } from '../view-presenters/SettingsAppViewPres
  */
 @Component({
     selector: 'wortlaut-settings-app',
+    host: { class: 'page-frame' },
     imports: [ButtonComponent, CardComponent, CardHeaderComponent, FailureStateComponent, KbdComponent, LoadingStateComponent, MessageComponent, RouterLink, SegmentComponent, SegmentItemComponent, TextBoxComponent, ToggleSwitchComponent],
     providers: [SettingsAppViewPresenter],
     templateUrl: './SettingsAppView.html',

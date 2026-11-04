@@ -52,6 +52,8 @@
                       <div class="step-title">{{ step.title }}</div>
                       <div class="muted">{{ step.text }}</div>
                     </div>
+                  </div>
+                  <div slot="footer" class="step-footer">
                     <mosaik-button variant="neutral" appearance="outline" size="small" class="step-action" [routerLink]="step.route" [label]="step.action" />
                   </div>
                 </mosaik-card>
@@ -60,9 +62,9 @@
           </section>
         }
 
-        <div class="columns">
-          <div class="column-wide">
-            <section aria-label="Locale coverage" class="card-section">
+        <mosaik-split class="pane-split page-content" test-id="overview-workspace-split" paneSizeKey="overview.workspace" paneSize="60%" min="35%" max="65%" [intl]="{ resizeLabel: 'Resize coverage and analyzer panels' }">
+          <mosaik-split slot="start" class="pane-split pane-split-vertical pane-start" test-id="overview-coverage-split" paneSizeKey="overview.coverage" paneSize="65%" orientation="vertical" min="30%" max="75%" [intl]="{ resizeLabel: 'Resize locale coverage and namespaces' }">
+            <section slot="start" aria-label="Locale coverage" class="card-section pane-start">
               <mosaik-card>
                 <mosaik-card-header slot="header" text="Locale coverage">
                   <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/settings/project" label="Manage locales" /></div>
@@ -70,7 +72,7 @@
                 <div slot="content" class="card-body">
                   <div class="table-scroll">
                     <div class="table-min">
-                      <mosaik-table columns="minmax(0, 1fr) minmax(0, 1fr) 220px 120px" appearance="plain">
+                      <mosaik-table columns="minmax(120px,1fr) minmax(160px,1fr) 220px 120px" appearance="plain">
                         <mosaik-table-header>
                           <mosaik-table-header-row>
                             <mosaik-table-header-cell text="Locale" />
@@ -103,7 +105,7 @@
               </mosaik-card>
             </section>
 
-            <section aria-label="Keys by namespace" class="card-section">
+            <section slot="end" aria-label="Keys by namespace" class="card-section pane-end">
               <mosaik-card>
                 <mosaik-card-header slot="header" text="Keys by namespace">
                   <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/translations" label="Open translations" /></div>
@@ -121,10 +123,10 @@
                 </div>
               </mosaik-card>
             </section>
-          </div>
+          </mosaik-split>
 
-          <div class="column-narrow">
-            <section aria-label="Analyzer rules" class="card-section">
+          <mosaik-split slot="end" class="pane-split pane-split-vertical pane-end" test-id="overview-rules-split" paneSizeKey="overview.rules" paneSize="65%" orientation="vertical" min="30%" max="75%" [intl]="{ resizeLabel: 'Resize analyzer rules and recent runs' }">
+            <section slot="start" aria-label="Analyzer rules" class="card-section pane-start">
               <mosaik-card>
                 <mosaik-card-header slot="header" text="Analyzer rules">
                   <div slot="suffix" class="card-suffix"><span class="note">{{ presenter.rulesNote() }}</span></div>
@@ -136,7 +138,9 @@
                         <li class="rule row-line">
                           <mosaik-icon size="small" [icon]="rule.passed ? 'checkmarkCircle' : 'warning'" [variant]="rule.passed ? 'success' : 'warning'" />
                           <code class="inline rule-name">{{ rule.id }}</code>
-                          <span class="note">{{ rule.result }}</span>
+                          <mosaik-tooltip #resultTooltip [content]="rule.detail" (focusin)="resultTooltip.open()" (focusout)="resultTooltip.close()">
+                            <mosaik-badge appearance="soft" [variant]="rule.passed ? 'success' : 'warning'" [label]="rule.result" tabindex="0" [attr.aria-label]="rule.detail" [attr.test-id]="'overview-rule-result-' + rule.id" />
+                          </mosaik-tooltip>
                         </li>
                       }
                     </ul>
@@ -147,7 +151,7 @@
               </mosaik-card>
             </section>
 
-            <section aria-label="Recent runs" class="card-section">
+            <section slot="end" aria-label="Recent runs" class="card-section pane-end">
               <mosaik-card>
                 <mosaik-card-header slot="header" text="Recent runs">
                   <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/runs" label="All runs" /></div>
@@ -170,8 +174,8 @@
                 </div>
               </mosaik-card>
             </section>
-          </div>
-        </div>
+          </mosaik-split>
+        </mosaik-split>
       }
     }
   </main>

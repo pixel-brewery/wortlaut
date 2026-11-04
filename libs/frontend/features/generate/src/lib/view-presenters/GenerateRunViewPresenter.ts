@@ -8,7 +8,7 @@ import { bindShortcuts, DesktopApi, formatCount, formatDuration, formatTokens, l
 // #endregion
 
 /**
- * How many rows the table shows at first.
+ * How many review rows or chunk cells the view shows at first.
  */
 const PAGE_SIZE = 200;
 
@@ -16,6 +16,18 @@ const PAGE_SIZE = 200;
  * How long the view waits after a keystroke before it tells main.
  */
 const EDIT_DELAY_MS = 250;
+
+/** The row an edit belongs to, independent of the currently displayed locale. */
+interface IRowContext {
+    readonly runId: string;
+    readonly locale: string;
+    readonly key: string;
+}
+
+/** A draft remains visible until this exact value has reached main. */
+interface IRowEdit extends IRowContext {
+    readonly value: string;
+}
 
 /**
  * Which rows the review shows.
@@ -60,17 +72,23 @@ export class GenerateRunViewPresenter {
     private readonly _run = signal<GenerateRun | null>(null);
     private readonly _locale = signal<string | null>(null);
     private readonly _filter = signal<GenerateRowFilter>('all');
+    private readonly _filteredRows = computed(() => (this._run()?.rows ?? []).filter((row) => this._filter() === 'all' || (row.severity !== 'none' && !row.written)));
     private readonly _limit = signal(PAGE_SIZE);
-    private readonly _edits = signal<Readonly<Record<string, string>>>({});
+    private readonly _cellLimit = signal(PAGE_SIZE);
+    private readonly _edits = signal<Readonly<Record<string, IRowEdit>>>({});
     private readonly _error = signal<string | null>(null);
     private readonly _outcome = signal<WriteOutcome | null>(null);
     private readonly _message = signal<string | null>(null);
     private readonly _busy = signal(false);
     private readonly _tick = signal(0);
     private readonly _editTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    private readonly _editRequests = new Map<IRowEdit, Promise<boolean>>();
+    private readonly _rowRequests = new Map<Promise<boolean>, IRowContext>();
+    private _rowUpdates = Promise.resolve(true);
     private _fetchedAt = 0;
-    private _isFetching = false;
+    private _fetching: Promise<void> | null = null;
     private _fetchAgain = false;
+    private _destroyed = false;
     private _runId = '';
 
     // #endregion
@@ -106,6 +124,12 @@ export class GenerateRunViewPresenter {
 
             for (const timer of this._editTimers.values()) {
                 clearTimeout(timer);
+            }
+            this._editTimers.clear();
+            this._destroyed = true;
+
+            for (const edit of Object.values(this._edits())) {
+                void this.saveEdit(edit);
             }
         });
     }
@@ -238,11 +262,27 @@ export class GenerateRunViewPresenter {
     });
 
     /**
-     * Gets one cell per chunk.
+     * Gets the displayed page of chunk cells.
      *
      * @readonly
      */
-    public readonly cells = computed(() => (this.current()?.chunks ?? []).map((state, index) => ({ index, state, title: `Chunk ${index + 1}: ${state}` })));
+    public readonly cells = computed(() => (this.current()?.chunks ?? []).slice(0, this._cellLimit()).map((state, index) => ({ index, state, title: `Chunk ${index + 1}: ${state}` })));
+
+    /**
+     * Gets the full chunk count while the cell strip is paged.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly chunkCount = computed(() => this.current()?.chunks.length ?? 0);
+
+    /**
+     * Gets whether more chunk cells can be displayed.
+     *
+     * @public
+     * @readonly
+     */
+    public readonly hasMoreCells = computed(() => this.chunkCount() > this._cellLimit());
 
     /**
      * Gets whether Dry run is on. A run keeps the value it started with, but what is written follows the switch.
@@ -272,12 +312,11 @@ export class GenerateRunViewPresenter {
      */
     public readonly rows = computed(() => {
         const edits = this._edits();
-        const rows = this._run()?.rows ?? [];
+        const run = this._run();
 
-        return rows
-            .filter((row) => this._filter() === 'all' || (row.severity !== 'none' && !row.written))
+        return this._filteredRows()
             .slice(0, this._limit())
-            .map((row) => ({ ...row, value: edits[row.key] ?? row.value, isDanger: row.severity === 'danger', noteClass: row.severity === 'danger' ? 'note-danger' : 'note-warning' }));
+            .map((row) => ({ ...row, value: run ? edits[this.editKey({ runId: run.runId, locale: run.locale, key: row.key })]?.value ?? row.value : row.value, isDanger: row.severity === 'danger', noteClass: row.severity === 'danger' ? 'note-danger' : 'note-warning' }));
     });
 
     /**
@@ -285,7 +324,7 @@ export class GenerateRunViewPresenter {
      *
      * @readonly
      */
-    public readonly hasMoreRows = computed(() => (this._run()?.rows.length ?? 0) > this._limit());
+    public readonly hasMoreRows = computed(() => this._filteredRows().length > this._limit());
 
     /**
      * Gets the automatic checks.
@@ -431,16 +470,27 @@ export class GenerateRunViewPresenter {
      * @returns When its view is open.
      */
     public async again(): Promise<void> {
+        if (this._busy()) {
+            return;
+        }
+
         this._busy.set(true);
         this._message.set(null);
 
         try {
-            const run = await this._api.request('generate.again', { runId: this._runId });
+            const runId = this._runId;
+
+            if (!await this.flushEdits(runId)) {
+                return;
+            }
+
+            const run = await this._api.request('generate.again', { runId });
 
             this._center.track(run);
             await this._router.navigate(['/generate/runs', run.id]);
             this._runId = run.id;
-            this._edits.set({});
+            this._limit.set(PAGE_SIZE);
+            this._cellLimit.set(PAGE_SIZE);
             this._outcome.set(null);
             await this.fetch();
         } catch (error) {
@@ -456,7 +506,9 @@ export class GenerateRunViewPresenter {
      * @returns When it is open.
      */
     public async backToSetup(): Promise<void> {
-        await this._router.navigate(['/generate']);
+        if (await this.flushEdits(this._runId)) {
+            await this._router.navigate(['/generate']);
+        }
     }
 
     /**
@@ -468,6 +520,7 @@ export class GenerateRunViewPresenter {
     public async pickLocale(locale: string): Promise<void> {
         this._locale.set(locale);
         this._limit.set(PAGE_SIZE);
+        this._cellLimit.set(PAGE_SIZE);
         await this.fetch();
     }
 
@@ -478,6 +531,7 @@ export class GenerateRunViewPresenter {
      */
     public pickFilter(filter: GenerateRowFilter): void {
         this._filter.set(filter);
+        this._limit.set(PAGE_SIZE);
     }
 
     /**
@@ -488,23 +542,41 @@ export class GenerateRunViewPresenter {
     }
 
     /**
+     * Displays the next chunk cells without changing the run's full progress.
+     *
+     * @public
+     */
+    public showMoreCells(): void {
+        this._cellLimit.update((limit) => limit + PAGE_SIZE);
+    }
+
+    /**
      * Takes what the user typed. Main validates it shortly after.
      *
      * @param key The key.
      * @param value The value.
      */
     public edit(key: string, value: string): void {
-        this._edits.update((edits) => ({ ...edits, [key]: value }));
+        const run = this._run();
 
-        const waiting = this._editTimers.get(key);
+        if (!run) {
+            return;
+        }
+
+        const edit: IRowEdit = { runId: run.runId, locale: run.locale, key, value };
+        const id = this.editKey(edit);
+
+        this._edits.update((edits) => ({ ...edits, [id]: edit }));
+
+        const waiting = this._editTimers.get(id);
 
         if (waiting) {
             clearTimeout(waiting);
         }
 
-        this._editTimers.set(key, setTimeout(() => {
-            this._editTimers.delete(key);
-            void this.setRow(key, { value });
+        this._editTimers.set(id, setTimeout(() => {
+            this._editTimers.delete(id);
+            void this.saveEdit(edit);
         }, EDIT_DELAY_MS));
     }
 
@@ -516,8 +588,10 @@ export class GenerateRunViewPresenter {
      * @returns When main knows.
      */
     public async accept(row: Pick<GenerateRow, 'key' | 'accepted'>, accepted: boolean): Promise<void> {
-        if (row.accepted !== accepted) {
-            await this.setRow(row.key, { accepted });
+        const run = this._run();
+
+        if (run && row.accepted !== accepted) {
+            await this.setRow({ runId: run.runId, locale: run.locale, key: row.key }, { accepted });
         }
     }
 
@@ -529,7 +603,7 @@ export class GenerateRunViewPresenter {
     public async write(): Promise<void> {
         const run = this._run();
 
-        if (!run || this.writeBlocker() !== null) {
+        if (!run || this._busy() || this.writeBlocker() !== null) {
             return;
         }
 
@@ -538,7 +612,11 @@ export class GenerateRunViewPresenter {
         this._outcome.set(null);
 
         try {
-            this._outcome.set(await this._api.request('generate.write', { runId: this._runId, locale: run.locale }));
+            if (!await this.flushEdits(run.runId, run.locale)) {
+                return;
+            }
+
+            this._outcome.set(await this._api.request('generate.write', { runId: run.runId, locale: run.locale }));
             await this.fetch();
         } catch (error) {
             this._message.set(error instanceof Error ? error.message : String(error));
@@ -564,24 +642,89 @@ export class GenerateRunViewPresenter {
     /**
      * @private
      */
-    private async setRow(key: string, change: { value?: string; accepted?: boolean }): Promise<void> {
-        const run = this._run();
+    private setRow(context: IRowContext, change: { value?: string; accepted?: boolean }, edit?: IRowEdit): Promise<boolean> {
+        const request = this._rowUpdates.then(async () => {
+            try {
+                await this._api.request('generate.setRow', { ...context, ...change });
 
-        if (!run) {
-            return;
+                if (!this._destroyed && context.runId === this._runId && context.locale === (this._locale() ?? this._run()?.locale)) {
+                    await this.fetch();
+
+                    if (this._error()) {
+                        this._message.set(this._error());
+
+                        return false;
+                    }
+                }
+
+                const id = this.editKey(context);
+
+                if (edit && this._edits()[id] === edit) {
+                    this._edits.update(({ [id]: _done, ...others }) => others);
+                }
+
+                return true;
+            } catch (error) {
+                this._message.set(error instanceof Error ? error.message : String(error));
+
+                return false;
+            }
+        });
+
+        this._rowUpdates = request;
+        this._rowRequests.set(request, context);
+        void request.then(() => this._rowRequests.delete(request));
+
+        return request;
+    }
+
+    /** Sends a draft only once while it is queued or in flight. */
+    private saveEdit(edit: IRowEdit): Promise<boolean> {
+        const existing = this._editRequests.get(edit);
+
+        if (existing) {
+            return existing;
         }
 
-        try {
-            await this._api.request('generate.setRow', { runId: this._runId, locale: run.locale, key, ...change });
+        const request = this.setRow(edit, { value: edit.value }, edit);
 
-            if (change.value !== undefined) {
-                this._edits.update(({ [key]: _done, ...others }) => others);
+        this._editRequests.set(edit, request);
+        void request.then(() => this._editRequests.delete(edit));
+
+        return request;
+    }
+
+    /** Drains this context before writing or leaving it, retaining failed or newer drafts. */
+    private async flushEdits(runId: string, locale?: string): Promise<boolean> {
+        const belongs = (context: IRowContext): boolean => context.runId === runId && (locale === undefined || context.locale === locale);
+
+        for (;;) {
+            const requests = new Set([...this._rowRequests].filter(([, context]) => belongs(context)).map(([request]) => request));
+
+            for (const edit of Object.values(this._edits()).filter(belongs)) {
+                const id = this.editKey(edit);
+                const timer = this._editTimers.get(id);
+
+                if (timer) {
+                    clearTimeout(timer);
+                    this._editTimers.delete(id);
+                }
+                requests.add(this.saveEdit(edit));
             }
 
-            await this.fetch();
-        } catch (error) {
-            this._message.set(error instanceof Error ? error.message : String(error));
+            if (requests.size === 0) {
+                return true;
+            }
+
+            if ((await Promise.all(requests)).some((saved) => !saved)) {
+                return false;
+            }
         }
+    }
+
+    /** A key may occur in every locale and in several runs. */
+    private editKey(context: IRowContext): string {
+        return JSON.stringify([context.runId, context.locale, context.key]);
     }
 
     /**
@@ -589,31 +732,42 @@ export class GenerateRunViewPresenter {
      *
      * @private
      */
-    private async fetch(): Promise<void> {
-        if (this._isFetching) {
+    private fetch(): Promise<void> {
+        if (this._destroyed) {
+            return Promise.resolve();
+        }
+
+        if (this._fetching) {
             this._fetchAgain = true;
 
-            return;
+            return this._fetching;
         }
 
-        this._isFetching = true;
-
-        try {
-            const run = await this._api.request('generate.get', { runId: this._runId, locale: this._locale() });
-
-            this._run.set(run);
-            this._fetchedAt = Date.now();
-            this._error.set(null);
-        } catch (error) {
-            this._error.set(error instanceof Error ? error.message : String(error));
-        } finally {
-            this._isFetching = false;
-
-            if (this._fetchAgain) {
+        this._fetching = (async () => {
+            do {
                 this._fetchAgain = false;
-                void this.fetch();
-            }
-        }
+                const runId = this._runId;
+                const locale = this._locale();
+
+                try {
+                    const run = await this._api.request('generate.get', { runId, locale });
+
+                    if (!this._destroyed && runId === this._runId && locale === this._locale()) {
+                        this._run.set(run);
+                        this._fetchedAt = Date.now();
+                        this._error.set(null);
+                    }
+                } catch (error) {
+                    if (!this._destroyed && runId === this._runId && locale === this._locale()) {
+                        this._error.set(error instanceof Error ? error.message : String(error));
+                    }
+                }
+            } while (this._fetchAgain && !this._destroyed);
+        })().finally(() => {
+            this._fetching = null;
+        });
+
+        return this._fetching;
     }
 
     // #endregion

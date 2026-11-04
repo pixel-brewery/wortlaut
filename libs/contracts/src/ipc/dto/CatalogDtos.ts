@@ -58,6 +58,9 @@ export const CatalogKeysRequestSchema = z.strictObject({
     filter: CatalogFilterSchema,
     targetLocale: z.string().max(40)
         .nullable(),
+    offset: z.number().int()
+        .nonnegative()
+        .default(0),
     limit: z.number().int()
         .positive()
         .max(5000)

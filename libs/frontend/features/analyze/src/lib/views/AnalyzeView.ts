@@ -9,9 +9,11 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { ClickableComponent } from '@pixel-brewery/mosaik-elements-angular/components/clickable';
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { TooltipComponent } from '@pixel-brewery/mosaik-elements-angular/components/tooltip';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
 
 // #endregion
@@ -21,6 +23,7 @@ import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
  */
 @Component({
     selector: 'wortlaut-analyze',
+    host: { class: 'page-frame' },
     imports: [
         AnchorComponent,
         BadgeComponent,
@@ -35,6 +38,8 @@ import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
         MessageComponent,
         RouterLink,
         RunProgressComponent,
+        SplitComponent,
+        PaneSizeDirective,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,
@@ -43,6 +48,7 @@ import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
         TableHeaderComponent,
         TableHeaderRowComponent,
         ToggleSwitchComponent,
+        TooltipComponent,
         WriteResultComponent
     ],
     providers: [AnalyzeViewPresenter],

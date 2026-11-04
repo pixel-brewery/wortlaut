@@ -9,7 +9,7 @@
       <mosaik-message variant="danger" header="That did not work" [content]="message" />
     }
 
-    <section aria-label="What assistants may do" class="card-section">
+    <section aria-label="What assistants may do" class="card-section access-card">
       <mosaik-card>
         <mosaik-card-header slot="header" text="What assistants may do" [subText]="presenter.levelText()">
           <div slot="suffix" class="card-suffix">
@@ -40,18 +40,24 @@
       </mosaik-card>
     </section>
 
-    <section aria-label="Connect an assistant" class="card-section">
+    <section aria-label="Connect an assistant" class="card-section page-content connection-card">
       <mosaik-card>
-        <mosaik-card-header slot="header" text="Connect an assistant" />
-        <div slot="content" class="card-pad">
-          @if (presenter.clients.isFailed()) {
-            <wortlaut-failure-state header="The steps could not be read" [message]="presenter.clients.error()" (retry)="presenter.clients.reload()" />
-          } @else if (presenter.client(); as client) {
+        <mosaik-card-header slot="header" text="Connect an assistant">
+          @if (presenter.client()) {
+            <div slot="suffix" class="card-suffix">
             <mosaik-tab-strip aria-label="Assistants" [hasIndicator]="true">
               @for (tab of presenter.clientTabs(); track tab.id) {
                 <mosaik-tab-strip-item [label]="tab.label" [isSelected]="tab.isSelected" (click)="presenter.pickClient(tab.id)" />
               }
             </mosaik-tab-strip>
+            </div>
+          }
+        </mosaik-card-header>
+        <div slot="content" class="card-pad">
+          @if (presenter.clients.isFailed()) {
+            <wortlaut-failure-state header="The steps could not be read" [message]="presenter.clients.error()" (retry)="presenter.clients.reload()" />
+          } @else if (presenter.client(); as client) {
+
             <div class="client-state">
               <mosaik-badge appearance="soft" [label]="client.state" [variant]="client.variant" />
               <span class="muted">{{ client.about }}</span>
@@ -74,7 +80,7 @@
       </mosaik-card>
     </section>
 
-    <div class="columns">
+    <div class="columns page-content">
       <section aria-label="Tools" class="tools">
         <mosaik-card>
           <mosaik-card-header slot="header" text="Tools">

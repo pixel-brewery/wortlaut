@@ -1,0 +1,8 @@
+@for (page of [current()]; track pageKey() + ':' + page.page) {
+  <pre class="text" test-id="text-window-content">{{ page.text }}</pre>
+}
+@if (current().count > 1) {
+  <div class="pages">
+    <mosaik-paginator test-id="text-window-pages" [total]="text().length" [size]="pageSize" [currentPage]="current().page" [showPageLinks]="false" [showFirstLastIcon]="true" [showCurrentPageReport]="true" currentPageReportTemplate="Page {currentPage} of {totalPages}" (pageChanged)="showPage($event.page)" />
+  </div>
+}

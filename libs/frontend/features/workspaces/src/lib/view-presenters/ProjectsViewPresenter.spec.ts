@@ -86,6 +86,40 @@ describe('ProjectsViewPresenter', () => {
         TestBed.resetTestingModule();
     });
 
+    it('bounds displayed projects while retaining the complete bulk command scope', async () => {
+        // arrange
+        const rows = Array.from({ length: 150 }, (_, index) => ({ ...LIST.rows[0], id: `project-${index}` }));
+        const { presenter, api } = setUp({ list: { ...LIST, rows }, batch: null });
+        await presenter.list.reload();
+        expect(presenter.visibleRows()).toHaveLength(100);
+        expect(presenter.rows()).toHaveLength(150);
+
+        // act
+        presenter.showMoreRows();
+        await presenter.runAll();
+
+        // assert
+        expect(presenter.visibleRows().at(-1)?.id).toBe('project-149');
+        expect(presenter.hasMoreRows()).toBe(false);
+        expect(api.request).toHaveBeenCalledWith('run.startAll', { workspaceId: 'w1', command: 'analyze' });
+    });
+
+    it('bounds batch rows without reducing total progress or hiding the final result', async () => {
+        // arrange
+        const rows = Array.from({ length: 150 }, (_, index) => ({ ...BATCH.rows[0], projectId: `project-${index}`, runId: `run-${index}` }));
+        const { presenter, session } = setUp({ batch: { ...BATCH, rows } });
+        await session.refresh();
+        await presenter.loadBatch();
+        expect(presenter.visibleBatchRows()).toHaveLength(100);
+
+        // act
+        presenter.showMoreBatchRows();
+
+        // assert
+        expect(presenter.visibleBatchRows().at(-1)?.runId).toBe('run-149');
+        expect(presenter.batchProgress()).toMatchObject({ total: 150, finished: 150 });
+    });
+
     it('closes the open project, since the view belongs to the workspace', async () => {
         const { presenter, api } = setUp();
 

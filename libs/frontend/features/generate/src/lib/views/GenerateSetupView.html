@@ -16,9 +16,10 @@
       <wortlaut-failure-state header="This project could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
     } @else if (presenter.overview.value(); as overview) {
       @if (presenter.activeRunId(); as runId) {
-        <mosaik-message variant="info" header="A translation is going on" content="It runs on, whatever this screen does.">
-          <mosaik-button slot="actions" label="Open the run" size="small" variant="neutral" appearance="outline" (click)="presenter.openRun(runId)" />
-        </mosaik-message>
+        <div class="active-run">
+          <mosaik-message variant="info" header="A translation is going on" content="It runs on, whatever this screen does." />
+          <mosaik-button test-id="generate-open-active-run" label="Open the run" size="small" variant="neutral" appearance="outline" (click)="presenter.openRun(runId)" />
+        </div>
       }
       @if (presenter.message(); as message) {
         <mosaik-message variant="danger" header="That did not work" [content]="message" />
@@ -27,8 +28,8 @@
       @if (overview.keyCount === 0) {
         <mosaik-empty-state header="No keys yet" content="This project has no catalog of its base locale. Detect finds strings that need a key." />
       } @else {
-      <div class="setup-columns">
-        <div class="setup-main">
+      <mosaik-split class="pane-split page-content" test-id="generate-setup-split" paneSizeKey="generate.setup" paneSize="300px" lock="end" min="260px" max="55%" [intl]="{ resizeLabel: 'Resize translation summary' }">
+        <div slot="start" class="setup-main pane-start">
           <section aria-label="What to translate" class="card-section">
             <mosaik-card>
               <mosaik-card-header slot="header" text="What to translate" />
@@ -134,7 +135,7 @@
           </section>
         </div>
 
-        <aside aria-label="Run summary" class="setup-side card-section">
+        <aside slot="end" aria-label="Run summary" class="setup-side card-section pane-end">
           <mosaik-card>
             <mosaik-card-header slot="header" text="This run" />
             <div slot="content" class="card-fields">
@@ -166,13 +167,6 @@
                   <mosaik-toggle-switch aria-label="Protect placeholders" [isChecked]="presenter.protect()" (checked)="presenter.setProtect(true)" (unchecked)="presenter.setProtect(false)" />
                 </div>
               </div>
-              <div class="start">
-                <mosaik-button label="Start translation" variant="primary" appearance="solid" icon="sparkle" iconSize="small" fit="width" [disabled]="!presenter.canStart()" [isBusy]="presenter.busy()" (click)="presenter.start()" />
-                <mosaik-button label="Test on 10 keys first" variant="neutral" appearance="outline" fit="width" [disabled]="presenter.blocker() !== null" (click)="presenter.testFirst()" />
-                @if (presenter.blocker(); as blocker) {
-                  <span class="note">{{ blocker }}</span>
-                }
-              </div>
               <div class="same-as row-divider">
                 <div class="same-as-label">Same as</div>
                 <code>{{ presenter.sameAs.value()?.shown }}</code>
@@ -183,9 +177,16 @@
                 }
               </div>
             </div>
+            <div slot="footer" class="start">
+              <mosaik-button test-id="generate-start" label="Start translation" variant="primary" appearance="solid" icon="sparkle" iconSize="small" fit="width" [disabled]="!presenter.canStart()" [isBusy]="presenter.busy()" (click)="presenter.start()" />
+              <mosaik-button test-id="generate-test-first" label="Test on 10 keys first" variant="neutral" appearance="outline" fit="width" [disabled]="presenter.blocker() !== null" (click)="presenter.testFirst()" />
+              @if (presenter.blocker(); as blocker) {
+                <span class="note">{{ blocker }}</span>
+              }
+            </div>
           </mosaik-card>
         </aside>
-      </div>
+      </mosaik-split>
       }
 
       <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.addingLocale()" [pressEscapeToClose]="true" (closed)="presenter.closeAddLocale()">

@@ -8,6 +8,28 @@ import { IdSchema } from './ShellDtos.js';
 // #endregion
 
 /**
+ * Reads one change set, optionally computing only a bounded page of its file previews.
+ * Omitting the page fields keeps the complete detail contract for existing consumers.
+ *
+ * @public
+ */
+export const ReviewDetailRequestSchema = z.strictObject({
+    id: IdSchema,
+    fileOffset: z.number().int()
+        .nonnegative()
+        .optional(),
+    fileLimit: z.number().int()
+        .min(1)
+        .max(20)
+        .optional()
+});
+
+/**
+ * @public
+ */
+export type ReviewDetailRequest = z.output<typeof ReviewDetailRequestSchema>;
+
+/**
  * A pending change set in the list of Review.
  *
  * @public
@@ -95,6 +117,10 @@ export type ReviewFile = z.output<typeof ReviewFileSchema>;
  * @public
  */
 export const ReviewDetailSchema = ReviewItemSchema.extend({
+
+    /**
+     * File previews of the requested page; fileCount and conflicts still cover the complete change set.
+     */
     files: z.array(ReviewFileSchema),
     findings: z.array(z.string())
 });

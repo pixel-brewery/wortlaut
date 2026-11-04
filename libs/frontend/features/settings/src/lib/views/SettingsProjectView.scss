@@ -1,0 +1,13 @@
+.chips {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chips mosaik-chip {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chips mosaik-chip::part(label) {
+  min-width: 0;
+}

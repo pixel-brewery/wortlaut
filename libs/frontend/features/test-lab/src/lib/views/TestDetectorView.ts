@@ -8,9 +8,10 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
+import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, TextWindowComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TestDetectorViewPresenter } from '../view-presenters/TestDetectorViewPresenter';
 
 // #endregion
@@ -20,6 +21,7 @@ import { TestDetectorViewPresenter } from '../view-presenters/TestDetectorViewPr
  */
 @Component({
     selector: 'wortlaut-test-detector',
+    host: { class: 'page-content' },
     imports: [
         BadgeComponent,
         ButtonComponent,
@@ -30,8 +32,10 @@ import { TestDetectorViewPresenter } from '../view-presenters/TestDetectorViewPr
         FormFieldDirective,
         LoadingStateComponent,
         MessageComponent,
+        PaneSizeDirective,
         SegmentComponent,
         SegmentItemComponent,
+        SplitComponent,
         TableBodyCellComponent,
         TableBodyComponent,
         TableBodyRowComponent,
@@ -39,7 +43,8 @@ import { TestDetectorViewPresenter } from '../view-presenters/TestDetectorViewPr
         TableHeaderCellComponent,
         TableHeaderComponent,
         TableHeaderRowComponent,
-        TextBoxComponent
+        TextBoxComponent,
+        TextWindowComponent
     ],
     providers: [TestDetectorViewPresenter],
     templateUrl: './TestDetectorView.html',

@@ -91,6 +91,54 @@ describe('RunsViewPresenter', () => {
         TestBed.resetTestingModule();
     });
 
+    it('shows a bounded history and keeps its oldest retained entry reachable', async () => {
+        // arrange
+        const runs = Array.from({ length: 150 }, (_, index) => ({ ...RUN, id: `r${index}` }));
+        const { presenter } = setUp({ runs });
+        await presenter.load();
+        expect(presenter.rows()).toHaveLength(100);
+
+        // act
+        presenter.showMoreRuns();
+
+        // assert
+        expect(presenter.rows().at(-1)?.id).toBe('r149');
+        expect(presenter.hasMoreRuns()).toBe(false);
+    });
+
+    it('loads more changed files without changing the source log or command', async () => {
+        // arrange
+        const changes = Array.from({ length: 205 }, (_, index) => ({ ...DETAIL.changes[0], file: `catalog-${index}.json` }));
+        const { presenter } = setUp({ detail: { ...DETAIL, changes } });
+        await presenter.load();
+        expect(presenter.changes()).toHaveLength(100);
+
+        // act
+        presenter.showMoreChanges();
+        presenter.showMoreChanges();
+
+        // assert
+        expect(presenter.changes().at(-1)?.file).toBe('catalog-204.json');
+        expect(presenter.hasMoreChanges()).toBe(false);
+        expect(presenter.code()).toBe(DETAIL.log);
+        expect(presenter.detail.value()?.equivalentCommand).toBe(DETAIL.equivalentCommand);
+    });
+
+    it('resets the changed-file window when selecting another run', async () => {
+        // arrange
+        const changes = Array.from({ length: 205 }, (_, index) => ({ ...DETAIL.changes[0], file: `catalog-${index}.json` }));
+        const { presenter } = setUp({ detail: { ...DETAIL, changes } });
+        await presenter.load();
+        presenter.showMoreChanges();
+
+        // act
+        await presenter.select('r2');
+
+        // assert
+        expect(presenter.changes()).toHaveLength(100);
+        expect(presenter.hasMoreChanges()).toBe(true);
+    });
+
     it('lists the runs of every project without an open project', async () => {
         const { presenter, request } = setUp();
 

@@ -5,6 +5,7 @@
 }
 
 .settings {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -12,10 +13,21 @@
 }
 
 .setting {
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: calc(var(--mosaik-layout-space) * 0.75);
+}
+
+.setting mosaik-segment {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+:host > mosaik-message {
+  flex: none;
 }
 
 .setting-label {
@@ -41,29 +53,15 @@
   padding-bottom: 2px;
 }
 
-.panels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: calc(var(--mosaik-layout-space) * 2);
-}
-
 .panel-source {
-  flex: 1 1 440px;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.panel-results {
-  flex: 1 1 440px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--mosaik-layout-space) * 2);
 }
 
 .card-section {
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -132,11 +130,11 @@
   white-space: normal;
 }
 
-.resource {
-  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
+.resource-body {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
   border-top: 1px solid var(--mosaik-scheme-highlight);
   background: var(--mosaik-color-neutral-50);
-  font-size: 12px;
-  line-height: 18px;
-  overflow-x: auto;
 }
