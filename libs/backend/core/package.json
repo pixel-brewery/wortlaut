@@ -1,7 +1,7 @@
 {
   "name": "@pixel-brewery/wortlaut-core",
   "description": "Wortlaut core library",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "license": "MIT",
   "author": "Pixel Brewery (https://github.com/pixel-brewery)",
   "repository": {

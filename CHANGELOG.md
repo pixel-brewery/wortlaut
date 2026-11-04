@@ -1,3 +1,13 @@
+## 0.2.3 (2026-11-04)
+
+### 🚀 Features
+
+- **packages:** ship the Nx executor and the ESLint rules from this repository ([a27b101](https://github.com/pixel-brewery/wortlaut/commit/a27b101))
+
+### ❤️ Thank You
+
+- RueDeRennes @RueDeRennes
+
 ## 0.2.2 (2026-11-04)
 
 ### 🩹 Fixes
