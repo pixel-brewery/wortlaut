@@ -1,8 +1,9 @@
 // #region Imports
 
-import { existsSync, readFileSync, renameSync, rmdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type { ChangeSetJournalEntry, ChangeSetJournalFile } from '@pixel-brewery/wortlaut-contracts';
+import { renameOver } from '../io/AtomicFile.js';
 import type { ChangeSetJournal, IClaimedJournal } from './ChangeSetJournal.js';
 import { ChangeSetBuilder } from './ChangeSetBuilder.js';
 
@@ -129,7 +130,7 @@ export class ChangeSetRecovery {
         if (states.every(({ state }) => state === 'written' || state === 'ready')) {
             for (const { file, state } of states) {
                 if (state === 'ready') {
-                    renameSync(file.staged, file.target);
+                    renameOver(file.staged, file.target);
                 }
             }
 
@@ -209,7 +210,7 @@ function restore(file: ChangeSetJournalFile): void {
     const temporary = `${file.staged}.restore`;
 
     writeFileSync(temporary, Buffer.from(file.previous, 'base64'), { flush: true, ...file.mode === null ? {} : { mode: file.mode } });
-    renameSync(temporary, file.target);
+    renameOver(temporary, file.target);
 }
 
 /**
