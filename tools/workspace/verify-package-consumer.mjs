@@ -1,7 +1,7 @@
 // #region Imports
 
 import assert from 'node:assert/strict';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
@@ -11,10 +11,11 @@ import { fileURLToPath } from 'node:url';
 // #endregion
 
 const repository = resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const packages = ['contracts', 'core', 'ai', 'engine', 'mcp', 'app'];
+const packages = ['contracts', 'core', 'ai', 'engine', 'mcp', 'app', 'nx-tasks', 'eslint-rules'];
 const packageNameOf = (name) => `@pixel-brewery/wortlaut-${name}`;
 const registry = 'https://npm.pkg.github.com';
 const mcpTimeoutMs = 60_000;
+const hostTools = ['nx', 'eslint', '@eslint/json'];
 
 /**
  * What the command line only imports when an assistant is first asked for something, so no other check here would miss them.
@@ -58,7 +59,10 @@ function copyTheTarballs(tarballs, consumer) {
 function installWithNpm(consumer, env) {
   writeFileSync(join(consumer, 'package.json'), `${JSON.stringify({ name: 'wortlaut-npm-consumer', version: '0.0.0', private: true })}\n`);
   writeFileSync(join(consumer, '.npmrc'), `@pixel-brewery:registry=${registry}\n//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}\n`);
-  runPackageManager('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...packages.map((name) => `./${name}.tgz`)], consumer, env);
+  const { devDependencies } = JSON.parse(readFileSync(join(repository, 'package.json'), 'utf8'));
+
+  // What a repository has around the two packages that run inside its own tools.
+  runPackageManager('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', ...packages.map((name) => `./${name}.tgz`), ...hostTools.map((name) => `${name}@${devDependencies[name]}`)], consumer, env);
 }
 
 function installWithYarn(consumer, env) {
@@ -176,6 +180,80 @@ function listTheMcpTools(consumer, cli, env) {
   });
 }
 
+/**
+ * Runs the executor as a real target. Only Nx reads `executors.json` and the schema, and only its exit code tells a target's result.
+ */
+function runTheNxTarget(consumer, env) {
+  const bin = join(consumer, 'node_modules', 'nx', JSON.parse(readFileSync(join(consumer, 'node_modules', 'nx', 'package.json'), 'utf8')).bin.nx);
+  const executor = `${packageNameOf('nx-tasks')}:wortlaut`;
+  const nx = (target) => spawnSync(process.execPath, [bin, 'run', target, '--skip-nx-cache', '--output-style=static'], { cwd: consumer, env: { ...env, NX_DAEMON: 'false', NX_TUI: 'false', NX_NO_CLOUD: 'true' }, encoding: 'utf8' });
+  const writeConfiguration = (severity) => writeFileSync(join(consumer, 'nx.json'), `${JSON.stringify({
+    targetDefaults: {
+      [executor]: {
+        options: { actions: { detect: { resourceRoot: ['i18n'] }, analyze: { rules: ['key-consistency'], severities: { 'key-consistency': severity } }, sort: { order: 'asc' } } },
+        configurations: { analyze: { mode: 'analyze' }, sort: { mode: 'sort' } }
+      }
+    }
+  })}\n`);
+
+  mkdirSync(join(consumer, 'demo', 'i18n'), { recursive: true });
+  writeFileSync(join(consumer, 'demo', 'project.json'), `${JSON.stringify({ name: 'demo', targets: { intl: { executor }, old: { executor: `${packageNameOf('nx-tasks')}:localizator`, options: { mode: 'sort', actions: { detect: { resourceRoot: ['i18n'] }, sort: { order: 'desc' } } } } } })}\n`);
+  writeFileSync(join(consumer, 'demo', 'i18n', 'lang.en.json'), `${JSON.stringify({ first: 'One' })}\n`);
+  writeFileSync(join(consumer, 'demo', 'i18n', 'lang.de.json'), `${JSON.stringify({ second: 'Zwei', first: 'Eins', third: 'Drei' })}\n`);
+
+  writeConfiguration('error');
+
+  const refused = nx('demo:intl:analyze');
+
+  assert.equal(refused.status, 1, `A rule of severity error must fail the target.\n${refused.stdout}${refused.stderr}`);
+  assert.match(refused.stdout, /with severity error/);
+  assert.equal(nx('demo:intl').status, 1, 'A target without a mode must fail.');
+
+  writeConfiguration('warning');
+
+  const passed = nx('demo:intl:analyze');
+
+  assert.equal(passed.status, 0, `A warning must not fail the target.\n${passed.stdout}${passed.stderr}`);
+
+  const sorted = nx('demo:intl:sort');
+
+  assert.equal(sorted.status, 0, `${sorted.stdout}${sorted.stderr}`);
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(consumer, 'demo', 'i18n', 'lang.de.json'), 'utf8'))), ['first', 'second', 'third']);
+
+  const renamed = nx('demo:old');
+
+  assert.equal(renamed.status, 0, `The old name of the executor must keep working.\n${renamed.stdout}${renamed.stderr}`);
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(consumer, 'demo', 'i18n', 'lang.de.json'), 'utf8'))), ['third', 'second', 'first']);
+}
+
+/**
+ * Lints catalogs with the configuration the package hands out, imported the way its documentation shows.
+ */
+function lintACatalog(consumer, env) {
+  const lint = join(consumer, 'lint');
+  const eslint = (file) => spawnSync(process.execPath, [join(consumer, 'node_modules', 'eslint', 'bin', 'eslint.js'), file], { cwd: lint, env, encoding: 'utf8' });
+
+  mkdirSync(join(lint, 'i18n'), { recursive: true });
+  writeFileSync(join(lint, 'eslint.config.mjs'), [
+    "import json from '@eslint/json';",
+    `import { createResourcesConfig } from '${packageNameOf('eslint-rules')}';`,
+    '',
+    "export default [{ files: ['i18n/*.json'], plugins: { json }, language: 'json/json' }, ...createResourcesConfig({ files: ['i18n/*.json'], severity: 'error', missingTranslations: false })];",
+    ''
+  ].join('\n'));
+  writeFileSync(join(lint, 'i18n', 'lang.en.json'), `${JSON.stringify({ greeting: 'Good morning' })}\n`);
+  writeFileSync(join(lint, 'i18n', 'lang.de.json'), `${JSON.stringify({ greeting: '' })}\n`);
+
+  const clean = eslint('i18n/lang.en.json');
+
+  assert.equal(clean.status, 0, `${clean.stdout}${clean.stderr}`);
+
+  const found = eslint('i18n/lang.de.json');
+
+  assert.equal(found.status, 1, `${found.stdout}${found.stderr}`);
+  assert.match(found.stdout, /wortlaut\/empty-values/);
+}
+
 async function exercise(consumer, env) {
   const manifest = JSON.parse(readFileSync(join(consumer, 'node_modules', packageNameOf('app'), 'package.json'), 'utf8'));
   const cli = join(consumer, 'node_modules', packageNameOf('app'), manifest.bin.wortlaut);
@@ -202,7 +280,7 @@ try {
   mkdirSync(tarballs);
   packTheWorkspaces(tarballs);
 
-  for (const [name, install] of [['npm', installWithNpm], ['yarn', installWithYarn]]) {
+  for (const [name, install, hostsTheTools] of [['npm', installWithNpm, true], ['yarn', installWithYarn, false]]) {
     const consumer = join(root, name);
 
     mkdirSync(consumer);
@@ -213,7 +291,13 @@ try {
     install(consumer, env);
     assert.ok(existsSync(join(consumer, 'node_modules', packageNameOf('app'))), `${name} did not install the packages.`);
     await exercise(consumer, env);
-    console.log(`The six packages work in a fresh ${name} consumer: entry points, late imports, help, a transform, ai status and the MCP server.`);
+
+    if (hostsTheTools) {
+      runTheNxTarget(consumer, env);
+      lintACatalog(consumer, env);
+    }
+
+    console.log(`The ${packages.length} packages work in a fresh ${name} consumer: entry points, late imports, help, a transform, ai status and the MCP server${hostsTheTools ? ', a real Nx target and a real ESLint run' : ''}.`);
   }
 } finally {
   rmSync(root, { recursive: true, force: true });

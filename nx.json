@@ -43,7 +43,9 @@
           "wortlaut-ai",
           "wortlaut-engine",
           "wortlaut-mcp",
-          "wortlaut-app"
+          "wortlaut-app",
+          "wortlaut-nx-tasks",
+          "wortlaut-eslint-rules"
         ],
         "projectsRelationship": "fixed",
         "releaseTag": {

@@ -101,6 +101,21 @@ describe('ConfigurationResolver', () => {
         expect(sourceOf(configuration, 'actions.transform.types')).toEqual({ kind: 'project-json', file: projectFile });
     });
 
+    it('reads the options of the executor of the own package like those of the old one', () => {
+        // arrange
+        const executor = '@pixel-brewery/wortlaut-nx-tasks:wortlaut';
+
+        write('nx.json', { targetDefaults: { [executor]: { options: { actions: { sort: { order: 'desc' } } } } } });
+        const projectFile = write('libs/ui/project.json', { targets: { intl: { executor, options: { actions: { sort: { order: 'desc' }, transform: { types: ['ts'] } } } } } });
+
+        // act
+        const configuration = resolve();
+
+        // assert
+        expect(configuration.options.actions?.sort?.order).toBe('desc');
+        expect(sourceOf(configuration, 'actions.transform.types')).toEqual({ kind: 'project-json', file: projectFile });
+    });
+
     it('finds the project from a directory below it and keeps executor paths relative to the project', () => {
         // arrange
         write('nx.json', {});

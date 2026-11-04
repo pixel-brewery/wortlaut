@@ -21,9 +21,22 @@ a finding of severity `error` or a refused pack only once a repository has a loc
 Existing consumer repositories use the old names. They must keep working until their owners
 move them, so these stay supported without a warning that fails a build:
 
-- the `localizator` binary and the `@pixel-brewery/nx-tasks:localizator` executor
+- the `localizator` binary and the `localizator` executor of `@pixel-brewery/wortlaut-nx-tasks`
+- `@pixel-brewery/nx-tasks:localizator` in Mosaik, for a repository on a version that still has it
 - `localizator.config.json` and `localizator.lock.json` as fallbacks
 - the option names of the executor
+
+## Nx
+
+`libs/backend/nx-tasks` publishes `@pixel-brewery/wortlaut-nx-tasks`. Its executor `wortlaut` calls `run()` of the app package and
+holds no logic beyond choosing the command and logging. A target fails like the command line: for anything that kept the run from
+finishing, and for `gate`. `ConfigurationResolver` matches any `nx-tasks:wortlaut` or `nx-tasks:localizator`, so the app finds a
+target under the old and the new name.
+
+## ESLint
+
+`libs/backend/eslint-rules` publishes `@pixel-brewery/wortlaut-eslint-rules`, with the rules `wortlaut/*` over the analyzer rules of
+the core package and `createResourcesConfig` for the translation files of a project.
 
 ## MCP
 
@@ -58,12 +71,15 @@ skill names projects by id. A plugin starts the published package, so it works o
 
 ## Mosaik integration
 
-Mosaik integrates Wortlaut as a last step, the same way it integrates the tool today, and
-until then `tools/localizator` in Mosaik stays untouched:
+Mosaik does not use Wortlaut itself. It only handed the tool on through `infra/nx-tasks`,
+`infra/vite-plugins` and `infra/eslint-rules`, so that part leaves Mosaik, in this order:
 
-- `infra/nx-tasks` calls `run()` of the app package.
-- `infra/vite-plugins` and `infra/eslint-rules` use the core package.
-- The packages come from GitHub Packages, so the owner's first release comes before this step.
+1. Wortlaut publishes the Nx executor and the ESLint rules.
+2. The consumer repositories move to `@pixel-brewery/wortlaut-nx-tasks:wortlaut` and run their real targets.
+3. Mosaik removes `tools/localizator`, its `localizator` executor, its Vite plugin, which no repository uses, and its
+   resource rules. Its other executors and its code style rules stay.
+
+Until then `tools/localizator` in Mosaik stays untouched.
 
 Check [the base platform module](../../architecture/references/common/platform.md) before
 changing the published surface of a package these owners depend on.

@@ -39,7 +39,7 @@ established workflow a visual home.
 ## From hard-coded text to reviewed translations
 
 The desktop application makes project coverage, source findings and language catalogs
-visible together. The CLI, Nx executor, Vite plugin and MCP server expose the same
+visible together. The CLI, Nx executor, ESLint rules and MCP server expose the same
 engine, so interactive work and automated checks follow the same rules.
 
 | Step | Work in Wortlaut |
@@ -161,10 +161,12 @@ Mosaik supplies the controls and Soho theme, and Synapse connects local assistan
 | `@pixel-brewery/wortlaut-engine` | `libs/backend/engine` | Project use cases, configuration, change sets, review and run history |
 | `@pixel-brewery/wortlaut-mcp` | `libs/backend/mcp` | MCP tools, permission levels and assistant plugins |
 | `@pixel-brewery/wortlaut-app` | `apps/cli` | The `wortlaut` command and programmatic `run()` entry point |
+| `@pixel-brewery/wortlaut-nx-tasks` | `libs/backend/nx-tasks` | The Nx executor over `run()` |
+| `@pixel-brewery/wortlaut-eslint-rules` | `libs/backend/eslint-rules` | ESLint rules over the analyzer rules |
 
 Frontend infrastructure lives in `libs/frontend/{core,ui,shell}`, with one feature library
-per product area under `libs/frontend/features`. Nx and Vite consumers use the same backend
-packages; [surface guidance](.agents/skills/wortlaut-architect/references/surfaces.md) records
+per product area under `libs/frontend/features`. The Nx executor and the ESLint rules sit on
+the same backend packages; [surface guidance](.agents/skills/wortlaut-architect/references/surfaces.md) records
 the integration and compatibility contracts.
 
 Start with the [documentation index](docs/README.md), [feature map](docs/architecture/feature-map.md)
@@ -214,7 +216,7 @@ holds the repository rules.
 
 Releases belong to the owner. Changes beyond documentation on `main` request a release:
 Nx prepares one version, changelog, commit and `v<version>` tag, and native builds verify
-that same candidate. After verification, the pipeline publishes the six packages and
+that same candidate. After verification, the pipeline publishes the eight packages and
 the macOS and Windows installers with their checksums. Documentation-only changes skip
 tests, builds and automatic release; explicit manual releases still run the full checks.
 

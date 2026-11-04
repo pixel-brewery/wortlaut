@@ -25,7 +25,7 @@ function manifests() {
 test('every package of the release names GitHub Packages', () => {
   const packages = manifests();
 
-  assert.equal(packages.length, 6);
+  assert.equal(packages.length, 8);
 
   for (const manifest of packages) {
     assert.equal(manifest.publishConfig?.registry, registry, manifest.name);
