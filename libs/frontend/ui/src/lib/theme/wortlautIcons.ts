@@ -1,5 +1,6 @@
 // #region Imports
 
+import { lobeClaudecode, lobeCodex, lobeGemini, lobeOpenai, lobeOpencode } from '@pixel-brewery/mosaik-icons/lobe-icons';
 import {
     reiconAdd,
     reiconAlertTriangle,
@@ -33,6 +34,11 @@ import {
  */
 export const wortlautIcons = {
     add: reiconAdd,
+    aiClaude: lobeClaudecode,
+    aiCodex: lobeCodex,
+    aiGemini: lobeGemini,
+    aiOpenAI: lobeOpenai,
+    aiOpenCode: lobeOpencode,
     arrowRight: reiconArrowRight,
     bot: reiconCpu,
     checkmarkCircle: reiconCheckCircle,

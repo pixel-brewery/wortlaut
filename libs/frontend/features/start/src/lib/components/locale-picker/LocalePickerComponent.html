@@ -1,0 +1,64 @@
+<mosaik-button
+  #trigger
+  test-id="add-target-languages"
+  icon="add"
+  appearance="outline"
+  size="small"
+  aria-label="Add target languages"
+  [disabled]="available().length === 0"
+  (click)="open()"
+/>
+
+<mosaik-dialog
+  test-id="locale-picker-dialog"
+  class="locale-picker-dialog"
+  [isOpen]="isOpen()"
+  [hasBackdrop]="true"
+  [pressEscapeToClose]="true"
+  (opened)="onOpened()"
+  (closeAttempted)="onCloseAttempted()"
+  (closed)="onClosed()"
+>
+  <mosaik-dialog-header slot="header">
+    <mosaik-dialog-header-text slot="header" text="Add target languages" />
+  </mosaik-dialog-header>
+  <div slot="content" class="picker-content">
+    <div class="picker-body">
+      <p class="note">Choose languages to add to this project. Existing locales stay unchanged.</p>
+      <mosaik-searchbox
+        test-id="locale-picker-search"
+        aria-label="Search languages"
+        placeholder="Search language name or ISO code"
+        [formField]="searchForm.text"
+      />
+      <div class="language-list" role="group" aria-label="Available target languages" test-id="locale-picker-options">
+        @for (language of visible(); track language.code) {
+          <div class="language-option">
+            <mosaik-checkbox
+              [label]="language.name"
+              [attr.test-id]="'locale-option-' + language.code"
+              [isChecked]="selected().has(language.code)"
+              (checked)="setSelected(language.code, true)"
+              (unchecked)="setSelected(language.code, false)"
+            />
+            <code>{{ language.code }}</code>
+          </div>
+        } @empty {
+          <p class="empty-result" role="status">No languages match this search.</p>
+        }
+      </div>
+    </div>
+  </div>
+  <mosaik-dialog-actions slot="actions">
+    <span class="selection-count" role="status" aria-live="polite">{{ selectedCodes().length }} selected</span>
+    <mosaik-button label="Cancel" appearance="plain" test-id="locale-picker-cancel" (click)="close()" />
+    <mosaik-button
+      label="Add languages"
+      variant="primary"
+      appearance="solid"
+      test-id="locale-picker-add"
+      [disabled]="selectedCodes().length === 0"
+      (click)="add()"
+    />
+  </mosaik-dialog-actions>
+</mosaik-dialog>

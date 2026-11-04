@@ -1,7 +1,8 @@
 // #region Imports
 
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { WorkspaceColor } from '@pixel-brewery/wortlaut-contracts';
+import { workspaceColorValue } from '@pixel-brewery/wortlaut-frontend-core';
 
 // #endregion
 
@@ -14,6 +15,7 @@ import type { WorkspaceColor } from '@pixel-brewery/wortlaut-contracts';
     styleUrl: './WorkspaceTileComponent.scss',
     host: {
         '[attr.data-color]': 'color()',
+        '[style.--workspace-accent]': 'accent()',
         '[attr.data-size]': 'size()',
         'aria-hidden': 'true'
     },
@@ -36,6 +38,9 @@ export class WorkspaceTileComponent {
      * @readonly
      */
     public readonly color = input.required<WorkspaceColor>();
+
+    /** The selected accent as a CSS value, including legacy and custom colors. */
+    protected readonly accent = computed(() => workspaceColorValue(this.color()));
 
     /**
      * The size, as the boards draw it.

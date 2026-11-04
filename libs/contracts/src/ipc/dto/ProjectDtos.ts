@@ -102,7 +102,13 @@ export const ProjectInspectRequestSchema = z.strictObject({
     catalogFolderTokens: z.array(z.uuid()).max(32),
 
     /**
-     * The preset the user picked, or `null` to infer it. The source root follows it.
+     * A source folder chosen in a native dialog, or `null` to use the configuration or inference.
+     */
+    sourceRootToken: z.uuid().nullable()
+        .optional(),
+
+    /**
+     * The preset the user picked, or `null` to infer it. A chosen source root is preserved.
      */
     preset: PresetSchema.nullable()
 });
@@ -116,6 +122,12 @@ export const ProjectInspectRequestSchema = z.strictObject({
 export const ProjectRegisterRequestSchema = z.strictObject({
     folderToken: z.uuid(),
     catalogFolderTokens: z.array(z.uuid()).max(32),
+
+    /**
+     * A source folder chosen in a native dialog, or `null` to use the configuration or inference.
+     */
+    sourceRootToken: z.uuid().nullable()
+        .optional(),
     workspace: z.discriminatedUnion('kind', [
         z.strictObject({ kind: z.literal('existing'), id: IdSchema }),
         z.strictObject({

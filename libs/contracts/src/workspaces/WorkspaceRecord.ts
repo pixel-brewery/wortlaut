@@ -6,11 +6,15 @@ import { PresetSchema, ProjectOptionsSchema } from '../settings/ProjectOptions.j
 // #endregion
 
 /**
- * The five colors a workspace can have. Views map each one to a family of Mosaik tokens.
+ * A named workspace accent or an opaque RGB hex color. Legacy names remain valid in saved profiles.
  *
  * @public
  */
-export const WorkspaceColorSchema = z.enum(['teal', 'blue', 'violet', 'orange', 'green']);
+export const WorkspaceColorSchema = z.union([
+    z.enum(['teal', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet', 'pink', 'slate']),
+    z.string().regex(/^#[0-9a-fA-F]{6}$/u)
+        .transform((value): `#${string}` => `#${value.slice(1).toUpperCase()}`)
+]);
 
 /**
  * @public

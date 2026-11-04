@@ -499,6 +499,44 @@ describe('createDesktopRequests', () => {
         expect(await handlers['project.summary']({ projectId: registered.projectId })).toMatchObject({ keyCount: 2, translatedShare: 0.5 });
     });
 
+    it('uses the same selected source folder during inspection and registration', async () => {
+        const folderToken = await chooseRepository();
+        const chosen = join(repository, 'frontend');
+
+        mkdirSync(chosen);
+        writeFileSync(join(chosen, 'Feature.ts'), 'export const title = "Frontend";');
+        host.chosen = chosen;
+        const { folder } = await handlers['dialog.chooseFolder']({ insideToken: folderToken });
+        const selection = { folderToken, catalogFolderTokens: [], preset: 'angular' as const, sourceRootToken: folder?.token };
+
+        const inspection = await handlers['project.inspectFolder'](selection);
+
+        expect(inspection.sourceRoot).toEqual({ value: 'frontend', fileCount: 1, evidence: '1 matching file, chosen by you' });
+        const registered = await handlers['project.register']({ ...selection, workspace: { kind: 'new', name: 'Shop', code: 'SH', color: 'teal' }, baseLocale: 'en', targetLocales: ['de'] });
+
+        const settings = await handlers['project.settings']({ projectId: registered.projectId });
+
+        expect(settings.sourceRoot).toBe('frontend');
+        expect(registered.configFile).toBe('pending');
+        expect(existsSync(join(repository, 'wortlaut.config.json'))).toBe(false);
+    });
+
+    it('rejects unknown or outside source folder tokens before inspecting or registering', async () => {
+        const folderToken = await chooseRepository();
+        const outside = grants.grant(root);
+        const unknown = '2aa07749-06f9-4f7b-a76b-286da12c3def';
+
+        for (const sourceRootToken of [outside.token, unknown]) {
+            const selection = { folderToken, catalogFolderTokens: [], preset: 'angular' as const, sourceRootToken };
+
+            await expect(Promise.resolve().then(() => handlers['project.inspectFolder'](selection))).rejects.toThrow();
+            await expect(handlers['project.register']({ ...selection, workspace: { kind: 'new', name: 'Shop', code: 'SH', color: 'teal' }, baseLocale: 'en', targetLocales: [] })).rejects.toThrow();
+        }
+
+        expect(handlers['workspace.list']({})).toEqual([]);
+        expect(existsSync(join(repository, 'wortlaut.config.json'))).toBe(false);
+    });
+
     it('opens the only project of a workspace and leaves several to the list', async () => {
         const folderToken = await chooseRepository();
         const { workspaceId } = await handlers['workspace.create']({ name: 'Shop', code: 'SH', color: 'teal', folderToken });
