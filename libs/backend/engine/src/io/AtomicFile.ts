@@ -7,6 +7,46 @@ import { dirname, join } from 'node:path';
 // #endregion
 
 /**
+ * What Windows answers for as long as another program, such as a virus scanner, holds a file it has just seen.
+ */
+const BUSY_CODES = new Set(['EACCES', 'EBUSY', 'EPERM']);
+
+/**
+ * The pauses before each further attempt, about one and a half seconds in all.
+ */
+const BUSY_PAUSES_MS = [50, 100, 200, 400, 800];
+
+/**
+ * Renames a file over another one. On Windows that fails for as long as another program holds the target, and that passes.
+ *
+ * @internal
+ * @param from The file to rename.
+ * @param to The path it gets.
+ * @param platform The platform, for a test.
+ */
+export function renameOver(from: string, to: string, platform: NodeJS.Platform = process.platform): void {
+    for (const pause of platform === 'win32' ? BUSY_PAUSES_MS : []) {
+        try {
+            renameSync(from, to);
+
+            return;
+        } catch (error) {
+            if (!BUSY_CODES.has((error as NodeJS.ErrnoException).code ?? '')) {
+                throw error;
+            }
+
+            const until = Date.now() + pause;
+
+            while (Date.now() < until) {
+                // Every caller is synchronous, and the main thread of the desktop app is one of them.
+            }
+        }
+    }
+
+    renameSync(from, to);
+}
+
+/**
  * Writes a private file of the profile so that readers in other processes see the old file or the new one, never a part.
  *
  * @internal
@@ -21,7 +61,7 @@ export function writePrivateFileAtomically(path: string, content: string): void 
 
     try {
         writeFileSync(temporary, content, { encoding: 'utf8', mode: 0o600, flush: true });
-        renameSync(temporary, path);
+        renameOver(temporary, path);
     } catch (error) {
         rmSync(temporary, { force: true });
         throw error;

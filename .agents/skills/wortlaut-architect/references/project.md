@@ -62,7 +62,9 @@ in Mosaik belongs to the integration step in [Surfaces](surfaces.md).
 
 ## Authority
 
-Commit or push only on request. Never create branches, worktrees or pull requests unless
-the owner asks for that specific action. Releases and package publishing belong to the
-owner. Do not install assistant CLIs, start a native login or read an assistant's
-credentials on the user's behalf.
+Follow root `AGENTS.md` for Git delivery and completion. Implementation and fix requests
+include task-scoped commits and pushes to `dev`, and a required pull request through its
+requested merge, unless the owner limits delivery. Extra clones or worktrees still need a
+specific request. Changes targeting `main`, releases and package publishing belong to the
+owner. Do not install assistant CLIs, start a native login or read an assistant's credentials
+on the user's behalf.

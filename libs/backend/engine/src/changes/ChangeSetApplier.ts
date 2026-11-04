@@ -1,9 +1,10 @@
 // #region Imports
 
-import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, rmdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import type { ChangeSet, ChangeSetFile, ChangeSetJournalEntry, ChangeSetJournalFile } from '@pixel-brewery/wortlaut-contracts';
 import { EngineError } from '../errors/EngineError.js';
+import { renameOver } from '../io/AtomicFile.js';
 import { PathResolver } from '../paths/PathResolver.js';
 import { ChangeSetBuilder } from './ChangeSetBuilder.js';
 import type { ChangeSetJournal } from './ChangeSetJournal.js';
@@ -273,7 +274,7 @@ export class ChangeSetApplier {
 
         for (const [index, entry] of staged.entries()) {
             try {
-                renameSync(entry.staged, entry.target);
+                renameOver(entry.staged, entry.target);
                 committed.push(entry);
                 this._onRenamed?.(index);
             } catch (error) {
@@ -294,7 +295,7 @@ export class ChangeSetApplier {
             for (const entry of [...committed].reverse()) {
                 if (entry.previous) {
                     writeFileSync(entry.staged, entry.previous, { mode: statSync(entry.target).mode & 0o777 });
-                    renameSync(entry.staged, entry.target);
+                    renameOver(entry.staged, entry.target);
                 } else {
                     rmSync(entry.target, { force: true });
                 }
