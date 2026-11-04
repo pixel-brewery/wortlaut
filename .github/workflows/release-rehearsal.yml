@@ -9,6 +9,7 @@ on:
     paths:
       - .github/workflows/release.yml
       - .github/workflows/release-rehearsal.yml
+      - .npmrc
       - apps/desktop/forge.config.mjs
       - nx.json
       - package.json

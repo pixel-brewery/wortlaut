@@ -25,6 +25,8 @@ the event name.
 2. `build` checks out exactly that commit on macOS arm64 and Windows x64, verifies it, installs the six packed packages in fresh npm and Yarn consumers outside the checkout, uses them there, makes the installers and exercises the packaged app.
 3. `publish` pushes the commit and the tag atomically with the release App, publishes the six packages, checks the registry, uploads the installers and `SHA256SUMS.txt` to a draft, checks every byte and publishes the draft.
 
+The tag exists before the packages do, and a rerun uses the workflow of the original push. A failed publication can be rerun as long as its cause lies outside the repository. A fix in the repository needs a new version, and the tag of the failed one stays.
+
 The packages are `wortlaut-contracts`, `wortlaut-core`, `wortlaut-ai`, `wortlaut-engine`, `wortlaut-mcp` and `wortlaut-app`. They share one version with the root manifest, which is the version of the desktop app, tagged `v{version}`.
 
 The plugins below `libs/backend/mcp/plugins` keep a version of their own. They hold the server command and a skill, and `npx -y` starts the latest package, so raise it only when one of these two changes.
@@ -57,5 +59,6 @@ npm or Yarn's node-modules linker until a corrected Utilities release is availab
 The workflows check the repository by its ID, its name `pixel-brewery/wortlaut` and that it is public.
 
 - The variable `RELEASE_APP_ID`, and the secret `RELEASE_APP_PRIVATE_KEY` in the environment `release-main`, which allows only `main`.
+- `.npmrc` and `publishConfig.registry` in the six manifests. Nx publishes with npm, which does not read `.yarnrc.yml`, so without them the packages go to npmjs.org. A dry run needs no login, so the rehearsal checks the address it names and that GitHub Packages accepts the token.
 - The release App installed on the repository. It is the only actor that may push the release commit past the rulesets.
 - The rulesets `main: preserve history`, `main: pull requests and verified CI` and `releases: immutable version tags`.
