@@ -14,6 +14,7 @@ on:
       - package.json
       - tools/workspace/prepare-release-assets.mjs
       - tools/workspace/release-audit.mjs
+      - tools/workspace/verify-package-consumer.mjs
       - tools/workspace/verify-desktop.mjs
       - tools/workspace/verify-package.mjs
       - tools/workspace/verify-release-assets.mjs

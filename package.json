@@ -39,6 +39,7 @@
     "verify:vendor": "node vendor/synapse/verify.mjs",
     "verify:design": "python3 .claude/skills/mosaik-design/scripts/check_design.py --app apps/frontend/app/src libs/frontend",
     "verify:package": "node tools/workspace/verify-package.mjs",
+    "verify:consumer": "node tools/workspace/verify-package-consumer.mjs",
     "verify:repository": "yarn verify:skills && yarn verify:public-content && yarn verify:structure && yarn verify:paths && yarn verify:vendor && yarn verify:design && yarn test:tooling",
     "verify": "yarn verify:repository && yarn lint && yarn typecheck && yarn test && yarn build",
     "release": "yarn run release:patch",

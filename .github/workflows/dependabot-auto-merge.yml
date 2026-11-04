@@ -10,7 +10,7 @@ permissions: {}
 jobs:
   merge:
     if: >-
-      ${{ github.repository_id == '1442982809' &&
+      ${{ github.repository_id == '1444820071' &&
           github.event.workflow_run.event == 'pull_request' &&
           github.event.workflow_run.conclusion == 'success' &&
           github.event.workflow_run.head_repository.id == github.event.repository.id }}

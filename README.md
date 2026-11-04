@@ -4,9 +4,9 @@
 
 # Wortlaut
 
-**Keep the texts of your application correct in every language.**
+**Make your application's translations visible and manageable.**
 
-Find hard-coded strings. Check translation catalogs. Translate with AI. Review every change.
+Find the gaps in your code. Manage every language. Review the changes.
 
 [![Repository Quality](https://img.shields.io/github/actions/workflow/status/pixel-brewery/wortlaut/ci.yml?branch=main&style=flat-square&label=quality)](https://github.com/pixel-brewery/wortlaut/actions/workflows/ci.yml)
 [![Continuous Desktop Release](https://img.shields.io/github/actions/workflow/status/pixel-brewery/wortlaut/release.yml?branch=main&style=flat-square&label=desktop%20release)](https://github.com/pixel-brewery/wortlaut/actions/workflows/release.yml)
@@ -14,11 +14,33 @@ Find hard-coded strings. Check translation catalogs. Translate with AI. Review e
 
 [Install](#install) · [Workflow](#from-hard-coded-text-to-reviewed-translations) · [Capabilities](#what-it-does) · [CLI](#command-line) · [Build from source](#build-from-source) · [Documentation](docs/README.md) · [Contributing](CONTRIBUTING.md)
 
+## Why Wortlaut exists
+
+Translation work is easy to lose sight of: a hard-coded label in a component, a key
+missing from one language, an outdated value in another. A collection of catalog
+files does not show the whole picture. Wortlaut brings the source code and the
+language catalogs into one workflow, so you can see what needs attention and
+manage the work through to a reviewed change.
+
+It began as Translator, a command-line tool later developed as Localizator. The
+earliest retained project brief dates to
+[October 2021](https://github.com/RueDeRennes/mosaik/commit/cec54e0b467fb707d7e0cd66118828475299c2e4):
+detect translatable source text, extract it into language resources and merge new
+findings with existing translations. The recent desktop redesign gives that
+established workflow a visual home.
+
+- **See where the work is.** Connect source findings with translation keys and
+  expose missing or inconsistent translations across languages.
+- **Manage the whole workflow.** Detect, analyze, edit, translate, convert and sort
+  through one engine, with a visual application and command-line integrations.
+- **Keep changes reviewable.** Inspect proposed file changes before applying them
+  to the repository.
+
 ## From hard-coded text to reviewed translations
 
-Wortlaut brings source detection, catalog analysis, AI translation and format conversion into
-one desktop application and command line. The same engine builds the changes behind both,
-so a translation can be inspected before it reaches your repository.
+The desktop application makes project coverage, source findings and language catalogs
+visible together. The CLI, Nx executor, Vite plugin and MCP server expose the same
+engine, so interactive work and automated checks follow the same rules.
 
 | Step | Work in Wortlaut |
 | --- | --- |

@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 // #endregion
 
 const repository = 'pixel-brewery/wortlaut';
-const repositoryId = 1442982809;
+const repositoryId = 1444820071;
 const workflowName = 'Continuous Desktop Release';
 const workflowPath = '.github/workflows/release.yml';
 const repositoryPath = `repos/${repository}`;

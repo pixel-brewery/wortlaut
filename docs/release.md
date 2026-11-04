@@ -22,14 +22,14 @@ the caller's event, so their `force_verification` input defaults to `true` rathe
 the event name.
 
 1. `configure` resolves the version, the changelog, the commit and the tag once, on the runner. It pushes nothing, and it hands them on as a bundle.
-2. `build` checks out exactly that commit on macOS arm64 and Windows x64, verifies it, installs the six packed packages in a fresh consumer outside the checkout, checks their exports and the CLI, makes the installers and exercises the packaged app.
+2. `build` checks out exactly that commit on macOS arm64 and Windows x64, verifies it, installs the six packed packages in fresh npm and Yarn consumers outside the checkout, uses them there, makes the installers and exercises the packaged app.
 3. `publish` pushes the commit and the tag atomically with the release App, publishes the six packages, checks the registry, uploads the installers and `SHA256SUMS.txt` to a draft, checks every byte and publishes the draft.
 
 The packages are `wortlaut-contracts`, `wortlaut-core`, `wortlaut-ai`, `wortlaut-engine`, `wortlaut-mcp` and `wortlaut-app`. They share one version with the root manifest, which is the version of the desktop app, tagged `v{version}`.
 
 The plugins below `libs/backend/mcp/plugins` keep a version of their own. They hold the server command and a skill, and `npx -y` starts the latest package, so raise it only when one of these two changes.
 
-Installers are not signed: macOS uses ad-hoc sealing without notarization, and Windows is unsigned. See the fuses and signing issue before relying on them.
+Installers are not signed, as in Symphony and Resonanz: macOS uses ad-hoc sealing without notarization, and Windows is unsigned.
 
 ## Package installation
 
