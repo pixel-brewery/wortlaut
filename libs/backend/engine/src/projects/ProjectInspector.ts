@@ -1,6 +1,6 @@
 // #region Imports
 
-import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { closeSync, constants, existsSync, fstatSync, openSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import type { IFileSystem } from '@pixel-brewery/utilities';
 import { PresetSchema, type DiscoveredLocale, type ProjectInspection, type ProjectOptions, type WorkspaceRecord } from '@pixel-brewery/wortlaut-contracts';
@@ -324,11 +324,13 @@ export class ProjectInspector {
     }
 
     /**
-     * Reads Nx's workspace-relative source root only when it remains in the selected repository.
+     * Reads Nx's workspace-relative source root from a regular file inside the selected repository.
      *
      * @private
      */
     private declaredSourceRoot(file: string, workspaceRoot: string, folder: string): string | null {
+        let descriptor: number | null = null;
+
         try {
             const metadataFile = realpathSync(file);
 
@@ -336,7 +338,14 @@ export class ProjectInspector {
                 return null;
             }
 
-            const metadata = JSON.parse(readFileSync(metadataFile, 'utf8')) as { sourceRoot?: unknown };
+            // Open without waiting for a writer if the metadata path is a named pipe.
+            descriptor = openSync(metadataFile, constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW);
+
+            if (!fstatSync(descriptor).isFile()) {
+                return null;
+            }
+
+            const metadata = JSON.parse(readFileSync(descriptor, 'utf8')) as { sourceRoot?: unknown };
 
             if (typeof metadata.sourceRoot !== 'string' || !metadata.sourceRoot) {
                 return null;
@@ -347,6 +356,10 @@ export class ProjectInspector {
             return PathResolver.isInside(folder, path) && PathResolver.isInside(PathResolver.realPathOf(folder), PathResolver.realPathOf(path)) ? path : null;
         } catch {
             return null;
+        } finally {
+            if (descriptor !== null) {
+                closeSync(descriptor);
+            }
         }
     }
 

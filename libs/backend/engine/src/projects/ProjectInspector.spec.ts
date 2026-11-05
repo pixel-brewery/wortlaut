@@ -1,9 +1,11 @@
 // #region Imports
 
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { ILogger } from '@pixel-brewery/utilities';
+import { buildSync } from 'esbuild';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WortlautEngine } from '../WortlautEngine';
 
@@ -97,6 +99,40 @@ describe('ProjectInspector', () => {
 
         // assert
         expect(inspection.sourceRoot).toMatchObject({ value: 'client/application', fileCount: 1 });
+    });
+
+    it.skipIf(process.platform === 'win32')('falls back to the package sources when Nx metadata is a named pipe', () => {
+        // arrange
+        const metadata = join(repository, 'apps/frontend/app/project.json');
+
+        rmSync(metadata);
+        execFileSync('mkfifo', [metadata]);
+        const { outputFiles: [program] } = buildSync({
+            stdin: {
+                contents: `
+                    import { join } from 'node:path';
+                    import { WortlautEngine } from '../WortlautEngine';
+                    import { QUIET_LOGGER } from '../io/QuietLogger';
+                    const [, , repository, home] = process.argv;
+                    const engine = new WortlautEngine({ surface: 'desktop', logger: QUIET_LOGGER, profileRoot: join(home, 'profile'), home, env: {} });
+                    console.log(JSON.stringify(engine.inspector.inspect(repository).inspection.sourceRoot));`,
+                resolveDir: __dirname
+            },
+            bundle: true,
+            packages: 'external',
+            platform: 'node',
+            write: false
+        });
+
+        // act
+        const result = spawnSync(process.execPath, ['-', repository, root], {
+            cwd: __dirname, input: program.text, encoding: 'utf8', timeout: 5000, killSignal: 'SIGKILL'
+        });
+
+        // assert
+        expect(result.error).toBeUndefined();
+        expect(result.status, result.stderr).toBe(0);
+        expect(JSON.parse(result.stdout)).toMatchObject({ value: 'apps/frontend/app/src', fileCount: 2 });
     });
 
     it('keeps a manually selected source root through preset changes and registration', async () => {
