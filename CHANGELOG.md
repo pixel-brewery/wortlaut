@@ -1,3 +1,18 @@
+## 0.2.5 (2026-11-05)
+
+### 🩹 Fixes
+
+- **desktop:** refine onboarding and locale selection ([#46](https://github.com/pixel-brewery/wortlaut/pull/46))
+- **inspector:** keep source metadata inside selected repository ([e40bfe8](https://github.com/pixel-brewery/wortlaut/commit/e40bfe8))
+- **inspector:** skip special files in Nx source metadata ([8d32eeb](https://github.com/pixel-brewery/wortlaut/commit/8d32eeb))
+- **locales:** remove setup suggestions and add Reicon flags ([97ec74f](https://github.com/pixel-brewery/wortlaut/commit/97ec74f))
+- **onboarding:** redesign native setup and restore language selection ([a7c558b](https://github.com/pixel-brewery/wortlaut/commit/a7c558b))
+
+### ❤️ Thank You
+
+- André Wehlert @RueDeRennes
+- RueDeRennes @RueDeRennes
+
 ## 0.2.4 (2026-11-04)
 
 ### 🩹 Fixes

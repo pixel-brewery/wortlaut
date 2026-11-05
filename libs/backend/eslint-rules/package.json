@@ -1,7 +1,7 @@
 {
   "name": "@pixel-brewery/wortlaut-eslint-rules",
   "description": "Wortlaut for ESLint: the rules that check translation catalogs while linting",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "license": "MIT",
   "author": "Pixel Brewery (https://github.com/pixel-brewery)",
   "repository": {
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@pixel-brewery/utilities": "0.1.187",
-    "@pixel-brewery/wortlaut-core": "0.2.4",
+    "@pixel-brewery/wortlaut-core": "0.2.5",
     "tslib": "2.8.1"
   },
   "peerDependencies": {
