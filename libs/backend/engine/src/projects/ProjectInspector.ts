@@ -330,7 +330,13 @@ export class ProjectInspector {
      */
     private declaredSourceRoot(file: string, workspaceRoot: string, folder: string): string | null {
         try {
-            const metadata = JSON.parse(readFileSync(file, 'utf8')) as { sourceRoot?: unknown };
+            const metadataFile = realpathSync(file);
+
+            if (!PathResolver.isInside(realpathSync(folder), metadataFile)) {
+                return null;
+            }
+
+            const metadata = JSON.parse(readFileSync(metadataFile, 'utf8')) as { sourceRoot?: unknown };
 
             if (typeof metadata.sourceRoot !== 'string' || !metadata.sourceRoot) {
                 return null;

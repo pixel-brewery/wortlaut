@@ -1,6 +1,6 @@
 // #region Imports
 
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { ILogger } from '@pixel-brewery/utilities';
@@ -64,6 +64,39 @@ describe('ProjectInspector', () => {
         writeFileSync(join(root, 'elsewhere', 'Secret.ts'), 'export const secret = true;');
 
         expect(engine.inspector.inspect(repository).inspection.sourceRoot.value).toBe('apps/frontend/app/src');
+    });
+
+    it('ignores Nx source metadata linked outside the selected repository', () => {
+        // arrange
+        const metadata = join(repository, 'apps/frontend/app/project.json');
+        const outside = join(root, 'external-project.json');
+
+        writeFileSync(outside, JSON.stringify({ sourceRoot: 'libs/backend/core/src' }));
+        rmSync(metadata);
+        symlinkSync(outside, metadata, 'file');
+
+        // act
+        const { inspection } = engine.inspector.inspect(repository);
+
+        // assert
+        expect(inspection.sourceRoot).toMatchObject({ value: 'apps/frontend/app/src', fileCount: 2 });
+    });
+
+    it('uses a declared custom source root from metadata linked inside the selected repository', () => {
+        // arrange
+        const metadata = join(repository, 'apps/frontend/app/project.json');
+        const target = join(repository, '.metadata/project.json');
+
+        write('.metadata/project.json', { sourceRoot: 'client/application' });
+        write('client/application/Main.ts', 'export const client = true;');
+        rmSync(metadata);
+        symlinkSync(target, metadata, 'file');
+
+        // act
+        const { inspection } = engine.inspector.inspect(repository);
+
+        // assert
+        expect(inspection.sourceRoot).toMatchObject({ value: 'client/application', fileCount: 1 });
     });
 
     it('keeps a manually selected source root through preset changes and registration', async () => {
