@@ -12,7 +12,7 @@ import { SearchBoxComponent } from '@pixel-brewery/mosaik-elements-angular/compo
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { ProgressBarComponent } from '@pixel-brewery/mosaik-elements-angular/components/progress-bar';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, LocaleLabelComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { ProjectsViewPresenter } from '../view-presenters/ProjectsViewPresenter';
 
 // #endregion
@@ -35,6 +35,7 @@ import { ProjectsViewPresenter } from '../view-presenters/ProjectsViewPresenter'
         FormFieldDirective,
         ProgressBarComponent,
         LoadingStateComponent,
+        LocaleLabelComponent,
         MessageComponent,
         SearchBoxComponent,
         SegmentComponent,

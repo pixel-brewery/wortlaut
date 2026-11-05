@@ -1,6 +1,7 @@
 // #region Imports
 
 import type { Surface } from '@pixel-brewery/wortlaut-contracts';
+import { CONTENT_LANGUAGE_NAMES } from '../locales/ContentLanguageNames';
 
 // #endregion
 
@@ -18,10 +19,20 @@ const FORMATS: Readonly<Record<string, string>> = { json: 'JSON', resx: 'RESX', 
  * @returns Its name, or the code when it has none.
  */
 export function localeName(code: string): string {
+    const normalizedCode = code.replace('_', '-');
+    const languageCode = code.toLowerCase();
+    const fallbackName = Object.hasOwn(CONTENT_LANGUAGE_NAMES, languageCode)
+        ? CONTENT_LANGUAGE_NAMES[languageCode as keyof typeof CONTENT_LANGUAGE_NAMES]
+        : null;
+
     try {
-        return LANGUAGE_NAMES.of(code.replace('_', '-')) ?? code;
+        const name = LANGUAGE_NAMES.of(normalizedCode);
+
+        return !name || name.toLowerCase() === normalizedCode.toLowerCase()
+            ? fallbackName ?? name ?? code
+            : name;
     } catch {
-        return code;
+        return fallbackName ?? code;
     }
 }
 

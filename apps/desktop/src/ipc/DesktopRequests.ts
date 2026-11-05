@@ -355,16 +355,18 @@ export function createDesktopRequests(init: IDesktopRequestsInit): IpcHandlers {
 
             return { next: projects.length === 1 ? 'overview' : 'projects' };
         },
-        'project.inspectFolder': ({ folderToken, catalogFolderTokens, preset }) => engine.inspector.inspect(
+        'project.inspectFolder': ({ folderToken, catalogFolderTokens, preset, sourceRootToken }) => engine.inspector.inspect(
             grants.resolve(folderToken),
             catalogFolderTokens.map((token) => grants.resolveInside(token, folderToken)),
-            preset
+            preset,
+            sourceRootToken ? grants.resolveInside(sourceRootToken, folderToken) : null
         ).inspection,
-        'project.register': async ({ folderToken, catalogFolderTokens, workspace, preset, baseLocale, targetLocales }) => {
+        'project.register': async ({ folderToken, catalogFolderTokens, workspace, preset, baseLocale, targetLocales, sourceRootToken }) => {
             const inspection = engine.inspector.inspect(
                 grants.resolve(folderToken),
                 catalogFolderTokens.map((token) => grants.resolveInside(token, folderToken)),
-                preset
+                preset,
+                sourceRootToken ? grants.resolveInside(sourceRootToken, folderToken) : null
             );
             const registered = engine.workspaces.register({ inspection, workspace, preset, baseLocale, targetLocales });
 

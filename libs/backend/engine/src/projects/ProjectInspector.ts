@@ -1,11 +1,12 @@
 // #region Imports
 
-import { existsSync, readFileSync } from 'node:fs';
+import { closeSync, constants, existsSync, fstatSync, openSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import type { IFileSystem } from '@pixel-brewery/utilities';
 import { PresetSchema, type DiscoveredLocale, type ProjectInspection, type ProjectOptions, type WorkspaceRecord } from '@pixel-brewery/wortlaut-contracts';
 import { Presets, type ResourceMode } from '@pixel-brewery/wortlaut-core';
 import { ConfigurationResolver, type IResolvedConfiguration } from '../configuration/ConfigurationResolver.js';
+import { EngineError } from '../errors/EngineError.js';
 import { QUIET_LOGGER } from '../io/QuietLogger.js';
 import { DisplayPath } from '../paths/DisplayPath.js';
 import { PathResolver } from '../paths/PathResolver.js';
@@ -90,10 +91,11 @@ export class ProjectInspector {
      * @param folder The absolute path of the folder.
      * @param catalogFolders Further folders with catalogs, which must lie below it.
      * @param preset The preset the user picked, or `null` to infer it.
+     * @param sourceRoot A source folder the user chose inside the project, or `null` to infer it. Existing configuration takes precedence.
      * @returns What the folder holds.
      * @throws EngineError when a configuration file of the repository is invalid.
      */
-    public inspect(folder: string, catalogFolders: ReadonlyArray<string> = [], preset: string | null = null): IProjectInspectionResult {
+    public inspect(folder: string, catalogFolders: ReadonlyArray<string> = [], preset: string | null = null, sourceRoot: string | null = null): IProjectInspectionResult {
         const configuration = this._resolver.resolve({ cwd: folder });
         const configured = this.describeConfiguration(configuration);
         const content = walkRepository(folder);
@@ -104,7 +106,7 @@ export class ProjectInspector {
         const extraFiles = catalogFolders.flatMap((extra) => walkRepository(extra).files);
         const catalogs = this.mergeFolders(this._scanner.scan(catalogFiles), this._scanner.scan(extraFiles));
         const presetResult = this.inferPreset(configuration, configured?.file ?? null, content.files, folder, preset);
-        const sourceRoot = this.inferSourceRoot(configuration, configured?.file ?? null, content.files, catalogs, folder, presetResult.value);
+        const source = this.inferSourceRoot(configuration, configured?.file ?? null, content.files, catalogs, folder, presetResult.value, sourceRoot);
         const locales = this.collectLocales(catalogs);
         const baseLocale = this.chooseBaseLocale(configuration, configured !== null, locales);
         const prefix = this.inferPrefix(configuration, configured?.file ?? null, catalogs, baseLocale);
@@ -113,13 +115,13 @@ export class ProjectInspector {
             folder,
             configuration,
             catalogs,
-            sourceRoot: sourceRoot.path,
+            sourceRoot: source.path,
             inspection: {
                 name: this.readProjectName(folder),
                 displayPath: DisplayPath.of(folder, this._home),
                 configuration: configured ? { kind: configured.kind, file: configured.file } : null,
                 preset: presetResult,
-                sourceRoot: { value: sourceRoot.path ? DisplayPath.relativeTo(folder, sourceRoot.path) : '', fileCount: sourceRoot.fileCount, evidence: sourceRoot.evidence },
+                sourceRoot: { value: source.path ? DisplayPath.relativeTo(folder, source.path) : '', fileCount: source.fileCount, evidence: source.evidence },
                 prefix,
                 catalogs: catalogs.map((catalog) => ({
                     folder: DisplayPath.relativeTo(folder, catalog.folder),
@@ -156,7 +158,7 @@ export class ProjectInspector {
                 detect: {
                     languages: [baseLocale, ...targetLocales],
                     root: result.sourceRoot ? relative(result.folder, result.sourceRoot).split(sep)
-                        .join('/') : '',
+                        .join('/') || '.' : '',
                     ...resourceRoots.length === 0 ? {} : { resourceRoot: resourceRoots.length === 1 ? resourceRoots[0] : resourceRoots },
                     preset: validPreset.success ? validPreset.data : '',
                     type: result.catalogs[0]?.format ?? 'json',
@@ -206,10 +208,8 @@ export class ProjectInspector {
             return { value: configured.data, evidence: `Set in ${configuredFile}` };
         }
 
-        const manifests = [join(folder, 'package.json'), ...files.filter((file) => basename(file) === 'package.json' && file !== join(folder, 'package.json'))];
-
         for (const [preset, packageName] of PRESET_PACKAGES) {
-            const manifest = manifests.find((file) => this.readDependencies(file).has(packageName));
+            const manifest = this.frameworkManifests(preset, files, folder)[0];
 
             if (manifest) {
                 return { value: preset, evidence: `Found ${packageName} in ${DisplayPath.relativeTo(folder, manifest)}` };
@@ -217,6 +217,19 @@ export class ProjectInspector {
         }
 
         return { value: null, evidence: 'No framework dependency found in package.json' };
+    }
+
+    /**
+     * Keeps framework evidence tied to its package rather than to unrelated TypeScript elsewhere in a workspace.
+     *
+     * @private
+     */
+    private frameworkManifests(preset: string, files: ReadonlyArray<string>, folder: string): Array<string> {
+        const packageName = PRESET_PACKAGES.find(([candidate]) => candidate === preset)?.[1];
+        const rootManifest = join(folder, 'package.json');
+        const manifests = [rootManifest, ...files.filter((file) => basename(file) === 'package.json' && file !== rootManifest)];
+
+        return packageName ? manifests.filter((file) => this.readDependencies(file).has(packageName)) : [];
     }
 
     /**
@@ -235,20 +248,64 @@ export class ProjectInspector {
     /**
      * @private
      */
-    private inferSourceRoot(configuration: IResolvedConfiguration, configuredFile: string | null, files: ReadonlyArray<string>, catalogs: ReadonlyArray<ICatalogFolder>, folder: string, preset: string | null): { path: string; fileCount: number; evidence: string } {
+    private inferSourceRoot(configuration: IResolvedConfiguration, configuredFile: string | null, files: ReadonlyArray<string>, catalogs: ReadonlyArray<ICatalogFolder>, folder: string, preset: string | null, chosen: string | null): { path: string; fileCount: number; evidence: string } {
         const extensions = preset ? Presets.get(QUIET_LOGGER, preset).getExtensions() : [];
         const sources = files
             .filter((file) => extensions.some((extension) => file.endsWith(extension)) && !TEST_FILE.test(file))
             .filter((file) => !catalogs.some((catalog) => PathResolver.isInside(catalog.folder, file)));
 
-        if (configuredFile && configuration.root) {
-            const fileCount = sources.filter((file) => PathResolver.isInside(configuration.root, file)).length;
+        if (configuredFile) {
+            const fileCount = configuration.root ? sources.filter((file) => PathResolver.isInside(configuration.root, file)).length : 0;
 
-            return { path: configuration.root, fileCount, evidence: `${this.countText(fileCount)}, set in ${configuredFile}` };
+            return { path: configuration.root, fileCount, evidence: configuration.root ? `${this.countText(fileCount)}, set in ${configuredFile}` : `No source root set in ${configuredFile}` };
+        }
+
+        if (chosen && !configuredFile) {
+            let path: string;
+
+            try {
+                path = realpathSync(chosen);
+
+                if (!statSync(path).isDirectory() || !PathResolver.isInside(realpathSync(folder), path)) {
+                    throw new Error('Outside the project');
+                }
+            } catch {
+                throw new EngineError('invalid-arguments', 'Choose an existing source folder inside the project.');
+            }
+
+            const fileCount = sources.filter((file) => PathResolver.isInside(path, file)).length;
+
+            return { path, fileCount, evidence: `${this.countText(fileCount)}, chosen by you` };
         }
 
         if (!preset) {
             return { path: '', fileCount: 0, evidence: 'Choose a framework preset to find the sources' };
+        }
+
+        const manifests = this.frameworkManifests(preset, files, folder);
+
+        for (const manifest of manifests) {
+            const projectFolder = dirname(manifest);
+            const declared = this.declaredSourceRoot(join(projectFolder, 'project.json'), configuration.workspaceRoot, folder);
+            const candidates = [...declared ? [declared] : [], join(projectFolder, 'src')];
+
+            for (const candidate of candidates) {
+                const fileCount = sources.filter((file) => PathResolver.isInside(candidate, file)).length;
+
+                if (fileCount > 0) {
+                    return { path: candidate, fileCount, evidence: this.countText(fileCount) };
+                }
+            }
+        }
+
+        // A framework package with a custom layout is still the scope; a larger backend `src` is not stronger evidence.
+        if (manifests.length > 0) {
+            const path = dirname(manifests[0]);
+            const fileCount = sources.filter((file) => PathResolver.isInside(path, file)).length;
+
+            return fileCount > 0
+                ? { path, fileCount, evidence: this.countText(fileCount) }
+                : { path: '', fileCount: 0, evidence: 'No matching files' };
         }
 
         const counts = new Map<string, number>();
@@ -264,6 +321,46 @@ export class ProjectInspector {
         return best
             ? { path: best[0], fileCount: best[1], evidence: this.countText(best[1]) }
             : { path: '', fileCount: 0, evidence: 'No matching files' };
+    }
+
+    /**
+     * Reads Nx's workspace-relative source root from a regular file inside the selected repository.
+     *
+     * @private
+     */
+    private declaredSourceRoot(file: string, workspaceRoot: string, folder: string): string | null {
+        let descriptor: number | null = null;
+
+        try {
+            const metadataFile = realpathSync(file);
+
+            if (!PathResolver.isInside(realpathSync(folder), metadataFile)) {
+                return null;
+            }
+
+            // Open without waiting for a writer if the metadata path is a named pipe.
+            descriptor = openSync(metadataFile, constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW);
+
+            if (!fstatSync(descriptor).isFile()) {
+                return null;
+            }
+
+            const metadata = JSON.parse(readFileSync(descriptor, 'utf8')) as { sourceRoot?: unknown };
+
+            if (typeof metadata.sourceRoot !== 'string' || !metadata.sourceRoot) {
+                return null;
+            }
+
+            const path = resolve(workspaceRoot, metadata.sourceRoot);
+
+            return PathResolver.isInside(folder, path) && PathResolver.isInside(PathResolver.realPathOf(folder), PathResolver.realPathOf(path)) ? path : null;
+        } catch {
+            return null;
+        } finally {
+            if (descriptor !== null) {
+                closeSync(descriptor);
+            }
+        }
     }
 
     /**

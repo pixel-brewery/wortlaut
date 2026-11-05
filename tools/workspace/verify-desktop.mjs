@@ -4,10 +4,10 @@
 // #region Imports
 
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
+import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,7 +31,7 @@ delete environment.ELECTRON_RUN_AS_NODE;
  * The views of the app, and what each one has to show for the temporary project.
  */
 const VIEWS = [
-    ['workspaces', 'Workspaces', 'A workspace holds'],
+    ['workspaces', 'Workspaces', 'Your workspaces'],
     ['projects', 'Projects', 'demo'],
     ['overview', 'Overview', 'namespaces in'],
     ['translations', 'Translations', 'loc.hello'],
@@ -74,6 +74,7 @@ function seed() {
         const { workspaceId } = engine.workspaces.create({ name: 'Demo', code: 'DM', color: 'blue', repository: ${JSON.stringify(project)} });
         const inspection = engine.inspector.inspect(${JSON.stringify(project)}, [], null);
         const { projectId } = engine.workspaces.register({ inspection, workspace: { kind: 'existing', id: workspaceId }, preset: null, baseLocale: 'en', targetLocales: ['de'] });
+        for (let index = 1; index <= 3; index++) engine.workspaces.create({ name: 'Additional workspace ' + index, code: 'A' + index, color: 'violet', repository: ${JSON.stringify(project)} });
         console.log(JSON.stringify({ workspaceId, projectId }));
     `;
     const result = spawnSync(process.execPath, ['-e', script], { cwd: root, encoding: 'utf8', env: environment });
@@ -199,6 +200,157 @@ const readView = `(() => {
     };
 })()`;
 
+/** Uses actual pointer input rather than invoking a control's handlers. */
+async function controlPoint(expression) {
+    const point = await evaluate(`(() => {
+        const element = ${expression};
+        if (!element) return null;
+        element.scrollIntoView({ block: 'nearest' });
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 ? { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 } : null;
+    })()`);
+
+    if (!point) {
+        throw new Error(`The expected control is not visible: ${expression}`);
+    }
+
+    return point;
+}
+
+async function clickControl(expression) {
+    const point = await controlPoint(expression);
+
+    await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...point, button: 'left', clickCount: 1 });
+    await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...point, button: 'left', clickCount: 1 });
+}
+
+/** Proves that wheel input over a card reaches its outer list and that slot dividers span it. */
+async function exerciseWorkspaceScrolling(workspaceId) {
+    await evaluate(`location.hash = '#/workspaces'; 0`);
+
+    const cardSelector = `[test-id="workspace-card-${workspaceId}"] mosaik-card`;
+
+    if (!await until(`document.querySelector(${JSON.stringify(cardSelector)}) !== null`, 30_000)) {
+        throw new Error('The workspace card is not mounted for the wheel-input check.');
+    }
+
+    const combinations = [];
+
+    for (const [width, height] of [[1440, 900], [960, 640]]) {
+        await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
+
+        for (const mode of ['light', 'dark']) {
+            await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: mode }] });
+
+            if (!await until(`document.documentElement.getAttribute('theme-mode') === ${JSON.stringify(mode)} && document.querySelector('.cards')?.scrollHeight > document.querySelector('.cards')?.clientHeight`, 15_000)) {
+                throw new Error(`The ${width}×${height} ${mode} list is not ready for its scroll check.`);
+            }
+
+            const point = await controlPoint(`document.querySelector(${JSON.stringify(cardSelector)})?.querySelector('.workspace-card')`);
+            const before = await evaluate(`({ list: document.querySelector('.cards').scrollTop, body: document.documentElement.scrollTop, form: document.querySelector('.new-workspace mosaik-card').shadowRoot.querySelector('[part="content"]').scrollTop })`);
+
+            await send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...point });
+            await send('Input.dispatchMouseEvent', { type: 'mouseWheel', ...point, deltaX: 0, deltaY: 180 });
+
+            if (!await until(`document.querySelector('.cards').scrollTop > ${before.list}`, 15_000)) {
+                throw new Error(`Wheel input over card content did not scroll its outer list at ${width}×${height} ${mode}.`);
+            }
+
+            const geometry = await evaluate(`(() => {
+                const card = document.querySelector(${JSON.stringify(cardSelector)});
+                const footer = card.querySelector('.workspace-card-actions');
+                const creation = document.querySelector('.create-footer');
+                return { cardWidth: card.getBoundingClientRect().width, footerWidth: footer.getBoundingClientRect().width, creationWidth: creation.getBoundingClientRect().width, creationCardWidth: creation.closest('mosaik-card').getBoundingClientRect().width, body: document.documentElement.scrollTop, form: document.querySelector('.new-workspace mosaik-card').shadowRoot.querySelector('[part="content"]').scrollTop };
+            })()`);
+
+            if (geometry.body !== before.body || geometry.form !== before.form) {
+                throw new Error('Scrolling the workspace list also moved the page or the independent creation form.');
+            }
+
+            if (geometry.footerWidth < geometry.cardWidth - 4 || geometry.creationWidth < geometry.creationCardWidth - 4) {
+                throw new Error(`A workspace card divider ends at content width: ${JSON.stringify(geometry)}`);
+            }
+
+            combinations.push({ width, height, mode, outerListMoved: true, otherOwnersStable: true, dividersFullWidth: true });
+        }
+    }
+
+    await send('Emulation.clearDeviceMetricsOverride');
+    evidence.workspaceScrolling = combinations;
+}
+
+/** A completed hold must still require a separate positive confirmation. */
+async function exerciseWorkspaceRemoval(workspaceId) {
+    await evaluate(`location.hash = '#/workspaces'; 0`);
+
+    const selector = `[test-id="workspace-remove-${workspaceId}"]`;
+    const trigger = `document.querySelector(${JSON.stringify(selector)})`;
+    const modal = 'document.querySelector(\'[test-id="workspace-remove-confirmation"]\')';
+
+    if (!await until(`${trigger} !== null`, 30_000)) {
+        throw new Error('The saved workspace has no hold-to-remove action.');
+    }
+
+    await clickControl(trigger);
+
+    if (await evaluate(`${modal} !== null`)) {
+        throw new Error('A short click opened removal confirmation without a completed hold.');
+    }
+
+    const catalogPath = join(project, 'i18n/lang.en.json');
+    const originalCatalog = readFileSync(catalogPath, 'utf8');
+
+    async function holdForConfirmation() {
+        const point = await controlPoint(trigger);
+
+        await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...point, button: 'left', clickCount: 1 });
+
+        try {
+            if (!await until(`${modal}?.isOpen === true`, 15_000)) {
+                throw new Error('A complete hold did not open the removal confirmation.');
+            }
+        } finally {
+            await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...point, button: 'left', clickCount: 1 });
+        }
+    }
+
+    await holdForConfirmation();
+
+    if (!await evaluate(`window.wortlaut.request('workspace.list', {}).then(items => items.some(item => item.id === ${JSON.stringify(workspaceId)}))`)) {
+        throw new Error('A completed hold removed the workspace before confirmation.');
+    }
+
+    await clickControl(`${modal}.shadowRoot.querySelector('[part~="cancel"]')`);
+
+    if (!await until(`${modal} === null && ${trigger}?.disabled === false`, 15_000)) {
+        throw new Error('Cancelling removal did not return to the workspace.');
+    }
+
+    if (!await evaluate(`window.wortlaut.request('workspace.list', {}).then(items => items.some(item => item.id === ${JSON.stringify(workspaceId)}))`)) {
+        throw new Error('Cancelling removal deleted the workspace.');
+    }
+
+    await holdForConfirmation();
+    await clickControl(`${modal}.shadowRoot.querySelector('[part~="ok"]')`);
+
+    if (!await until(`${modal} === null && ${trigger} === null`, 15_000)) {
+        throw new Error('Confirmed removal did not remove the workspace card.');
+    }
+
+    const state = await evaluate(`window.wortlaut.request('shell.state', {})`);
+    const remaining = await evaluate(`window.wortlaut.request('workspace.list', {})`);
+
+    if (remaining.some((item) => item.id === workspaceId) || state.workspace !== null || state.project !== null) {
+        throw new Error('Confirmed removal left a workspace or project selected.');
+    }
+
+    if (readFileSync(catalogPath, 'utf8') !== originalCatalog) {
+        throw new Error('Removing a saved workspace changed repository data.');
+    }
+
+    evidence.workspaceRemoval = { shortClickSafe: true, holdRequiresConfirmation: true, cancelSafe: true, confirmed: true, repositoryUnchanged: true };
+}
+
 async function exercise({ workspaceId, projectId }) {
     await until(`document.querySelector('main, mosaik-theme2') !== null`, 30_000);
 
@@ -274,6 +426,9 @@ async function exercise({ workspaceId, projectId }) {
     if (await until(`(document.querySelector('main') ?? document.body).innerText.includes('Hallo')`, 30_000) !== true) {
         failures.push('Translations does not show the value of the catalog.');
     }
+
+    await exerciseWorkspaceScrolling(workspaceId);
+    await exerciseWorkspaceRemoval(workspaceId);
 }
 
 mkdirSync(evidenceDirectory, { recursive: true });

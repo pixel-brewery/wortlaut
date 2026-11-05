@@ -1,6 +1,6 @@
 // #region Imports
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { countOf, formatCount, formatDuration, formatInstant, formatName, localeList, localeName, presetName, surfaceName } from './Format';
 
 // #endregion
@@ -10,6 +10,45 @@ describe('Format', () => {
         expect(localeName('de')).toBe('German');
         expect(localeName('pt_BR')).toBe('Brazilian Portuguese');
         expect(localeName('!!')).toBe('!!');
+    });
+
+    it('names offered languages when the runtime only returns their codes', () => {
+        const names = vi.spyOn(Intl.DisplayNames.prototype, 'of').mockImplementation((code) => code);
+
+        try {
+            expect(localeName('aa')).toBe('Afar');
+            expect(localeName('ab')).toBe('Abkhazian');
+            expect(localeName('ae')).toBe('Avestan');
+            expect(localeName('pt_BR')).toBe('pt-BR');
+            expect(localeName('zz')).toBe('zz');
+            expect(localeName('custom')).toBe('custom');
+        } finally {
+            names.mockRestore();
+        }
+    });
+
+    it('uses the portable language name when the runtime rejects a code', () => {
+        const names = vi.spyOn(Intl.DisplayNames.prototype, 'of').mockImplementation(() => { throw new RangeError('No display-name data'); });
+
+        try {
+            expect(localeName('aa')).toBe('Afar');
+            expect(localeName('ab')).toBe('Abkhazian');
+            expect(localeName('ae')).toBe('Avestan');
+            expect(localeName('pt_BR')).toBe('pt_BR');
+            expect(localeName('!!')).toBe('!!');
+        } finally {
+            names.mockRestore();
+        }
+    });
+
+    it('prefers the display name supplied by the runtime', () => {
+        const names = vi.spyOn(Intl.DisplayNames.prototype, 'of').mockReturnValue('Runtime language name');
+
+        try {
+            expect(localeName('aa')).toBe('Runtime language name');
+        } finally {
+            names.mockRestore();
+        }
     });
 
     it('writes locales as a sentence', () => {

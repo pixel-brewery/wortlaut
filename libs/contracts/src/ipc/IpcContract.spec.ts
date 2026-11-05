@@ -21,6 +21,19 @@ describe('IPC_CONTRACT', () => {
         expect(IPC_CONTRACT['project.summary'].request.safeParse({ projectId: 'a', file: '/etc/passwd' }).success).toBe(false);
     });
 
+    it('accepts source root selection tokens for inspection and registration while refusing paths', () => {
+        const inspect = { folderToken: TOKEN, catalogFolderTokens: [], preset: 'angular' };
+        const register = { ...inspect, workspace: { kind: 'new', name: 'Shop', code: 'SH', color: 'teal' }, baseLocale: 'en', targetLocales: ['de'] };
+
+        for (const [schema, request] of [[IPC_CONTRACT['project.inspectFolder'].request, inspect], [IPC_CONTRACT['project.register'].request, register]] as const) {
+            expect(schema.safeParse({ ...request, sourceRootToken: TOKEN }).success).toBe(true);
+            expect(schema.safeParse({ ...request, sourceRootToken: null }).success).toBe(true);
+            expect(schema.safeParse(request).success).toBe(true);
+            expect(schema.safeParse({ ...request, sourceRootToken: '/etc' }).success).toBe(false);
+            expect(schema.safeParse({ ...request, sourceRoot: '../backend' }).success).toBe(false);
+        }
+    });
+
     it('names the folder of a rule pack only by a token', () => {
         const check = IPC_CONTRACT['rulePack.check'].request;
 

@@ -120,7 +120,13 @@
                           <mosaik-table-body-cell><mosaik-button appearance="plain" size="small" [label]="row.name" [attr.test-id]="'open-project-' + row.id" (click)="presenter.open(row.id)" /></mosaik-table-body-cell>
                           <mosaik-table-body-cell><code class="small muted">{{ row.folder }}</code></mosaik-table-body-cell>
                           <mosaik-table-body-cell [text]="presenter.keysOf(row)" />
-                          <mosaik-table-body-cell [text]="row.locales.join(', ')" />
+                          <mosaik-table-body-cell>
+                            <div class="locale-list">
+                              @for (locale of row.locales; track locale) {
+                                <wortlaut-locale-label [code]="locale" [label]="locale" />
+                              }
+                            </div>
+                          </mosaik-table-body-cell>
                           <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="presenter.stateOf(row).label" [variant]="presenter.stateOf(row).variant" /></mosaik-table-body-cell>
                         </mosaik-table-body-row>
                       }

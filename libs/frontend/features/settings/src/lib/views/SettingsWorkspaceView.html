@@ -76,7 +76,13 @@
       <div slot="content" class="card-body">
         <div class="field-row">
           <div class="field-label"><span>Base locale</span></div>
-          <div class="field-control"><mosaik-textbox aria-label="Base locale" placeholder="For example en" [formField]="presenter.form.baseLocale" /></div>
+          <div class="field-control">
+            <mosaik-textbox aria-label="Base locale" placeholder="For example en" [formField]="presenter.form.baseLocale">
+              @if (presenter.form.baseLocale().value() | localeFlag; as flag) {
+                <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
+              }
+            </mosaik-textbox>
+          </div>
         </div>
         <div class="field-row">
           <div class="field-label"><span>Target locales</span><span class="note">Separated by commas.</span></div>

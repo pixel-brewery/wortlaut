@@ -3,7 +3,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import type { WorkspaceCard } from '@pixel-brewery/wortlaut-contracts';
-import { DesktopApi } from '@pixel-brewery/wortlaut-frontend-core';
+import { DesktopApi, ShellSession } from '@pixel-brewery/wortlaut-frontend-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { WorkspacesViewPresenter } from './WorkspacesViewPresenter';
 
@@ -15,12 +15,13 @@ const CARD: WorkspaceCard = { id: 'w1', code: 'AC', color: 'teal', name: 'Acme',
 function setUp(request: (method: string, payload: unknown) => Promise<unknown>) {
     const navigate = vi.fn(() => Promise.resolve(true));
     const api = { request: vi.fn(request) };
+    const refresh = vi.fn(() => Promise.resolve(null));
 
     TestBed.configureTestingModule({
-        providers: [WorkspacesViewPresenter, { provide: DesktopApi, useValue: api }, { provide: Router, useValue: { navigate } }]
+        providers: [WorkspacesViewPresenter, { provide: DesktopApi, useValue: api }, { provide: Router, useValue: { navigate } }, { provide: ShellSession, useValue: { refresh } }]
     });
 
-    return { presenter: TestBed.inject(WorkspacesViewPresenter), navigate, api };
+    return { presenter: TestBed.inject(WorkspacesViewPresenter), navigate, api, refresh };
 }
 
 describe('WorkspacesViewPresenter', () => {
@@ -161,5 +162,103 @@ describe('WorkspacesViewPresenter', () => {
         presenter.pickColor('green');
 
         expect(presenter.colors().filter((color) => color.isChecked).map((color) => color.id)).toEqual(['green']);
+    });
+
+    it('creates with a normalized custom color and preserves it when the editor sends an incomplete value', async () => {
+        const { presenter, api } = setUp((method) => Promise.resolve(method === 'dialog.chooseFolder' ? { folder: FOLDER } : { workspaceId: 'w9', discovered: 0, next: 'setup' }));
+        presenter.form.name().value.set('Custom workspace');
+        await presenter.chooseFolder();
+
+        presenter.pickCustomColor('#aB12ef');
+        presenter.pickCustomColor('#ab');
+        await presenter.create();
+
+        expect(presenter.colorValue()).toBe('#AB12EF');
+        expect(presenter.colors().some((color) => color.isChecked)).toBe(false);
+        expect(api.request).toHaveBeenCalledWith('workspace.create', { name: 'Custom workspace', code: 'CW', color: '#AB12EF', folderToken: FOLDER.token });
+    });
+
+    it.each(['rgb(171 205 239)', 'rgb(171, 205, 239)'])('persists actual Mosaik editor output %s as opaque RGB hex', async (value) => {
+        const { presenter, api } = setUp((method) => Promise.resolve(method === 'dialog.chooseFolder' ? { folder: FOLDER } : { workspaceId: 'w9', discovered: 0, next: 'setup' }));
+        presenter.form.name().value.set('Custom workspace');
+        await presenter.chooseFolder();
+
+        presenter.pickCustomColor(value);
+        presenter.pickCustomColor('rgb(171 205 239 / 0.5)');
+        await presenter.create();
+
+        expect(presenter.colorValue()).toBe('#ABCDEF');
+        expect(api.request).toHaveBeenCalledWith('workspace.create', { name: 'Custom workspace', code: 'CW', color: '#ABCDEF', folderToken: FOLDER.token });
+    });
+
+    it('opens a removal confirmation for one captured workspace and cancellation leaves every entry', async () => {
+        const other = { ...CARD, id: 'w2', name: 'Other' };
+        const { presenter, api } = setUp(() => Promise.resolve([CARD, other]));
+        await presenter.workspaces.reload();
+
+        presenter.requestRemoval(CARD.id);
+        presenter.requestRemoval(other.id);
+        expect(presenter.removalTarget()).toEqual({ id: CARD.id, name: CARD.name });
+        await presenter.resolveRemoval('cancel');
+
+        expect(presenter.removalTarget()).toBeNull();
+        expect(presenter.workspaces.value()).toEqual([CARD, other]);
+        expect(api.request).not.toHaveBeenCalledWith('workspace.remove', expect.anything());
+    });
+
+    it('removes the captured ID once after explicit confirmation and refreshes list and active shell state', async () => {
+        const other = { ...CARD, id: 'w2', name: 'Other' };
+        let finishRemoval: (() => void) | undefined;
+        let removed = false;
+        const { presenter, api, refresh } = setUp((method) => {
+            if (method === 'workspace.remove') {
+                return new Promise((resolve) => {
+                    finishRemoval = () => { removed = true; resolve({}); };
+                });
+            }
+
+            return Promise.resolve(removed ? [other] : [CARD, other]);
+        });
+        await presenter.workspaces.reload();
+        presenter.requestRemoval(CARD.id);
+
+        const pending = presenter.resolveRemoval('ok');
+        await presenter.resolveRemoval('ok');
+        presenter.requestRemoval(other.id);
+        expect(presenter.removingId()).toBe(CARD.id);
+        expect(presenter.removalTarget()).toBeNull();
+        finishRemoval?.();
+        await pending;
+
+        expect(api.request.mock.calls.filter(([method]) => method === 'workspace.remove')).toEqual([['workspace.remove', { workspaceId: CARD.id }]]);
+        expect(presenter.workspaces.value()).toEqual([other]);
+        expect(refresh).toHaveBeenCalledOnce();
+        expect(presenter.removingId()).toBeNull();
+    });
+
+    it('does not remove an entry for a dismissed dialog or an unknown confirmation target', async () => {
+        const { presenter, api } = setUp(() => Promise.resolve([CARD]));
+        await presenter.workspaces.reload();
+
+        presenter.requestRemoval('unknown');
+        await presenter.resolveRemoval('ok');
+        presenter.requestRemoval(CARD.id);
+        presenter.cancelRemoval();
+        await presenter.resolveRemoval('ok');
+
+        expect(api.request).not.toHaveBeenCalledWith('workspace.remove', expect.anything());
+    });
+
+    it('keeps the entry visible and reports a failed removal without refreshing the shell', async () => {
+        const { presenter, refresh } = setUp((method) => method === 'workspace.remove' ? Promise.reject(new Error('The profile could not be saved.')) : Promise.resolve([CARD]));
+        await presenter.workspaces.reload();
+        presenter.requestRemoval(CARD.id);
+
+        await presenter.resolveRemoval('ok');
+
+        expect(presenter.workspaces.value()).toEqual([CARD]);
+        expect(presenter.message()).toBe('The profile could not be saved.');
+        expect(presenter.removingId()).toBeNull();
+        expect(refresh).not.toHaveBeenCalled();
     });
 });

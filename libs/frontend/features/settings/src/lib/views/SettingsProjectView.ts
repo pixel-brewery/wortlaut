@@ -7,10 +7,11 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { CheckboxComponent } from '@pixel-brewery/mosaik-elements-angular/components/check-box';
 import { ChipComponent } from '@pixel-brewery/mosaik-elements-angular/components/chip';
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
+import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { SettingsProjectViewPresenter } from '../view-presenters/SettingsProjectViewPresenter';
 
 // #endregion
@@ -21,7 +22,7 @@ import { SettingsProjectViewPresenter } from '../view-presenters/SettingsProject
 @Component({
     selector: 'wortlaut-settings-project',
     host: { class: 'page-frame' },
-    imports: [ButtonComponent, CardComponent, CardHeaderComponent, CheckboxComponent, ChipComponent, DryRunNoticeComponent, EmptyStateComponent, FailureStateComponent, FormFieldDirective, LoadingStateComponent, MessageComponent, SelectComponent, SelectItemComponent, TextBoxComponent, WriteResultComponent],
+    imports: [ButtonComponent, CardComponent, CardHeaderComponent, CheckboxComponent, ChipComponent, DryRunNoticeComponent, EmptyStateComponent, FailureStateComponent, FormFieldDirective, IconComponent, LoadingStateComponent, LocaleFlagPipe, MessageComponent, SelectComponent, SelectItemComponent, TextBoxComponent, WriteResultComponent],
     providers: [SettingsProjectViewPresenter],
     templateUrl: './SettingsProjectView.html',
     styleUrl: './SettingsProjectView.scss',

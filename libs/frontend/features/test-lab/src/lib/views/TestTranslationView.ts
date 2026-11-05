@@ -4,12 +4,13 @@ import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angula
 import { FormFieldDirective } from '@pixel-brewery/mosaik-elements-angular';
 import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/components/button';
 import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elements-angular/components/card';
+import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, LocaleLabelComponent, PaneSizeDirective } from '@pixel-brewery/wortlaut-frontend-ui';
 import { TestTranslationViewPresenter } from '../view-presenters/TestTranslationViewPresenter';
 
 // #endregion
@@ -26,7 +27,10 @@ import { TestTranslationViewPresenter } from '../view-presenters/TestTranslation
         CardHeaderComponent,
         FailureStateComponent,
         FormFieldDirective,
+        IconComponent,
         LoadingStateComponent,
+        LocaleFlagPipe,
+        LocaleLabelComponent,
         MessageComponent,
         PaneSizeDirective,
         SelectComponent,

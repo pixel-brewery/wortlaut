@@ -9,12 +9,13 @@ import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elemen
 import { ChipComponent } from '@pixel-brewery/mosaik-elements-angular/components/chip';
 import { ColorSwatchComponent } from '@pixel-brewery/mosaik-elements-angular/components/color-swatch';
 import { DialogActionsComponent, DialogComponent, DialogContentComponent, DialogHeaderComponent, DialogHeaderTextComponent } from '@pixel-brewery/mosaik-elements-angular/components/dialog';
+import { IconComponent } from '@pixel-brewery/mosaik-elements-angular/components/icon';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/segment';
 import { SelectComponent, SelectItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/select';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
-import { FailureStateComponent, LoadingStateComponent, WorkspaceTileComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, WorkspaceTileComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { SettingsWorkspaceViewPresenter } from '../view-presenters/SettingsWorkspaceViewPresenter';
 
 // #endregion
@@ -25,7 +26,7 @@ import { SettingsWorkspaceViewPresenter } from '../view-presenters/SettingsWorks
 @Component({
     selector: 'wortlaut-settings-workspace',
     host: { class: 'page-frame' },
-    imports: [BadgeComponent, ButtonComponent, CardComponent, CardHeaderComponent, ChipComponent, ColorSwatchComponent, DialogActionsComponent, DialogComponent, DialogContentComponent, DialogHeaderComponent, DialogHeaderTextComponent, FailureStateComponent, FormFieldDirective, LoadingStateComponent, MessageComponent, RouterLink, SegmentComponent, SegmentItemComponent, SelectComponent, SelectItemComponent, TextBoxComponent, ToggleSwitchComponent, WorkspaceTileComponent],
+    imports: [BadgeComponent, ButtonComponent, CardComponent, CardHeaderComponent, ChipComponent, ColorSwatchComponent, DialogActionsComponent, DialogComponent, DialogContentComponent, DialogHeaderComponent, DialogHeaderTextComponent, FailureStateComponent, FormFieldDirective, IconComponent, LoadingStateComponent, LocaleFlagPipe, MessageComponent, RouterLink, SegmentComponent, SegmentItemComponent, SelectComponent, SelectItemComponent, TextBoxComponent, ToggleSwitchComponent, WorkspaceTileComponent],
     providers: [SettingsWorkspaceViewPresenter],
     templateUrl: './SettingsWorkspaceView.html',
     styleUrl: './SettingsWorkspaceView.scss',

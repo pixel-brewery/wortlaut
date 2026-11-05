@@ -2,82 +2,116 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  max-width: 1040px;
+  max-width: calc(var(--mosaik-layout-space) * 164);
   margin: 0 auto;
-  padding: calc(var(--mosaik-layout-space) * 4) calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 6);
+  padding: calc(var(--mosaik-layout-space) * 4);
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-columns: calc(var(--mosaik-layout-space) * 32) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  align-items: stretch;
-  gap: calc(var(--mosaik-layout-space) * 4);
+  gap: calc(var(--mosaik-layout-space) * 5);
+}
+
+.setup-rail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  gap: calc(var(--mosaik-layout-space) * 3);
+  padding: calc(var(--mosaik-layout-space) * 3);
+  background: color-mix(in srgb, var(--mosaik-scheme-highlight) 35%, var(--mosaik-scheme-background));
+  border: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
+  border-radius: var(--mosaik-layout-radius);
+}
+
+.rail-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+}
+
+.rail-intro h2 {
+  font: var(--mosaik-typography-h5);
+}
+
+.rail-intro p,
+.rail-note {
+  margin: 0;
+  font: var(--mosaik-typography-caption);
+  color: var(--mosaik-scheme-lowlight);
+}
+
+.eyebrow {
+  font: var(--mosaik-typography-overline);
+  color: var(--mosaik-scheme-lowlight);
 }
 
 .rail {
-  flex: 1 1 200px;
-  padding: 0;
-  list-style: none;
+  min-height: 0;
+  overflow: auto;
+  flex: 0 1 auto;
+  --stepper-vertical-connector-length: calc(var(--mosaik-layout-space) * 2);
+  --stepper-content-gap: 0px;
+}
+
+.rail-project {
+  margin-top: auto;
+  display: flex;
+  gap: var(--mosaik-layout-space);
+  align-items: flex-start;
+  padding-top: calc(var(--mosaik-layout-space) * 2);
+  border-top: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
+  min-width: 0;
+}
+
+.rail-project > div {
   display: flex;
   flex-direction: column;
   gap: calc(var(--mosaik-layout-space) / 2);
-  min-height: 0;
-  overflow: auto;
+  min-width: 0;
 }
 
-.rail-step {
-  display: flex;
-  align-items: center;
-  gap: var(--mosaik-layout-space);
-  min-height: 32px;
-  padding: 0 var(--mosaik-layout-space);
-  border-radius: 6px;
-}
-
-.rail-step.is-current {
-  background: var(--mosaik-color-neutral-100);
+.rail-project strong {
   font: var(--mosaik-typography-subtitle2);
+  overflow-wrap: anywhere;
 }
 
-.rail-mark {
-  width: 20px;
-  height: 20px;
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--mosaik-color-neutral-300);
-  border-radius: 999px;
+.rail-project code {
   color: var(--mosaik-scheme-lowlight);
-  font: var(--mosaik-typography-overline);
-}
-
-.rail-mark.is-reached {
-  border-color: var(--mosaik-color-primary-500);
-  background: var(--mosaik-color-primary-500);
-  color: var(--mosaik-color-primary-0);
+  font: var(--mosaik-typography-caption);
+  font-family: var(--wortlaut-font-mono);
+  overflow-wrap: anywhere;
 }
 
 .content {
-  flex: 999 1 520px;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--mosaik-layout-space) * 2.5);
+  gap: calc(var(--mosaik-layout-space) * 3);
 }
 
 .content > :not(.page-content) {
   flex: none;
 }
 
-.narrow-field {
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
+.page-title {
+  gap: var(--mosaik-layout-space);
 }
 
+.configuration-fields,
+.provider-content,
+.targets,
+.base-language {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 2.5);
+}
+
+.workspace-fields,
 .evidence-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: calc(var(--mosaik-layout-space) * 2);
 }
 
@@ -88,20 +122,51 @@
   min-width: 0;
 }
 
+.source-root-field {
+  grid-column: 1 / -1;
+}
+
+.native-folder::part(browse) {
+  display: none;
+}
+
+.panel-header {
+  display: flex;
+  // Match Mosaik CardHeader's full-width slot contract for these authored header layouts.
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 2.5);
+  border-bottom: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
+}
+
+.panel-header > div {
+  min-width: 0;
+}
+
+.panel-header h2 {
+  font: var(--mosaik-typography-subtitle1);
+}
+
+.panel-header p {
+  margin-top: calc(var(--mosaik-layout-space) / 2);
+}
+
+.catalog-content > mosaik-empty-state {
+  padding: calc(var(--mosaik-layout-space) * 3);
+}
+
 .table-min {
-  min-width: 480px;
+  min-width: calc(var(--mosaik-layout-space) * 60);
   padding: 0 var(--mosaik-layout-space);
 }
 
-.add-folder {
-  display: flex;
-  padding: calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) * 2);
-}
-
-.targets {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--mosaik-layout-space) * 0.75);
+.base-language > mosaik-select {
+  max-width: calc(var(--mosaik-layout-space) * 52);
 }
 
 .field-title {
@@ -109,17 +174,68 @@
 }
 
 .target-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--mosaik-layout-space) * 22), 1fr));
   gap: var(--mosaik-layout-space);
 }
 
 .target {
-  min-width: 120px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: calc(var(--mosaik-layout-space) / 2);
+  gap: var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.5);
+  border: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
+  border-radius: var(--mosaik-layout-radius);
+}
+
+.target.is-selected {
+  background: var(--mosaik-scheme-surface);
+}
+
+.provider-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mosaik-layout-space);
+}
+
+.provider-grid {
+  min-width: 0;
+  width: 100%;
+  --choice-group-gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.provider-grid::part(root) {
+  display: grid;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+}
+
+.local-providers::part(root) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.api-providers::part(root) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.provider-grid mosaik-choice {
+  min-width: 0;
+  width: 100%;
+}
+
+.provider-grid mosaik-choice::part(label) {
+  overflow-wrap: anywhere;
+}
+
+.key-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mosaik-layout-space);
+  max-width: calc(var(--mosaik-layout-space) * 56);
+  padding-top: var(--mosaik-layout-space);
 }
 
 .setup-footer {
@@ -129,24 +245,43 @@
   justify-content: space-between;
   gap: var(--mosaik-layout-space);
   padding-top: calc(var(--mosaik-layout-space) * 2);
-  border-top: 1px solid var(--mosaik-scheme-highlight);
-}
-
-.key-field {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--mosaik-layout-space) * 0.75);
-  max-width: 420px;
-}
-
-.key-label {
-  font: var(--mosaik-typography-subtitle2);
+  border-top: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
 }
 
 @media (max-height: 800px), (max-width: 1200px) {
   .setup {
-    grid-template-columns: 160px minmax(0, 1fr);
+    grid-template-columns: calc(var(--mosaik-layout-space) * 26) minmax(0, 1fr);
+    padding: calc(var(--mosaik-layout-space) * 2);
+    gap: calc(var(--mosaik-layout-space) * 3);
+  }
+
+  .setup-rail {
     padding: calc(var(--mosaik-layout-space) * 2);
     gap: calc(var(--mosaik-layout-space) * 2);
   }
+
+  .rail-intro p,
+  .rail-note {
+    display: none;
+  }
+
+  .content {
+    gap: calc(var(--mosaik-layout-space) * 2);
+  }
+}
+
+@media (max-width: 1000px) {
+  .local-providers::part(root) {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-group-heading {
+    flex-direction: column;
+    gap: calc(var(--mosaik-layout-space) / 2);
+  }
+}
+
+.empty-targets {
+  grid-column: 1 / -1;
+  margin: 0;
 }

@@ -35,11 +35,11 @@
               <mosaik-card-header slot="header" text="What to translate" />
               <div slot="content" class="card-fields">
                 <div class="field">
-                  <span id="targets-label" class="field-label">Target locales, from {{ presenter.baseName() }}</span>
+                  <span id="targets-label" class="field-label">Target locales, from <wortlaut-locale-label [code]="overview.baseLocale" [label]="presenter.baseName()" /></span>
                   <div role="group" aria-labelledby="targets-label" class="targets">
                     @for (target of presenter.targets(); track target.code) {
                       <div class="target">
-                        <mosaik-chip [label]="target.name" [isCheckable]="true" [isChecked]="target.isChecked" (checked)="presenter.setTarget(target.code, true)" (unchecked)="presenter.setTarget(target.code, false)" />
+                        <mosaik-chip class="locale-flag" [icon]="(target.code | localeFlag) ?? ''" [label]="target.name" [isCheckable]="true" [isChecked]="target.isChecked" (checked)="presenter.setTarget(target.code, true)" (unchecked)="presenter.setTarget(target.code, false)" />
                         <span class="note">{{ target.state }}</span>
                       </div>
                     } @empty {

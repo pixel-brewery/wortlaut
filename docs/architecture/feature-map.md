@@ -41,6 +41,10 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - **Long work:** reports progress, can be cancelled, lives in main or a utility process and survives a
   renderer reload.
 - **Paths:** chosen through native dialogs. Main checks that later requests stay inside the chosen roots.
+- **Locale identity:** structured language choices, table headers and locale rows pair their text with
+  decorative Reicon flags from Mosaik. Explicit regional identifiers retain their country; unsupported
+  or non-country regions keep their text without a substitute flag. Catalog IDs, settings and technical
+  output remain unchanged. Country colors stay intrinsic in both app color modes.
 - **Native view frame:** views share a bounded `page-frame` host and a shrinkable `page-content` area.
   Titles, navigation and primary actions stay visible while card bodies, tables or long form stacks
   scroll within their content area. Standalone views keep the native drag strip outside that area.
@@ -135,13 +139,21 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - Step rail: Folder, Catalogs, Locales, AI provider, with done, current and waiting states. Folder is
   done by Welcome or Workspaces. Continue and Back move between steps.
 - Catalogs: choose Add to workspace (existing or New workspace). Framework preset is preselected, with
-  the evidence shown (for example "Found @angular/core in package.json"). Source root and Key prefix
-  are shown with their evidence ("N matching files", "All N keys start with it").
+  the evidence shown (for example "Found @angular/core in package.json"). Source root uses a Mosaik
+  FileBox with a native folder picker restricted to the selected repository. Its inferred default
+  follows the detected framework's package and source metadata, instead of the largest unrelated
+  source tree. Source root and Key prefix show their evidence ("N matching files", "All N keys start
+  with it"). Repository configuration remains authoritative; change its source settings after setup.
 - Catalogs found: table of folder, files, keys, format. Add another folder opens a native dialog.
   No catalogs found is an empty state, and the user can still continue.
-- Locales: choose the base locale. Toggle target locale chips, each marked "Exists, N keys" or "New".
-  A new locale creates no file; Overview shows it as "Not created".
-- AI provider: pick a provider, with its true state (local login found, not installed, with API key).
+- Locales: choose the base locale from the language repertoire or a discovered regional catalog ID.
+  Target cards contain only detected catalogs and explicitly added languages, with no unsolicited
+  default suggestions. Toggle target locale chips, each marked "Exists, N keys" or "New". Plus opens a searchable Mosaik
+  dialog with a repertoire of 184 ISO language codes and portable English names. Confirming adds the checked
+  languages; Cancel or Escape discards the draft. Existing locale IDs are preserved, and the base
+  locale is excluded from targets. A new locale creates no file; Overview shows it as "Not created".
+- AI provider: choose a local assistant or an API connection, with its registered provider icon and
+  true state (local login found, not installed, with API key).
   An API key provider shows a key field. The key goes to the keychain and never to the project.
 - Skip AI for now, or Open project. Finishing writes `wortlaut.config.json` as a change set for a
   project without configuration, writes nothing for an Nx project with a target, and opens Overview.
@@ -182,9 +194,16 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 - See every workspace as a card: code, color, name, folder, facts (projects, keys, locales, AI) and tags
   (location, rule packs, Nx target, open problems) from the last known state.
 - Settings: opens Settings: workspace for that workspace. Open: goes to Overview or Projects.
+- Hold to remove: completing the Mosaik PressButton opens a Mosaik MessageBox. Only an explicit
+  confirmation removes the saved workspace; Cancel and Escape leave it in place. Repository
+  folders and files are never deleted. The workspace list and selected shell state refresh afterwards.
+- Workspace and creation-card footers span their full inner card width. Wheel input over a workspace
+  card scrolls the surrounding workspace list; it does not stop at a card with no scroll range.
 - New workspace: type a name, and the short code follows from it (read-only here, editable in settings).
-  Pick one of five colors. Where it runs is fixed to This computer; Cloud is disabled with "Cloud comes
-  later".
+  Pick one of nine Tailwind600 accents or a custom opaque RGB color with the
+  Mosaik ColorPicker. Custom colors are validated, persisted and rendered throughout the app; older
+  workspace colors remain supported. Where it runs is fixed to This computer; Cloud is disabled
+  with "Cloud comes later".
 - Choose repository folder: native dialog. Wortlaut looks for Nx projects and folders with catalogs.
 - Create workspace: disabled until name and folder are set, then goes to Project setup.
 - No workspaces yet: only the New workspace card.

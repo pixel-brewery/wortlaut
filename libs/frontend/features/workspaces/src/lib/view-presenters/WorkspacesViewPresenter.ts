@@ -5,7 +5,7 @@ import { form, maxLength, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import type { FolderSelection, WorkspaceCard, WorkspaceColor } from '@pixel-brewery/wortlaut-contracts';
 import type { IWorkspaceFact, IWorkspaceTag } from '../contracts/IWorkspaceCardModels';
-import { AsyncValue, countOf, DesktopApi, formatCount, WORKSPACE_COLORS, workspaceCodeOf } from '@pixel-brewery/wortlaut-frontend-core';
+import { AsyncValue, countOf, customWorkspaceColor, DesktopApi, formatCount, ShellSession, WORKSPACE_COLORS, workspaceCodeOf, workspaceColorValue } from '@pixel-brewery/wortlaut-frontend-core';
 
 // #endregion
 
@@ -21,12 +21,15 @@ export class WorkspacesViewPresenter {
 
     private readonly _api = inject(DesktopApi);
     private readonly _router = inject(Router);
+    private readonly _session = inject(ShellSession);
     private readonly _model = signal({ name: '' });
     private readonly _color = signal<WorkspaceColor>('violet');
     private readonly _folder = signal<FolderSelection | null>(null);
     private readonly _message = signal<string | null>(null);
     private readonly _busy = signal(false);
     private readonly _limit = signal(PAGE_SIZE);
+    private readonly _removalTarget = signal<Readonly<Pick<WorkspaceCard, 'id' | 'name'>> | null>(null);
+    private readonly _removingId = signal<string | null>(null);
 
     // #endregion
 
@@ -80,12 +83,24 @@ export class WorkspacesViewPresenter {
      */
     public readonly colors = computed(() => WORKSPACE_COLORS.map((color) => ({ ...color, isChecked: color.id === this._color() })));
 
+    /** The current preset or custom color used to initialize the native Mosaik editor. */
+    public readonly colorValue = computed(() => workspaceColorValue(this._color()));
+
+    /** The exact workspace awaiting the second, explicit removal confirmation. */
+    public readonly removalTarget = this._removalTarget.asReadonly();
+
+    /** The workspace whose profile entry is being removed. */
+    public readonly removingId = this._removingId.asReadonly();
+
+    /** The number of workspaces currently known to this computer. */
+    public readonly workspaceCount = computed(() => countOf(this.workspaces.value()?.length ?? 0, 'workspace'));
+
     /**
      * Gets whether Create workspace can run: a name that gives a code, and a folder.
      *
      * @readonly
      */
-    public readonly canCreate = computed(() => this.code().length > 0 && this._folder() !== null && !this._busy());
+    public readonly canCreate = computed(() => this.code().length > 0 && !this.form().invalid() && this._folder() !== null && !this._busy() && this._removingId() === null && this._removalTarget() === null);
 
     /**
      * Gets whether a request is running.
@@ -158,6 +173,75 @@ export class WorkspacesViewPresenter {
      */
     public pickColor(id: WorkspaceColor): void {
         this._color.set(id);
+    }
+
+    /**
+     * Accepts only a complete, opaque RGB custom color from Mosaik's editor.
+     *
+     * @param value The editor output.
+     */
+    public pickCustomColor(value: unknown): void {
+        const color = customWorkspaceColor(value);
+
+        if (color) {
+            this._color.set(color);
+        }
+    }
+
+    /**
+     * Opens the second confirmation only after the view's press-and-hold control completes.
+     *
+     * @param id The workspace selected by that control.
+     */
+    public requestRemoval(id: string): void {
+        if (this._busy() || this._removingId() !== null || this._removalTarget() !== null) {
+            return;
+        }
+
+        const workspace = this.workspaces.value()?.find((item) => item.id === id);
+
+        if (workspace) {
+            this._message.set(null);
+            this._removalTarget.set({ id: workspace.id, name: workspace.name });
+        }
+    }
+
+    /** Dismissing the message box never removes a workspace. */
+    public cancelRemoval(): void {
+        this._removalTarget.set(null);
+    }
+
+    /**
+     * Removes the captured profile entry only for MessageBox's explicit positive result.
+     *
+     * @param result The documented MessageBox action result.
+     * @returns When removal and the visible profile projection finish.
+     */
+    public async resolveRemoval(result: string): Promise<void> {
+        const target = this._removalTarget();
+
+        if (result !== 'ok') {
+            this.cancelRemoval();
+            return;
+        }
+
+        if (!target || this._busy() || this._removingId() !== null) {
+            return;
+        }
+
+        this._removalTarget.set(null);
+        this._removingId.set(target.id);
+        this._message.set(null);
+
+        try {
+            await this._api.request('workspace.remove', { workspaceId: target.id });
+            await this.workspaces.reload();
+            await this._session.refresh();
+        } catch (error) {
+            this._message.set(error instanceof Error ? error.message : String(error));
+        } finally {
+            this._removingId.set(null);
+        }
     }
 
     /**

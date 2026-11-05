@@ -12,7 +12,7 @@ import { SegmentComponent, SegmentItemComponent } from '@pixel-brewery/mosaik-el
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
-import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, TextWindowComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, LocaleLabelComponent, PaneSizeDirective, TextWindowComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPresenter';
 
 // #endregion
@@ -32,6 +32,8 @@ import { GenerateRunViewPresenter } from '../view-presenters/GenerateRunViewPres
         FailureStateComponent,
         IconComponent,
         LoadingStateComponent,
+        LocaleFlagPipe,
+        LocaleLabelComponent,
         MessageComponent,
         PaneSizeDirective,
         ProgressBarComponent,

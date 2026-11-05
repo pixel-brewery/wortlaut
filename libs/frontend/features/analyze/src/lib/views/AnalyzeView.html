@@ -60,7 +60,7 @@
                           <div class="rule-text">
                             <span class="rule-head">
                               <code class="inline rule-id">{{ rule.id }}</code>
-                              <mosaik-badge appearance="soft" class="rule-badge" [label]="rule.result" [variant]="rule.variant" />
+                              <mosaik-badge appearance="soft" class="rule-badge locale-flag" [icon]="(rule.resultLocale | localeFlag) ?? ''" [label]="rule.result" [variant]="rule.variant" />
                             </span>
                             <span class="note">{{ rule.description }}</span>
                           </div>
@@ -125,7 +125,13 @@
                             <mosaik-table-body>
                               @for (row of presenter.rows(); track row.id) {
                                 <mosaik-table-body-row>
-                                  <mosaik-table-body-cell><code class="inline cell-text">{{ row.a }}</code></mosaik-table-body-cell>
+                                  <mosaik-table-body-cell>
+                                    @if (row.localeA; as locale) {
+                                      <wortlaut-locale-label [code]="locale" [label]="row.a" />
+                                    } @else {
+                                      <code class="inline cell-text">{{ row.a }}</code>
+                                    }
+                                  </mosaik-table-body-cell>
                                   <mosaik-table-body-cell><span class="muted cell-text">{{ row.b }}</span></mosaik-table-body-cell>
                                   <mosaik-table-body-cell>
                                     <div class="row-actions">

@@ -11,13 +11,13 @@ import { formatCount } from './Format';
  * @public
  * @param locales - Findings per catalog and locale.
  * @param passed - Whether the rule passed.
- * @returns The first locale with a count of additional locales, and every locale's totals for the tooltip.
+ * @returns The first locale's code and label, with additional locale counts and every total for the tooltip.
  */
-export function summarizeRuleResult(locales: ReadonlyArray<RuleResult['locales'][number]>, passed: boolean): { label: string; detail: string } {
+export function summarizeRuleResult(locales: ReadonlyArray<RuleResult['locales'][number]>, passed: boolean): { label: string; detail: string; locale: string | null } {
     if (passed || locales.length === 0) {
         const label = passed ? 'Pass' : 'Failed';
 
-        return { label, detail: label };
+        return { label, detail: label, locale: null };
     }
 
     const totals = new Map<string | null, { count: number; known: boolean; unknown: boolean }>();
@@ -39,6 +39,7 @@ export function summarizeRuleResult(locales: ReadonlyArray<RuleResult['locales']
 
     return {
         label: `${results[0]}${results.length > 1 ? ` +${results.length - 1}` : ''}`,
-        detail: results.join(' · ')
+        detail: results.join(' · '),
+        locale: locales[0]?.locale ?? null
     };
 }

@@ -1,0 +1,21 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mosaik-layout-space) * 0.5);
+  min-width: 0;
+  vertical-align: middle;
+}
+
+mosaik-icon {
+  flex: none;
+}
+
+span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+code {
+  font: inherit;
+  color: var(--mosaik-scheme-foreground2);
+}

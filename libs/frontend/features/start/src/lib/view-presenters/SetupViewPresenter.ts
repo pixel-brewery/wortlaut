@@ -4,7 +4,7 @@ import { computed, effect, inject, Injectable, signal, untracked } from '@angula
 import { form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { AiProviderId, ProjectInspection, WorkspaceColor } from '@pixel-brewery/wortlaut-contracts';
-import { describeProviderState, AsyncValue, countOf, DesktopApi, localeName, presetName, workspaceCodeOf } from '@pixel-brewery/wortlaut-frontend-core';
+import { describeProviderState, AsyncValue, CONTENT_LANGUAGE_CODES, countOf, DesktopApi, localeName, presetName, workspaceCodeOf } from '@pixel-brewery/wortlaut-frontend-core';
 
 // #endregion
 
@@ -26,11 +26,11 @@ export const PRESETS = ['angular', 'lit', 'react', 'stencil', 'vue'] as const;
 /**
  * The steps of the rail in their order.
  */
-const STEPS: ReadonlyArray<{ id: SetupStep | 'folder'; label: string }> = [
-    { id: 'folder', label: 'Folder' },
-    { id: 'catalogs', label: 'Catalogs' },
-    { id: 'locales', label: 'Locales' },
-    { id: 'ai', label: 'AI provider' }
+const STEPS: ReadonlyArray<{ id: SetupStep | 'folder'; label: string; description: string }> = [
+    { id: 'folder', label: 'Folder', description: 'Your repository' },
+    { id: 'catalogs', label: 'Catalogs', description: 'Source and translation files' },
+    { id: 'locales', label: 'Locales', description: 'Base and target languages' },
+    { id: 'ai', label: 'AI provider', description: 'An optional connection' }
 ];
 
 /**
@@ -59,6 +59,8 @@ export class SetupViewPresenter {
     private readonly _preselected = this._route.snapshot.queryParamMap.get('workspace');
     private readonly _step = signal<SetupStep>('catalogs');
     private readonly _catalogFolders = signal<ReadonlyArray<string>>([]);
+    private readonly _sourceRootToken = signal<string | null>(null);
+    private readonly _choosingSourceRoot = signal(false);
     private readonly _targets = signal<ReadonlySet<string> | null>(null);
     private readonly _message = signal<string | null>(null);
     private readonly _busy = signal(false);
@@ -104,7 +106,7 @@ export class SetupViewPresenter {
             throw new Error('No folder was chosen. Go back and choose one.');
         }
 
-        const inspection = await this._api.request('project.inspectFolder', { folderToken: this._folderToken, catalogFolderTokens: [...this._catalogFolders()], preset: this._chosenPreset as ProjectInspection['preset']['value'] });
+        const inspection = await this._api.request('project.inspectFolder', { folderToken: this._folderToken, catalogFolderTokens: [...this._catalogFolders()], sourceRootToken: this._sourceRootToken(), preset: this._chosenPreset as ProjectInspection['preset']['value'] });
 
         this.adoptInspection(inspection);
 
@@ -173,6 +175,20 @@ export class SetupViewPresenter {
      * @readonly
      */
     public readonly step = this._step.asReadonly();
+
+    /**
+     * Gets the current step number, including the folder selected before setup.
+     *
+     * @readonly
+     */
+    public readonly stepNumber = computed(() => STEPS.findIndex((step) => step.id === this._step()) + 1);
+
+    /**
+     * Gets whether the native source-folder dialog is active.
+     *
+     * @readonly
+     */
+    public readonly choosingSourceRoot = this._choosingSourceRoot.asReadonly();
 
     /**
      * Gets the presets with their names.
@@ -253,9 +269,9 @@ export class SetupViewPresenter {
     public readonly baseLocales = computed(() => {
         const found = this.inspection.value()?.locales.map((locale) => locale.code) ?? [];
         const current = this._model().baseLocale;
-        const codes = Array.from(new Set([...found, ...current ? [current] : []])).sort((a, b) => a.localeCompare(b));
+        const codes = Array.from(new Set([...CONTENT_LANGUAGE_CODES, ...found, ...current ? [current] : []]));
 
-        return codes.map((code) => ({ code, label: `${localeName(code)} (${code})` }));
+        return codes.map((code) => ({ code, label: `${localeName(code)} (${code})` })).sort((a, b) => a.label.localeCompare(b.label, 'en'));
     });
 
     /**
@@ -267,15 +283,30 @@ export class SetupViewPresenter {
         const inspection = this.inspection.value();
         const base = this._model().baseLocale;
         const targets = this._targets() ?? new Set<string>();
-        const existing = (inspection?.locales ?? [])
-            .filter((locale) => locale.code !== base)
-            .map((locale) => ({ code: locale.code, name: localeName(locale.code), note: `Exists, ${countOf(locale.keys, 'key')}`, isChecked: targets.has(locale.code) }));
-        const fresh = (inspection?.suggestedLocales ?? [])
-            .filter((code) => code !== base)
-            .map((code) => ({ code, name: localeName(code), note: 'New', isChecked: targets.has(code) }));
+        const existing = new Map((inspection?.locales ?? []).map((locale) => [locale.code, locale]));
+        const codes = new Set([...existing.keys(), ...targets]);
 
-        return [...existing, ...fresh];
+        return [...codes].filter((code) => code !== base).map((code) => ({
+            code,
+            name: localeName(code),
+            note: existing.has(code) ? `Exists, ${countOf(existing.get(code)?.keys ?? 0, 'key')}` : 'New',
+            isChecked: targets.has(code)
+        }));
     });
+
+    /**
+     * Gets the locales that the add-language dialog must not offer again.
+     *
+     * @readonly
+     */
+    public readonly localePickerExcludedCodes = computed(() => [this._model().baseLocale, ...this._targets() ?? []]);
+
+    /**
+     * Gets the selected target count, with the base locale excluded.
+     *
+     * @readonly
+     */
+    public readonly targetLocaleCount = computed(() => this.localeChoices().filter((locale) => locale.isChecked).length);
 
     /**
      * Gets whether a request is running.
@@ -299,7 +330,7 @@ export class SetupViewPresenter {
     public readonly canFinish = computed(() => {
         const model = this._model();
 
-        return !this._busy() && this.inspection.value() !== null && model.baseLocale.length > 0 && (model.workspace !== NEW_WORKSPACE || workspaceCodeOf(model.newName).length > 0);
+        return !this._busy() && !this._choosingSourceRoot() && !this.inspection.isLoading() && !this.inspection.isFailed() && this.inspection.value() !== null && model.workspace.length > 0 && model.baseLocale.length > 0 && (model.workspace !== NEW_WORKSPACE || workspaceCodeOf(model.newName).length > 0);
     });
 
     /**
@@ -348,6 +379,10 @@ export class SetupViewPresenter {
      * @param isTarget Whether it is a target.
      */
     public setLocale(code: string, isTarget: boolean): void {
+        if (code === this._model().baseLocale) {
+            return;
+        }
+
         const targets = this._targets() ?? new Set<string>();
 
         if (targets.has(code) !== isTarget) {
@@ -360,6 +395,46 @@ export class SetupViewPresenter {
             }
 
             this._targets.set(next);
+        }
+    }
+
+    /**
+     * Adds languages chosen in the language dialog without duplicating existing targets.
+     *
+     * @param codes The selected language codes.
+     */
+    public addLocales(codes: readonly string[]): void {
+        for (const code of codes) {
+            if (CONTENT_LANGUAGE_CODES.some((language) => language === code)) {
+                this.setLocale(code, true);
+            }
+        }
+    }
+
+    /**
+     * Chooses a source folder through main. The renderer retains only its opaque grant.
+     *
+     * @returns When the chosen folder has been inspected, or the dialog was cancelled.
+     */
+    public async chooseSourceRoot(): Promise<void> {
+        if (!this._folderToken || this.inspection.value()?.configuration || this._choosingSourceRoot() || this._busy()) {
+            return;
+        }
+
+        this._choosingSourceRoot.set(true);
+        this._message.set(null);
+
+        try {
+            const { folder } = await this._api.request('dialog.chooseFolder', { insideToken: this._folderToken });
+
+            if (folder) {
+                this._sourceRootToken.set(folder.token);
+                await this.inspection.reload();
+            }
+        } catch (error) {
+            this._message.set(error instanceof Error ? error.message : String(error));
+        } finally {
+            this._choosingSourceRoot.set(false);
         }
     }
 
@@ -387,7 +462,24 @@ export class SetupViewPresenter {
      * Goes to the next step.
      */
     public next(): void {
+        if (!this.canFinish()) {
+            return;
+        }
+
         this._step.set(this._step() === 'catalogs' ? 'locales' : 'ai');
+    }
+
+    /**
+     * Opens a setup step from the rail. Folder selection stays on the preceding screen.
+     *
+     * @param index The zero-based rail index.
+     */
+    public goToStep(index: number): void {
+        const step = STEPS[index];
+
+        if (step && step.id !== 'folder' && !this._busy() && !this._choosingSourceRoot()) {
+            this._step.set(step.id);
+        }
     }
 
     /**
@@ -413,8 +505,20 @@ export class SetupViewPresenter {
      *
      * @param provider The provider.
      */
-    public pickProvider(provider: string): void {
-        this._aiProvider.set(provider as AiProviderId);
+    public pickProvider(provider: AiProviderId): void {
+        this._aiProvider.set(provider);
+    }
+
+    /**
+     * Keeps keyboard deselection consistent with the connection that finishing would save.
+     * A deselection emitted while another provider is selected must not clear the new choice.
+     *
+     * @param provider The provider that became unchecked.
+     */
+    public deselectProvider(provider: AiProviderId): void {
+        if (this._aiProvider() === provider) {
+            this._aiProvider.set(null);
+        }
     }
 
     /**
@@ -445,12 +549,13 @@ export class SetupViewPresenter {
             await this._api.request('project.register', {
                 folderToken: this._folderToken,
                 catalogFolderTokens: [...this._catalogFolders()],
+                sourceRootToken: this._sourceRootToken(),
                 workspace: model.workspace === NEW_WORKSPACE
                     ? { kind: 'new', name: model.newName, code: workspaceCodeOf(model.newName), color: this._color }
                     : { kind: 'existing', id: model.workspace },
                 preset: (model.preset || null) as ProjectInspection['preset']['value'],
                 baseLocale: model.baseLocale,
-                targetLocales: Array.from(this._targets() ?? [])
+                targetLocales: Array.from(this._targets() ?? []).filter((code) => code !== model.baseLocale)
             });
 
             if (!skipAi) {

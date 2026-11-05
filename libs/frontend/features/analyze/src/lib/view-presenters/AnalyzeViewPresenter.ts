@@ -197,7 +197,7 @@ export class AnalyzeViewPresenter {
             const current = results.find((result) => result.id === rule.id);
             const last = current ?? rule.last;
             const severity = current?.severity ?? rule.severity;
-            const result = !isOn ? { label: 'Off', detail: 'Off' } : last ? summarizeRuleResult(last.locales, last.passed) : { label: 'Not run', detail: 'Not run' };
+            const result = !isOn ? { label: 'Off', detail: 'Off', locale: null } : last ? summarizeRuleResult(last.locales, last.passed) : { label: 'Not run', detail: 'Not run', locale: null };
 
             return {
                 id: rule.id,
@@ -207,6 +207,7 @@ export class AnalyzeViewPresenter {
                 isSelected: rule.id === this.selectedId(),
                 result: result.label,
                 resultDetail: result.detail,
+                resultLocale: result.locale,
                 variant: !isOn || !last ? 'neutral' as const : last.passed ? 'success' as const : severity === 'error' ? 'danger' as const : 'warning' as const
             };
         });
@@ -298,6 +299,7 @@ export class AnalyzeViewPresenter {
      */
     public readonly rows = computed(() => (this.selected()?.rows ?? []).slice(0, this._limit()).map((row) => ({
         ...row,
+        localeA: row.locale !== null && (this.selected()?.passed || (this.selected()?.pack && row.key === null)) ? row.locale : null,
         isWaiting: this._waiting().has(this.rowId(row)),
         id: this.rowId(row)
     })));

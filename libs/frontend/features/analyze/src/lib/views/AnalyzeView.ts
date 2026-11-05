@@ -13,7 +13,7 @@ import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/component
 import { TableBodyCellComponent, TableBodyComponent, TableBodyRowComponent, TableComponent, TableHeaderCellComponent, TableHeaderComponent, TableHeaderRowComponent } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import { TooltipComponent } from '@pixel-brewery/mosaik-elements-angular/components/tooltip';
-import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import { DryRunNoticeComponent, FailureStateComponent, LoadingStateComponent, LocaleFlagPipe, LocaleLabelComponent, PaneSizeDirective, RunProgressComponent, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
 import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
 
 // #endregion
@@ -35,6 +35,8 @@ import { AnalyzeViewPresenter } from '../view-presenters/AnalyzeViewPresenter';
         EmptyStateComponent,
         FailureStateComponent,
         LoadingStateComponent,
+        LocaleFlagPipe,
+        LocaleLabelComponent,
         MessageComponent,
         RouterLink,
         RunProgressComponent,

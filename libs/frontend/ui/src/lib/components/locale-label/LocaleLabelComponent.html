@@ -1,0 +1,7 @@
+@if (icon(); as flag) {
+  <mosaik-icon class="locale-flag" [icon]="flag" size="small" aria-hidden="true" />
+}
+<span>{{ name() }}</span>
+@if (showCode()) {
+  <code>{{ code() }}</code>
+}

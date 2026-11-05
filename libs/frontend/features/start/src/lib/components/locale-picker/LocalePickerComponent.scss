@@ -1,0 +1,83 @@
+:host {
+  display: inline-flex;
+}
+
+.locale-picker-dialog {
+  --dialog-max-width: calc(100vw - var(--mosaik-layout-space) * 4);
+  --dialog-max-height: calc(100dvh - var(--mosaik-layout-space) * 4);
+}
+
+.locale-picker-dialog::part(root) {
+  width: min(calc(var(--mosaik-layout-space) * 72), calc(100vw - var(--mosaik-layout-space) * 4));
+  height: min(calc(var(--mosaik-layout-space) * 76), calc(100dvh - var(--mosaik-layout-space) * 4));
+}
+
+.picker-content,
+.picker-body {
+  min-width: 0;
+  min-height: 0;
+}
+
+.picker-content {
+  // Give the list a bounded flex height without adding DialogContent's internal scroll owner.
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  overflow: hidden;
+}
+
+.picker-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: calc(var(--mosaik-layout-space) * 1.5);
+  overflow: hidden;
+}
+
+.picker-body > p,
+mosaik-searchbox {
+  flex: 0 0 auto;
+}
+
+.note,
+.empty-result,
+.selection-count {
+  margin: 0;
+  color: var(--mosaik-scheme-lowlight);
+  font: var(--mosaik-typography-caption);
+}
+
+.language-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.language-option {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--mosaik-layout-space);
+  padding: var(--mosaik-layout-space);
+  border-bottom: var(--mosaik-layout-thickness) solid var(--mosaik-scheme-highlight);
+}
+
+.language-option mosaik-checkbox {
+  min-width: 0;
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+}
+
+.language-option code {
+  flex: 0 0 auto;
+  color: var(--mosaik-scheme-lowlight);
+  font: var(--mosaik-typography-caption);
+}
+
+.selection-count {
+  margin-inline-end: auto;
+}

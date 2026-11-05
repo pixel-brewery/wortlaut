@@ -79,7 +79,7 @@ describe('SetupViewPresenter', () => {
 
         await presenter.load();
 
-        expect(request).toHaveBeenCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], preset: null });
+        expect(request).toHaveBeenCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], sourceRootToken: null, preset: null });
     });
 
     it('starts on Catalogs with Folder done', async () => {
@@ -101,16 +101,50 @@ describe('SetupViewPresenter', () => {
         expect(presenter.canFinish()).toBe(true);
     });
 
-    it('preselects the locales that exist and marks each one', async () => {
+    it('shows and preselects only the target locales detected in catalogs', async () => {
         const { presenter } = setUp();
 
         await presenter.load();
 
         expect(presenter.localeChoices()).toEqual([
-            { code: 'de', name: 'German', note: 'Exists, 2 keys', isChecked: true },
-            { code: 'fr', name: 'French', note: 'New', isChecked: false },
-            { code: 'nl', name: 'Dutch', note: 'New', isChecked: false }
+            { code: 'de', name: 'German', note: 'Exists, 2 keys', isChecked: true }
         ]);
+    });
+
+    it('starts without unsolicited target languages and keeps explicitly added picker choices through reinspection and registration', async () => {
+        // arrange
+        const { presenter, request } = setUp({ inspection: {
+            ...INSPECTION,
+            catalogs: [],
+            locales: [],
+            suggestedLocales: ['de', 'fr', 'nl', 'es', 'it']
+        } });
+
+        // act
+        await presenter.load();
+
+        // assert
+        expect(presenter.localeChoices()).toEqual([]);
+        expect(presenter.targetLocaleCount()).toBe(0);
+        expect(presenter.localePickerExcludedCodes()).toEqual(['en']);
+
+        // act
+        presenter.addLocales(['ja', 'fr', 'ja', 'en']);
+        await presenter.inspection.reload();
+
+        // assert
+        expect(presenter.localeChoices().map(({ code, isChecked }) => ({ code, isChecked }))).toEqual([
+            { code: 'ja', isChecked: true },
+            { code: 'fr', isChecked: true }
+        ]);
+        expect(presenter.targetLocaleCount()).toBe(2);
+        expect(presenter.localePickerExcludedCodes()).toEqual(['en', 'ja', 'fr']);
+
+        // act
+        await presenter.finish(true);
+
+        // assert
+        expect(registerPayload(request).targetLocales).toEqual(['ja', 'fr']);
     });
 
     it('takes the state a chip reports without flipping it', async () => {
@@ -127,7 +161,7 @@ describe('SetupViewPresenter', () => {
 
         presenter.setLocale('fr', true);
         presenter.setLocale('de', false);
-        expect(presenter.localeChoices().map((choice) => choice.isChecked)).toEqual([false, true, false]);
+        expect(presenter.localeChoices().map((choice) => choice.isChecked)).toEqual([false, true]);
     });
 
     it('offers existing workspaces and a new one, preselecting the one it was opened for', async () => {
@@ -152,6 +186,7 @@ describe('SetupViewPresenter', () => {
         expect(registerPayload(request)).toEqual({
             folderToken: TOKEN,
             catalogFolderTokens: [],
+            sourceRootToken: null,
             workspace: { kind: 'new', name: 'shop', code: 'SH', color: 'teal' },
             preset: 'angular',
             baseLocale: 'en',
@@ -201,7 +236,7 @@ describe('SetupViewPresenter', () => {
         presenter.form.preset().value.set('vue');
         TestBed.tick();
 
-        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], preset: 'vue' });
+        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], sourceRootToken: null, preset: 'vue' });
     });
 
     it('does not look again for the preset it found itself', async () => {
@@ -222,7 +257,7 @@ describe('SetupViewPresenter', () => {
         await presenter.addCatalogFolder();
 
         expect(request).toHaveBeenCalledWith('dialog.chooseFolder', { insideToken: TOKEN });
-        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [other], preset: null });
+        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [other], sourceRootToken: null, preset: null });
     });
 
     it('shows why a further folder cannot be added', async () => {
@@ -233,6 +268,104 @@ describe('SetupViewPresenter', () => {
         await presenter.addCatalogFolder();
 
         expect(presenter.message()).toBe('Choose a folder inside the project.');
+    });
+
+    it('keeps the chosen source grant through inspection, preset changes and registration', async () => {
+        const { presenter, request } = setUp();
+        const sourceToken = '00000000-0000-4000-8000-000000000000';
+
+        await presenter.load();
+        request.mockImplementation((method: string) => Promise.resolve(method === 'dialog.chooseFolder'
+            ? { folder: { token: sourceToken, displayPath: '~/shop/frontend', name: 'frontend' } }
+            : INSPECTION));
+        await presenter.chooseSourceRoot();
+
+        expect(request).toHaveBeenCalledWith('dialog.chooseFolder', { insideToken: TOKEN });
+        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], sourceRootToken: sourceToken, preset: null });
+        expect(presenter.choosingSourceRoot()).toBe(false);
+
+        presenter.form.preset().value.set('vue');
+        TestBed.tick();
+        expect(request).toHaveBeenLastCalledWith('project.inspectFolder', { folderToken: TOKEN, catalogFolderTokens: [], sourceRootToken: sourceToken, preset: 'vue' });
+        await presenter.inspection.reload();
+        await presenter.finish(true);
+        expect(registerPayload(request).sourceRootToken).toBe(sourceToken);
+    });
+
+    it('leaves source selection unchanged when the native dialog is cancelled', async () => {
+        const { presenter, request } = setUp();
+
+        await presenter.load();
+        request.mockResolvedValueOnce({ folder: null });
+        const inspections = request.mock.calls.filter(([method]) => method === 'project.inspectFolder').length;
+        await presenter.chooseSourceRoot();
+
+        expect(request.mock.calls.filter(([method]) => method === 'project.inspectFolder')).toHaveLength(inspections);
+        expect(presenter.choosingSourceRoot()).toBe(false);
+        await presenter.finish(true);
+        expect(registerPayload(request).sourceRootToken).toBeNull();
+    });
+
+    it('does not open another source dialog or finish while one is pending', async () => {
+        const { presenter, request } = setUp();
+        let cancel: (result: { folder: null }) => void = () => undefined;
+
+        await presenter.load();
+        request.mockImplementationOnce(() => new Promise((resolve) => { cancel = resolve; }));
+        const pending = presenter.chooseSourceRoot();
+        await presenter.chooseSourceRoot();
+        await presenter.finish(true);
+
+        expect(request.mock.calls.filter(([method]) => method === 'dialog.chooseFolder')).toHaveLength(1);
+        expect(registerPayload(request)).toBeUndefined();
+        expect(presenter.canFinish()).toBe(false);
+        cancel({ folder: null });
+        await pending;
+        expect(presenter.canFinish()).toBe(true);
+    });
+
+    it('keeps repository configuration authoritative and shows source-picker failures', async () => {
+        const { presenter, request } = setUp({ inspection: { ...INSPECTION, configuration: { file: 'project.json', kind: 'nx-target' } } });
+
+        await presenter.load();
+        await presenter.chooseSourceRoot();
+        expect(request.mock.calls.some(([method]) => method === 'dialog.chooseFolder')).toBe(false);
+
+        TestBed.resetTestingModule();
+        const plain = setUp();
+        await plain.presenter.load();
+        plain.request.mockRejectedValueOnce(new Error('Choose a folder inside the project.'));
+        await plain.presenter.chooseSourceRoot();
+        expect(plain.presenter.message()).toBe('Choose a folder inside the project.');
+        expect(plain.presenter.choosingSourceRoot()).toBe(false);
+    });
+
+    it('offers the complete language repertoire and adds explicitly chosen languages', async () => {
+        const { presenter, request } = setUp();
+
+        await presenter.load();
+        expect(presenter.baseLocales()).toContainEqual({ code: 'ja', label: 'Japanese (ja)' });
+        presenter.addLocales(['ja', 'uk', 'ja', 'en']);
+        presenter.next();
+        await presenter.back();
+
+        expect(presenter.localeChoices().filter((locale) => locale.isChecked).map((locale) => locale.code)).toEqual(['de', 'ja', 'uk']);
+        expect(presenter.localePickerExcludedCodes()).toEqual(['en', 'de', 'ja', 'uk']);
+        await presenter.finish(true);
+        expect(registerPayload(request).targetLocales).toEqual(['de', 'ja', 'uk']);
+    });
+
+    it('preserves regional catalog IDs and excludes a changed base locale from registration', async () => {
+        const { presenter, request } = setUp({ inspection: { ...INSPECTION, locales: [...INSPECTION.locales, { code: 'pt-BR', keys: 1 }] } });
+
+        await presenter.load();
+        presenter.form.baseLocale().value.set('de');
+        presenter.addLocales(['de', 'ja']);
+        await presenter.finish(true);
+
+        expect(presenter.baseLocales().some((locale) => locale.code === 'pt-BR')).toBe(true);
+        expect(registerPayload(request).baseLocale).toBe('de');
+        expect(registerPayload(request).targetLocales).toEqual(['pt-BR', 'ja']);
     });
 
     it('moves between the steps, and Back leaves to the screen that chose the folder', async () => {
@@ -308,5 +441,30 @@ describe('SetupViewPresenter', () => {
 
         expect(request.mock.calls.map(([method]) => method)).not.toContain('ai.setKey');
         expect(request.mock.calls.map(([method]) => method)).not.toContain('ai.setDefaultProvider');
+    });
+
+    it('does not save a provider that keyboard interaction has unchecked', async () => {
+        const { presenter, request } = setUp();
+
+        await presenter.load();
+        presenter.pickProvider('codex');
+        presenter.deselectProvider('codex');
+        await presenter.finish();
+
+        expect(presenter.providerChoices().some((provider) => provider.isChecked)).toBe(false);
+        expect(request.mock.calls.some(([method]) => method === 'ai.setDefaultProvider')).toBe(false);
+    });
+
+    it('keeps the new provider when the previous choice reports deselection', async () => {
+        const { presenter, request } = setUp();
+
+        await presenter.load();
+        presenter.pickProvider('codex');
+        presenter.pickProvider('openai');
+        presenter.deselectProvider('codex');
+        await presenter.finish();
+
+        expect(presenter.providerChoices().filter((provider) => provider.isChecked).map((provider) => provider.id)).toEqual(['openai']);
+        expect(request).toHaveBeenCalledWith('ai.setDefaultProvider', { providerId: 'openai' });
     });
 });
