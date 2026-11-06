@@ -80,7 +80,7 @@ keep working for existing consumers, see the [Surfaces reference](.agents/skills
 
 ## Issue tracking
 
-- The [Wortlaut board](https://github.com/users/RueDeRennes/projects/10) is the single source
+- The [Wortlaut board](https://github.com/orgs/pixel-brewery/projects/12) is the single source
   of truth for confirmed work and defects. Use issues in `pixel-brewery/wortlaut` and add each
   one to the board yourself, because the repository link does not. Keep no local backlog.
 - Search open and closed issues first. Update an existing issue instead of creating a
