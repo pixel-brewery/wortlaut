@@ -11,5 +11,5 @@ import { REGION_FLAGS } from './RegionFlags';
  * @public
  */
 export const localeFlagIcons: Readonly<Record<string, IIconDefinition>> = Object.fromEntries(
-    Object.entries(REGION_FLAGS).map(([region, definition]) => [`localeFlag${region}`, definition])
+  Object.entries(REGION_FLAGS).map(([region, definition]) => [`localeFlag${region}`, definition]),
 );

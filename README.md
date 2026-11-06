@@ -42,12 +42,12 @@ The desktop application makes project coverage, source findings and language cat
 visible together. The CLI, Nx executor, ESLint rules and MCP server expose the same
 engine, so interactive work and automated checks follow the same rules.
 
-| Step | Work in Wortlaut |
-| --- | --- |
-| **Open the project** | Choose a repository, find its catalogs and select the framework preset, base locale and target languages. Existing configuration stays the source of truth. |
-| **Find what needs attention** | Detect hard-coded strings and analyze catalogs for missing translations, unused keys, duplicates and placeholder mistakes. |
-| **Translate and edit** | Work with keys and values, request an AI suggestion or translate a selected set of keys with your chosen provider. |
-| **Review and write** | Inspect the files in a change set, then approve or discard it. Applying rechecks the files and refuses a change if they have changed in the meantime. |
+| Step                          | Work in Wortlaut                                                                                                                                            |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Open the project**          | Choose a repository, find its catalogs and select the framework preset, base locale and target languages. Existing configuration stays the source of truth. |
+| **Find what needs attention** | Detect hard-coded strings and analyze catalogs for missing translations, unused keys, duplicates and placeholder mistakes.                                  |
+| **Translate and edit**        | Work with keys and values, request an AI suggestion or translate a selected set of keys with your chosen provider.                                          |
+| **Review and write**          | Inspect the files in a change set, then approve or discard it. Applying rechecks the files and refuses a change if they have changed in the meantime.       |
 
 Catalogs and project configuration stay in your repository. Workspaces, pending change sets
 and run history live in your user profile; `WORTLAUT_HOME` selects another location. The desktop
@@ -58,10 +58,10 @@ app protects API keys with the operating system's keychain. Local assistant CLIs
 Until the first public release is published, [build from source](#build-from-source).
 The release pipeline prepares these installers for [Releases](https://github.com/pixel-brewery/wortlaut/releases):
 
-| Platform | Release asset |
-| --- | --- |
+| Platform              | Release asset                         |
+| --------------------- | ------------------------------------- |
 | macOS (Apple Silicon) | `Wortlaut-darwin-arm64-<version>.dmg` |
-| Windows (x64) | `Wortlaut-win32-x64-<version>.exe` |
+| Windows (x64)         | `Wortlaut-win32-x64-<version>.exe`    |
 
 Each release includes `SHA256SUMS.txt`. macOS bundles use ad-hoc sealing without notarization;
 Windows installers are unsigned. See [Releasing](docs/release.md) for the distribution policy.
@@ -153,16 +153,16 @@ framework-neutral engine. The Angular renderer calls Electron through the typed,
 Zod-validated contracts in `libs/contracts`; backend libraries own catalog and file operations.
 Mosaik supplies the controls and Soho theme, and Synapse connects local assistant CLIs.
 
-| Package | Source | Responsibility |
-| --- | --- | --- |
-| `@pixel-brewery/wortlaut-core` | `libs/backend/core` | Detectors, presets, readers, analyzer rules, transformers and sorting |
-| `@pixel-brewery/wortlaut-ai` | `libs/backend/ai` | Translation strategies, chunking and model-output validation |
-| `@pixel-brewery/wortlaut-contracts` | `libs/contracts` | Schemas and types for runs, change sets and settings |
-| `@pixel-brewery/wortlaut-engine` | `libs/backend/engine` | Project use cases, configuration, change sets, review and run history |
-| `@pixel-brewery/wortlaut-mcp` | `libs/backend/mcp` | MCP tools, permission levels and assistant plugins |
-| `@pixel-brewery/wortlaut-app` | `apps/cli` | The `wortlaut` command and programmatic `run()` entry point |
-| `@pixel-brewery/wortlaut-nx-tasks` | `libs/backend/nx-tasks` | The Nx executor over `run()` |
-| `@pixel-brewery/wortlaut-eslint-rules` | `libs/backend/eslint-rules` | ESLint rules over the analyzer rules |
+| Package                                | Source                      | Responsibility                                                        |
+| -------------------------------------- | --------------------------- | --------------------------------------------------------------------- |
+| `@pixel-brewery/wortlaut-core`         | `libs/backend/core`         | Detectors, presets, readers, analyzer rules, transformers and sorting |
+| `@pixel-brewery/wortlaut-ai`           | `libs/backend/ai`           | Translation strategies, chunking and model-output validation          |
+| `@pixel-brewery/wortlaut-contracts`    | `libs/contracts`            | Schemas and types for runs, change sets and settings                  |
+| `@pixel-brewery/wortlaut-engine`       | `libs/backend/engine`       | Project use cases, configuration, change sets, review and run history |
+| `@pixel-brewery/wortlaut-mcp`          | `libs/backend/mcp`          | MCP tools, permission levels and assistant plugins                    |
+| `@pixel-brewery/wortlaut-app`          | `apps/cli`                  | The `wortlaut` command and programmatic `run()` entry point           |
+| `@pixel-brewery/wortlaut-nx-tasks`     | `libs/backend/nx-tasks`     | The Nx executor over `run()`                                          |
+| `@pixel-brewery/wortlaut-eslint-rules` | `libs/backend/eslint-rules` | ESLint rules over the analyzer rules                                  |
 
 Frontend infrastructure lives in `libs/frontend/{core,ui,shell}`, with one feature library
 per product area under `libs/frontend/features`. The Nx executor and the ESLint rules sit on
@@ -188,18 +188,17 @@ yarn install --immutable
 yarn start
 ```
 
-`yarn start` builds the renderer and desktop bundles, then launches Electron.
+`yarn dev`, `yarn start` and `yarn start:unpackaged` build the renderer and desktop bundles, then launch Electron.
 `yarn start:built` reuses an existing build.
 
-Quality and packaging commands:
+Run the complete local gate from a graphical desktop session.
 
 ```bash
-yarn verify          # repository checks, lint, types, tests and builds
-yarn test:e2e        # exercise the built desktop app
-yarn package         # package the app for this machine into out/
-yarn verify:package  # check the package contents
-yarn test:e2e --packaged
-yarn make            # create native distribution artifacts
+yarn verify          # code checks, clean package consumers, built and packaged desktop smoke
+yarn verify:code     # repository checks, formatting, lint, types, tests and builds
+yarn e2e             # build and exercise the desktop app
+yarn package:smoke   # package the app, check its contents and launch it for verification
+yarn make            # create native distribution artifacts in out/
 ```
 
 To build and run the CLI from this checkout:

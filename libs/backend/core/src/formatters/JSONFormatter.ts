@@ -10,44 +10,42 @@ import type { IFormatter, IFormatterResult } from './interfaces/IFormatter.js';
  * @public
  */
 export class JsonFormatter implements IFormatter {
+  // #region Fields
 
-    // #region Fields
+  private readonly _indent: number;
 
-    private readonly _indent: number;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `JsonFormatter` class.
+   *
+   * @public
+   */
+  public constructor(options?: { indent: number }) {
+    this._indent = options?.indent ?? 2;
+  }
 
-    /**
-     * Constructs a new instance of the `JsonFormatter` class.
-     *
-     * @public
-     */
-    public constructor(options?: { indent: number }) {
-        this._indent = options?.indent ?? 2;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Formats extracted strings into a JSON format.
+   *
+   * @public
+   * @param strings The extracted strings as key-value pairs.
+   * @returns The formatted output as a JSON string.
+   */
+  public format(strings: Record<string, string>): IFormatterResult {
+    const content = JSON.stringify(strings, null, this._indent);
 
-    /**
-     * Formats extracted strings into a JSON format.
-     *
-     * @public
-     * @param strings The extracted strings as key-value pairs.
-     * @returns The formatted output as a JSON string.
-     */
-    public format(strings: Record<string, string>): IFormatterResult {
-        const content = JSON.stringify(strings, null, this._indent);
+    return {
+      content: content,
+      changes: strings,
+    };
+  }
 
-        return {
-            content: content,
-            changes: strings
-        };
-    }
-
-    // #endregion
-
+  // #endregion
 }

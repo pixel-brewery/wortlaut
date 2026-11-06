@@ -10,35 +10,36 @@ import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/comp
  * What a sidebar entry shows while its feature is not built yet.
  */
 @Component({
-    selector: 'wortlaut-not-available',
-    imports: [EmptyStateComponent],
-    templateUrl: './NotAvailableView.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-not-available',
+  imports: [EmptyStateComponent],
+  templateUrl: './NotAvailableView.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotAvailableView {
+  // #region Fields
 
-    // #region Fields
+  private readonly _data = inject(ActivatedRoute).snapshot.data as {
+    title: string;
+    description: string;
+  };
 
-    private readonly _data = inject(ActivatedRoute).snapshot.data as { title: string; description: string };
+  // #endregion
 
-    // #endregion
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the name of the view.
+   *
+   * @readonly
+   */
+  protected readonly title = this._data.title;
 
-    /**
-     * Gets the name of the view.
-     *
-     * @readonly
-     */
-    protected readonly title = this._data.title;
+  /**
+   * Gets what the view will do, and what works today.
+   *
+   * @readonly
+   */
+  protected readonly description = this._data.description;
 
-    /**
-     * Gets what the view will do, and what works today.
-     *
-     * @readonly
-     */
-    protected readonly description = this._data.description;
-
-    // #endregion
-
+  // #endregion
 }

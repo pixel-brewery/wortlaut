@@ -31,7 +31,12 @@
         placeholder="Search language name or ISO code"
         [formField]="searchForm.text"
       />
-      <div class="language-list" role="group" aria-label="Available target languages" test-id="locale-picker-options">
+      <div
+        class="language-list"
+        role="group"
+        aria-label="Available target languages"
+        test-id="locale-picker-options"
+      >
         @for (language of visible(); track language.code) {
           <div class="language-option">
             <mosaik-checkbox
@@ -52,8 +57,15 @@
     </div>
   </div>
   <mosaik-dialog-actions slot="actions">
-    <span class="selection-count" role="status" aria-live="polite">{{ selectedCodes().length }} selected</span>
-    <mosaik-button label="Cancel" appearance="plain" test-id="locale-picker-cancel" (click)="close()" />
+    <span class="selection-count" role="status" aria-live="polite"
+      >{{ selectedCodes().length }} selected</span
+    >
+    <mosaik-button
+      label="Cancel"
+      appearance="plain"
+      test-id="locale-picker-cancel"
+      (click)="close()"
+    />
     <mosaik-button
       label="Add languages"
       variant="primary"

@@ -8,7 +8,19 @@ import { join } from 'node:path';
 /**
  * Folders that hold no project sources: tools, dependencies and build output.
  */
-const SKIPPED_FOLDERS = new Set(['bin', 'build', 'coverage', 'dist', 'node_modules', 'obj', 'out', 'target', 'temp', 'tmp', 'vendor']);
+const SKIPPED_FOLDERS = new Set([
+  'bin',
+  'build',
+  'coverage',
+  'dist',
+  'node_modules',
+  'obj',
+  'out',
+  'target',
+  'temp',
+  'tmp',
+  'vendor',
+]);
 
 /**
  * The most entries one walk looks at, so a very big repository stays usable.
@@ -26,16 +38,15 @@ const MAX_DEPTH = 12;
  * @internal
  */
 export interface IRepositoryContent {
+  /**
+   * The absolute paths of all files.
+   */
+  files: Array<string>;
 
-    /**
-     * The absolute paths of all files.
-     */
-    files: Array<string>;
-
-    /**
-     * Whether the walk stopped at its bound.
-     */
-    truncated: boolean;
+  /**
+   * Whether the walk stopped at its bound.
+   */
+  truncated: boolean;
 }
 
 /**
@@ -48,43 +59,47 @@ export interface IRepositoryContent {
  * @returns What the walk found. A folder that cannot be read counts as empty.
  */
 export function walkRepository(root: string, maxEntries: number = MAX_ENTRIES): IRepositoryContent {
-    const files = new Array<string>();
-    const pending: Array<{ directory: string; depth: number }> = [{ directory: root, depth: 0 }];
-    let seen = 0;
-    let truncated = false;
+  const files = new Array<string>();
+  const pending: Array<{ directory: string; depth: number }> = [{ directory: root, depth: 0 }];
+  let seen = 0;
+  let truncated = false;
 
-    while (pending.length > 0) {
-        const { directory, depth } = pending.shift() as { directory: string; depth: number };
+  while (pending.length > 0) {
+    const { directory, depth } = pending.shift() as { directory: string; depth: number };
 
-        for (const entry of readEntries(directory)) {
-            seen++;
+    for (const entry of readEntries(directory)) {
+      seen++;
 
-            if (seen > maxEntries) {
-                return { files, truncated: true };
-            }
+      if (seen > maxEntries) {
+        return { files, truncated: true };
+      }
 
-            if (entry.isFile()) {
-                files.push(join(directory, entry.name));
-            } else if (entry.isDirectory() && !entry.name.startsWith('.') && !SKIPPED_FOLDERS.has(entry.name)) {
-                if (depth + 1 > MAX_DEPTH) {
-                    truncated = true;
-                } else {
-                    pending.push({ directory: join(directory, entry.name), depth: depth + 1 });
-                }
-            }
+      if (entry.isFile()) {
+        files.push(join(directory, entry.name));
+      } else if (
+        entry.isDirectory() &&
+        !entry.name.startsWith('.') &&
+        !SKIPPED_FOLDERS.has(entry.name)
+      ) {
+        if (depth + 1 > MAX_DEPTH) {
+          truncated = true;
+        } else {
+          pending.push({ directory: join(directory, entry.name), depth: depth + 1 });
         }
+      }
     }
+  }
 
-    return { files, truncated };
+  return { files, truncated };
 }
 
 /**
  * @private
  */
 function readEntries(directory: string): Array<Dirent> {
-    try {
-        return readdirSync(directory, { withFileTypes: true });
-    } catch {
-        return [];
-    }
+  try {
+    return readdirSync(directory, { withFileTypes: true });
+  } catch {
+    return [];
+  }
 }

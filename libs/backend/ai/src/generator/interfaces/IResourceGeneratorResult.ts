@@ -17,35 +17,33 @@ export type ResourceGeneratorStatus = 'completed' | 'failed' | 'stopped';
  * @public
  */
 export interface IResourceGeneratorResult {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The proposed target resource, at the path of the target file.
+   */
+  resource: IResourceInfo;
 
-    /**
-     * The proposed target resource, at the path of the target file.
-     */
-    resource: IResourceInfo;
+  locale: string;
 
-    locale: string;
+  status: ResourceGeneratorStatus;
 
-    status: ResourceGeneratorStatus;
+  /**
+   * The number of keys that were translated in this run.
+   */
+  translatedKeys: number;
 
-    /**
-     * The number of keys that were translated in this run.
-     */
-    translatedKeys: number;
+  /**
+   * What a reviewer should know about the proposal, such as a chunk that returned too many or too few models.
+   */
+  warnings: Array<string>;
 
-    /**
-     * What a reviewer should know about the proposal, such as a chunk that returned too many or too few models.
-     */
-    warnings: Array<string>;
+  /**
+   * The keys whose translation stayed wrong: they were left out of the proposal.
+   */
+  heldBack?: Array<string>;
 
-    /**
-     * The keys whose translation stayed wrong: they were left out of the proposal.
-     */
-    heldBack?: Array<string>;
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -54,26 +52,24 @@ export interface IResourceGeneratorResult {
  * @public
  */
 export interface IResourceGeneratorRun {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The overall status: the first locale that did not complete ends the run.
+   */
+  status: ResourceGeneratorStatus;
 
-    /**
-     * The overall status: the first locale that did not complete ends the run.
-     */
-    status: ResourceGeneratorStatus;
+  /**
+   * The proposals of all locales that have translated keys, or that completed.
+   */
+  results: Array<IResourceGeneratorResult>;
 
-    /**
-     * The proposals of all locales that have translated keys, or that completed.
-     */
-    results: Array<IResourceGeneratorResult>;
+  /**
+   * The failure, when `status` is `failed`.
+   */
+  error: Error | null;
 
-    /**
-     * The failure, when `status` is `failed`.
-     */
-    error: Error | null;
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -82,15 +78,13 @@ export interface IResourceGeneratorRun {
  * @public
  */
 export interface IResourceGeneratorProgress {
+  // #region Properties
 
-    // #region Properties
+  locale: string;
 
-    locale: string;
+  completedChunks: number;
 
-    completedChunks: number;
+  totalChunks: number;
 
-    totalChunks: number;
-
-    // #endregion
-
+  // #endregion
 }

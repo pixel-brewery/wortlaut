@@ -14,14 +14,20 @@ import { Writable } from 'node:stream';
  * @param stderr Where everything else goes.
  * @returns The stream of the protocol.
  */
-export function reserveStdoutForProtocol(stdout: NodeJS.WriteStream = process.stdout, stderr: NodeJS.WriteStream = process.stderr): Writable {
-    const write = stdout.write.bind(stdout) as (chunk: unknown, callback: (error?: Error | null) => void) => boolean;
+export function reserveStdoutForProtocol(
+  stdout: NodeJS.WriteStream = process.stdout,
+  stderr: NodeJS.WriteStream = process.stderr,
+): Writable {
+  const write = stdout.write.bind(stdout) as (
+    chunk: unknown,
+    callback: (error?: Error | null) => void,
+  ) => boolean;
 
-    stdout.write = stderr.write.bind(stderr) as typeof stdout.write;
+  stdout.write = stderr.write.bind(stderr) as typeof stdout.write;
 
-    return new Writable({
-        write: (chunk, _encoding, callback) => {
-            write(chunk, callback);
-        }
-    });
+  return new Writable({
+    write: (chunk, _encoding, callback) => {
+      write(chunk, callback);
+    },
+  });
 }

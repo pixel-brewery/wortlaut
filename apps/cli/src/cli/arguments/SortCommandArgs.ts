@@ -14,14 +14,14 @@ import { DEFAULT_SORT_COMMAND_ARGS_CONFIG } from './configurations/ISortCommandA
  * @internal
  */
 export const ORDER_ARG: IProgramArg = {
-    alias: ['-o', '--order'],
-    options: {
-        required: false,
-        default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.order,
-        metavar: 'string',
-        help: 'The sort order of the keys.',
-        choices: ['asc', 'desc']
-    }
+  alias: ['-o', '--order'],
+  options: {
+    required: false,
+    default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.order,
+    metavar: 'string',
+    help: 'The sort order of the keys.',
+    choices: ['asc', 'desc'],
+  },
 };
 
 /**
@@ -30,14 +30,14 @@ export const ORDER_ARG: IProgramArg = {
  * @internal
  */
 export const TYPE_ARG: IProgramArg = {
-    alias: ['-t', '--type'],
-    options: {
-        required: false,
-        default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.type,
-        metavar: 'string',
-        help: 'The type of the resources to sort.',
-        choices: ['json', 'resx', 'po']
-    }
+  alias: ['-t', '--type'],
+  options: {
+    required: false,
+    default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.type,
+    metavar: 'string',
+    help: 'The type of the resources to sort.',
+    choices: ['json', 'resx', 'po'],
+  },
 };
 
 /**
@@ -46,13 +46,13 @@ export const TYPE_ARG: IProgramArg = {
  * @internal
  */
 export const RESOURCE_ROOT_ARG: IProgramArg = {
-    alias: ['-rr', '--resource-root'],
-    options: {
-        required: false,
-        default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.resourceRoot,
-        metavar: 'string',
-        help: 'The directory that contains the resources.'
-    }
+  alias: ['-rr', '--resource-root'],
+  options: {
+    required: false,
+    default: DEFAULT_SORT_COMMAND_ARGS_CONFIG.resourceRoot,
+    metavar: 'string',
+    help: 'The directory that contains the resources.',
+  },
 };
 
 /**
@@ -60,12 +60,6 @@ export const RESOURCE_ROOT_ARG: IProgramArg = {
  *
  * @internal
  */
-export const SORT_COMMAND_ARGS = [
-    ...CLI_ARGS,
-    ORDER_ARG,
-    TYPE_ARG,
-    RESOURCE_ROOT_ARG,
-    REVIEW_ARG
-];
+export const SORT_COMMAND_ARGS = [...CLI_ARGS, ORDER_ARG, TYPE_ARG, RESOURCE_ROOT_ARG, REVIEW_ARG];
 
 // #endregion

@@ -25,50 +25,48 @@ const RECURSIVE_PART = '/**/*';
  * @public
  */
 export class LiteralFileSystem extends FileSystem {
+  // #region Methods
 
-    // #region Methods
-
-    /**
-     * @public
-     * @override
-     */
-    public override fileGlob(pattern: string | Array<string>): Array<string> {
-        if (Array.isArray(pattern)) {
-            return Array.from(new Set(pattern.flatMap((item) => this.fileGlob(item))));
-        }
-
-        return this.find(pattern).filter((file) => !PathResolver.leavesRepository(file));
+  /**
+   * @public
+   * @override
+   */
+  public override fileGlob(pattern: string | Array<string>): Array<string> {
+    if (Array.isArray(pattern)) {
+      return Array.from(new Set(pattern.flatMap((item) => this.fileGlob(item))));
     }
 
-    /**
-     * @private
-     */
-    private find(pattern: string): Array<string> {
-        // The readers join their patterns with the separator of the platform, and a glob only knows the forward slash.
-        const normalized = sep === '\\' ? pattern.replace(/\\/g, '/') : pattern;
-        const recursive = normalized.indexOf(RECURSIVE_PART);
-        const literal = recursive >= 0 ? normalized.slice(0, recursive) : normalized;
+    return this.find(pattern).filter((file) => !PathResolver.leavesRepository(file));
+  }
 
-        if (!GLOB_SYNTAX.test(literal)) {
-            // A glob answers with forward slashes, and the rest of the engine compares the paths of the platform.
-            return super.fileGlob(pattern).map((file) => sep === '\\' ? normalize(file) : file);
-        }
+  /**
+   * @private
+   */
+  private find(pattern: string): Array<string> {
+    // The readers join their patterns with the separator of the platform, and a glob only knows the forward slash.
+    const normalized = sep === '\\' ? pattern.replace(/\\/g, '/') : pattern;
+    const recursive = normalized.indexOf(RECURSIVE_PART);
+    const literal = recursive >= 0 ? normalized.slice(0, recursive) : normalized;
 
-        if (!existsSync(literal)) {
-            return [];
-        }
-
-        if (!statSync(literal).isDirectory()) {
-            return [literal];
-        }
-
-        const extension = recursive >= 0 ? normalized.slice(recursive + RECURSIVE_PART.length) : '';
-
-        return readdirSync(literal, { recursive: true, withFileTypes: true })
-            .filter((entry) => entry.isFile() && entry.name.endsWith(extension))
-            .map((entry) => join(entry.parentPath, entry.name));
+    if (!GLOB_SYNTAX.test(literal)) {
+      // A glob answers with forward slashes, and the rest of the engine compares the paths of the platform.
+      return super.fileGlob(pattern).map((file) => (sep === '\\' ? normalize(file) : file));
     }
 
-    // #endregion
+    if (!existsSync(literal)) {
+      return [];
+    }
 
+    if (!statSync(literal).isDirectory()) {
+      return [literal];
+    }
+
+    const extension = recursive >= 0 ? normalized.slice(recursive + RECURSIVE_PART.length) : '';
+
+    return readdirSync(literal, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith(extension))
+      .map((entry) => join(entry.parentPath, entry.name));
+  }
+
+  // #endregion
 }

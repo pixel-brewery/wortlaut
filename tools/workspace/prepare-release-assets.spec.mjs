@@ -42,7 +42,10 @@ test('prepares both supported installers with exact checksums, sizes and immutab
     const file = receipt.files.find((candidate) => candidate.name === name);
     assert.equal(file.bytes, Buffer.byteLength(original));
     assert.equal(file.sha256, sha256);
-    assert.equal(file.url, `https://github.com/pixel-brewery/wortlaut/releases/download/v1.2.3/${name}`);
+    assert.equal(
+      file.url,
+      `https://github.com/pixel-brewery/wortlaut/releases/download/v1.2.3/${name}`,
+    );
     assert.equal(await readFile(join(options.output, 'assets', name), 'utf8'), original);
     assert.ok(checksums.includes(`${sha256}  ${name}\n`));
   }

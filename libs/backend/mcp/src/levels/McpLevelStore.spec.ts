@@ -9,44 +9,49 @@ import { MCP_LEVEL_FILE_NAME, McpLevelStore } from './McpLevelStore';
 // #endregion
 
 describe('McpLevelStore', () => {
-    let root: string;
+  let root: string;
 
-    beforeEach(() => {
-        root = mkdtempSync(join(tmpdir(), 'wortlaut-levels-'));
-    });
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'wortlaut-levels-'));
+  });
 
-    afterEach(() => {
-        rmSync(root, { recursive: true, force: true });
-    });
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
 
-    it('knows no level until one was chosen', () => {
-        // act
-        const level = new McpLevelStore(root).read();
+  it('knows no level until one was chosen', () => {
+    // act
+    const level = new McpLevelStore(root).read();
 
-        // assert
-        expect(level).toBeNull();
-    });
+    // assert
+    expect(level).toBeNull();
+  });
 
-    it('stores a level in a private file of the profile', () => {
-        // arrange
-        const store = new McpLevelStore(root);
+  it('stores a level in a private file of the profile', () => {
+    // arrange
+    const store = new McpLevelStore(root);
 
-        // act
-        store.write('propose');
+    // act
+    store.write('propose');
 
-        // assert
-        expect(new McpLevelStore(root).read()).toBe('propose');
-        expect(statSync(join(root, MCP_LEVEL_FILE_NAME)).mode & 0o777).toBe(process.platform === 'win32' ? 0o666 : 0o600);
-    });
+    // assert
+    expect(new McpLevelStore(root).read()).toBe('propose');
+    expect(statSync(join(root, MCP_LEVEL_FILE_NAME)).mode & 0o777).toBe(
+      process.platform === 'win32' ? 0o666 : 0o600,
+    );
+  });
 
-    it.each(['not json', '{}', '{"level":"admin"}', '{"level":"write","extra":true}'])('counts a file it cannot trust as no level: %s', (content) => {
-        // arrange
-        writeFileSync(join(root, MCP_LEVEL_FILE_NAME), content);
+  it.each(['not json', '{}', '{"level":"admin"}', '{"level":"write","extra":true}'])(
+    'counts a file it cannot trust as no level: %s',
+    (content) => {
+      // arrange
+      writeFileSync(join(root, MCP_LEVEL_FILE_NAME), content);
 
-        // act
-        const level = new McpLevelStore(root).read();
+      // act
+      const level = new McpLevelStore(root).read();
 
-        // assert
-        expect(level).toBeNull();
-    });
+      // assert
+      expect(level).toBeNull();
+    },
+  );
 });

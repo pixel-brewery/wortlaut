@@ -21,20 +21,20 @@ holds no paths, keys or engine objects, and only the types of `libs/contracts`.
 
 ## Owners
 
-| Owner | Package | Owns |
-| --- | --- | --- |
-| `libs/backend/core` | `@pixel-brewery/wortlaut-core` | Detectors, presets, readers, analyzer rules, transformers, serializers, sorting |
-| `libs/backend/ai` | `@pixel-brewery/wortlaut-ai` | Translation strategies, chunking, prompts, validating model output |
-| `libs/backend/engine` | `@pixel-brewery/wortlaut-engine` | Use cases: projects, configuration, change sets, runs, rule packs, workspaces, the test lab |
-| `libs/contracts` | `@pixel-brewery/wortlaut-contracts` | Zod schemas and types for IPC, runs and settings |
-| `libs/backend/mcp` | `@pixel-brewery/wortlaut-mcp` | The MCP server and its tools over the engine, their permission levels, the plugins |
-| `apps/cli` | `@pixel-brewery/wortlaut-app` | The `wortlaut` command, argument parsing, terminal output |
-| `apps/desktop` | not published | Electron main and preload, windows, dialogs, keychain, Synapse host |
-| `apps/frontend/app` | not published | The thin Angular root: routes, navigation, composition |
-| `libs/frontend/core` | not published | The IPC client, the session of the app, formatting and providers |
-| `libs/frontend/ui` | not published | Reusable components and the Soho theme on Mosaik |
-| `libs/frontend/shell` | not published | Title bar, sidebar and the frame of the views |
-| `libs/frontend/features/<domain>` | not published | One product area: its views, view presenters and routes |
+| Owner                             | Package                             | Owns                                                                                        |
+| --------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------- |
+| `libs/backend/core`               | `@pixel-brewery/wortlaut-core`      | Detectors, presets, readers, analyzer rules, transformers, serializers, sorting             |
+| `libs/backend/ai`                 | `@pixel-brewery/wortlaut-ai`        | Translation strategies, chunking, prompts, validating model output                          |
+| `libs/backend/engine`             | `@pixel-brewery/wortlaut-engine`    | Use cases: projects, configuration, change sets, runs, rule packs, workspaces, the test lab |
+| `libs/contracts`                  | `@pixel-brewery/wortlaut-contracts` | Zod schemas and types for IPC, runs and settings                                            |
+| `libs/backend/mcp`                | `@pixel-brewery/wortlaut-mcp`       | The MCP server and its tools over the engine, their permission levels, the plugins          |
+| `apps/cli`                        | `@pixel-brewery/wortlaut-app`       | The `wortlaut` command, argument parsing, terminal output                                   |
+| `apps/desktop`                    | not published                       | Electron main and preload, windows, dialogs, keychain, Synapse host                         |
+| `apps/frontend/app`               | not published                       | The thin Angular root: routes, navigation, composition                                      |
+| `libs/frontend/core`              | not published                       | The IPC client, the session of the app, formatting and providers                            |
+| `libs/frontend/ui`                | not published                       | Reusable components and the Soho theme on Mosaik                                            |
+| `libs/frontend/shell`             | not published                       | Title bar, sidebar and the frame of the views                                               |
+| `libs/frontend/features/<domain>` | not published                       | One product area: its views, view presenters and routes                                     |
 
 ## Invariants
 

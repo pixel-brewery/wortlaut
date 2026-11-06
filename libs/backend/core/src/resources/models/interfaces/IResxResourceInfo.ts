@@ -12,11 +12,9 @@ import type { ResourceType } from './ResourceType';
  * @public
  */
 export interface IResxResourceInfo extends IResourceInfo<Array<IResxEntry>> {
+  // #region Properties
 
-    // #region Properties
+  readonly type: typeof ResourceType.Resx;
 
-    readonly type: typeof ResourceType.Resx;
-
-    // #endregion
-
+  // #endregion
 }

@@ -3,7 +3,11 @@
 import { z } from 'zod';
 import { RuleSeveritySchema } from '../../rulepacks/RulePack.js';
 import { RunCommandNameSchema } from '../../common/CommandName.js';
-import { PresetSchema, ResourceFormatSchema, ResourceTargetSchema } from '../../settings/ProjectOptions.js';
+import {
+  PresetSchema,
+  ResourceFormatSchema,
+  ResourceTargetSchema,
+} from '../../settings/ProjectOptions.js';
 import { RunStateSchema } from '../../runs/RunRecord.js';
 import { GenerateInputSchema } from './AiDtos.js';
 import { IdSchema } from './ShellDtos.js';
@@ -16,14 +20,14 @@ import { IdSchema } from './ShellDtos.js';
  * @public
  */
 export const WriteOutcomeSchema = z.strictObject({
-    state: z.enum(['applied', 'pending', 'unchanged']),
-    changeSetId: IdSchema.nullable(),
-    runId: IdSchema.nullable(),
+  state: z.enum(['applied', 'pending', 'unchanged']),
+  changeSetId: IdSchema.nullable(),
+  runId: IdSchema.nullable(),
 
-    /**
-     * The files, as display paths.
-     */
-    files: z.array(z.string())
+  /**
+   * The files, as display paths.
+   */
+  files: z.array(z.string()),
 });
 
 /**
@@ -37,9 +41,9 @@ export type WriteOutcome = z.output<typeof WriteOutcomeSchema>;
  * @public
  */
 export const DetectScanInputSchema = z.strictObject({
-    preset: PresetSchema.nullable(),
-    suffix: z.string().max(80),
-    skipTests: z.boolean()
+  preset: PresetSchema.nullable(),
+  suffix: z.string().max(80),
+  skipTests: z.boolean(),
 });
 
 /**
@@ -53,7 +57,7 @@ export type DetectScanInput = z.output<typeof DetectScanInputSchema>;
  * @public
  */
 export const AnalyzeInputSchema = z.strictObject({
-    rules: z.array(z.string().max(120)).max(128)
+  rules: z.array(z.string().max(120)).max(128),
 });
 
 /**
@@ -67,8 +71,7 @@ export type AnalyzeInput = z.output<typeof AnalyzeInputSchema>;
  * @public
  */
 export const TransformInputSchema = z.strictObject({
-    types: z.array(ResourceTargetSchema).min(1)
-        .max(4)
+  types: z.array(ResourceTargetSchema).min(1).max(4),
 });
 
 /**
@@ -82,7 +85,7 @@ export type TransformInput = z.output<typeof TransformInputSchema>;
  * @public
  */
 export const SortInputSchema = z.strictObject({
-    order: z.enum(['asc', 'desc'])
+  order: z.enum(['asc', 'desc']),
 });
 
 /**
@@ -96,11 +99,23 @@ export type SortInput = z.output<typeof SortInputSchema>;
  * @public
  */
 export const RunStartRequestSchema = z.discriminatedUnion('command', [
-    z.strictObject({ command: z.literal('detect'), projectId: IdSchema, input: DetectScanInputSchema }),
-    z.strictObject({ command: z.literal('analyze'), projectId: IdSchema, input: AnalyzeInputSchema }),
-    z.strictObject({ command: z.literal('transform'), projectId: IdSchema, input: TransformInputSchema }),
-    z.strictObject({ command: z.literal('sort'), projectId: IdSchema, input: SortInputSchema }),
-    z.strictObject({ command: z.literal('generate'), projectId: IdSchema, input: GenerateInputSchema })
+  z.strictObject({
+    command: z.literal('detect'),
+    projectId: IdSchema,
+    input: DetectScanInputSchema,
+  }),
+  z.strictObject({ command: z.literal('analyze'), projectId: IdSchema, input: AnalyzeInputSchema }),
+  z.strictObject({
+    command: z.literal('transform'),
+    projectId: IdSchema,
+    input: TransformInputSchema,
+  }),
+  z.strictObject({ command: z.literal('sort'), projectId: IdSchema, input: SortInputSchema }),
+  z.strictObject({
+    command: z.literal('generate'),
+    projectId: IdSchema,
+    input: GenerateInputSchema,
+  }),
 ]);
 
 /**
@@ -114,8 +129,8 @@ export type RunStartRequest = z.output<typeof RunStartRequestSchema>;
  * @public
  */
 export const RunAllRequestSchema = z.strictObject({
-    workspaceId: IdSchema,
-    command: z.enum(['detect', 'analyze', 'transform', 'sort', 'generate'])
+  workspaceId: IdSchema,
+  command: z.enum(['detect', 'analyze', 'transform', 'sort', 'generate']),
 });
 
 /**
@@ -124,16 +139,16 @@ export const RunAllRequestSchema = z.strictObject({
  * @public
  */
 export const RunBatchRowSchema = z.strictObject({
-    projectId: IdSchema,
-    projectName: z.string(),
-    runId: IdSchema,
-    state: z.enum(['waiting', 'running', 'succeeded', 'failed', 'stopped']),
+  projectId: IdSchema,
+  projectName: z.string(),
+  runId: IdSchema,
+  state: z.enum(['waiting', 'running', 'succeeded', 'failed', 'stopped']),
 
-    /**
-     * What the run found or changed, in one line, once it has ended.
-     */
-    summary: z.string().nullable(),
-    failure: z.string().nullable()
+  /**
+   * What the run found or changed, in one line, once it has ended.
+   */
+  summary: z.string().nullable(),
+  failure: z.string().nullable(),
 });
 
 /**
@@ -147,18 +162,17 @@ export type RunBatchRow = z.output<typeof RunBatchRowSchema>;
  * @public
  */
 export const RunBatchSchema = z.strictObject({
-    id: IdSchema,
-    workspaceId: IdSchema,
-    command: z.enum(['detect', 'analyze', 'transform', 'sort', 'generate']),
-    dryRun: z.boolean(),
-    startedAt: z.iso.datetime(),
+  id: IdSchema,
+  workspaceId: IdSchema,
+  command: z.enum(['detect', 'analyze', 'transform', 'sort', 'generate']),
+  dryRun: z.boolean(),
+  startedAt: z.iso.datetime(),
 
-    /**
-     * How many projects work at the same time.
-     */
-    concurrency: z.number().int()
-        .positive(),
-    rows: z.array(RunBatchRowSchema)
+  /**
+   * How many projects work at the same time.
+   */
+  concurrency: z.number().int().positive(),
+  rows: z.array(RunBatchRowSchema),
 });
 
 /**
@@ -172,35 +186,33 @@ export type RunBatch = z.output<typeof RunBatchSchema>;
  * @public
  */
 export const ActiveRunSchema = z.strictObject({
-    id: IdSchema,
-    command: RunCommandNameSchema,
-    projectId: IdSchema,
-    projectName: z.string(),
-    title: z.string(),
-    startedAt: z.iso.datetime(),
-    dryRun: z.boolean(),
-    phase: z.string(),
-    completed: z.number().int()
-        .nonnegative(),
-    total: z.number().int()
-        .nonnegative(),
-    detail: z.string().nullable(),
+  id: IdSchema,
+  command: RunCommandNameSchema,
+  projectId: IdSchema,
+  projectName: z.string(),
+  title: z.string(),
+  startedAt: z.iso.datetime(),
+  dryRun: z.boolean(),
+  phase: z.string(),
+  completed: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  detail: z.string().nullable(),
 
-    /**
-     * The batch of "Run on all projects" this run belongs to.
-     */
-    batch: z.strictObject({
-        id: IdSchema,
-        index: z.number().int()
-            .nonnegative(),
-        total: z.number().int()
-            .positive()
-    }).nullable(),
+  /**
+   * The batch of "Run on all projects" this run belongs to.
+   */
+  batch: z
+    .strictObject({
+      id: IdSchema,
+      index: z.number().int().nonnegative(),
+      total: z.number().int().positive(),
+    })
+    .nullable(),
 
-    /**
-     * The last lines of its log.
-     */
-    log: z.array(z.string())
+  /**
+   * The last lines of its log.
+   */
+  log: z.array(z.string()),
 });
 
 /**
@@ -214,10 +226,10 @@ export type ActiveRun = z.output<typeof ActiveRunSchema>;
  * @public
  */
 export const DetectHintSchema = z.discriminatedUnion('kind', [
-    z.strictObject({ kind: z.literal('reuse'), key: z.string() }),
-    z.strictObject({ kind: z.literal('new') }),
-    z.strictObject({ kind: z.literal('test') }),
-    z.strictObject({ kind: z.literal('placeholder') })
+  z.strictObject({ kind: z.literal('reuse'), key: z.string() }),
+  z.strictObject({ kind: z.literal('new') }),
+  z.strictObject({ kind: z.literal('test') }),
+  z.strictObject({ kind: z.literal('placeholder') }),
 ]);
 
 /**
@@ -231,40 +243,38 @@ export type DetectHint = z.output<typeof DetectHintSchema>;
  * @public
  */
 export const DetectRowSchema = z.strictObject({
-    id: IdSchema,
-    value: z.string(),
+  id: IdSchema,
+  value: z.string(),
 
-    /**
-     * The file, relative to the project.
-     */
-    file: z.string(),
+  /**
+   * The file, relative to the project.
+   */
+  file: z.string(),
 
-    /**
-     * The file name and line, for the table.
-     */
-    location: z.string(),
-    line: z.number().int()
-        .positive(),
-    column: z.number().int()
-        .nonnegative(),
-    key: z.string(),
-    hint: DetectHintSchema,
+  /**
+   * The file name and line, for the table.
+   */
+  location: z.string(),
+  line: z.number().int().positive(),
+  column: z.number().int().nonnegative(),
+  key: z.string(),
+  hint: DetectHintSchema,
 
-    /**
-     * Whether it can be applied at all: a test file or a value with a placeholder stays as it is.
-     */
-    canApply: z.boolean(),
+  /**
+   * Whether it can be applied at all: a test file or a value with a placeholder stays as it is.
+   */
+  canApply: z.boolean(),
 
-    /**
-     * The line of the source today, and what it becomes.
-     */
-    before: z.string(),
-    after: z.string(),
+  /**
+   * The line of the source today, and what it becomes.
+   */
+  before: z.string(),
+  after: z.string(),
 
-    /**
-     * What stands around the value in its line, so a view can show the line with another key.
-     */
-    around: z.strictObject({ head: z.string(), tail: z.string() }).nullable()
+  /**
+   * What stands around the value in its line, so a view can show the line with another key.
+   */
+  around: z.strictObject({ head: z.string(), tail: z.string() }).nullable(),
 });
 
 /**
@@ -278,25 +288,21 @@ export type DetectRow = z.output<typeof DetectRowSchema>;
  * @public
  */
 export const DetectScanResultSchema = z.strictObject({
-    scanId: IdSchema,
-    filesScanned: z.number().int()
-        .nonnegative(),
-    stringsFound: z.number().int()
-        .nonnegative(),
-    alreadyKeys: z.number().int()
-        .nonnegative(),
-    hardCoded: z.number().int()
-        .nonnegative(),
+  scanId: IdSchema,
+  filesScanned: z.number().int().nonnegative(),
+  stringsFound: z.number().int().nonnegative(),
+  alreadyKeys: z.number().int().nonnegative(),
+  hardCoded: z.number().int().nonnegative(),
 
-    /**
-     * The first hard-coded strings. A very big project holds more, which the next scan finds.
-     */
-    rows: z.array(DetectRowSchema),
+  /**
+   * The first hard-coded strings. A very big project holds more, which the next scan finds.
+   */
+  rows: z.array(DetectRowSchema),
 
-    /**
-     * The walk stopped at its bound, so a very big repository may hold more.
-     */
-    truncated: z.boolean()
+  /**
+   * The walk stopped at its bound, so a very big repository may hold more.
+   */
+  truncated: z.boolean(),
 });
 
 /**
@@ -310,14 +316,20 @@ export type DetectScanResult = z.output<typeof DetectScanResultSchema>;
  * @public
  */
 export const DetectApplyRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    scanId: IdSchema,
-    rows: z.array(z.strictObject({
+  projectId: IdSchema,
+  scanId: IdSchema,
+  rows: z
+    .array(
+      z.strictObject({
         rowId: IdSchema,
-        key: z.string().regex(/^[\p{L}\p{N}_.-]+$/u)
-            .max(300)
-    })).min(1)
-        .max(20000)
+        key: z
+          .string()
+          .regex(/^[\p{L}\p{N}_.-]+$/u)
+          .max(300),
+      }),
+    )
+    .min(1)
+    .max(20000),
 });
 
 /**
@@ -331,9 +343,9 @@ export type DetectApplyRequest = z.output<typeof DetectApplyRequestSchema>;
  * @public
  */
 export const PresetInfoSchema = z.strictObject({
-    id: PresetSchema,
-    name: z.string(),
-    extensions: z.array(z.string())
+  id: PresetSchema,
+  name: z.string(),
+  extensions: z.array(z.string()),
 });
 
 /**
@@ -347,12 +359,12 @@ export type PresetInfo = z.output<typeof PresetInfoSchema>;
  * @public
  */
 export const DetectSettingsSchema = z.strictObject({
-    presets: z.array(PresetInfoSchema),
-    preset: PresetSchema.nullable(),
-    sourceRoot: z.string(),
-    prefix: z.string(),
-    suffix: z.string(),
-    format: ResourceFormatSchema
+  presets: z.array(PresetInfoSchema),
+  preset: PresetSchema.nullable(),
+  sourceRoot: z.string(),
+  prefix: z.string(),
+  suffix: z.string(),
+  format: ResourceFormatSchema,
 });
 
 /**
@@ -378,9 +390,9 @@ export type ExceptionListName = z.output<typeof ExceptionListNameSchema>;
  * @public
  */
 export const ExceptionsSchema = z.strictObject({
-    usedKeys: z.array(z.string()),
-    identicalKeys: z.array(z.string()),
-    identicalValues: z.array(z.string())
+  usedKeys: z.array(z.string()),
+  identicalKeys: z.array(z.string()),
+  identicalValues: z.array(z.string()),
 });
 
 /**
@@ -394,10 +406,8 @@ export type Exceptions = z.output<typeof ExceptionsSchema>;
  * @public
  */
 export const RuleLocaleCountSchema = z.strictObject({
-    locale: z.string().nullable(),
-    count: z.number().int()
-        .nonnegative()
-        .nullable()
+  locale: z.string().nullable(),
+  count: z.number().int().nonnegative().nullable(),
 });
 
 /**
@@ -406,23 +416,25 @@ export const RuleLocaleCountSchema = z.strictObject({
  * @public
  */
 export const AnalyzeRuleSchema = z.strictObject({
-    id: z.string(),
-    group: z.string(),
-    description: z.string(),
-    enabled: z.boolean(),
+  id: z.string(),
+  group: z.string(),
+  description: z.string(),
+  enabled: z.boolean(),
 
-    /**
-     * What the rule is worth in this project, which colors its result.
-     */
-    severity: RuleSeveritySchema,
+  /**
+   * What the rule is worth in this project, which colors its result.
+   */
+  severity: RuleSeveritySchema,
 
-    /**
-     * The result of the last analysis, or `null` when it did not run this rule.
-     */
-    last: z.strictObject({
-        passed: z.boolean(),
-        locales: z.array(RuleLocaleCountSchema)
-    }).nullable()
+  /**
+   * The result of the last analysis, or `null` when it did not run this rule.
+   */
+  last: z
+    .strictObject({
+      passed: z.boolean(),
+      locales: z.array(RuleLocaleCountSchema),
+    })
+    .nullable(),
 });
 
 /**
@@ -436,16 +448,16 @@ export type AnalyzeRule = z.output<typeof AnalyzeRuleSchema>;
  * @public
  */
 export const AnalyzeOverviewSchema = z.strictObject({
-    baseLocale: z.string(),
-    locales: z.array(z.string()),
-    sourceRoot: z.string().nullable(),
-    rules: z.array(AnalyzeRuleSchema),
-    exceptions: ExceptionsSchema,
+  baseLocale: z.string(),
+  locales: z.array(z.string()),
+  sourceRoot: z.string().nullable(),
+  rules: z.array(AnalyzeRuleSchema),
+  exceptions: ExceptionsSchema,
 
-    /**
-     * The packs of the lock file that failed their verification. Their rules do not run.
-     */
-    refusedPacks: z.array(z.strictObject({ name: z.string(), reason: z.string() }))
+  /**
+   * The packs of the lock file that failed their verification. Their rules do not run.
+   */
+  refusedPacks: z.array(z.strictObject({ name: z.string(), reason: z.string() })),
 });
 
 /**
@@ -459,20 +471,19 @@ export type AnalyzeOverview = z.output<typeof AnalyzeOverviewSchema>;
  * @public
  */
 export const AnalyzeRowSchema = z.strictObject({
+  /**
+   * The first column: a key, a value or a locale.
+   */
+  a: z.string(),
 
-    /**
-     * The first column: a key, a value or a locale.
-     */
-    a: z.string(),
-
-    /**
-     * The second column.
-     */
-    b: z.string(),
-    key: z.string().nullable(),
-    value: z.string().nullable(),
-    keys: z.array(z.string()),
-    locale: z.string().nullable()
+  /**
+   * The second column.
+   */
+  b: z.string(),
+  key: z.string().nullable(),
+  value: z.string().nullable(),
+  keys: z.array(z.string()),
+  locale: z.string().nullable(),
 });
 
 /**
@@ -486,31 +497,32 @@ export type AnalyzeRow = z.output<typeof AnalyzeRowSchema>;
  * @public
  */
 export const AnalyzeRuleResultSchema = z.strictObject({
-    id: z.string(),
-    passed: z.boolean(),
-    message: z.string(),
-    locales: z.array(RuleLocaleCountSchema),
+  id: z.string(),
+  passed: z.boolean(),
+  message: z.string(),
+  locales: z.array(RuleLocaleCountSchema),
 
-    /**
-     * How many rows there are in all, of which `rows` holds the first ones.
-     */
-    total: z.number().int()
-        .nonnegative(),
-    rows: z.array(AnalyzeRowSchema),
+  /**
+   * How many rows there are in all, of which `rows` holds the first ones.
+   */
+  total: z.number().int().nonnegative(),
+  rows: z.array(AnalyzeRowSchema),
 
-    /**
-     * What the rule is worth in this run.
-     */
-    severity: RuleSeveritySchema,
+  /**
+   * What the rule is worth in this run.
+   */
+  severity: RuleSeveritySchema,
 
-    /**
-     * What a rule of a pack says about itself. A built-in rule has this in the view.
-     */
-    pack: z.strictObject({
-        name: z.string(),
-        title: z.string(),
-        column: z.string()
-    }).nullable()
+  /**
+   * What a rule of a pack says about itself. A built-in rule has this in the view.
+   */
+  pack: z
+    .strictObject({
+      name: z.string(),
+      title: z.string(),
+      column: z.string(),
+    })
+    .nullable(),
 });
 
 /**
@@ -524,10 +536,10 @@ export type AnalyzeRuleResult = z.output<typeof AnalyzeRuleResultSchema>;
  * @public
  */
 export const TransformFormatSchema = z.strictObject({
-    id: ResourceTargetSchema,
-    name: z.string(),
-    description: z.string(),
-    enabled: z.boolean()
+  id: ResourceTargetSchema,
+  name: z.string(),
+  description: z.string(),
+  enabled: z.boolean(),
 });
 
 /**
@@ -541,17 +553,14 @@ export type TransformFormat = z.output<typeof TransformFormatSchema>;
  * @public
  */
 export const TransformOverviewSchema = z.strictObject({
-
-    /**
-     * The name of the source catalogs, such as `lang.*.json`.
-     */
-    source: z.string(),
-    formats: z.array(TransformFormatSchema),
-    order: z.enum(['asc', 'desc']),
-    keyCount: z.number().int()
-        .nonnegative(),
-    fileCount: z.number().int()
-        .nonnegative()
+  /**
+   * The name of the source catalogs, such as `lang.*.json`.
+   */
+  source: z.string(),
+  formats: z.array(TransformFormatSchema),
+  order: z.enum(['asc', 'desc']),
+  keyCount: z.number().int().nonnegative(),
+  fileCount: z.number().int().nonnegative(),
 });
 
 /**
@@ -565,12 +574,11 @@ export type TransformOverview = z.output<typeof TransformOverviewSchema>;
  * @public
  */
 export const OutputRowSchema = z.strictObject({
-    file: z.string(),
-    keys: z.number().int()
-        .nonnegative(),
-    state: z.enum(['written', 'would-be-written', 'waiting', 'unchanged']),
-    preview: z.string(),
-    previewTruncated: z.boolean()
+  file: z.string(),
+  keys: z.number().int().nonnegative(),
+  state: z.enum(['written', 'would-be-written', 'waiting', 'unchanged']),
+  preview: z.string(),
+  previewTruncated: z.boolean(),
 });
 
 /**
@@ -584,12 +592,11 @@ export type OutputRow = z.output<typeof OutputRowSchema>;
  * @public
  */
 export const RunOutputSchema = z.discriminatedUnion('command', [
-    z.strictObject({ command: z.literal('detect'), scan: DetectScanResultSchema }),
-    z.strictObject({ command: z.literal('analyze'), rules: z.array(AnalyzeRuleResultSchema) }),
-    z.strictObject({ command: z.literal('transform'), rows: z.array(OutputRowSchema) }),
-    z.strictObject({ command: z.literal('sort'), rows: z.array(OutputRowSchema) }),
-    z.strictObject({ command: z.literal('generate'), translated: z.number().int()
-        .nonnegative() })
+  z.strictObject({ command: z.literal('detect'), scan: DetectScanResultSchema }),
+  z.strictObject({ command: z.literal('analyze'), rules: z.array(AnalyzeRuleResultSchema) }),
+  z.strictObject({ command: z.literal('transform'), rows: z.array(OutputRowSchema) }),
+  z.strictObject({ command: z.literal('sort'), rows: z.array(OutputRowSchema) }),
+  z.strictObject({ command: z.literal('generate'), translated: z.number().int().nonnegative() }),
 ]);
 
 /**
@@ -603,14 +610,14 @@ export type RunOutput = z.output<typeof RunOutputSchema>;
  * @public
  */
 export const RunResultSchema = z.strictObject({
-    runId: IdSchema,
-    command: RunCommandNameSchema,
-    projectId: IdSchema,
-    state: RunStateSchema,
-    dryRun: z.boolean(),
-    failure: z.string().nullable(),
-    outcome: WriteOutcomeSchema.nullable(),
-    output: RunOutputSchema.nullable()
+  runId: IdSchema,
+  command: RunCommandNameSchema,
+  projectId: IdSchema,
+  state: RunStateSchema,
+  dryRun: z.boolean(),
+  failure: z.string().nullable(),
+  outcome: WriteOutcomeSchema.nullable(),
+  output: RunOutputSchema.nullable(),
 });
 
 /**

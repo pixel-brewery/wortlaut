@@ -10,9 +10,9 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const detectRoutes: Routes = [
-    {
-        path: 'detect',
-        title: 'Detect · Wortlaut',
-        loadComponent: () => import('../views/DetectView').then((module) => module.DetectView)
-    }
+  {
+    path: 'detect',
+    title: 'Detect · Wortlaut',
+    loadComponent: () => import('../views/DetectView').then((module) => module.DetectView),
+  },
 ];

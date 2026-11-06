@@ -12,10 +12,10 @@ import type { IUseCase, IUseCaseContext, IUseCaseOutput } from '../runs/CommandR
  * @internal
  */
 export interface IGenerateWriteOptions {
-    locales: Array<string>;
-    strategy: string;
-    count: number;
-    runId: string;
+  locales: Array<string>;
+  strategy: string;
+  count: number;
+  runId: string;
 }
 
 /**
@@ -24,52 +24,56 @@ export interface IGenerateWriteOptions {
  * @internal
  */
 export class GenerateWriteUseCase implements IUseCase<IGenerateWriteOptions, Array<string>> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'generate';
 
-    public readonly command = 'generate';
+  private readonly _session: TranslationSession;
 
-    private readonly _session: TranslationSession;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `GenerateWriteUseCase` class.
+   *
+   * @param session The session.
+   */
+  public constructor(session: TranslationSession) {
+    this._session = session;
+  }
 
-    /**
-     * Constructs a new instance of the `GenerateWriteUseCase` class.
-     *
-     * @param session The session.
-     */
-    public constructor(session: TranslationSession) {
-        this._session = session;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @override
+   */
+  public detail(options: IGenerateWriteOptions): string {
+    return `Write ${options.count} accepted for ${options.locales.join(', ')}`;
+  }
+
+  /**
+   * @override
+   */
+  public async execute(
+    options: IGenerateWriteOptions,
+    context: IUseCaseContext,
+  ): Promise<IUseCaseOutput<Array<string>>> {
+    const targets = await composeTargets(this._session, options.locales[0] ?? null);
+
+    for (const { path, content } of targets) {
+      context.changes.propose(path, content);
     }
 
-    // #endregion
+    context.logger.log(`Writing ${options.count} accepted for ${options.locales.join(', ')}`);
 
-    // #region Methods
+    return {
+      result: targets.map((target) => target.path),
+      data: { count: options.count, locale: options.locales[0] },
+    };
+  }
 
-    /**
-     * @override
-     */
-    public detail(options: IGenerateWriteOptions): string {
-        return `Write ${options.count} accepted for ${options.locales.join(', ')}`;
-    }
-
-    /**
-     * @override
-     */
-    public async execute(options: IGenerateWriteOptions, context: IUseCaseContext): Promise<IUseCaseOutput<Array<string>>> {
-        const targets = await composeTargets(this._session, options.locales[0] ?? null);
-
-        for (const { path, content } of targets) {
-            context.changes.propose(path, content);
-        }
-
-        context.logger.log(`Writing ${options.count} accepted for ${options.locales.join(', ')}`);
-
-        return { result: targets.map((target) => target.path), data: { count: options.count, locale: options.locales[0] } };
-    }
-
-    // #endregion
-
+  // #endregion
 }

@@ -5,7 +5,10 @@ import type { IResourceModel } from '@pixel-brewery/wortlaut-core';
 import { promptText, type ITranslationPrompt } from '../../prompts/TranslationPrompt.js';
 import { RESOURCE_MODEL_SCHEMA } from '../schemas/ResourceModelSchema.js';
 import { BaseResourceGeneratorStrategy } from './abstracts/BaseResourceGeneratorStrategy.js';
-import type { ICompletionRequest, ITranscribeOptions } from './interfaces/IResourceGeneratorStrategy.js';
+import type {
+  ICompletionRequest,
+  ITranscribeOptions,
+} from './interfaces/IResourceGeneratorStrategy.js';
 
 // #endregion
 
@@ -13,10 +16,10 @@ import type { ICompletionRequest, ITranscribeOptions } from './interfaces/IResou
  * The shape an assistant is asked to answer in, where it supports that. A tool that returns JSON wants an object at its root.
  */
 const ROWS_SCHEMA = {
-    type: 'object',
-    properties: { rows: { type: 'array', items: RESOURCE_MODEL_SCHEMA } },
-    required: ['rows'],
-    additionalProperties: false
+  type: 'object',
+  properties: { rows: { type: 'array', items: RESOURCE_MODEL_SCHEMA } },
+  required: ['rows'],
+  additionalProperties: false,
 } as const;
 
 /**
@@ -25,9 +28,9 @@ const ROWS_SCHEMA = {
  * @public
  */
 export interface ILocalAssistantTurn {
-    prompt: string;
-    outputSchema?: Readonly<Record<string, unknown>>;
-    signal?: AbortSignal;
+  prompt: string;
+  outputSchema?: Readonly<Record<string, unknown>>;
+  signal?: AbortSignal;
 }
 
 /**
@@ -36,9 +39,9 @@ export interface ILocalAssistantTurn {
  * @public
  */
 export interface ILocalAssistantAnswer {
-    text: string;
-    structured?: unknown;
-    tokens: number | null;
+  text: string;
+  structured?: unknown;
+  tokens: number | null;
 }
 
 /**
@@ -48,7 +51,7 @@ export interface ILocalAssistantAnswer {
  * @public
  */
 export interface ILocalAssistant {
-    run(turn: ILocalAssistantTurn): Promise<ILocalAssistantAnswer>;
+  run(turn: ILocalAssistantTurn): Promise<ILocalAssistantAnswer>;
 }
 
 /**
@@ -61,16 +64,16 @@ export interface ILocalAssistant {
  * @throws Error when the text holds no JSON with rows.
  */
 export function readRows(text: string): unknown {
-    const start = text.search(/[[{]/);
+  const start = text.search(/[[{]/);
 
-    if (start < 0) {
-        throw new Error('The answer holds no JSON.');
-    }
+  if (start < 0) {
+    throw new Error('The answer holds no JSON.');
+  }
 
-    const end = Math.max(text.lastIndexOf(']'), text.lastIndexOf('}'));
-    const parsed: unknown = JSON.parse(text.slice(start, end + 1));
+  const end = Math.max(text.lastIndexOf(']'), text.lastIndexOf('}'));
+  const parsed: unknown = JSON.parse(text.slice(start, end + 1));
 
-    return Array.isArray(parsed) ? parsed : (parsed as { rows?: unknown } | null)?.rows ?? parsed;
+  return Array.isArray(parsed) ? parsed : ((parsed as { rows?: unknown } | null)?.rows ?? parsed);
 }
 
 /**
@@ -79,65 +82,77 @@ export function readRows(text: string): unknown {
  * @public
  */
 export class LocalAssistantResourceGeneratorStrategy extends BaseResourceGeneratorStrategy {
+  // #region Fields
 
-    // #region Fields
+  private readonly _assistant: ILocalAssistant;
 
-    private readonly _assistant: ILocalAssistant;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `LocalAssistantResourceGeneratorStrategy` class.
+   *
+   * @public
+   * @param fileSystem The service to handle file operations.
+   * @param assistant The assistant, composed by the surface.
+   * @param instructions The instructions of the project.
+   */
+  public constructor(
+    fileSystem: IFileSystem,
+    assistant: ILocalAssistant,
+    instructions: string | Array<string> = '',
+  ) {
+    super(fileSystem, { apiKey: '', model: '', temperature: 0, instructions });
 
-    /**
-     * Constructs a new instance of the `LocalAssistantResourceGeneratorStrategy` class.
-     *
-     * @public
-     * @param fileSystem The service to handle file operations.
-     * @param assistant The assistant, composed by the surface.
-     * @param instructions The instructions of the project.
-     */
-    public constructor(fileSystem: IFileSystem, assistant: ILocalAssistant, instructions: string | Array<string> = '') {
-        super(fileSystem, { apiKey: '', model: '', temperature: 0, instructions });
+    this._assistant = assistant;
+  }
 
-        this._assistant = assistant;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @protected
+   * @override
+   */
+  protected override async processResource(
+    prompt: ITranslationPrompt,
+    options?: ITranscribeOptions,
+  ): Promise<Array<IResourceModel>> {
+    const answer = await this._assistant.run({
+      prompt: promptText(prompt),
+      outputSchema: ROWS_SCHEMA,
+      signal: options?.signal,
+    });
+
+    options?.onRaw?.(answer.text);
+
+    if (answer.tokens !== null) {
+      options?.onUsage?.(answer.tokens);
     }
 
-    // #endregion
+    const structured = (answer.structured as { rows?: unknown } | null | undefined)?.rows;
 
-    // #region Methods
+    return (structured ?? readRows(answer.text)) as Array<IResourceModel>;
+  }
 
-    /**
-     * @protected
-     * @override
-     */
-    protected override async processResource(prompt: ITranslationPrompt, options?: ITranscribeOptions): Promise<Array<IResourceModel>> {
-        const answer = await this._assistant.run({ prompt: promptText(prompt), outputSchema: ROWS_SCHEMA, signal: options?.signal });
+  /**
+   * @protected
+   * @override
+   */
+  protected override async processCompletion(request: ICompletionRequest): Promise<string> {
+    const answer = await this._assistant.run({
+      prompt: promptText(request),
+      signal: request.signal,
+    });
 
-        options?.onRaw?.(answer.text);
-
-        if (answer.tokens !== null) {
-            options?.onUsage?.(answer.tokens);
-        }
-
-        const structured = (answer.structured as { rows?: unknown } | null | undefined)?.rows;
-
-        return (structured ?? readRows(answer.text)) as Array<IResourceModel>;
+    if (answer.tokens !== null) {
+      request.onUsage?.(answer.tokens);
     }
 
-    /**
-     * @protected
-     * @override
-     */
-    protected override async processCompletion(request: ICompletionRequest): Promise<string> {
-        const answer = await this._assistant.run({ prompt: promptText(request), signal: request.signal });
+    return answer.text;
+  }
 
-        if (answer.tokens !== null) {
-            request.onUsage?.(answer.tokens);
-        }
-
-        return answer.text;
-    }
-
-    // #endregion
-
+  // #endregion
 }

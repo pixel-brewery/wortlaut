@@ -10,9 +10,10 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const translationsRoutes: Routes = [
-    {
-        path: 'translations',
-        title: 'Translations · Wortlaut',
-        loadComponent: () => import('../views/TranslationsView').then((module) => module.TranslationsView)
-    }
+  {
+    path: 'translations',
+    title: 'Translations · Wortlaut',
+    loadComponent: () =>
+      import('../views/TranslationsView').then((module) => module.TranslationsView),
+  },
 ];

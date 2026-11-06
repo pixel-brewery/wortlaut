@@ -11,14 +11,13 @@ import { IdSchema } from './ShellDtos.js';
  * @public
  */
 export const SearchQueryRequestSchema = z.strictObject({
-    text: z.string().min(1)
-        .max(200),
-    workspaceId: IdSchema,
+  text: z.string().min(1).max(200),
+  workspaceId: IdSchema,
 
-    /**
-     * The open project, whose results come first.
-     */
-    projectId: IdSchema.nullable()
+  /**
+   * The open project, whose results come first.
+   */
+  projectId: IdSchema.nullable(),
 });
 
 /**
@@ -27,10 +26,10 @@ export const SearchQueryRequestSchema = z.strictObject({
  * @public
  */
 export const SearchKeyResultSchema = z.strictObject({
-    key: z.string(),
-    value: z.string(),
-    projectId: IdSchema,
-    projectName: z.string()
+  key: z.string(),
+  value: z.string(),
+  projectId: IdSchema,
+  projectName: z.string(),
 });
 
 /**
@@ -44,11 +43,11 @@ export type SearchKeyResult = z.output<typeof SearchKeyResultSchema>;
  * @public
  */
 export const SearchFileResultSchema = z.strictObject({
-    id: IdSchema,
-    file: z.string(),
-    kind: z.enum(['catalog', 'settings', 'source']),
-    projectId: IdSchema,
-    projectName: z.string()
+  id: IdSchema,
+  file: z.string(),
+  kind: z.enum(['catalog', 'settings', 'source']),
+  projectId: IdSchema,
+  projectName: z.string(),
 });
 
 /**
@@ -62,13 +61,13 @@ export type SearchFileResult = z.output<typeof SearchFileResultSchema>;
  * @public
  */
 export const SearchResultsSchema = z.strictObject({
-    keys: z.array(SearchKeyResultSchema),
-    files: z.array(SearchFileResultSchema),
+  keys: z.array(SearchKeyResultSchema),
+  files: z.array(SearchFileResultSchema),
 
-    /**
-     * There is more than these, so a longer text finds it.
-     */
-    truncated: z.boolean()
+  /**
+   * There is more than these, so a longer text finds it.
+   */
+  truncated: z.boolean(),
 });
 
 /**

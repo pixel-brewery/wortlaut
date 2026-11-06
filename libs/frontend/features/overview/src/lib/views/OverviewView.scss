@@ -212,7 +212,6 @@ mosaik-card-header {
   .step-grid {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   }
-
 }
 
 @media (max-height: 700px) {

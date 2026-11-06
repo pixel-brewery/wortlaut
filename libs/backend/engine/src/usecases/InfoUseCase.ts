@@ -11,10 +11,10 @@ import type { IUseCase, IUseCaseOutput } from '../runs/CommandRunner.js';
  * @public
  */
 export interface IInfoResult {
-    platform: string;
-    arch: string;
-    cpus: number;
-    totalMemory: number;
+  platform: string;
+  arch: string;
+  cpus: number;
+  totalMemory: number;
 }
 
 /**
@@ -23,16 +23,19 @@ export interface IInfoResult {
  * @internal
  */
 export class InfoUseCase implements IUseCase<Record<string, never>, IInfoResult> {
+  public readonly command = 'info';
 
-    public readonly command = 'info';
+  /**
+   * @override
+   */
+  public execute(): Promise<IUseCaseOutput<IInfoResult>> {
+    const result: IInfoResult = {
+      platform: platform(),
+      arch: arch(),
+      cpus: cpus().length,
+      totalMemory: totalmem(),
+    };
 
-    /**
-     * @override
-     */
-    public execute(): Promise<IUseCaseOutput<IInfoResult>> {
-        const result: IInfoResult = { platform: platform(), arch: arch(), cpus: cpus().length, totalMemory: totalmem() };
-
-        return Promise.resolve({ result, data: result });
-    }
-
+    return Promise.resolve({ result, data: result });
+  }
 }

@@ -6,8 +6,17 @@
     <div class="settings-layout page-content">
       <nav class="settings-nav" aria-label="Settings">
         @for (section of sections; track section.route) {
-          <a routerLinkActive #active="routerLinkActive" [routerLink]="section.route" [attr.aria-current]="active.isActive ? 'page' : null">
-            <mosaik-menu-item [label]="section.label" [icon]="section.icon" [isActive]="active.isActive" />
+          <a
+            routerLinkActive
+            #active="routerLinkActive"
+            [routerLink]="section.route"
+            [attr.aria-current]="active.isActive ? 'page' : null"
+          >
+            <mosaik-menu-item
+              [label]="section.label"
+              [icon]="section.icon"
+              [isActive]="active.isActive"
+            />
           </a>
         }
       </nav>

@@ -10,16 +10,7 @@
     "outDir": "./dist",
     "declarationDir": "./dist",
     "tsBuildInfoFile": "./.cache/.tscbuildinfo",
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "6.0"
   },
-  "exclude": [
-    "**/*.spec.ts",
-    "**/_*.ts",
-    "node_modules",
-    "wwwroot",
-    "bin",
-    "obj",
-    "dist",
-    "temp"
-  ]
+  "exclude": ["**/*.spec.ts", "**/_*.ts", "node_modules", "wwwroot", "bin", "obj", "dist", "temp"]
 }

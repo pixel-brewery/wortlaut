@@ -11,5 +11,5 @@ const TEST_FILE = /\.(spec|test)\.[cm]?[jt]sx?$/i;
  * @returns `true` for a test file.
  */
 export function isTestFile(path: string): boolean {
-    return TEST_FILE.test(path);
+  return TEST_FILE.test(path);
 }

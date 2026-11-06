@@ -15,31 +15,29 @@ import { SearchPalettePresenter } from '../view-presenters/SearchPalettePresente
  * The frame of every view after the start screens: title bar, sidebar and the view.
  */
 @Component({
-    selector: 'wortlaut-app-shell',
-    imports: [RouterOutlet, SidebarComponent, TitlebarComponent, SplitComponent, PaneSizeDirective],
-    providers: [AppShellViewPresenter, SearchPalettePresenter],
-    templateUrl: './AppShellView.html',
-    styleUrl: './AppShellView.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-app-shell',
+  imports: [RouterOutlet, SidebarComponent, TitlebarComponent, SplitComponent, PaneSizeDirective],
+  providers: [AppShellViewPresenter, SearchPalettePresenter],
+  templateUrl: './AppShellView.html',
+  styleUrl: './AppShellView.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellView implements OnInit {
+  // #region Fields
 
-    // #region Fields
+  private readonly _presenter = inject(AppShellViewPresenter);
 
-    private readonly _presenter = inject(AppShellViewPresenter);
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @public
+   * @override
+   */
+  public ngOnInit(): void {
+    void this._presenter.load();
+  }
 
-    /**
-     * @public
-     * @override
-     */
-    public ngOnInit(): void {
-        void this._presenter.load();
-    }
-
-    // #endregion
-
+  // #endregion
 }

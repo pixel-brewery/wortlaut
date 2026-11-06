@@ -3,7 +3,15 @@
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { FileSystem } from '@pixel-brewery/utilities';
-import { AiProviderHost, createEnvironmentKeySource, LocalAssistantResourceGeneratorStrategy, LocalAssistants, type IResourceGeneratorStrategy, type ISynapseModules, type LocalAssistantId } from '@pixel-brewery/wortlaut-ai';
+import {
+  AiProviderHost,
+  createEnvironmentKeySource,
+  LocalAssistantResourceGeneratorStrategy,
+  LocalAssistants,
+  type IResourceGeneratorStrategy,
+  type ISynapseModules,
+  type LocalAssistantId,
+} from '@pixel-brewery/wortlaut-ai';
 import { resolveProfileRoot } from '@pixel-brewery/wortlaut-engine';
 
 // #endregion
@@ -12,7 +20,9 @@ import { resolveProfileRoot } from '@pixel-brewery/wortlaut-engine';
  * Loads a package that only speaks ES modules. The command line is compiled to CommonJS, where a plain `import()` would turn
  * into a `require`.
  */
-const importModule = new Function('specifier', 'return import(specifier)') as <TModule>(specifier: string) => Promise<TModule>;
+const importModule = new Function('specifier', 'return import(specifier)') as <TModule>(
+  specifier: string,
+) => Promise<TModule>;
 
 /**
  * Loads Synapse when an assistant is first asked for something, so a command that needs none starts as fast as ever.
@@ -20,15 +30,28 @@ const importModule = new Function('specifier', 'return import(specifier)') as <T
  * @private
  */
 async function loadSynapse(): Promise<ISynapseModules> {
-    const [core, runtime, claude, codex, opencode] = await Promise.all([
-        importModule<typeof import('@pixel-brewery/synapse-core')>('@pixel-brewery/synapse-core'),
-        importModule<typeof import('@pixel-brewery/synapse-runtime')>('@pixel-brewery/synapse-runtime'),
-        importModule<typeof import('@pixel-brewery/synapse-provider-claude')>('@pixel-brewery/synapse-provider-claude'),
-        importModule<typeof import('@pixel-brewery/synapse-provider-codex')>('@pixel-brewery/synapse-provider-codex'),
-        importModule<typeof import('@pixel-brewery/synapse-provider-opencode')>('@pixel-brewery/synapse-provider-opencode')
-    ]);
+  const [core, runtime, claude, codex, opencode] = await Promise.all([
+    importModule<typeof import('@pixel-brewery/synapse-core')>('@pixel-brewery/synapse-core'),
+    importModule<typeof import('@pixel-brewery/synapse-runtime')>('@pixel-brewery/synapse-runtime'),
+    importModule<typeof import('@pixel-brewery/synapse-provider-claude')>(
+      '@pixel-brewery/synapse-provider-claude',
+    ),
+    importModule<typeof import('@pixel-brewery/synapse-provider-codex')>(
+      '@pixel-brewery/synapse-provider-codex',
+    ),
+    importModule<typeof import('@pixel-brewery/synapse-provider-opencode')>(
+      '@pixel-brewery/synapse-provider-opencode',
+    ),
+  ]);
 
-    return { AiRuntime: runtime.AiRuntime, NodeProcessRunner: runtime.NodeProcessRunner, ClaudeDriver: claude.ClaudeDriver, CodexDriver: codex.CodexDriver, OpenCodeDriver: opencode.OpenCodeDriver, isCleanupIncomplete: core.isCleanupIncomplete };
+  return {
+    AiRuntime: runtime.AiRuntime,
+    NodeProcessRunner: runtime.NodeProcessRunner,
+    ClaudeDriver: claude.ClaudeDriver,
+    CodexDriver: codex.CodexDriver,
+    OpenCodeDriver: opencode.OpenCodeDriver,
+    isCleanupIncomplete: core.isCleanupIncomplete,
+  };
 }
 
 /**
@@ -39,14 +62,14 @@ async function loadSynapse(): Promise<ISynapseModules> {
  * @returns The assistants.
  */
 export function createCliAssistants(environment: NodeJS.ProcessEnv = process.env): LocalAssistants {
-    const home = homedir();
+  const home = homedir();
 
-    return new LocalAssistants({
-        synapse: loadSynapse,
-        stateRoot: join(resolveProfileRoot(environment, process.platform, home), 'assistants'),
-        environment,
-        home
-    });
+  return new LocalAssistants({
+    synapse: loadSynapse,
+    stateRoot: join(resolveProfileRoot(environment, process.platform, home), 'assistants'),
+    environment,
+    home,
+  });
 }
 
 /**
@@ -58,7 +81,11 @@ export function createCliAssistants(environment: NodeJS.ProcessEnv = process.env
  * @returns The providers.
  */
 export function createCliProviders(environment: NodeJS.ProcessEnv = process.env): AiProviderHost {
-    return new AiProviderHost({ fileSystem: new FileSystem(), local: createCliAssistants(environment), keys: createEnvironmentKeySource(environment) });
+  return new AiProviderHost({
+    fileSystem: new FileSystem(),
+    local: createCliAssistants(environment),
+    keys: createEnvironmentKeySource(environment),
+  });
 }
 
 /**
@@ -69,6 +96,13 @@ export function createCliProviders(environment: NodeJS.ProcessEnv = process.env)
  * @param assistants The assistants.
  * @returns The strategies by name.
  */
-export function createLocalStrategies(assistants: LocalAssistants): ReadonlyMap<string, IResourceGeneratorStrategy> {
-    return new Map((['claude-code', 'codex', 'opencode'] as const).map((name: LocalAssistantId) => [name, new LocalAssistantResourceGeneratorStrategy(new FileSystem(), assistants.assistant(name))]));
+export function createLocalStrategies(
+  assistants: LocalAssistants,
+): ReadonlyMap<string, IResourceGeneratorStrategy> {
+  return new Map(
+    (['claude-code', 'codex', 'opencode'] as const).map((name: LocalAssistantId) => [
+      name,
+      new LocalAssistantResourceGeneratorStrategy(new FileSystem(), assistants.assistant(name)),
+    ]),
+  );
 }

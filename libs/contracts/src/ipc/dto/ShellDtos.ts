@@ -10,8 +10,10 @@ import { WorkspaceCodeSchema, WorkspaceColorSchema } from '../../workspaces/Work
  *
  * @public
  */
-export const IdSchema = z.string().regex(/^[A-Za-z0-9-]+$/)
-    .max(128);
+export const IdSchema = z
+  .string()
+  .regex(/^[A-Za-z0-9-]+$/)
+  .max(128);
 
 /**
  * What the sidebar and the bug report show about the app.
@@ -19,13 +21,12 @@ export const IdSchema = z.string().regex(/^[A-Za-z0-9-]+$/)
  * @public
  */
 export const AppInfoSchema = z.strictObject({
-    name: z.string(),
-    version: z.string(),
-    platform: z.string(),
-    arch: z.string(),
-    cpus: z.number().int()
-        .nonnegative(),
-    totalMemory: z.number().nonnegative()
+  name: z.string(),
+  version: z.string(),
+  platform: z.string(),
+  arch: z.string(),
+  cpus: z.number().int().nonnegative(),
+  totalMemory: z.number().nonnegative(),
 });
 
 /**
@@ -39,10 +40,10 @@ export type AppInfo = z.output<typeof AppInfoSchema>;
  * @public
  */
 export const WorkspaceRefSchema = z.strictObject({
-    id: IdSchema,
-    code: WorkspaceCodeSchema,
-    color: WorkspaceColorSchema,
-    name: z.string()
+  id: IdSchema,
+  code: WorkspaceCodeSchema,
+  color: WorkspaceColorSchema,
+  name: z.string(),
 });
 
 /**
@@ -56,8 +57,8 @@ export type WorkspaceRef = z.output<typeof WorkspaceRefSchema>;
  * @public
  */
 export const ProjectRefSchema = z.strictObject({
-    id: IdSchema,
-    name: z.string()
+  id: IdSchema,
+  name: z.string(),
 });
 
 /**
@@ -71,24 +72,23 @@ export type ProjectRef = z.output<typeof ProjectRefSchema>;
  * @public
  */
 export const ShellStateSchema = z.strictObject({
-    workspace: WorkspaceRefSchema.nullable(),
-    project: ProjectRefSchema.nullable(),
+  workspace: WorkspaceRefSchema.nullable(),
+  project: ProjectRefSchema.nullable(),
 
-    /**
-     * What the title bar says about the active AI provider, or `null` when none is set up.
-     */
-    provider: z.string().nullable(),
+  /**
+   * What the title bar says about the active AI provider, or `null` when none is set up.
+   */
+  provider: z.string().nullable(),
 
-    /**
-     * Controls that write leave their change set in Review, and nothing reaches the repository.
-     */
-    dryRun: z.boolean(),
+  /**
+   * Controls that write leave their change set in Review, and nothing reaches the repository.
+   */
+  dryRun: z.boolean(),
 
-    /**
-     * How many change sets wait in Review for the open workspace.
-     */
-    pendingChanges: z.number().int()
-        .nonnegative()
+  /**
+   * How many change sets wait in Review for the open workspace.
+   */
+  pendingChanges: z.number().int().nonnegative(),
 });
 
 /**
@@ -103,9 +103,9 @@ export type ShellState = z.output<typeof ShellStateSchema>;
  * @public
  */
 export const FolderSelectionSchema = z.strictObject({
-    token: z.uuid(),
-    displayPath: z.string(),
-    name: z.string()
+  token: z.uuid(),
+  displayPath: z.string(),
+  name: z.string(),
 });
 
 /**
@@ -119,7 +119,7 @@ export type FolderSelection = z.output<typeof FolderSelectionSchema>;
  * @public
  */
 export const FolderChoiceSchema = z.strictObject({
-    folder: FolderSelectionSchema.nullable()
+  folder: FolderSelectionSchema.nullable(),
 });
 
 /**
@@ -146,26 +146,25 @@ export type ColorMode = z.output<typeof ColorModeSchema>;
  * @public
  */
 export const AppSettingsSchema = z.strictObject({
+  /**
+   * Sets the Dry run switch of the title bar at launch.
+   */
+  startInDryRun: z.boolean(),
 
-    /**
-     * Sets the Dry run switch of the title bar at launch.
-     */
-    startInDryRun: z.boolean(),
+  /**
+   * Adds what a run does in detail to its log.
+   */
+  verboseLog: z.boolean(),
 
-    /**
-     * Adds what a run does in detail to its log.
-     */
-    verboseLog: z.boolean(),
+  /**
+   * Reuses results of files that did not change.
+   */
+  cacheResults: z.boolean(),
 
-    /**
-     * Reuses results of files that did not change.
-     */
-    cacheResults: z.boolean(),
-
-    /**
-     * Follows the system until the user picks a mode.
-     */
-    colorMode: ColorModeSchema.nullable()
+  /**
+   * Follows the system until the user picks a mode.
+   */
+  colorMode: ColorModeSchema.nullable(),
 });
 
 /**
@@ -179,12 +178,12 @@ export type AppSettings = z.output<typeof AppSettingsSchema>;
  * @public
  */
 export const AppSettingsViewSchema = AppSettingsSchema.extend({
-    cacheFolder: z.string(),
+  cacheFolder: z.string(),
 
-    /**
-     * The mode the app shows right now, which the system decides until the user picks one.
-     */
-    activeColorMode: ColorModeSchema
+  /**
+   * The mode the app shows right now, which the system decides until the user picks one.
+   */
+  activeColorMode: ColorModeSchema,
 });
 
 /**
@@ -198,7 +197,7 @@ export type AppSettingsView = z.output<typeof AppSettingsViewSchema>;
  * @public
  */
 export const SavedFileSchema = z.strictObject({
-    file: z.string().nullable()
+  file: z.string().nullable(),
 });
 
 /**

@@ -8,83 +8,83 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renameOver } from './AtomicFile';
 
 vi.mock('node:fs', async (importOriginal) => {
-    const original = await importOriginal<typeof import('node:fs')>();
+  const original = await importOriginal<typeof import('node:fs')>();
 
-    return { ...original, renameSync: vi.fn(original.renameSync) };
+  return { ...original, renameSync: vi.fn(original.renameSync) };
 });
 
 // #endregion
 
 describe('renameOver', () => {
-    const real = vi.mocked(fs.renameSync).getMockImplementation() as typeof fs.renameSync;
-    let root: string;
-    let from: string;
-    let to: string;
+  const real = vi.mocked(fs.renameSync).getMockImplementation() as typeof fs.renameSync;
+  let root: string;
+  let from: string;
+  let to: string;
 
-    function refuse(code: string, times: number): void {
-        let refused = 0;
+  function refuse(code: string, times: number): void {
+    let refused = 0;
 
-        vi.mocked(fs.renameSync).mockImplementation((source, target) => {
-            if (refused++ < times) {
-                throw Object.assign(new Error(code), { code });
-            }
+    vi.mocked(fs.renameSync).mockImplementation((source, target) => {
+      if (refused++ < times) {
+        throw Object.assign(new Error(code), { code });
+      }
 
-            real(source, target);
-        });
-    }
-
-    beforeEach(() => {
-        root = mkdtempSync(join(tmpdir(), 'wortlaut-rename-'));
-        from = join(root, 'from');
-        to = join(root, 'to');
-        writeFileSync(from, 'new');
-        writeFileSync(to, 'old');
-        vi.mocked(fs.renameSync).mockClear();
+      real(source, target);
     });
+  }
 
-    afterEach(() => {
-        vi.mocked(fs.renameSync).mockImplementation(real);
-        rmSync(root, { recursive: true, force: true });
-    });
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'wortlaut-rename-'));
+    from = join(root, 'from');
+    to = join(root, 'to');
+    writeFileSync(from, 'new');
+    writeFileSync(to, 'old');
+    vi.mocked(fs.renameSync).mockClear();
+  });
 
-    it('waits out a target that another program holds on Windows', () => {
-        // arrange
-        refuse('EPERM', 2);
+  afterEach(() => {
+    vi.mocked(fs.renameSync).mockImplementation(real);
+    rmSync(root, { recursive: true, force: true });
+  });
 
-        // act
-        renameOver(from, to, 'win32');
+  it('waits out a target that another program holds on Windows', () => {
+    // arrange
+    refuse('EPERM', 2);
 
-        // assert
-        expect(readFileSync(to, 'utf8')).toBe('new');
-        expect(existsSync(from)).toBe(false);
-        expect(fs.renameSync).toHaveBeenCalledTimes(3);
-    });
+    // act
+    renameOver(from, to, 'win32');
 
-    it('gives up with the error of the system when the target stays held', () => {
-        // arrange
-        refuse('EBUSY', Number.POSITIVE_INFINITY);
+    // assert
+    expect(readFileSync(to, 'utf8')).toBe('new');
+    expect(existsSync(from)).toBe(false);
+    expect(fs.renameSync).toHaveBeenCalledTimes(3);
+  });
 
-        // act & assert
-        expect(() => renameOver(from, to, 'win32')).toThrow('EBUSY');
-        expect(fs.renameSync).toHaveBeenCalledTimes(6);
-        expect(readFileSync(to, 'utf8')).toBe('old');
-    });
+  it('gives up with the error of the system when the target stays held', () => {
+    // arrange
+    refuse('EBUSY', Number.POSITIVE_INFINITY);
 
-    it('does not wait for an error that time does not solve', () => {
-        // arrange
-        refuse('ENOENT', Number.POSITIVE_INFINITY);
+    // act & assert
+    expect(() => renameOver(from, to, 'win32')).toThrow('EBUSY');
+    expect(fs.renameSync).toHaveBeenCalledTimes(6);
+    expect(readFileSync(to, 'utf8')).toBe('old');
+  });
 
-        // act & assert
-        expect(() => renameOver(from, to, 'win32')).toThrow('ENOENT');
-        expect(fs.renameSync).toHaveBeenCalledTimes(1);
-    });
+  it('does not wait for an error that time does not solve', () => {
+    // arrange
+    refuse('ENOENT', Number.POSITIVE_INFINITY);
 
-    it('does not wait on other platforms, where the same error is final', () => {
-        // arrange
-        refuse('EPERM', Number.POSITIVE_INFINITY);
+    // act & assert
+    expect(() => renameOver(from, to, 'win32')).toThrow('ENOENT');
+    expect(fs.renameSync).toHaveBeenCalledTimes(1);
+  });
 
-        // act & assert
-        expect(() => renameOver(from, to, 'linux')).toThrow('EPERM');
-        expect(fs.renameSync).toHaveBeenCalledTimes(1);
-    });
+  it('does not wait on other platforms, where the same error is final', () => {
+    // arrange
+    refuse('EPERM', Number.POSITIVE_INFINITY);
+
+    // act & assert
+    expect(() => renameOver(from, to, 'linux')).toThrow('EPERM');
+    expect(fs.renameSync).toHaveBeenCalledTimes(1);
+  });
 });

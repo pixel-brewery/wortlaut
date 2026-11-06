@@ -27,54 +27,62 @@ const GITIGNORE_FILE_NAME = '.gitignore';
  * @internal
  */
 export class InitUseCase implements IUseCase<IInitOptions, string> {
+  public readonly command = 'init';
 
-    public readonly command = 'init';
+  /**
+   * @override
+   */
+  public execute(options: IInitOptions, context: IUseCaseContext): Promise<IUseCaseOutput<string>> {
+    const file = join(context.cwd, CONFIG_FILE_NAME);
+    const existing = [file, join(context.cwd, FALLBACK_FILE_NAME)].find((path) => existsSync(path));
 
-    /**
-     * @override
-     */
-    public execute(options: IInitOptions, context: IUseCaseContext): Promise<IUseCaseOutput<string>> {
-        const file = join(context.cwd, CONFIG_FILE_NAME);
-        const existing = [file, join(context.cwd, FALLBACK_FILE_NAME)].find((path) => existsSync(path));
-
-        if (existing && !options.force) {
-            throw new EngineError('invalid-arguments', `The project already has the configuration file ${existing}. Use --force to replace it.`, [existing]);
-        }
-
-        const settings = ProjectOptionsSchema.safeParse(options.settings);
-
-        if (!settings.success) {
-            throw new EngineError('invalid-arguments', `The settings are invalid: ${settings.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ')}`);
-        }
-
-        const secrets = findSecretNames(settings.data);
-
-        if (secrets.length > 0) {
-            throw new EngineError('secret-refused', `The configuration file stays free of secrets. Leave out ${secrets.join(', ')} and read the key from the environment.`);
-        }
-
-        context.changes.propose(file, `${JSON.stringify(settings.data, null, 2)}\n`);
-        this.ignoreCache(context);
-
-        return Promise.resolve({ result: file, data: { file } });
+    if (existing && !options.force) {
+      throw new EngineError(
+        'invalid-arguments',
+        `The project already has the configuration file ${existing}. Use --force to replace it.`,
+        [existing],
+      );
     }
 
-    /**
-     * Keeps the folder of the cache out of Git, in the same change set.
-     *
-     * @private
-     */
-    private ignoreCache(context: IUseCaseContext): void {
-        const path = join(context.cwd, GITIGNORE_FILE_NAME);
-        const current = existsSync(path) ? readFileSync(path, 'utf8') : '';
+    const settings = ProjectOptionsSchema.safeParse(options.settings);
 
-        if (!isIgnored(current)) {
-            const separator = current.length === 0 || current.endsWith('\n') ? '' : '\n';
-
-            context.changes.propose(path, `${current}${separator}${DEFAULT_CACHE_FOLDER}/\n`);
-        }
+    if (!settings.success) {
+      throw new EngineError(
+        'invalid-arguments',
+        `The settings are invalid: ${settings.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ')}`,
+      );
     }
 
+    const secrets = findSecretNames(settings.data);
+
+    if (secrets.length > 0) {
+      throw new EngineError(
+        'secret-refused',
+        `The configuration file stays free of secrets. Leave out ${secrets.join(', ')} and read the key from the environment.`,
+      );
+    }
+
+    context.changes.propose(file, `${JSON.stringify(settings.data, null, 2)}\n`);
+    this.ignoreCache(context);
+
+    return Promise.resolve({ result: file, data: { file } });
+  }
+
+  /**
+   * Keeps the folder of the cache out of Git, in the same change set.
+   *
+   * @private
+   */
+  private ignoreCache(context: IUseCaseContext): void {
+    const path = join(context.cwd, GITIGNORE_FILE_NAME);
+    const current = existsSync(path) ? readFileSync(path, 'utf8') : '';
+
+    if (!isIgnored(current)) {
+      const separator = current.length === 0 || current.endsWith('\n') ? '' : '\n';
+
+      context.changes.propose(path, `${current}${separator}${DEFAULT_CACHE_FOLDER}/\n`);
+    }
+  }
 }
 
 /**
@@ -83,10 +91,10 @@ export class InitUseCase implements IUseCase<IInitOptions, string> {
  * @private
  */
 function isIgnored(gitignore: string): boolean {
-    const [parent] = DEFAULT_CACHE_FOLDER.split('/');
+  const [parent] = DEFAULT_CACHE_FOLDER.split('/');
 
-    return gitignore.split(/\r?\n/u)
-        .map((line) => line.trim().replace(/^\//u, '')
-            .replace(/\/$/u, ''))
-        .some((line) => line === DEFAULT_CACHE_FOLDER || line === parent);
+  return gitignore
+    .split(/\r?\n/u)
+    .map((line) => line.trim().replace(/^\//u, '').replace(/\/$/u, ''))
+    .some((line) => line === DEFAULT_CACHE_FOLDER || line === parent);
 }

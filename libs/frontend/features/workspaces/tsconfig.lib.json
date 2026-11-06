@@ -8,11 +8,7 @@
     "sourceMap": false,
     "incremental": false,
     "types": [],
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "target": "ES2022",
     "module": "Preserve",
     "moduleResolution": "bundler",
@@ -20,10 +16,6 @@
     "emitDecoratorMetadata": false,
     "emitDeclarationOnly": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "src/**/*.spec.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
 }

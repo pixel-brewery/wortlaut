@@ -2,11 +2,19 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { IFileSystem, ILogger, IProgramArg, ProgramCommandResult } from '@pixel-brewery/utilities';
+import type {
+  IFileSystem,
+  ILogger,
+  IProgramArg,
+  ProgramCommandResult,
+} from '@pixel-brewery/utilities';
 import type { CommandReport } from '@pixel-brewery/wortlaut-contracts';
 import type { IEngineOutcome, WortlautEngine } from '@pixel-brewery/wortlaut-engine';
 import { reserveStdoutForProtocol, runMcpServer } from '@pixel-brewery/wortlaut-mcp';
-import { DEFAULT_MCP_COMMAND_ARGS_CONFIG, type IMcpCommandArgsConfig } from '../arguments/configurations/IMcpCommandArgsConfig.js';
+import {
+  DEFAULT_MCP_COMMAND_ARGS_CONFIG,
+  type IMcpCommandArgsConfig,
+} from '../arguments/configurations/IMcpCommandArgsConfig.js';
 import { MCP_COMMAND_ARGS } from '../arguments/McpCommandArgs.js';
 import { EngineCommand } from './abstracts/EngineCommand.js';
 
@@ -21,7 +29,7 @@ import { EngineCommand } from './abstracts/EngineCommand.js';
  * @returns `true` for `wortlaut mcp`. Its help stays a normal command.
  */
 export function asksForMcpServer(argv: ReadonlyArray<string>): boolean {
-    return argv[2] === 'mcp' && !argv.includes('--help') && !argv.includes('-h');
+  return argv[2] === 'mcp' && !argv.includes('--help') && !argv.includes('-h');
 }
 
 /**
@@ -33,18 +41,24 @@ export function asksForMcpServer(argv: ReadonlyArray<string>): boolean {
  * @returns When the server ended.
  */
 export async function startMcpServer(argv: ReadonlyArray<string>): Promise<void> {
-    const output = reserveStdoutForProtocol();
+  const output = reserveStdoutForProtocol();
 
-    if (argv.length > 3) {
-        console.error('wortlaut mcp takes no arguments. What assistants may do is set in the app, under MCP and plugins.');
-    }
+  if (argv.length > 3) {
+    console.error(
+      'wortlaut mcp takes no arguments. What assistants may do is set in the app, under MCP and plugins.',
+    );
+  }
 
-    await runMcpServer({
-        cwd: process.cwd(),
-        env: process.env,
-        version: (JSON.parse(readFileSync(join(__dirname, '../../../package.json'), 'utf8')) as { version: string }).version,
-        output
-    });
+  await runMcpServer({
+    cwd: process.cwd(),
+    env: process.env,
+    version: (
+      JSON.parse(readFileSync(join(__dirname, '../../../package.json'), 'utf8')) as {
+        version: string;
+      }
+    ).version,
+    output,
+  });
 }
 
 /**
@@ -54,68 +68,68 @@ export async function startMcpServer(argv: ReadonlyArray<string>): Promise<void>
  * @internal
  */
 export class McpCommand extends EngineCommand<IMcpCommandArgsConfig, undefined> {
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `McpCommand` class.
+   *
+   * @public
+   */
+  public constructor(config: IMcpCommandArgsConfig, logger: ILogger, fileSystem: IFileSystem) {
+    super(config, logger, fileSystem);
+  }
 
-    /**
-     * Constructs a new instance of the `McpCommand` class.
-     *
-     * @public
-     */
-    public constructor(config: IMcpCommandArgsConfig, logger: ILogger, fileSystem: IFileSystem) {
-        super(config, logger, fileSystem);
-    }
+  // #endregion
 
-    // #endregion
+  // #region Properties
 
-    // #region Properties
+  public get name(): string {
+    return 'mcp';
+  }
 
-    public get name(): string {
-        return 'mcp';
-    }
+  public get args(): Array<IProgramArg> {
+    return MCP_COMMAND_ARGS;
+  }
 
-    public get args(): Array<IProgramArg> {
-        return MCP_COMMAND_ARGS;
-    }
+  /**
+   * @protected
+   * @override
+   */
+  protected override get settingNames(): Readonly<Record<string, string>> {
+    return {};
+  }
 
-    /**
-     * @protected
-     * @override
-     */
-    protected override get settingNames(): Readonly<Record<string, string>> {
-        return {};
-    }
+  /**
+   * @protected
+   * @override
+   */
+  protected override get defaults(): IMcpCommandArgsConfig {
+    return DEFAULT_MCP_COMMAND_ARGS_CONFIG;
+  }
 
-    /**
-     * @protected
-     * @override
-     */
-    protected override get defaults(): IMcpCommandArgsConfig {
-        return DEFAULT_MCP_COMMAND_ARGS_CONFIG;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @public
+   * @override
+   */
+  public override async execute(): Promise<ProgramCommandResult<undefined>> {
+    await startMcpServer(process.argv);
 
-    /**
-     * @public
-     * @override
-     */
-    public override async execute(): Promise<ProgramCommandResult<undefined>> {
-        await startMcpServer(process.argv);
+    return { canceled: false, result: undefined };
+  }
 
-        return { canceled: false, result: undefined };
-    }
+  /**
+   * @protected
+   * @override
+   */
+  protected override run(
+    _engine: WortlautEngine,
+  ): Promise<IEngineOutcome<undefined> | { result: undefined; report: CommandReport }> {
+    throw new Error('The MCP server does not run as a command of the program.');
+  }
 
-    /**
-     * @protected
-     * @override
-     */
-    protected override run(_engine: WortlautEngine): Promise<IEngineOutcome<undefined> | { result: undefined; report: CommandReport }> {
-        throw new Error('The MCP server does not run as a command of the program.');
-    }
-
-    // #endregion
-
+  // #endregion
 }

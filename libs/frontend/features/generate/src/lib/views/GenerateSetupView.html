@@ -3,22 +3,45 @@
     <div class="page-header">
       <div class="page-title">
         <h1>Generate</h1>
-        <p class="lead">Translate the base locale with AI. Keys stay untouched, and you review the result before it is written.</p>
+        <p class="lead">
+          Translate the base locale with AI. Keys stay untouched, and you review the result before
+          it is written.
+        </p>
       </div>
       @if (!presenter.activeRunId() && presenter.latestRunId(); as runId) {
-        <mosaik-button label="Open the last run" variant="neutral" appearance="outline" (click)="presenter.openRun(runId)" />
+        <mosaik-button
+          label="Open the last run"
+          variant="neutral"
+          appearance="outline"
+          (click)="presenter.openRun(runId)"
+        />
       }
     </div>
 
     @if (presenter.overview.isLoading()) {
       <wortlaut-loading-state label="Reading the catalogs" />
     } @else if (presenter.overview.isFailed()) {
-      <wortlaut-failure-state header="This project could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
+      <wortlaut-failure-state
+        header="This project could not be read"
+        [message]="presenter.overview.error()"
+        (retry)="presenter.load()"
+      />
     } @else if (presenter.overview.value(); as overview) {
       @if (presenter.activeRunId(); as runId) {
         <div class="active-run">
-          <mosaik-message variant="info" header="A translation is going on" content="It runs on, whatever this screen does." />
-          <mosaik-button test-id="generate-open-active-run" label="Open the run" size="small" variant="neutral" appearance="outline" (click)="presenter.openRun(runId)" />
+          <mosaik-message
+            variant="info"
+            header="A translation is going on"
+            content="It runs on, whatever this screen does."
+          />
+          <mosaik-button
+            test-id="generate-open-active-run"
+            label="Open the run"
+            size="small"
+            variant="neutral"
+            appearance="outline"
+            (click)="presenter.openRun(runId)"
+          />
         </div>
       }
       @if (presenter.message(); as message) {
@@ -26,180 +49,340 @@
       }
 
       @if (overview.keyCount === 0) {
-        <mosaik-empty-state header="No keys yet" content="This project has no catalog of its base locale. Detect finds strings that need a key." />
+        <mosaik-empty-state
+          header="No keys yet"
+          content="This project has no catalog of its base locale. Detect finds strings that need a key."
+        />
       } @else {
-      <mosaik-split class="pane-split page-content" test-id="generate-setup-split" paneSizeKey="generate.setup" paneSize="300px" lock="end" min="260px" max="55%" [intl]="{ resizeLabel: 'Resize translation summary' }">
-        <div slot="start" class="setup-main pane-start">
-          <section aria-label="What to translate" class="card-section">
-            <mosaik-card>
-              <mosaik-card-header slot="header" text="What to translate" />
-              <div slot="content" class="card-fields">
-                <div class="field">
-                  <span id="targets-label" class="field-label">Target locales, from <wortlaut-locale-label [code]="overview.baseLocale" [label]="presenter.baseName()" /></span>
-                  <div role="group" aria-labelledby="targets-label" class="targets">
-                    @for (target of presenter.targets(); track target.code) {
-                      <div class="target">
-                        <mosaik-chip class="locale-flag" [icon]="(target.code | localeFlag) ?? ''" [label]="target.name" [isCheckable]="true" [isChecked]="target.isChecked" (checked)="presenter.setTarget(target.code, true)" (unchecked)="presenter.setTarget(target.code, false)" />
-                        <span class="note">{{ target.state }}</span>
-                      </div>
-                    } @empty {
-                      <span class="muted">This project has no other locale yet.</span>
-                    }
-                    <mosaik-button label="Add locale" icon="add" iconSize="small" size="small" appearance="plain" (click)="presenter.openAddLocale()" />
+        <mosaik-split
+          class="pane-split page-content"
+          test-id="generate-setup-split"
+          paneSizeKey="generate.setup"
+          paneSize="300px"
+          lock="end"
+          min="260px"
+          max="55%"
+          [intl]="{ resizeLabel: 'Resize translation summary' }"
+        >
+          <div slot="start" class="setup-main pane-start">
+            <section aria-label="What to translate" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="What to translate" />
+                <div slot="content" class="card-fields">
+                  <div class="field">
+                    <span id="targets-label" class="field-label"
+                      >Target locales, from
+                      <wortlaut-locale-label
+                        [code]="overview.baseLocale"
+                        [label]="presenter.baseName()"
+                    /></span>
+                    <div role="group" aria-labelledby="targets-label" class="targets">
+                      @for (target of presenter.targets(); track target.code) {
+                        <div class="target">
+                          <mosaik-chip
+                            class="locale-flag"
+                            [icon]="(target.code | localeFlag) ?? ''"
+                            [label]="target.name"
+                            [isCheckable]="true"
+                            [isChecked]="target.isChecked"
+                            (checked)="presenter.setTarget(target.code, true)"
+                            (unchecked)="presenter.setTarget(target.code, false)"
+                          />
+                          <span class="note">{{ target.state }}</span>
+                        </div>
+                      } @empty {
+                        <span class="muted">This project has no other locale yet.</span>
+                      }
+                      <mosaik-button
+                        label="Add locale"
+                        icon="add"
+                        iconSize="small"
+                        size="small"
+                        appearance="plain"
+                        (click)="presenter.openAddLocale()"
+                      />
+                    </div>
+                  </div>
+                  <div class="key-row">
+                    <div class="field key-scope">
+                      <span class="field-label">Keys</span>
+                      <mosaik-segment appearance="soft" size="small" aria-label="Keys">
+                        <mosaik-segment-item
+                          label="All keys"
+                          [isChecked]="presenter.choice() === 'all'"
+                          (click)="presenter.pickChoice('all')"
+                        />
+                        <mosaik-segment-item
+                          label="Only new"
+                          [isChecked]="presenter.choice() === 'new'"
+                          (click)="presenter.pickChoice('new')"
+                        />
+                        <mosaik-segment-item
+                          label="Only missing"
+                          [isChecked]="presenter.choice() === 'missing'"
+                          (click)="presenter.pickChoice('missing')"
+                        />
+                        <mosaik-segment-item
+                          label="Namespace"
+                          [isChecked]="presenter.choice() === 'namespace'"
+                          (click)="presenter.pickChoice('namespace')"
+                        />
+                      </mosaik-segment>
+                      @if (presenter.choice() === 'namespace') {
+                        <mosaik-select
+                          aria-label="Namespace"
+                          size="small"
+                          [formField]="presenter.form.namespace"
+                        >
+                          @for (namespace of overview.namespaces; track namespace.path) {
+                            <mosaik-select-item
+                              [value]="namespace.path"
+                              [label]="namespace.path + ' (' + namespace.count + ')'"
+                            />
+                          }
+                        </mosaik-select>
+                      }
+                      @if (presenter.choice() === 'keys') {
+                        <div>
+                          <mosaik-chip
+                            [label]="presenter.seededKeys() + ' keys from Analyze'"
+                            [closeable]="true"
+                            (closed)="presenter.clearSeededKeys()"
+                          />
+                        </div>
+                      }
+                    </div>
+                    <div class="field key-limit">
+                      <span class="field-label">Limit</span>
+                      <mosaik-textbox
+                        aria-label="Limit"
+                        placeholder="No limit"
+                        [invalid]="presenter.limitError() !== null"
+                        [formField]="presenter.form.limit"
+                      />
+                      @if (presenter.limitError(); as error) {
+                        <span role="alert" class="note field-error">{{ error }}</span>
+                      }
+                    </div>
                   </div>
                 </div>
-                <div class="key-row">
-                  <div class="field key-scope">
-                    <span class="field-label">Keys</span>
-                    <mosaik-segment appearance="soft" size="small" aria-label="Keys">
-                      <mosaik-segment-item label="All keys" [isChecked]="presenter.choice() === 'all'" (click)="presenter.pickChoice('all')" />
-                      <mosaik-segment-item label="Only new" [isChecked]="presenter.choice() === 'new'" (click)="presenter.pickChoice('new')" />
-                      <mosaik-segment-item label="Only missing" [isChecked]="presenter.choice() === 'missing'" (click)="presenter.pickChoice('missing')" />
-                      <mosaik-segment-item label="Namespace" [isChecked]="presenter.choice() === 'namespace'" (click)="presenter.pickChoice('namespace')" />
-                    </mosaik-segment>
-                    @if (presenter.choice() === 'namespace') {
-                      <mosaik-select aria-label="Namespace" size="small" [formField]="presenter.form.namespace">
-                        @for (namespace of overview.namespaces; track namespace.path) {
-                          <mosaik-select-item [value]="namespace.path" [label]="namespace.path + ' (' + namespace.count + ')'" />
+              </mosaik-card>
+            </section>
+
+            <section aria-label="Provider and model" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Provider and model">
+                  <div slot="suffix" class="card-suffix">
+                    <mosaik-anchor href="#/settings/ai" label="Manage providers" />
+                  </div>
+                </mosaik-card-header>
+                <div slot="content" class="card-fields">
+                  <mosaik-choice-group orientation="horizontal" aria-label="Provider">
+                    @for (choice of presenter.providerChoices(); track choice.id) {
+                      <mosaik-choice
+                        [label]="choice.name"
+                        [additional]="choice.state2"
+                        [value]="choice.id"
+                        [isChecked]="choice.isChecked"
+                        (click)="pick(choice.id)"
+                      />
+                    }
+                  </mosaik-choice-group>
+                  <div class="model-row">
+                    @if (presenter.isLocal()) {
+                      <mosaik-select label="Model" value="default" [disabled]="true">
+                        <mosaik-select-item
+                          value="default"
+                          label="Default of the assistant"
+                          [isSelected]="true"
+                        />
+                      </mosaik-select>
+                      <p class="note model-note">Local assistants use their own model settings.</p>
+                    } @else {
+                      <mosaik-select label="Model" [formField]="presenter.form.model">
+                        @for (model of presenter.models.value(); track model) {
+                          <mosaik-select-item [value]="model" [label]="model" />
                         }
                       </mosaik-select>
+                      <div class="field">
+                        <span class="temperature-label"
+                          >Temperature
+                          <span class="muted temperature-value">{{
+                            presenter.temperatureText()
+                          }}</span></span
+                        >
+                        <mosaik-slider
+                          aria-label="Temperature"
+                          [min]="0"
+                          [max]="10"
+                          [step]="1"
+                          [value]="presenter.temperature() * 10"
+                          (rangeValueChanged)="onTemperature($event)"
+                        />
+                      </div>
                     }
-                    @if (presenter.choice() === 'keys') {
-                      <div><mosaik-chip [label]="presenter.seededKeys() + ' keys from Analyze'" [closeable]="true" (closed)="presenter.clearSeededKeys()" /></div>
-                    }
-                  </div>
-                  <div class="field key-limit">
-                    <span class="field-label">Limit</span>
-                    <mosaik-textbox aria-label="Limit" placeholder="No limit" [invalid]="presenter.limitError() !== null" [formField]="presenter.form.limit" />
-                    @if (presenter.limitError(); as error) {
-                      <span role="alert" class="note field-error">{{ error }}</span>
-                    }
-                  </div>
-                </div>
-              </div>
-            </mosaik-card>
-          </section>
-
-          <section aria-label="Provider and model" class="card-section">
-            <mosaik-card>
-              <mosaik-card-header slot="header" text="Provider and model">
-                <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/settings/ai" label="Manage providers" /></div>
-              </mosaik-card-header>
-              <div slot="content" class="card-fields">
-                <mosaik-choice-group orientation="horizontal" aria-label="Provider">
-                  @for (choice of presenter.providerChoices(); track choice.id) {
-                    <mosaik-choice [label]="choice.name" [additional]="choice.state2" [value]="choice.id" [isChecked]="choice.isChecked" (click)="pick(choice.id)" />
-                  }
-                </mosaik-choice-group>
-                <div class="model-row">
-                  @if (presenter.isLocal()) {
-                    <mosaik-select label="Model" value="default" [disabled]="true">
-                      <mosaik-select-item value="default" label="Default of the assistant" [isSelected]="true" />
-                    </mosaik-select>
-                    <p class="note model-note">Local assistants use their own model settings.</p>
-                  } @else {
-                    <mosaik-select label="Model" [formField]="presenter.form.model">
-                      @for (model of presenter.models.value(); track model) {
-                        <mosaik-select-item [value]="model" [label]="model" />
-                      }
-                    </mosaik-select>
                     <div class="field">
-                      <span class="temperature-label">Temperature <span class="muted temperature-value">{{ presenter.temperatureText() }}</span></span>
-                      <mosaik-slider aria-label="Temperature" [min]="0" [max]="10" [step]="1" [value]="presenter.temperature() * 10" (rangeValueChanged)="onTemperature($event)" />
+                      <mosaik-textbox
+                        label="Chunk size"
+                        [invalid]="presenter.chunkError() !== null"
+                        [formField]="presenter.form.chunk"
+                      />
+                      @if (presenter.chunkError(); as error) {
+                        <span role="alert" class="note field-error">{{ error }}</span>
+                      }
                     </div>
-                  }
-                  <div class="field">
-                    <mosaik-textbox label="Chunk size" [invalid]="presenter.chunkError() !== null" [formField]="presenter.form.chunk" />
-                    @if (presenter.chunkError(); as error) {
-                      <span role="alert" class="note field-error">{{ error }}</span>
-                    }
                   </div>
                 </div>
-              </div>
-            </mosaik-card>
-          </section>
+              </mosaik-card>
+            </section>
 
-          <section aria-label="Instructions" class="card-section">
+            <section aria-label="Instructions" class="card-section">
+              <mosaik-card>
+                <mosaik-card-header slot="header" text="Instructions" />
+                <div slot="content" class="card-fields instructions">
+                  <div class="field">
+                    <span class="muted">Added to the prompt for every chunk.</span>
+                    <mosaik-textbox
+                      aria-label="Instructions"
+                      [multiline]="true"
+                      [multilineRows]="3"
+                      [formField]="presenter.form.instructions"
+                    />
+                  </div>
+                  <mosaik-expander header="Full prompt" [isExpanded]="true">
+                    <pre class="prompt">{{ presenter.prompt.value() }}</pre>
+                  </mosaik-expander>
+                </div>
+              </mosaik-card>
+            </section>
+          </div>
+
+          <aside slot="end" aria-label="Run summary" class="setup-side card-section pane-end">
             <mosaik-card>
-              <mosaik-card-header slot="header" text="Instructions" />
-              <div slot="content" class="card-fields instructions">
-                <div class="field">
-                  <span class="muted">Added to the prompt for every chunk.</span>
-                  <mosaik-textbox aria-label="Instructions" [multiline]="true" [multilineRows]="3" [formField]="presenter.form.instructions" />
+              <mosaik-card-header slot="header" text="This run" />
+              <div slot="content" class="card-fields">
+                <dl class="summary">
+                  @for (row of presenter.summary(); track row.label) {
+                    <dt class="muted">{{ row.label }}</dt>
+                    <dd>{{ row.value }}</dd>
+                  }
+                </dl>
+                @if (presenter.tokensNote(); as note) {
+                  <span class="note">{{ note }}</span>
+                }
+                @if (presenter.dryRun()) {
+                  <span class="note"
+                    >Dry run is on, so nothing is written until you turn it off in the title
+                    bar.</span
+                  >
+                }
+                <div class="safety row-divider">
+                  <div class="safety-row">
+                    <span class="safety-text">
+                      <span class="safety-label">Review before writing</span>
+                      <span class="note">Translations wait for your approval.</span>
+                    </span>
+                    <mosaik-toggle-switch
+                      aria-label="Review before writing"
+                      [isChecked]="presenter.review()"
+                      (checked)="presenter.setReview(true)"
+                      (unchecked)="presenter.setReview(false)"
+                    />
+                  </div>
+                  <div class="safety-row">
+                    <span class="safety-text">
+                      <span class="safety-label">Protect placeholders</span>
+                      <span class="note"
+                        >Reject results that change {{ '{0}' }} or {{ '{{ name }}' }}.</span
+                      >
+                    </span>
+                    <mosaik-toggle-switch
+                      aria-label="Protect placeholders"
+                      [isChecked]="presenter.protect()"
+                      (checked)="presenter.setProtect(true)"
+                      (unchecked)="presenter.setProtect(false)"
+                    />
+                  </div>
                 </div>
-                <mosaik-expander header="Full prompt" [isExpanded]="true">
-                  <pre class="prompt">{{ presenter.prompt.value() }}</pre>
-                </mosaik-expander>
+                <div class="same-as row-divider">
+                  <div class="same-as-label">Same as</div>
+                  <code>{{ presenter.sameAs.value()?.shown }}</code>
+                  @if (presenter.sameAs.value(); as sameAs) {
+                    @if (sameAs.shown !== sameAs.command) {
+                      <mosaik-button
+                        label="Copy the whole command"
+                        variant="neutral"
+                        appearance="outline"
+                        size="small"
+                        (click)="presenter.copySameAs()"
+                      />
+                    }
+                  }
+                </div>
+              </div>
+              <div slot="footer" class="start">
+                <mosaik-button
+                  test-id="generate-start"
+                  label="Start translation"
+                  variant="primary"
+                  appearance="solid"
+                  icon="sparkle"
+                  iconSize="small"
+                  fit="width"
+                  [disabled]="!presenter.canStart()"
+                  [isBusy]="presenter.busy()"
+                  (click)="presenter.start()"
+                />
+                <mosaik-button
+                  test-id="generate-test-first"
+                  label="Test on 10 keys first"
+                  variant="neutral"
+                  appearance="outline"
+                  fit="width"
+                  [disabled]="presenter.blocker() !== null"
+                  (click)="presenter.testFirst()"
+                />
+                @if (presenter.blocker(); as blocker) {
+                  <span class="note">{{ blocker }}</span>
+                }
               </div>
             </mosaik-card>
-          </section>
-        </div>
-
-        <aside slot="end" aria-label="Run summary" class="setup-side card-section pane-end">
-          <mosaik-card>
-            <mosaik-card-header slot="header" text="This run" />
-            <div slot="content" class="card-fields">
-              <dl class="summary">
-                @for (row of presenter.summary(); track row.label) {
-                  <dt class="muted">{{ row.label }}</dt>
-                  <dd>{{ row.value }}</dd>
-                }
-              </dl>
-              @if (presenter.tokensNote(); as note) {
-                <span class="note">{{ note }}</span>
-              }
-              @if (presenter.dryRun()) {
-                <span class="note">Dry run is on, so nothing is written until you turn it off in the title bar.</span>
-              }
-              <div class="safety row-divider">
-                <div class="safety-row">
-                  <span class="safety-text">
-                    <span class="safety-label">Review before writing</span>
-                    <span class="note">Translations wait for your approval.</span>
-                  </span>
-                  <mosaik-toggle-switch aria-label="Review before writing" [isChecked]="presenter.review()" (checked)="presenter.setReview(true)" (unchecked)="presenter.setReview(false)" />
-                </div>
-                <div class="safety-row">
-                  <span class="safety-text">
-                    <span class="safety-label">Protect placeholders</span>
-                    <span class="note">Reject results that change {{ '{0}' }} or {{ '{{ name }}' }}.</span>
-                  </span>
-                  <mosaik-toggle-switch aria-label="Protect placeholders" [isChecked]="presenter.protect()" (checked)="presenter.setProtect(true)" (unchecked)="presenter.setProtect(false)" />
-                </div>
-              </div>
-              <div class="same-as row-divider">
-                <div class="same-as-label">Same as</div>
-                <code>{{ presenter.sameAs.value()?.shown }}</code>
-                @if (presenter.sameAs.value(); as sameAs) {
-                  @if (sameAs.shown !== sameAs.command) {
-                    <mosaik-button label="Copy the whole command" variant="neutral" appearance="outline" size="small" (click)="presenter.copySameAs()" />
-                  }
-                }
-              </div>
-            </div>
-            <div slot="footer" class="start">
-              <mosaik-button test-id="generate-start" label="Start translation" variant="primary" appearance="solid" icon="sparkle" iconSize="small" fit="width" [disabled]="!presenter.canStart()" [isBusy]="presenter.busy()" (click)="presenter.start()" />
-              <mosaik-button test-id="generate-test-first" label="Test on 10 keys first" variant="neutral" appearance="outline" fit="width" [disabled]="presenter.blocker() !== null" (click)="presenter.testFirst()" />
-              @if (presenter.blocker(); as blocker) {
-                <span class="note">{{ blocker }}</span>
-              }
-            </div>
-          </mosaik-card>
-        </aside>
-      </mosaik-split>
+          </aside>
+        </mosaik-split>
       }
 
-      <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.addingLocale()" [pressEscapeToClose]="true" (closed)="presenter.closeAddLocale()">
-        <mosaik-dialog-header slot="header"><mosaik-dialog-header-text text="Add a locale" /></mosaik-dialog-header>
+      <mosaik-dialog
+        [hasBackdrop]="true"
+        [isOpen]="presenter.addingLocale()"
+        [pressEscapeToClose]="true"
+        (closed)="presenter.closeAddLocale()"
+      >
+        <mosaik-dialog-header slot="header"
+          ><mosaik-dialog-header-text text="Add a locale"
+        /></mosaik-dialog-header>
         <mosaik-dialog-content slot="content">
           <div class="dialog-body">
-            <span class="muted">The project lists it as a target, as a change set. Its catalog comes with the first translations you write.</span>
-            <mosaik-textbox label="Locale" placeholder="For example fr or pt-BR" [formField]="presenter.form.newLocale" />
+            <span class="muted"
+              >The project lists it as a target, as a change set. Its catalog comes with the first
+              translations you write.</span
+            >
+            <mosaik-textbox
+              label="Locale"
+              placeholder="For example fr or pt-BR"
+              [formField]="presenter.form.newLocale"
+            />
           </div>
         </mosaik-dialog-content>
         <mosaik-dialog-actions slot="actions">
           <mosaik-button label="Cancel" appearance="plain" (click)="presenter.closeAddLocale()" />
-          <mosaik-button label="Add locale" variant="primary" appearance="solid" [disabled]="!presenter.canAddLocale()" [isBusy]="presenter.busy()" (click)="presenter.addLocale()" />
+          <mosaik-button
+            label="Add locale"
+            variant="primary"
+            appearance="solid"
+            [disabled]="!presenter.canAddLocale()"
+            [isBusy]="presenter.busy()"
+            (click)="presenter.addLocale()"
+          />
         </mosaik-dialog-actions>
       </mosaik-dialog>
     }

@@ -12,9 +12,9 @@ import type { TranslationSession } from './TranslationSession.js';
  * @internal
  */
 export interface IComposedTarget {
-    path: string;
-    content: string;
-    keys: ReadonlyArray<string>;
+  path: string;
+  content: string;
+  keys: ReadonlyArray<string>;
 }
 
 /**
@@ -26,28 +26,31 @@ export interface IComposedTarget {
  * @param locale The locale, or `null` for all.
  * @returns The targets.
  */
-export async function composeTargets(session: TranslationSession, locale: string | null): Promise<Array<IComposedTarget>> {
-    const targets = new Array<IComposedTarget>();
+export async function composeTargets(
+  session: TranslationSession,
+  locale: string | null,
+): Promise<Array<IComposedTarget>> {
+  const targets = new Array<IComposedTarget>();
 
-    for (const [path, { rows }] of session.acceptedRows(locale)) {
-        const base = session.baseOf(path);
-        const type = base.type as ResourceMode;
-        const entries = rows.map((row) => [row.key, row.value] as const);
+  for (const [path, { rows }] of session.acceptedRows(locale)) {
+    const base = session.baseOf(path);
+    const type = base.type as ResourceMode;
+    const entries = rows.map((row) => [row.key, row.value] as const);
 
-        targets.push({
-            path,
-            content: existsSync(path)
-                ? CatalogEditor.setValues(readFileSync(path, 'utf8'), type, entries)
-                : CatalogEditor.createLike(readFileSync(base.path, 'utf8'), type, entries),
-            keys: rows.map((row) => row.key)
-        });
+    targets.push({
+      path,
+      content: existsSync(path)
+        ? CatalogEditor.setValues(readFileSync(path, 'utf8'), type, entries)
+        : CatalogEditor.createLike(readFileSync(base.path, 'utf8'), type, entries),
+      keys: rows.map((row) => row.key),
+    });
 
-        // A big catalog takes a moment, and main has other things to do.
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => {
-            setImmediate(resolve);
-        });
-    }
+    // A big catalog takes a moment, and main has other things to do.
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setImmediate(resolve);
+    });
+  }
 
-    return targets;
+  return targets;
 }

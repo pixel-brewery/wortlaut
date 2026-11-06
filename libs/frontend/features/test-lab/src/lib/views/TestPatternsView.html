@@ -1,4 +1,12 @@
-<mosaik-split class="pane-split page-content" test-id="test-patterns-split" paneSizeKey="test.patterns" paneSize="50%" min="30%" max="70%" [intl]="{ resizeLabel: 'Resize pattern options and matching keys' }">
+<mosaik-split
+  class="pane-split page-content"
+  test-id="test-patterns-split"
+  paneSizeKey="test.patterns"
+  paneSize="50%"
+  min="30%"
+  max="70%"
+  [intl]="{ resizeLabel: 'Resize pattern options and matching keys' }"
+>
   <div slot="start" class="panel-left pane-start">
     <section aria-label="Pattern" class="card-section">
       <mosaik-card>
@@ -6,15 +14,28 @@
           @if (presenter.proposal(); as proposal) {
             <mosaik-message variant="info" header="A proposal" [content]="proposal" />
           }
-          <mosaik-textbox label="Pattern" placeholder="For example loc.orders.*" [invalid]="presenter.error() !== null && presenter.form.pattern().value().length > 0" [formField]="presenter.form.pattern" />
+          <mosaik-textbox
+            label="Pattern"
+            placeholder="For example loc.orders.*"
+            [invalid]="presenter.error() !== null && presenter.form.pattern().value().length > 0"
+            [formField]="presenter.form.pattern"
+          />
           @if (presenter.error(); as error) {
             <div role="alert" class="pattern-error">{{ error }}</div>
           }
           <div class="pattern-grammar">
             <span class="note">Test as</span>
             <mosaik-segment appearance="soft" size="small" aria-label="Test as">
-              <mosaik-segment-item label="Used keys" [isChecked]="presenter.list() === 'usedKeys'" (click)="presenter.setList('usedKeys')" />
-              <mosaik-segment-item label="Identical keys" [isChecked]="presenter.list() === 'identicalKeys'" (click)="presenter.setList('identicalKeys')" />
+              <mosaik-segment-item
+                label="Used keys"
+                [isChecked]="presenter.list() === 'usedKeys'"
+                (click)="presenter.setList('usedKeys')"
+              />
+              <mosaik-segment-item
+                label="Identical keys"
+                [isChecked]="presenter.list() === 'identicalKeys'"
+                (click)="presenter.setList('identicalKeys')"
+              />
             </mosaik-segment>
             @if (presenter.list() === 'identicalKeys') {
               <span class="note">Identical keys read only *, which crosses segments.</span>
@@ -22,12 +43,32 @@
           </div>
           <div class="examples" aria-label="Examples">
             @for (example of presenter.examples(); track example) {
-              <mosaik-button variant="neutral" appearance="outline" size="small" [label]="example" (click)="presenter.useExample(example)" />
+              <mosaik-button
+                variant="neutral"
+                appearance="outline"
+                size="small"
+                [label]="example"
+                (click)="presenter.useExample(example)"
+              />
             }
           </div>
           <div class="add-actions">
-            <mosaik-button label="Add to used keys" variant="primary" appearance="solid" size="small" [disabled]="!presenter.canAdd()" (click)="presenter.add('usedKeys')" />
-            <mosaik-button label="Add to identical keys" variant="neutral" appearance="outline" size="small" [disabled]="!presenter.canAdd()" (click)="presenter.add('identicalKeys')" />
+            <mosaik-button
+              label="Add to used keys"
+              variant="primary"
+              appearance="solid"
+              size="small"
+              [disabled]="!presenter.canAdd()"
+              (click)="presenter.add('usedKeys')"
+            />
+            <mosaik-button
+              label="Add to identical keys"
+              variant="neutral"
+              appearance="outline"
+              size="small"
+              [disabled]="!presenter.canAdd()"
+              (click)="presenter.add('identicalKeys')"
+            />
           </div>
         </div>
       </mosaik-card>
@@ -43,8 +84,12 @@
                 <mosaik-table-body>
                   @for (row of presenter.syntax; track row.token) {
                     <mosaik-table-body-row>
-                      <mosaik-table-body-cell><code class="inline nowrap">{{ row.token }}</code></mosaik-table-body-cell>
-                      <mosaik-table-body-cell><span class="muted cell-text">{{ row.text }}</span></mosaik-table-body-cell>
+                      <mosaik-table-body-cell
+                        ><code class="inline nowrap">{{ row.token }}</code></mosaik-table-body-cell
+                      >
+                      <mosaik-table-body-cell
+                        ><span class="muted cell-text">{{ row.text }}</span></mosaik-table-body-cell
+                      >
                     </mosaik-table-body-row>
                   }
                 </mosaik-table-body>
@@ -61,7 +106,11 @@
       <mosaik-card-header slot="header" [text]="presenter.title()" />
       <div slot="content" class="card-body">
         @if (presenter.result.isFailed()) {
-          <wortlaut-failure-state header="The keys could not be read" [message]="presenter.result.error()" (retry)="presenter.result.reload()" />
+          <wortlaut-failure-state
+            header="The keys could not be read"
+            [message]="presenter.result.error()"
+            (retry)="presenter.result.reload()"
+          />
         } @else if (presenter.keys().length > 0) {
           <ul class="keys">
             @for (key of presenter.keys(); track key.key) {
@@ -78,7 +127,10 @@
           </ul>
         } @else {
           <div class="row-line">
-            <mosaik-empty-state header="No keys yet" content="This project has no catalog with keys to test on." />
+            <mosaik-empty-state
+              header="No keys yet"
+              content="This project has no catalog with keys to test on."
+            />
           </div>
         }
       </div>
@@ -86,7 +138,13 @@
         <div slot="footer" class="table-footer note row-line actions">
           <span>{{ presenter.hiddenKeys() }} more keys do not show.</span>
           @if (presenter.hasMoreKeys()) {
-            <mosaik-button test-id="test-patterns-more-keys" label="Show more" appearance="plain" size="small" (click)="presenter.showMoreKeys()" />
+            <mosaik-button
+              test-id="test-patterns-more-keys"
+              label="Show more"
+              appearance="plain"
+              size="small"
+              (click)="presenter.showMoreKeys()"
+            />
           }
         </div>
       }

@@ -13,9 +13,9 @@ import type { IUseCase, IUseCaseContext, IUseCaseOutput } from '../runs/CommandR
  * @internal
  */
 export interface IProposeTranslationsOptions {
-    locale: string;
-    count: number;
-    client: string;
+  locale: string;
+  count: number;
+  client: string;
 }
 
 /**
@@ -24,10 +24,10 @@ export interface IProposeTranslationsOptions {
  * @internal
  */
 export interface IProposedTarget {
-    path: string;
-    basePath: string;
-    type: ResourceMode;
-    entries: ReadonlyArray<readonly [key: string, value: string]>;
+  path: string;
+  basePath: string;
+  type: ResourceMode;
+  entries: ReadonlyArray<readonly [key: string, value: string]>;
 }
 
 /**
@@ -37,77 +37,92 @@ export interface IProposedTarget {
  * @internal
  */
 export class ProposeTranslationsUseCase implements IUseCase<IProposeTranslationsOptions, null> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'translations.propose';
 
-    public readonly command = 'translations.propose';
+  private readonly _targets: ReadonlyArray<IProposedTarget>;
+  private readonly _merged: ReadonlyArray<ChangeSet>;
+  private readonly _findings: ReadonlyArray<Finding>;
 
-    private readonly _targets: ReadonlyArray<IProposedTarget>;
-    private readonly _merged: ReadonlyArray<ChangeSet>;
-    private readonly _findings: ReadonlyArray<Finding>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `ProposeTranslationsUseCase` class.
+   *
+   * @param targets The catalogs with their rows.
+   * @param merged The pending change sets this one takes over.
+   * @param findings What a reviewer should know about the rows.
+   */
+  public constructor(
+    targets: ReadonlyArray<IProposedTarget>,
+    merged: ReadonlyArray<ChangeSet>,
+    findings: ReadonlyArray<Finding>,
+  ) {
+    this._targets = targets;
+    this._merged = merged;
+    this._findings = findings;
+  }
 
-    /**
-     * Constructs a new instance of the `ProposeTranslationsUseCase` class.
-     *
-     * @param targets The catalogs with their rows.
-     * @param merged The pending change sets this one takes over.
-     * @param findings What a reviewer should know about the rows.
-     */
-    public constructor(targets: ReadonlyArray<IProposedTarget>, merged: ReadonlyArray<ChangeSet>, findings: ReadonlyArray<Finding>) {
-        this._targets = targets;
-        this._merged = merged;
-        this._findings = findings;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @override
+   */
+  public detail(options: IProposeTranslationsOptions): string {
+    return `${mcpClientName(options.client)}: translations for ${options.locale}`;
+  }
+
+  /**
+   * @override
+   */
+  public execute(
+    options: IProposeTranslationsOptions,
+    context: IUseCaseContext,
+  ): Promise<IUseCaseOutput<null>> {
+    const waiting = new Map(
+      this._merged.flatMap((changeSet) =>
+        changeSet.files.map((file) => [file.path, file.newContent] as const),
+      ),
+    );
+
+    for (const [path, content] of waiting) {
+      context.changes.propose(path, content);
     }
 
-    // #endregion
-
-    // #region Methods
-
-    /**
-     * @override
-     */
-    public detail(options: IProposeTranslationsOptions): string {
-        return `${mcpClientName(options.client)}: translations for ${options.locale}`;
+    for (const target of this._targets) {
+      context.changes.propose(target.path, this.compose(target, waiting.get(target.path) ?? null));
     }
 
-    /**
-     * @override
-     */
-    public execute(options: IProposeTranslationsOptions, context: IUseCaseContext): Promise<IUseCaseOutput<null>> {
-        const waiting = new Map(this._merged.flatMap((changeSet) => changeSet.files.map((file) => [file.path, file.newContent] as const)));
-
-        for (const [path, content] of waiting) {
-            context.changes.propose(path, content);
-        }
-
-        for (const target of this._targets) {
-            context.changes.propose(target.path, this.compose(target, waiting.get(target.path) ?? null));
-        }
-
-        for (const finding of [...this._merged.flatMap((changeSet) => changeSet.findings), ...this._findings]) {
-            context.changes.addFinding(finding);
-        }
-
-        context.logger.log(`Proposed ${options.count} translations for ${options.locale}`);
-
-        return Promise.resolve({ result: null, data: { count: options.count, locale: options.locale } });
+    for (const finding of [
+      ...this._merged.flatMap((changeSet) => changeSet.findings),
+      ...this._findings,
+    ]) {
+      context.changes.addFinding(finding);
     }
 
-    /**
-     * @private
-     */
-    private compose(target: IProposedTarget, waiting: string | null): string {
-        const current = waiting ?? (existsSync(target.path) ? readFileSync(target.path, 'utf8') : null);
+    context.logger.log(`Proposed ${options.count} translations for ${options.locale}`);
 
-        return current === null
-            ? CatalogEditor.createLike(readFileSync(target.basePath, 'utf8'), target.type, target.entries)
-            : CatalogEditor.setValues(current, target.type, target.entries);
-    }
+    return Promise.resolve({
+      result: null,
+      data: { count: options.count, locale: options.locale },
+    });
+  }
 
-    // #endregion
+  /**
+   * @private
+   */
+  private compose(target: IProposedTarget, waiting: string | null): string {
+    const current = waiting ?? (existsSync(target.path) ? readFileSync(target.path, 'utf8') : null);
 
+    return current === null
+      ? CatalogEditor.createLike(readFileSync(target.basePath, 'utf8'), target.type, target.entries)
+      : CatalogEditor.setValues(current, target.type, target.entries);
+  }
+
+  // #endregion
 }

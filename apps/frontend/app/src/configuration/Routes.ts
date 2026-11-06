@@ -15,7 +15,10 @@ import { startRoutes } from '@pixel-brewery/wortlaut-frontend-feature-start';
 import { testLabRoutes } from '@pixel-brewery/wortlaut-frontend-feature-test-lab';
 import { transformRoutes } from '@pixel-brewery/wortlaut-frontend-feature-transform';
 import { translationsRoutes } from '@pixel-brewery/wortlaut-frontend-feature-translations';
-import { projectsRoutes, workspacesRoutes } from '@pixel-brewery/wortlaut-frontend-feature-workspaces';
+import {
+  projectsRoutes,
+  workspacesRoutes,
+} from '@pixel-brewery/wortlaut-frontend-feature-workspaces';
 import { shellRoute } from '@pixel-brewery/wortlaut-frontend-shell';
 
 // #endregion
@@ -25,27 +28,27 @@ import { shellRoute } from '@pixel-brewery/wortlaut-frontend-shell';
  * not built yet shows that plainly.
  */
 export const routes: Routes = [
-    { path: '', pathMatch: 'full', redirectTo: 'welcome' },
-    ...startRoutes,
-    ...workspacesRoutes,
-    {
-        ...shellRoute,
-        canActivate: [workspaceOpenGuard],
-        children: [
-            ...projectsRoutes,
-            ...overviewRoutes,
-            ...translationsRoutes,
-            ...detectRoutes,
-            ...analyzeRoutes,
-            ...generateRoutes,
-            ...transformRoutes,
-            ...reviewRoutes,
-            ...rulesRoutes,
-            ...testLabRoutes(),
-            ...runsRoutes,
-            ...connectRoutes,
-            ...settingsRoutes()
-        ]
-    },
-    { path: '**', redirectTo: 'welcome' }
+  { path: '', pathMatch: 'full', redirectTo: 'welcome' },
+  ...startRoutes,
+  ...workspacesRoutes,
+  {
+    ...shellRoute,
+    canActivate: [workspaceOpenGuard],
+    children: [
+      ...projectsRoutes,
+      ...overviewRoutes,
+      ...translationsRoutes,
+      ...detectRoutes,
+      ...analyzeRoutes,
+      ...generateRoutes,
+      ...transformRoutes,
+      ...reviewRoutes,
+      ...rulesRoutes,
+      ...testLabRoutes(),
+      ...runsRoutes,
+      ...connectRoutes,
+      ...settingsRoutes(),
+    ],
+  },
+  { path: '**', redirectTo: 'welcome' },
 ];

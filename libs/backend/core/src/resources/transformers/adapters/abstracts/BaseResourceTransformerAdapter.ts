@@ -12,19 +12,19 @@ import type { IResourceTransformerAdapter } from '../interfaces/IResourceTransfo
  * @public
  * @abstract
  */
-export abstract class BaseResourceTransformerAdapter<T extends IResourceInfo> implements IResourceTransformerAdapter<T> {
+export abstract class BaseResourceTransformerAdapter<
+  T extends IResourceInfo,
+> implements IResourceTransformerAdapter<T> {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Transforms the given resource into an array of transform models.
+   *
+   * @public
+   * @param resource The resource to transform.
+   * @returns The transformed resource.
+   */
+  public abstract transform(resource: T): Array<IResourceModel>;
 
-    /**
-     * Transforms the given resource into an array of transform models.
-     *
-     * @public
-     * @param resource The resource to transform.
-     * @returns The transformed resource.
-     */
-    public abstract transform(resource: T): Array<IResourceModel>;
-
-    // #endregion
-
+  // #endregion
 }

@@ -16,37 +16,35 @@ import { VuePreset } from './VuePreset.js';
  * @public
  */
 export enum Presets {
-    Angular = 'angular',
-    Lit = 'lit',
-    React = 'react',
-    Stencil = 'stencil',
-    Vue = 'vue'
+  Angular = 'angular',
+  Lit = 'lit',
+  React = 'react',
+  Stencil = 'stencil',
+  Vue = 'vue',
 }
 
 export namespace Presets {
-
-    /**
-     * Gets the preset.
-     *
-     * @param logger The logger.
-     * @param preset The preset to get.
-     * @returns The preset.
-     */
-    export function get(logger: ILogger, preset: Presets | unknown): IFrameworkPreset {
-        switch (preset) {
-            case Presets.Angular:
-                return new AngularPreset(logger);
-            case Presets.Lit:
-                return new LitPreset(logger);
-            case Presets.React:
-                return new ReactPreset(logger);
-            case Presets.Stencil:
-                return new StencilPreset(logger);
-            case Presets.Vue:
-                return new VuePreset(logger);
-            default:
-                throw new Error('Unknown preset');
-        }
+  /**
+   * Gets the preset.
+   *
+   * @param logger The logger.
+   * @param preset The preset to get.
+   * @returns The preset.
+   */
+  export function get(logger: ILogger, preset: Presets | unknown): IFrameworkPreset {
+    switch (preset) {
+      case Presets.Angular:
+        return new AngularPreset(logger);
+      case Presets.Lit:
+        return new LitPreset(logger);
+      case Presets.React:
+        return new ReactPreset(logger);
+      case Presets.Stencil:
+        return new StencilPreset(logger);
+      case Presets.Vue:
+        return new VuePreset(logger);
+      default:
+        throw new Error('Unknown preset');
     }
-
+  }
 }

@@ -13,12 +13,10 @@ import { IdSchema, WorkspaceRefSchema } from './ShellDtos.js';
  * @public
  */
 export const WorkspaceRecentSchema = WorkspaceRefSchema.extend({
-    projectCount: z.number().int()
-        .nonnegative(),
-    keyCount: z.number().int()
-        .nonnegative(),
-    locales: z.array(z.string()),
-    folderMissing: z.boolean()
+  projectCount: z.number().int().nonnegative(),
+  keyCount: z.number().int().nonnegative(),
+  locales: z.array(z.string()),
+  folderMissing: z.boolean(),
 });
 
 /**
@@ -32,11 +30,10 @@ export type WorkspaceRecent = z.output<typeof WorkspaceRecentSchema>;
  * @public
  */
 export const WorkspaceCardSchema = WorkspaceRecentSchema.extend({
-    folder: z.string(),
-    nxTarget: z.string().nullable(),
-    provider: z.string().nullable(),
-    failingProjects: z.number().int()
-        .nonnegative()
+  folder: z.string(),
+  nxTarget: z.string().nullable(),
+  provider: z.string().nullable(),
+  failingProjects: z.number().int().nonnegative(),
 });
 
 /**
@@ -50,8 +47,8 @@ export type WorkspaceCard = z.output<typeof WorkspaceCardSchema>;
  * @public
  */
 export const WorkspaceRepositorySchema = z.strictObject({
-    displayPath: z.string(),
-    missing: z.boolean()
+  displayPath: z.string(),
+  missing: z.boolean(),
 });
 
 /**
@@ -60,16 +57,15 @@ export const WorkspaceRepositorySchema = z.strictObject({
  * @public
  */
 export const WorkspaceDetailSchema = WorkspaceRefSchema.extend({
-    repositories: z.array(WorkspaceRepositorySchema),
-    scanForProjects: z.boolean(),
-    defaults: z.strictObject({
-        baseLocale: z.string().nullable(),
-        targetLocales: z.array(z.string()),
-        preset: PresetSchema.nullable(),
-        provider: z.string().nullable()
-    }),
-    rulePackCount: z.number().int()
-        .nonnegative()
+  repositories: z.array(WorkspaceRepositorySchema),
+  scanForProjects: z.boolean(),
+  defaults: z.strictObject({
+    baseLocale: z.string().nullable(),
+    targetLocales: z.array(z.string()),
+    preset: PresetSchema.nullable(),
+    provider: z.string().nullable(),
+  }),
+  rulePackCount: z.number().int().nonnegative(),
 });
 
 /**
@@ -83,12 +79,10 @@ export type WorkspaceDetail = z.output<typeof WorkspaceDetailSchema>;
  * @public
  */
 export const WorkspaceCreateRequestSchema = z.strictObject({
-    name: z.string().trim()
-        .min(1)
-        .max(80),
-    code: WorkspaceCodeSchema,
-    color: WorkspaceColorSchema,
-    folderToken: z.uuid()
+  name: z.string().trim().min(1).max(80),
+  code: WorkspaceCodeSchema,
+  color: WorkspaceColorSchema,
+  folderToken: z.uuid(),
 });
 
 /**
@@ -103,10 +97,9 @@ export type WorkspaceCreateRequest = z.output<typeof WorkspaceCreateRequestSchem
  * @public
  */
 export const WorkspaceCreateResultSchema = z.strictObject({
-    workspaceId: IdSchema,
-    discovered: z.number().int()
-        .nonnegative(),
-    next: z.enum(['setup', 'projects'])
+  workspaceId: IdSchema,
+  discovered: z.number().int().nonnegative(),
+  next: z.enum(['setup', 'projects']),
 });
 
 /**
@@ -120,7 +113,7 @@ export type WorkspaceCreateResult = z.output<typeof WorkspaceCreateResultSchema>
  * @public
  */
 export const WorkspaceOpenResultSchema = z.strictObject({
-    next: z.enum(['overview', 'projects'])
+  next: z.enum(['overview', 'projects']),
 });
 
 /**
@@ -135,22 +128,18 @@ export type WorkspaceOpenResult = z.output<typeof WorkspaceOpenResultSchema>;
  * @public
  */
 export const WorkspaceUpdateRequestSchema = z.strictObject({
-    workspaceId: IdSchema,
-    name: z.string().trim()
-        .min(1)
-        .max(80),
-    code: WorkspaceCodeSchema,
-    color: WorkspaceColorSchema,
-    scanForProjects: z.boolean(),
-    defaults: z.strictObject({
-        baseLocale: z.string().max(40)
-            .nullable(),
-        targetLocales: z.array(z.string().max(40)).max(64),
-        preset: PresetSchema.nullable()
-    }),
-    removeRepositories: z.array(z.number().int()
-        .nonnegative()).max(64),
-    addRepositoryTokens: z.array(z.uuid()).max(16)
+  workspaceId: IdSchema,
+  name: z.string().trim().min(1).max(80),
+  code: WorkspaceCodeSchema,
+  color: WorkspaceColorSchema,
+  scanForProjects: z.boolean(),
+  defaults: z.strictObject({
+    baseLocale: z.string().max(40).nullable(),
+    targetLocales: z.array(z.string().max(40)).max(64),
+    preset: PresetSchema.nullable(),
+  }),
+  removeRepositories: z.array(z.number().int().nonnegative()).max(64),
+  addRepositoryTokens: z.array(z.uuid()).max(16),
 });
 
 /**
@@ -164,7 +153,7 @@ export type WorkspaceUpdateRequest = z.output<typeof WorkspaceUpdateRequestSchem
  * @public
  */
 export const WorkspaceExportResultSchema = z.strictObject({
-    file: z.string().nullable()
+  file: z.string().nullable(),
 });
 
 /**
@@ -178,43 +167,44 @@ export type WorkspaceExportResult = z.output<typeof WorkspaceExportResultSchema>
  * @public
  */
 export const WorkspaceImportPreviewSchema = z.strictObject({
+  /**
+   * Names the checked file for the step that adds it.
+   */
+  importId: IdSchema,
 
-    /**
-     * Names the checked file for the step that adds it.
-     */
-    importId: IdSchema,
+  fileName: z.string(),
+  name: z.string(),
+  code: WorkspaceCodeSchema,
+  color: WorkspaceColorSchema,
+  scanForProjects: z.boolean(),
+  defaults: z.strictObject({
+    baseLocale: z.string().nullable(),
+    targetLocales: z.array(z.string()),
+    preset: PresetSchema.nullable(),
+  }),
 
-    fileName: z.string(),
-    name: z.string(),
-    code: WorkspaceCodeSchema,
-    color: WorkspaceColorSchema,
-    scanForProjects: z.boolean(),
-    defaults: z.strictObject({
-        baseLocale: z.string().nullable(),
-        targetLocales: z.array(z.string()),
-        preset: PresetSchema.nullable()
+  /**
+   * The repositories by name. The file names no path, so the user chooses each folder.
+   */
+  repositories: z.array(z.strictObject({ name: z.string() })),
+
+  /**
+   * The pinned packs. `fetch` comes from its source, `shipped` with Wortlaut and `repository` with the repository itself.
+   */
+  packs: z.array(
+    z.strictObject({
+      id: z.string(),
+      name: z.string(),
+      source: z.string(),
+      version: z.string().nullable(),
+      kind: z.enum(['fetch', 'shipped', 'repository']),
     }),
+  ),
 
-    /**
-     * The repositories by name. The file names no path, so the user chooses each folder.
-     */
-    repositories: z.array(z.strictObject({ name: z.string() })),
-
-    /**
-     * The pinned packs. `fetch` comes from its source, `shipped` with Wortlaut and `repository` with the repository itself.
-     */
-    packs: z.array(z.strictObject({
-        id: z.string(),
-        name: z.string(),
-        source: z.string(),
-        version: z.string().nullable(),
-        kind: z.enum(['fetch', 'shipped', 'repository'])
-    })),
-
-    /**
-     * A workspace of the same name already exists. Importing adds another one and changes nothing in it.
-     */
-    nameTaken: z.boolean()
+  /**
+   * A workspace of the same name already exists. Importing adds another one and changes nothing in it.
+   */
+  nameTaken: z.boolean(),
 });
 
 /**
@@ -228,7 +218,7 @@ export type WorkspaceImportPreview = z.output<typeof WorkspaceImportPreviewSchem
  * @public
  */
 export const WorkspaceImportChoiceSchema = z.strictObject({
-    preview: WorkspaceImportPreviewSchema.nullable()
+  preview: WorkspaceImportPreviewSchema.nullable(),
 });
 
 /**
@@ -242,8 +232,8 @@ export type WorkspaceImportChoice = z.output<typeof WorkspaceImportChoiceSchema>
  * @public
  */
 export const WorkspaceImportRequestSchema = z.strictObject({
-    importId: IdSchema,
-    folderTokens: z.array(z.uuid()).max(64)
+  importId: IdSchema,
+  folderTokens: z.array(z.uuid()).max(64),
 });
 
 /**
@@ -257,19 +247,20 @@ export type WorkspaceImportRequest = z.output<typeof WorkspaceImportRequestSchem
  * @public
  */
 export const WorkspaceImportResultSchema = z.strictObject({
-    workspaceId: IdSchema,
-    discovered: z.number().int()
-        .nonnegative(),
-    packs: z.array(z.strictObject({
-        name: z.string(),
+  workspaceId: IdSchema,
+  discovered: z.number().int().nonnegative(),
+  packs: z.array(
+    z.strictObject({
+      name: z.string(),
 
-        /**
-         * `pinned`: the repositories hold it already. `written`: its change sets were applied. `pending`: they wait in Review.
-         * `skipped`: nothing can hold it yet. `refused`: its source does not give what the file names.
-         */
-        state: z.enum(['pinned', 'written', 'pending', 'skipped', 'refused']),
-        detail: z.string().nullable()
-    }))
+      /**
+       * `pinned`: the repositories hold it already. `written`: its change sets were applied. `pending`: they wait in Review.
+       * `skipped`: nothing can hold it yet. `refused`: its source does not give what the file names.
+       */
+      state: z.enum(['pinned', 'written', 'pending', 'skipped', 'refused']),
+      detail: z.string().nullable(),
+    }),
+  ),
 });
 
 /**

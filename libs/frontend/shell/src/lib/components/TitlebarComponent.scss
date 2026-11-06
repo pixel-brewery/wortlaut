@@ -3,7 +3,9 @@
   display: flex;
   align-items: center;
   gap: var(--mosaik-layout-space);
-  padding: calc(var(--mosaik-layout-space) / 2) calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) / 2) calc(var(--mosaik-layout-space) * 1.5 + var(--wortlaut-traffic-lights));
+  padding: calc(var(--mosaik-layout-space) / 2) calc(var(--mosaik-layout-space) * 1.5)
+    calc(var(--mosaik-layout-space) / 2)
+    calc(var(--mosaik-layout-space) * 1.5 + var(--wortlaut-traffic-lights));
   background: var(--mosaik-color-neutral-50);
   border-bottom: 1px solid var(--mosaik-scheme-highlight);
   -webkit-app-region: drag;

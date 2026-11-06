@@ -12,18 +12,16 @@ import { localeFlagIcon } from './localeFlagIcon';
  */
 @Pipe({ name: 'localeFlag', pure: true })
 export class LocaleFlagPipe implements PipeTransform {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @public
+   * @param code The catalog locale.
+   * @returns Its flag name, or `undefined` when the locale has no supported flag.
+   */
+  public transform(code: string | null | undefined): string | undefined {
+    return localeFlagIcon(code);
+  }
 
-    /**
-     * @public
-     * @param code The catalog locale.
-     * @returns Its flag name, or `undefined` when the locale has no supported flag.
-     */
-    public transform(code: string | null | undefined): string | undefined {
-        return localeFlagIcon(code);
-    }
-
-    // #endregion
-
+  // #endregion
 }

@@ -17,12 +17,12 @@ const PUBLISHED_COMMAND = ['npx', '-y', '@pixel-brewery/wortlaut-app', 'mcp'];
  * @public
  */
 export interface IMcpCommand extends IMcpConnection {
-    ready: boolean;
+  ready: boolean;
 
-    /**
-     * Why it cannot start.
-     */
-    problem: string | null;
+  /**
+   * Why it cannot start.
+   */
+  problem: string | null;
 }
 
 /**
@@ -35,19 +35,20 @@ export interface IMcpCommand extends IMcpConnection {
  * @returns The command.
  */
 export function findMcpCommand(cliPath: string, nodePath: string | null): IMcpCommand {
-    if (!existsSync(cliPath)) {
-        return {
-            command: PUBLISHED_COMMAND,
-            isPublished: true,
-            ready: false,
-            problem: 'The command line of Wortlaut is not next to this app, and the published package needs a registry this computer can reach.'
-        };
-    }
-
+  if (!existsSync(cliPath)) {
     return {
-        command: ['node', cliPath, 'mcp'],
-        isPublished: false,
-        ready: nodePath !== null,
-        problem: nodePath ? null : 'Node.js was not found on this computer, and the server needs it.'
+      command: PUBLISHED_COMMAND,
+      isPublished: true,
+      ready: false,
+      problem:
+        'The command line of Wortlaut is not next to this app, and the published package needs a registry this computer can reach.',
     };
+  }
+
+  return {
+    command: ['node', cliPath, 'mcp'],
+    isPublished: false,
+    ready: nodePath !== null,
+    problem: nodePath ? null : 'Node.js was not found on this computer, and the server needs it.',
+  };
 }

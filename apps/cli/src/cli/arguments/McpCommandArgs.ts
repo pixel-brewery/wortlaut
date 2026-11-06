@@ -9,6 +9,4 @@ import { CLI_ARGS } from '../CliArgs.js';
  *
  * @internal
  */
-export const MCP_COMMAND_ARGS = [
-    ...CLI_ARGS
-];
+export const MCP_COMMAND_ARGS = [...CLI_ARGS];

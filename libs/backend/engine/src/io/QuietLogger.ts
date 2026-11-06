@@ -10,9 +10,9 @@ import type { ILogger } from '@pixel-brewery/utilities';
  * @internal
  */
 export const QUIET_LOGGER: ILogger = {
-    log: () => undefined,
-    debug: () => undefined,
-    info: () => undefined,
-    warn: () => undefined,
-    error: () => undefined
+  log: () => undefined,
+  debug: () => undefined,
+  info: () => undefined,
+  warn: () => undefined,
+  error: () => undefined,
 };

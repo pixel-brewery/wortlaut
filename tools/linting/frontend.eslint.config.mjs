@@ -1,6 +1,6 @@
 // #region Imports
 
-import { configs } from '@pixel-brewery/eslint-config';
+import { baseConfig } from './base.eslint.config.mjs';
 
 // #endregion
 
@@ -10,19 +10,19 @@ import { configs } from '@pixel-brewery/eslint-config';
  * @returns The configurations.
  */
 export function frontendConfig() {
-    return [
-        ...configs.base,
-        {
-            languageOptions: {
-                parserOptions: {
-                    project: 'tsconfig.eslint.json'
-                }
-            },
-            files: ['**/*.ts'],
-            rules: {
-                // Presenters and stores expose signals as read-only fields, and Angular composes classes through decorators.
-                '@typescript-eslint/member-ordering': 'off'
-            }
-        }
-    ];
+  return [
+    ...baseConfig,
+    {
+      languageOptions: {
+        parserOptions: {
+          project: 'tsconfig.eslint.json',
+        },
+      },
+      files: ['**/*.ts'],
+      rules: {
+        // Presenters and stores expose signals as read-only fields, and Angular composes classes through decorators.
+        '@typescript-eslint/member-ordering': 'off',
+      },
+    },
+  ];
 }

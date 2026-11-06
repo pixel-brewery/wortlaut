@@ -4,12 +4,12 @@ A release works as in Symphony and Resonanz: a source change pushed to `main` re
 Documentation-only pushes skip the release. `dev` is where work happens, and merging a code change
 into `main` releases it. Releases belong to the owner.
 
-| Workflow | When | What it does |
-| --- | --- | --- |
-| `ci.yml` | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
-| `release.yml` | Code push to `main`, or by hand | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation |
-| `release-rehearsal.yml` | Changes to the release on `dev`, or by hand | The same on the real runners, and it publishes nothing |
-| `dependabot-auto-merge.yml`, `rebase-dependabot.yml` | After a green Dependabot pull request, after a release | Merges only the unchanged head, requests its release and refreshes the others |
+| Workflow                                             | When                                                       | What it does                                                                                                                                 |
+| ---------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                                             | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
+| `release.yml`                                        | Code push to `main`, or by hand                            | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation                     |
+| `release-rehearsal.yml`                              | Changes to the release on `dev`, or by hand                | The same on the real runners, and it publishes nothing                                                                                       |
+| `dependabot-auto-merge.yml`, `rebase-dependabot.yml` | After a green Dependabot pull request, after a release     | Merges only the unchanged head, requests its release and refreshes the others                                                                |
 
 ## What a release does
 
@@ -22,7 +22,7 @@ the caller's event, so their `force_verification` input defaults to `true` rathe
 the event name.
 
 1. `configure` resolves the version, the changelog, the commit and the tag once, on the runner. It pushes nothing, and it hands them on as a bundle.
-2. `build` checks out exactly that commit on macOS arm64 and Windows x64, verifies it, installs the eight packed packages in fresh npm and Yarn consumers outside the checkout, uses them there, runs a real Nx target and a real ESLint run, makes the installers and exercises the packaged app.
+2. `build` checks out exactly that commit on macOS arm64 and Windows x64 and runs `yarn verify:code`. It then installs and exercises the eight packed packages in fresh npm and Yarn consumers, runs a real Nx target and ESLint run, verifies the built app, makes the installers and exercises the packaged app.
 3. `publish` pushes the commit and the tag atomically with the release App, publishes the eight packages, checks the registry, uploads the installers and `SHA256SUMS.txt` to a draft, checks every byte and publishes the draft.
 
 The tag exists before the packages do, and a rerun uses the workflow of the original push. A failed publication can be rerun as long as its cause lies outside the repository. A fix in the repository needs a new version, and the tag of the failed one stays.
@@ -47,12 +47,12 @@ npm or Yarn's node-modules linker until a corrected Utilities release is availab
 
 ## By hand
 
-| Command | What it does |
-| --- | --- |
-| `yarn release:patch`, `:minor`, `:major` | Starts `release.yml` on `main` with that increment |
-| `yarn release:dry-run` | Shows the next version and changelog on this machine |
-| `gh workflow run release-rehearsal.yml --ref dev` | Rehearses the whole release on the real runners |
-| `yarn release:audit` | Checks that the latest tag of every package matches its manifest |
+| Command                                           | What it does                                                     |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `yarn release:patch`, `:minor`, `:major`          | Starts `release.yml` on `main` with that increment               |
+| `yarn release:dry-run`                            | Shows the next version and changelog on this machine             |
+| `gh workflow run release-rehearsal.yml --ref dev` | Rehearses the whole release on the real runners                  |
+| `yarn release:audit`                              | Checks that the latest tag of every package matches its manifest |
 
 ## What the repository needs
 

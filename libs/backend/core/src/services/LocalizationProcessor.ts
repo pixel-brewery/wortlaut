@@ -15,28 +15,27 @@ import { KeyGenerator } from './KeyGenerator.js';
  * @public
  */
 export interface ILocalizationProcessorResult {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The file path of the processed file.
+   */
+  filePath: string;
 
-    /**
-     * The file path of the processed file.
-     */
-    filePath: string;
+  /**
+   * The extraction result
+   */
+  extraction: {
+    content: string;
+    changes: Record<string, string>;
+  };
 
-    /**
-     * The extraction result
-     */
-    extraction: {
-        content: string;
-        changes: Record<string, string>;
-    };
+  /**
+   * The parsing results.
+   */
+  parsings: Array<IDetectorResult>;
 
-    /**
-     * The parsing results.
-     */
-    parsings: Array<IDetectorResult>;
-
-    // #endregion
+  // #endregion
 }
 
 /**
@@ -45,21 +44,19 @@ export interface ILocalizationProcessorResult {
  * @public
  */
 export interface ILocalizationProcessorEventMap {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The detected event.
+   */
+  detected: [change: IDetectorResult];
 
-    /**
-     * The detected event.
-     */
-    detected: [change: IDetectorResult];
+  /**
+   * The failed event.
+   */
+  failed: [error: any];
 
-    /**
-     * The failed event.
-     */
-    failed: [error: any];
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -67,8 +64,7 @@ export interface ILocalizationProcessorEventMap {
  *
  * @public
  */
-export interface IProcessOptions extends IDetectOptions {
-}
+export interface IProcessOptions extends IDetectOptions {}
 
 /**
  * The `LocalizationProcessor` class.
@@ -76,104 +72,113 @@ export interface IProcessOptions extends IDetectOptions {
  * @public
  */
 export class LocalizationProcessor extends EventEmitter<ILocalizationProcessorEventMap> {
+  // #region Fields
 
-    // #region Fields
+  private readonly _fileSystem: IFileSystem;
+  private readonly _formatter: IFormatter;
 
-    private readonly _fileSystem: IFileSystem;
-    private readonly _formatter: IFormatter;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `LocalizationProcessor` class.
+   *
+   * @public
+   */
+  public constructor(formatter: IFormatter, fileSystem: IFileSystem) {
+    super({ captureRejections: true });
 
-    /**
-     * Constructs a new instance of the `LocalizationProcessor` class.
-     *
-     * @public
-     */
-    public constructor(formatter: IFormatter, fileSystem: IFileSystem) {
-        super({ captureRejections: true });
+    this._formatter = formatter;
+    this._fileSystem = fileSystem;
+  }
 
-        this._formatter = formatter;
-        this._fileSystem = fileSystem;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Processes the localization of a directory.
+   *
+   * @public
+   * @param rootDir The root directory to process.
+   * @param preset The preset to use for processing.
+   * @param options The optional processing options.
+   * @returns The results of the localization process.
+   */
+  public process(
+    rootDir: string,
+    preset: IFrameworkPreset,
+    options?: IProcessOptions,
+    around?: (
+      file: string,
+      content: string,
+      detect: () => Array<IDetectorResult>,
+    ) => Array<IDetectorResult>,
+  ): Array<ILocalizationProcessorResult> {
+    if (!rootDir.length) {
+      return [];
     }
 
-    // #endregion
-
-    // #region Methods
-
-    /**
-     * Processes the localization of a directory.
-     *
-     * @public
-     * @param rootDir The root directory to process.
-     * @param preset The preset to use for processing.
-     * @param options The optional processing options.
-     * @returns The results of the localization process.
-     */
-    public process(rootDir: string, preset: IFrameworkPreset, options?: IProcessOptions, around?: (file: string, content: string, detect: () => Array<IDetectorResult>) => Array<IDetectorResult>): Array<ILocalizationProcessorResult> {
-        if (!rootDir.length) {
-            return [];
-        }
-
-        if (!this._fileSystem.fileExists(rootDir)) {
-            throw new Error('The specified directory does not exist.');
-        }
-
-        Object.entries(preset.getParsers()).forEach(([_, x]) => {
-            x.on('detected', (args) => {
-                this.emit('detected', args);
-            });
-
-            x.on('failed', (args) => {
-                this.emit('failed', args);
-            });
-        });
-
-        const extensions = preset.getExtensions().map((x) => Path.combine(rootDir, `**/*${x}`));
-        const results = new Array<ILocalizationProcessorResult>();
-
-        this._fileSystem.fileGlob(extensions).forEach((file) => {
-            const ext = Path.getExtension(file, true);
-            const content = this._fileSystem.fileReadAllText(file);
-            const parser = preset.getParser(ext);
-            const detect = (): Array<IDetectorResult> => parser.detect(content, options);
-            const parsings = around ? around(file, content, detect) : detect();
-            const extraction = this.format(parsings);
-
-            // if (Object.keys(extraction.changes).length > 0) {
-            results.push({
-                filePath: file,
-                parsings: parsings,
-                extraction: extraction
-            });
-            // }
-        });
-
-        return results;
+    if (!this._fileSystem.fileExists(rootDir)) {
+      throw new Error('The specified directory does not exist.');
     }
 
-    /**
-     * Extracts strings from a value.
-     *
-     * @public
-     * @param values The values to extract.
-     * @returns The extraction result.
-     */
-    private format(values: Array<IDetectorResult>): {
-        content: string;
-        changes: Record<string, string>;
-    } {
-        const keyValueMap: Record<string, string> = {};
+    Object.entries(preset.getParsers()).forEach(([_, x]) => {
+      x.on('detected', (args) => {
+        this.emit('detected', args);
+      });
 
-        values.forEach((x) => {
-            const key = x.isStatic ? new KeyGenerator().generate(x.match.value ?? '') : x.match.value ?? '';
-            keyValueMap[key] = x.match.value ?? '';
-        });
+      x.on('failed', (args) => {
+        this.emit('failed', args);
+      });
+    });
 
-        return this._formatter.format(keyValueMap);
-    }
+    const extensions = preset.getExtensions().map((x) => Path.combine(rootDir, `**/*${x}`));
+    const results = new Array<ILocalizationProcessorResult>();
 
-    // #endregion
+    this._fileSystem.fileGlob(extensions).forEach((file) => {
+      const ext = Path.getExtension(file, true);
+      const content = this._fileSystem.fileReadAllText(file);
+      const parser = preset.getParser(ext);
+      const detect = (): Array<IDetectorResult> => parser.detect(content, options);
+      const parsings = around ? around(file, content, detect) : detect();
+      const extraction = this.format(parsings);
 
+      // if (Object.keys(extraction.changes).length > 0) {
+      results.push({
+        filePath: file,
+        parsings: parsings,
+        extraction: extraction,
+      });
+      // }
+    });
+
+    return results;
+  }
+
+  /**
+   * Extracts strings from a value.
+   *
+   * @public
+   * @param values The values to extract.
+   * @returns The extraction result.
+   */
+  private format(values: Array<IDetectorResult>): {
+    content: string;
+    changes: Record<string, string>;
+  } {
+    const keyValueMap: Record<string, string> = {};
+
+    values.forEach((x) => {
+      const key = x.isStatic
+        ? new KeyGenerator().generate(x.match.value ?? '')
+        : (x.match.value ?? '');
+      keyValueMap[key] = x.match.value ?? '';
+    });
+
+    return this._formatter.format(keyValueMap);
+  }
+
+  // #endregion
 }

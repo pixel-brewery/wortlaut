@@ -1,10 +1,30 @@
 @if (presenter.isOpen()) {
   <div class="palette-layer">
-    <mosaik-backdrop class="palette-backdrop" test-id="search-palette-backdrop" (click)="presenter.close()" />
+    <mosaik-backdrop
+      class="palette-backdrop"
+      test-id="search-palette-backdrop"
+      (click)="presenter.close()"
+    />
     <div class="palette-position">
-      <mosaik-card class="palette" test-id="search-palette" role="dialog" aria-modal="true" aria-label="Search keys, files and commands" elevation="extrabold" (keydown)="onKeydown($event)">
+      <mosaik-card
+        class="palette"
+        test-id="search-palette"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search keys, files and commands"
+        elevation="extrabold"
+        (keydown)="onKeydown($event)"
+      >
         <div slot="header" class="palette-header">
-          <mosaik-searchbox class="palette-search" test-id="search-palette-search" appearance="plain" aria-label="Search keys, files and commands" placeholder="Search keys, files and commands" [isBusy]="presenter.isBusy()" [formField]="presenter.form.text" />
+          <mosaik-searchbox
+            class="palette-search"
+            test-id="search-palette-search"
+            appearance="plain"
+            aria-label="Search keys, files and commands"
+            placeholder="Search keys, files and commands"
+            [isBusy]="presenter.isBusy()"
+            [formField]="presenter.form.text"
+          />
           <mosaik-kbd class="palette-key" aria-hidden="true">esc</mosaik-kbd>
           <span class="visually-hidden" aria-live="polite" aria-atomic="true">
             @if (activeItem(); as item) {
@@ -15,18 +35,40 @@
           </span>
         </div>
 
-        <div slot="content" class="palette-results" test-id="search-palette-results" role="listbox" aria-label="Results">
+        <div
+          slot="content"
+          class="palette-results"
+          test-id="search-palette-results"
+          role="listbox"
+          aria-label="Results"
+        >
           @if (presenter.message(); as message) {
             <mosaik-message variant="danger" header="That did not work" [content]="message" />
           }
           @if (presenter.isEmpty()) {
-            <mosaik-empty-state class="palette-empty" test-id="search-palette-empty" icon="search" header="Nothing found" content="Try another word." />
+            <mosaik-empty-state
+              class="palette-empty"
+              test-id="search-palette-empty"
+              icon="search"
+              header="Nothing found"
+              content="Try another word."
+            />
           } @else {
             @for (group of presenter.groups(); track group.label) {
               <section class="palette-group" role="group" [attr.aria-label]="group.label">
                 <span class="note palette-label">{{ group.label }}</span>
                 @for (item of group.items; track item.id) {
-                  <mosaik-clickable class="palette-option" role="option" tabindex="-1" [attr.test-id]="'search-palette-option-' + item.id" [attr.aria-selected]="item.id === presenter.activeId()" [attr.data-active]="item.id === presenter.activeId() ? 'true' : null" (mousedown)="$event.preventDefault()" (click)="presenter.choose(item)" (keydown.enter)="$event.stopPropagation(); presenter.choose(item)">
+                  <mosaik-clickable
+                    class="palette-option"
+                    role="option"
+                    tabindex="-1"
+                    [attr.test-id]="'search-palette-option-' + item.id"
+                    [attr.aria-selected]="item.id === presenter.activeId()"
+                    [attr.data-active]="item.id === presenter.activeId() ? 'true' : null"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="presenter.choose(item)"
+                    (keydown.enter)="$event.stopPropagation(); presenter.choose(item)"
+                  >
                     <mosaik-icon class="palette-icon" size="small" [icon]="item.icon" />
                     <span class="palette-text">
                       <span class="palette-name">{{ item.label }}</span>

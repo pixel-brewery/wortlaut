@@ -9,24 +9,24 @@ import type { AiProvider, GenerateInput } from '@pixel-brewery/wortlaut-contract
  * What a screen hands to Generate: a setup, or the keys of a finding.
  */
 export interface IGenerateSeed {
-    input?: GenerateInput;
-    keys?: ReadonlyArray<string>;
+  input?: GenerateInput;
+  keys?: ReadonlyArray<string>;
 }
 
 /**
  * What the test lab starts from when Generate sends a user there.
  */
 export interface ITestTranslationSeed {
-    input: GenerateInput;
-    size: number;
+  input: GenerateInput;
+  size: number;
 }
 
 /**
  * A pattern an AI proposed, on its way to the test lab.
  */
 export interface IPatternSeed {
-    pattern: string;
-    note: string;
+  pattern: string;
+  note: string;
 }
 
 /**
@@ -35,85 +35,83 @@ export interface IPatternSeed {
  */
 @Injectable({ providedIn: 'root' })
 export class AiHandoff {
+  // #region Fields
 
-    // #region Fields
+  private _generate: IGenerateSeed | null = null;
+  private _test: ITestTranslationSeed | null = null;
+  private _pattern: IPatternSeed | null = null;
 
-    private _generate: IGenerateSeed | null = null;
-    private _test: ITestTranslationSeed | null = null;
-    private _pattern: IPatternSeed | null = null;
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Hands something to Generate.
+   *
+   * @param seed What it starts from.
+   */
+  public offerGenerate(seed: IGenerateSeed): void {
+    this._generate = seed;
+  }
 
-    /**
-     * Hands something to Generate.
-     *
-     * @param seed What it starts from.
-     */
-    public offerGenerate(seed: IGenerateSeed): void {
-        this._generate = seed;
-    }
+  /**
+   * Takes what was handed to Generate.
+   *
+   * @returns What it starts from, once.
+   */
+  public takeGenerate(): IGenerateSeed | null {
+    const seed = this._generate;
 
-    /**
-     * Takes what was handed to Generate.
-     *
-     * @returns What it starts from, once.
-     */
-    public takeGenerate(): IGenerateSeed | null {
-        const seed = this._generate;
+    this._generate = null;
 
-        this._generate = null;
+    return seed;
+  }
 
-        return seed;
-    }
+  /**
+   * Hands a setup to the test lab.
+   *
+   * @param seed What it starts from.
+   */
+  public offerTest(seed: ITestTranslationSeed): void {
+    this._test = seed;
+  }
 
-    /**
-     * Hands a setup to the test lab.
-     *
-     * @param seed What it starts from.
-     */
-    public offerTest(seed: ITestTranslationSeed): void {
-        this._test = seed;
-    }
+  /**
+   * Takes what was handed to the test lab.
+   *
+   * @returns What it starts from, once.
+   */
+  public takeTest(): ITestTranslationSeed | null {
+    const seed = this._test;
 
-    /**
-     * Takes what was handed to the test lab.
-     *
-     * @returns What it starts from, once.
-     */
-    public takeTest(): ITestTranslationSeed | null {
-        const seed = this._test;
+    this._test = null;
 
-        this._test = null;
+    return seed;
+  }
 
-        return seed;
-    }
+  /**
+   * Hands a proposed pattern to the test lab.
+   *
+   * @param seed The pattern.
+   */
+  public offerPattern(seed: IPatternSeed): void {
+    this._pattern = seed;
+  }
 
-    /**
-     * Hands a proposed pattern to the test lab.
-     *
-     * @param seed The pattern.
-     */
-    public offerPattern(seed: IPatternSeed): void {
-        this._pattern = seed;
-    }
+  /**
+   * Takes the proposed pattern.
+   *
+   * @returns The pattern, once.
+   */
+  public takePattern(): IPatternSeed | null {
+    const seed = this._pattern;
 
-    /**
-     * Takes the proposed pattern.
-     *
-     * @returns The pattern, once.
-     */
-    public takePattern(): IPatternSeed | null {
-        const seed = this._pattern;
+    this._pattern = null;
 
-        this._pattern = null;
+    return seed;
+  }
 
-        return seed;
-    }
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -123,18 +121,18 @@ export class AiHandoff {
  * @returns For example `Local login, no API key`.
  */
 export function describeProviderState(provider: Pick<AiProvider, 'kind' | 'state'>): string {
-    switch (provider.state) {
-        case 'ready':
-            return provider.kind === 'local' ? 'Local login, no API key' : 'API key saved';
-        case 'not-installed':
-            return 'Not installed';
-        case 'signed-out':
-            return 'Not signed in';
-        case 'no-key':
-            return 'No API key';
-        default:
-            return 'Login could not be checked';
-    }
+  switch (provider.state) {
+    case 'ready':
+      return provider.kind === 'local' ? 'Local login, no API key' : 'API key saved';
+    case 'not-installed':
+      return 'Not installed';
+    case 'signed-out':
+      return 'Not signed in';
+    case 'no-key':
+      return 'No API key';
+    default:
+      return 'Login could not be checked';
+  }
 }
 
 /**
@@ -144,7 +142,7 @@ export function describeProviderState(provider: Pick<AiProvider, 'kind' | 'state
  * @returns For example `≈ 11 k`.
  */
 export function formatTokens(tokens: number): string {
-    return tokens >= 1000 ? `≈ ${Math.round(tokens / 1000)} k` : `≈ ${tokens}`;
+  return tokens >= 1000 ? `≈ ${Math.round(tokens / 1000)} k` : `≈ ${tokens}`;
 }
 
 /**
@@ -155,5 +153,5 @@ export function formatTokens(tokens: number): string {
  * @returns The text.
  */
 export function formatTokensAtLeast(tokens: number): string {
-    return tokens >= 1000 ? `More than ${Math.round(tokens / 1000)} k` : `More than ${tokens}`;
+  return tokens >= 1000 ? `More than ${Math.round(tokens / 1000)} k` : `More than ${tokens}`;
 }

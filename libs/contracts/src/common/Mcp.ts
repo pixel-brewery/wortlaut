@@ -26,9 +26,9 @@ export type McpLevel = z.output<typeof McpLevelSchema>;
  * @returns `true` when the tool may run.
  */
 export function mcpLevelAllows(level: McpLevel, needed: McpLevel): boolean {
-    const rank = McpLevelSchema.options;
+  const rank = McpLevelSchema.options;
 
-    return rank.indexOf(level) >= rank.indexOf(needed);
+  return rank.indexOf(level) >= rank.indexOf(needed);
 }
 
 /**
@@ -40,11 +40,11 @@ export function mcpLevelAllows(level: McpLevel, needed: McpLevel): boolean {
  * @returns For example `Claude Code`, `Codex` or the name as it came.
  */
 export function mcpClientName(name: string): string {
-    const lower = name.toLowerCase();
+  const lower = name.toLowerCase();
 
-    if (lower.startsWith('claude')) {
-        return 'Claude Code';
-    }
+  if (lower.startsWith('claude')) {
+    return 'Claude Code';
+  }
 
-    return lower.startsWith('codex') ? 'Codex' : name;
+  return lower.startsWith('codex') ? 'Codex' : name;
 }

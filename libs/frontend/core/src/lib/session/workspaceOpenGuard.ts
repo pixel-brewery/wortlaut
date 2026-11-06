@@ -13,9 +13,9 @@ import { ShellSession } from './ShellSession';
  * @public
  */
 export const workspaceOpenGuard: CanActivateFn = async () => {
-    const router = inject(Router);
-    const session = inject(ShellSession);
-    const state = await session.refresh();
+  const router = inject(Router);
+  const session = inject(ShellSession);
+  const state = await session.refresh();
 
-    return state.workspace ? true : router.parseUrl('/welcome');
+  return state.workspace ? true : router.parseUrl('/welcome');
 };

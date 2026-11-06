@@ -1,7 +1,7 @@
 # 📦 @pixel-brewery/wortlaut-app
 
-| Package Status | Source |
-|----------------|--------|
+| Package Status                                                                                                                                                                                | Source                                         |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | [![GitHub Packages](https://img.shields.io/github/v/release/RueDeRennes/mosaik?label=GitHub%20Packages&logo=github)](https://github.com/orgs/pixel-brewery/packages/npm/package/wortlaut-app) | [tools/wortlaut/app](../../tools/wortlaut/app) |
 
 > CLI and programmatic entrypoint for the Wortlaut toolchain.
@@ -30,7 +30,6 @@ With Yarn, use `nodeLinker: node-modules` in `.yarnrc.yml`. Yarn Plug'n'Play is
 currently limited by Utilities 0.1.187 loading optional compiler/XML peers; see
 [package installation](https://github.com/pixel-brewery/wortlaut/blob/main/docs/release.md#package-installation).
 
-
 ---
 
 ## 🔧 Usage
@@ -58,17 +57,17 @@ const config: IRunConfig = {
   detect: {
     root: './src',
     preset: 'angular',
-    type: 'json'
+    type: 'json',
   },
   generate: {
     enabled: true,
     apiKey: process.env.GEMINI_API_KEY,
     locales: ['de', 'fr'],
-    baseLocale: 'en'
-  }
+    baseLocale: 'en',
+  },
 };
 
-run(config).then(result => {
+run(config).then((result) => {
   console.log(result.generate);
 });
 ```
@@ -94,7 +93,6 @@ run(config).then(result => {
 - Integrate with CI/CD pipelines for automated i18n management.
 
 ---
-
 
 ## Translating with AI
 

@@ -22,7 +22,12 @@
               <h2 id="open">Open a project</h2>
               <p class="lead">Drop a folder here. Wortlaut finds the framework and the catalogs.</p>
             </div>
-            <mosaik-button label="Choose folder" variant="primary" appearance="solid" (click)="presenter.chooseFolder()" />
+            <mosaik-button
+              label="Choose folder"
+              variant="primary"
+              appearance="solid"
+              (click)="presenter.chooseFolder()"
+            />
           </div>
         </mosaik-drop-zone>
       </section>
@@ -32,7 +37,11 @@
           <mosaik-card>
             <mosaik-card-header slot="header" text="Recent" />
             <div slot="content" class="card-pad">
-              <mosaik-message variant="danger" header="The recent workspaces cannot be read" [content]="presenter.recent.error() ?? ''" />
+              <mosaik-message
+                variant="danger"
+                header="The recent workspaces cannot be read"
+                [content]="presenter.recent.error() ?? ''"
+              />
             </div>
           </mosaik-card>
         </section>

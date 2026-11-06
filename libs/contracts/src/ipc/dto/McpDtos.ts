@@ -20,26 +20,25 @@ export const McpLevelRequestSchema = z.strictObject({ level: McpLevelSchema });
  * @public
  */
 export const McpStatusSchema = z.strictObject({
+  /**
+   * What assistants may do. Without a level the server is read only, so this says `read` then.
+   */
+  level: McpLevelSchema,
 
-    /**
-     * What assistants may do. Without a level the server is read only, so this says `read` then.
-     */
-    level: McpLevelSchema,
+  /**
+   * The command that starts the server on this computer, as it can be pasted into a terminal.
+   */
+  command: z.string(),
 
-    /**
-     * The command that starts the server on this computer, as it can be pasted into a terminal.
-     */
-    command: z.string(),
+  /**
+   * Whether that command can start.
+   */
+  ready: z.boolean(),
 
-    /**
-     * Whether that command can start.
-     */
-    ready: z.boolean(),
-
-    /**
-     * Why it cannot.
-     */
-    problem: z.string().nullable()
+  /**
+   * Why it cannot.
+   */
+  problem: z.string().nullable(),
 });
 
 /**
@@ -53,8 +52,8 @@ export type McpStatus = z.output<typeof McpStatusSchema>;
  * @public
  */
 export const McpStepSchema = z.strictObject({
-    title: z.string(),
-    code: z.string()
+  title: z.string(),
+  code: z.string(),
 });
 
 /**
@@ -68,16 +67,16 @@ export type McpStep = z.output<typeof McpStepSchema>;
  * @public
  */
 export const McpClientSchema = z.strictObject({
-    id: z.enum(['claude-code', 'codex', 'other']),
-    label: z.string(),
+  id: z.enum(['claude-code', 'codex', 'other']),
+  label: z.string(),
 
-    /**
-     * What is known about it on this computer, found without reading its setup or its account.
-     */
-    state: z.string(),
-    variant: z.enum(['success', 'neutral']),
-    about: z.string(),
-    steps: z.array(McpStepSchema)
+  /**
+   * What is known about it on this computer, found without reading its setup or its account.
+   */
+  state: z.string(),
+  variant: z.enum(['success', 'neutral']),
+  about: z.string(),
+  steps: z.array(McpStepSchema),
 });
 
 /**
@@ -91,9 +90,9 @@ export type McpClient = z.output<typeof McpClientSchema>;
  * @public
  */
 export const McpToolSchema = z.strictObject({
-    id: z.string(),
-    description: z.string(),
-    level: McpLevelSchema
+  id: z.string(),
+  description: z.string(),
+  level: McpLevelSchema,
 });
 
 /**
@@ -107,12 +106,12 @@ export type McpTool = z.output<typeof McpToolSchema>;
  * @public
  */
 export const McpActivitySchema = z.strictObject({
-    runId: IdSchema,
-    tool: z.string(),
-    client: z.string(),
-    result: z.string(),
-    state: RunStateSchema,
-    startedAt: z.iso.datetime()
+  runId: IdSchema,
+  tool: z.string(),
+  client: z.string(),
+  result: z.string(),
+  state: RunStateSchema,
+  startedAt: z.iso.datetime(),
 });
 
 /**

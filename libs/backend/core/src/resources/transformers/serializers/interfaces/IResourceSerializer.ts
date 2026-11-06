@@ -9,11 +9,9 @@ import type { IResourceModel } from '../../../models/interfaces/IResourceModel';
  * Interface for resource serializers.
  */
 export interface IResourceSerializer<T extends IResourceInfo> {
+  // #region Methods
 
-    // #region Methods
+  serialize(models: Array<IResourceModel>, info: Pick<T, 'name' | 'path' | 'locale'>): T;
 
-    serialize(models: Array<IResourceModel>, info: Pick<T, 'name' | 'path' | 'locale'>): T;
-
-    // #endregion
-
+  // #endregion
 }

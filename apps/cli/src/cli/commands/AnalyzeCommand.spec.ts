@@ -12,68 +12,87 @@ import { AnalyzeCommand } from './AnalyzeCommand';
 // #endregion
 
 describe('AnalyzeCommand', () => {
-    let root: string;
-    let resources: string;
+  let root: string;
+  let resources: string;
 
-    beforeEach(() => {
-        root = mkdtempSync(join(tmpdir(), 'wortlaut-analyze-'));
-        resources = join(root, 'i18n');
-        mkdirSync(resources);
-        writeFileSync(join(resources, 'lang.en.json'), JSON.stringify({ loc: { a: 'A' } }));
-        writeFileSync(join(resources, 'lang.de.json'), JSON.stringify({ loc: { a: 'Ä' } }));
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'wortlaut-analyze-'));
+    resources = join(root, 'i18n');
+    mkdirSync(resources);
+    writeFileSync(join(resources, 'lang.en.json'), JSON.stringify({ loc: { a: 'A' } }));
+    writeFileSync(join(resources, 'lang.de.json'), JSON.stringify({ loc: { a: 'Ä' } }));
+  });
+
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('runs all rules when none is configured, except unused-keys without sources', async () => {
+    // arrange
+    const command = createCommand({ resourceRoot: resources });
+
+    // act
+    const result = await command.execute();
+
+    // assert
+    expect(ruleCount(result.result)).toBe(6 * 2);
+  });
+
+  it('runs unused-keys as well when sources are available', async () => {
+    // arrange
+    writeFileSync(join(root, 'view.ts'), `translate('loc.a');`);
+    const command = createCommand({
+      resourceRoot: resources,
+      root,
+      preset: 'lit' as never,
+      resourceKeyPrefix: 'loc',
     });
 
-    afterEach(() => {
-        rmSync(root, { recursive: true, force: true });
-    });
+    // act
+    const result = await command.execute();
 
-    it('runs all rules when none is configured, except unused-keys without sources', async () => {
-        // arrange
-        const command = createCommand({ resourceRoot: resources });
+    // assert
+    expect(ruleCount(result.result)).toBe(7 * 2);
+  });
 
-        // act
-        const result = await command.execute();
+  it('accepts a root without a preset', async () => {
+    // arrange
+    const command = createCommand({ resourceRoot: resources, root, rules: ['empty-values'] });
 
-        // assert
-        expect(ruleCount(result.result)).toBe(6 * 2);
-    });
+    // act
+    const result = await command.execute();
 
-    it('runs unused-keys as well when sources are available', async () => {
-        // arrange
-        writeFileSync(join(root, 'view.ts'), `translate('loc.a');`);
-        const command = createCommand({ resourceRoot: resources, root, preset: 'lit' as never, resourceKeyPrefix: 'loc' });
+    // assert
+    expect(ruleCount(result.result)).toBe(2);
+  });
 
-        // act
-        const result = await command.execute();
+  it('reads its rules as a comma-separated list', () => {
+    // act
+    const rules = (RULES_ARG.options.type as (value: string) => Array<string>)(
+      'empty-values, unused-keys',
+    );
 
-        // assert
-        expect(ruleCount(result.result)).toBe(7 * 2);
-    });
-
-    it('accepts a root without a preset', async () => {
-        // arrange
-        const command = createCommand({ resourceRoot: resources, root, rules: ['empty-values'] });
-
-        // act
-        const result = await command.execute();
-
-        // assert
-        expect(ruleCount(result.result)).toBe(2);
-    });
-
-    it('reads its rules as a comma-separated list', () => {
-        // act
-        const rules = (RULES_ARG.options.type as (value: string) => Array<string>)('empty-values, unused-keys');
-
-        // assert
-        expect(rules).toEqual(['empty-values', 'unused-keys']);
-    });
+    // assert
+    expect(rules).toEqual(['empty-values', 'unused-keys']);
+  });
 });
 
-function createCommand(config: Partial<typeof DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG>): AnalyzeCommand {
-    return new AnalyzeCommand({ ...DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG, ...config }, { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() } as unknown as ILogger, new FileSystem());
+function createCommand(
+  config: Partial<typeof DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG>,
+): AnalyzeCommand {
+  return new AnalyzeCommand(
+    { ...DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG, ...config },
+    {
+      log: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+    } as unknown as ILogger,
+    new FileSystem(),
+  );
 }
 
 function ruleCount(results: Array<unknown> | undefined): number {
-    return results?.length ?? 0;
+  return results?.length ?? 0;
 }

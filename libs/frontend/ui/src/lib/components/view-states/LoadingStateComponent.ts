@@ -10,22 +10,21 @@ import { BusyStateComponent } from '@pixel-brewery/mosaik-elements-angular/compo
  * property that changes after its first render.
  */
 @Component({
-    selector: 'wortlaut-loading-state',
-    imports: [BusyStateComponent],
-    template: '<div class="state-frame"><mosaik-busy-state><span slot="header" class="state-title">{{ label() }}</span></mosaik-busy-state></div>',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-loading-state',
+  imports: [BusyStateComponent],
+  template:
+    '<div class="state-frame"><mosaik-busy-state><span slot="header" class="state-title">{{ label() }}</span></mosaik-busy-state></div>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoadingStateComponent {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Says what is loading.
+   *
+   * @readonly
+   */
+  public readonly label = input('Loading');
 
-    /**
-     * Says what is loading.
-     *
-     * @readonly
-     */
-    public readonly label = input('Loading');
-
-    // #endregion
-
+  // #endregion
 }

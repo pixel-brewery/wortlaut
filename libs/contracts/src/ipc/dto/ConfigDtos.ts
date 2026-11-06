@@ -11,8 +11,8 @@ import { EffectiveSettingSchema } from '../../settings/EffectiveSetting.js';
  * @public
  */
 export const EffectiveSettingsSchema = z.strictObject({
-    settings: z.array(EffectiveSettingSchema),
-    warnings: z.array(z.string())
+  settings: z.array(EffectiveSettingSchema),
+  warnings: z.array(z.string()),
 });
 
 /**
@@ -26,11 +26,13 @@ export type EffectiveSettings = z.output<typeof EffectiveSettingsSchema>;
  * @public
  */
 export const SettingsSourceFileSchema = z.strictObject({
-    file: z.strictObject({
-        name: z.string(),
-        text: z.string(),
-        truncated: z.boolean()
-    }).nullable()
+  file: z
+    .strictObject({
+      name: z.string(),
+      text: z.string(),
+      truncated: z.boolean(),
+    })
+    .nullable(),
 });
 
 /**
@@ -44,8 +46,8 @@ export type SettingsSourceFile = z.output<typeof SettingsSourceFileSchema>;
  * @public
  */
 export const LabeledCommandSchema = z.strictObject({
-    label: z.string(),
-    command: z.string()
+  label: z.string(),
+  command: z.string(),
 });
 
 /**
@@ -60,17 +62,16 @@ export type LabeledCommand = z.output<typeof LabeledCommandSchema>;
  * @public
  */
 export const NxTargetsSchema = z.strictObject({
-    executor: z.string().nullable(),
-    target: z.string().nullable(),
-    projectCount: z.number().int()
-        .nonnegative(),
-    commands: z.array(LabeledCommandSchema),
-    scripts: z.array(LabeledCommandSchema),
+  executor: z.string().nullable(),
+  target: z.string().nullable(),
+  projectCount: z.number().int().nonnegative(),
+  commands: z.array(LabeledCommandSchema),
+  scripts: z.array(LabeledCommandSchema),
 
-    /**
-     * The same settings as a `wortlaut.config.json`.
-     */
-    configPreview: z.string()
+  /**
+   * The same settings as a `wortlaut.config.json`.
+   */
+  configPreview: z.string(),
 });
 
 /**

@@ -1,6 +1,10 @@
 // #region Imports
 
-import { makeEnvironmentProviders, provideZonelessChangeDetection, type EnvironmentProviders } from '@angular/core';
+import {
+  makeEnvironmentProviders,
+  provideZonelessChangeDetection,
+  type EnvironmentProviders,
+} from '@angular/core';
 
 // #endregion
 
@@ -11,5 +15,5 @@ import { makeEnvironmentProviders, provideZonelessChangeDetection, type Environm
  * @returns The core's environment providers.
  */
 export function provideCore(): EnvironmentProviders {
-    return makeEnvironmentProviders([provideZonelessChangeDetection()]);
+  return makeEnvironmentProviders([provideZonelessChangeDetection()]);
 }

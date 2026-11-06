@@ -7,8 +7,9 @@ acceptance, [the E2E module](../../architecture/references/common/e2e.md).
 
 - `yarn nx run-many -t test --parallel=1` runs the unit and integration specs.
 - `yarn nx run-many -t build --parallel=1` builds every project.
-- `yarn typecheck`, `yarn lint`, `yarn verify:skills`, `yarn verify:structure` and
-  `yarn verify:paths` complete the gate.
+- `yarn verify:code` runs the repository rules, formatting, lint, types, tests and builds.
+- `yarn verify` adds the fresh package-consumer tests and exercises both the built and
+  packaged desktop executables. See [Contributor verification](../../../../CONTRIBUTING.md#verification).
 
 Run only one heavy job at a time. Capture the real exit code of a command, not that of a
 pipe behind it.

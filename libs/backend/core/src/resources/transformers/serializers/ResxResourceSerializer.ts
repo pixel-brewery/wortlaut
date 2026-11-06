@@ -13,32 +13,33 @@ import type { IResourceSerializer } from './interfaces/IResourceSerializer';
  * @public
  */
 export class ResxResourceSerializer implements IResourceSerializer<IResxResourceInfo> {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Serializes an array of transform models into a ResX resource.
+   *
+   * @public
+   * @param models The array of transform models to serialize.
+   * @param info The resource info.
+   * @returns An instance of `IResxResourceInfo` representing the serialized data.
+   */
+  public serialize(
+    models: Array<IResourceModel>,
+    info: Pick<IResxResourceInfo, 'name' | 'path' | 'locale'>,
+  ): IResxResourceInfo {
+    const output: Array<IResourceModel> = [];
 
-    /**
-     * Serializes an array of transform models into a ResX resource.
-     *
-     * @public
-     * @param models The array of transform models to serialize.
-     * @param info The resource info.
-     * @returns An instance of `IResxResourceInfo` representing the serialized data.
-     */
-    public serialize(models: Array<IResourceModel>, info: Pick<IResxResourceInfo, 'name' | 'path' | 'locale'>): IResxResourceInfo {
-        const output: Array<IResourceModel> = [];
+    models.forEach((model) => {
+      output.push(model);
+    });
 
-        models.forEach((model) => {
-            output.push(model);
-        });
+    return new ResxResourceInfo({
+      name: info.name,
+      path: info.path,
+      locale: info.locale,
+      content: () => output,
+    });
+  }
 
-        return new ResxResourceInfo({
-            name: info.name,
-            path: info.path,
-            locale: info.locale,
-            content: () => output
-        });
-    }
-
-    // #endregion
-
+  // #endregion
 }

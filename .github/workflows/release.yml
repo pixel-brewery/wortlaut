@@ -220,7 +220,7 @@ jobs:
         run: yarn install --immutable
       - env:
           NODE_OPTIONS: --max-old-space-size=6144
-        run: yarn verify
+        run: yarn verify:code
       - name: Exercise the packed packages in fresh consumers
         env:
           GITHUB_TOKEN: ${{ github.token }}

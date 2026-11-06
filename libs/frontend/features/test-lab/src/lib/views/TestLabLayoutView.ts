@@ -2,7 +2,10 @@
 
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TabStripComponent, TabStripItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
+import {
+  TabStripComponent,
+  TabStripItemComponent,
+} from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
 import { TestLabLayoutViewPresenter } from '../view-presenters/TestLabLayoutViewPresenter';
 
 // #endregion
@@ -11,25 +14,23 @@ import { TestLabLayoutViewPresenter } from '../view-presenters/TestLabLayoutView
  * The frame of the test lab.
  */
 @Component({
-    selector: 'wortlaut-test-lab',
-    host: { class: 'page-frame' },
-    imports: [RouterOutlet, TabStripComponent, TabStripItemComponent],
-    providers: [TestLabLayoutViewPresenter],
-    templateUrl: './TestLabLayoutView.html',
-    styleUrl: './TestLabLayoutView.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-test-lab',
+  host: { class: 'page-frame' },
+  imports: [RouterOutlet, TabStripComponent, TabStripItemComponent],
+  providers: [TestLabLayoutViewPresenter],
+  templateUrl: './TestLabLayoutView.html',
+  styleUrl: './TestLabLayoutView.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TestLabLayoutView {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the presenter.
+   *
+   * @readonly
+   */
+  protected readonly presenter = inject(TestLabLayoutViewPresenter);
 
-    /**
-     * Gets the presenter.
-     *
-     * @readonly
-     */
-    protected readonly presenter = inject(TestLabLayoutViewPresenter);
-
-    // #endregion
-
+  // #endregion
 }

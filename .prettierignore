@@ -1,0 +1,17 @@
+# Installed guidance and vendored release inputs retain their original bytes.
+.agents/skills/architecture/
+.claude/skills/mosaik-design/
+vendor/synapse/
+
+# Generated and local files.
+.angular/
+.cache/
+.codex-work/
+.nx/
+.yarn/
+coverage/
+dist/
+node_modules/
+out/
+CHANGELOG.md
+yarn.lock

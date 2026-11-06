@@ -12,23 +12,21 @@ import { AppShellViewPresenter } from '../view-presenters/AppShellViewPresenter'
  * The sidebar. The active item follows the route, and the footer shows the real version.
  */
 @Component({
-    selector: 'wortlaut-sidebar',
-    imports: [BadgeComponent, MenuItemComponent, RouterLink],
-    templateUrl: './SidebarComponent.html',
-    styleUrl: './SidebarComponent.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-sidebar',
+  imports: [BadgeComponent, MenuItemComponent, RouterLink],
+  templateUrl: './SidebarComponent.html',
+  styleUrl: './SidebarComponent.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the presenter.
+   *
+   * @readonly
+   */
+  protected readonly presenter = inject(AppShellViewPresenter);
 
-    /**
-     * Gets the presenter.
-     *
-     * @readonly
-     */
-    protected readonly presenter = inject(AppShellViewPresenter);
-
-    // #endregion
-
+  // #endregion
 }

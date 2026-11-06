@@ -11,11 +11,9 @@ import type { ResourceType } from './ResourceType';
  * @public
  */
 export interface ITypeScriptResourceInfo extends IResourceInfo<Record<string, string>> {
+  // #region Properties
 
-    // #region Properties
+  readonly type: typeof ResourceType.TypeScript;
 
-    readonly type: typeof ResourceType.TypeScript;
-
-    // #endregion
-
+  // #endregion
 }

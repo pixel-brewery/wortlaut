@@ -60,4 +60,3 @@ along with what a crashed process or an older version left, and spares the folde
 test lab and the value suggestion all go through it. It asks, checks with `validateChunk`, and asks again within the retry
 budget. An answer that misses or changes a key fails the chunk once the budget is spent, and a bad chunk reaches nobody. A row
 whose placeholders stay wrong is kept and flagged in a review, and it is left out of a run that writes straight away.
-

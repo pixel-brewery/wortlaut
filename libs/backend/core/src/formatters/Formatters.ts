@@ -12,26 +12,24 @@ import { ResxFormatter } from './RESXFormatter.js';
  * @public
  */
 export namespace Formatters {
-
-    /**
-     * Gets a formatter instance based on the provided formatter type.
-     *
-     * @param type The formatter type.
-     * @returns The formatter instance.
-     */
-    export function get(type: ResourceType): IFormatter {
-        switch (type) {
-            case ResourceType.Json:
-                return new JsonFormatter();
-            case ResourceType.Resx:
-                return new ResxFormatter();
-            case ResourceType.Po:
-                return new PoFormatter();
-            case ResourceType.TypeScript:
-                throw new Error('TypeScript formatter is not implemented');
-            default:
-                throw new Error('Unknown formatter');
-        }
+  /**
+   * Gets a formatter instance based on the provided formatter type.
+   *
+   * @param type The formatter type.
+   * @returns The formatter instance.
+   */
+  export function get(type: ResourceType): IFormatter {
+    switch (type) {
+      case ResourceType.Json:
+        return new JsonFormatter();
+      case ResourceType.Resx:
+        return new ResxFormatter();
+      case ResourceType.Po:
+        return new PoFormatter();
+      case ResourceType.TypeScript:
+        throw new Error('TypeScript formatter is not implemented');
+      default:
+        throw new Error('Unknown formatter');
     }
-
+  }
 }

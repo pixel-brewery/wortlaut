@@ -23,46 +23,52 @@ const LEFT_OUT = new Set(['.git', 'node_modules']);
  * @throws PackProblem for a folder that does not exist, is too big or holds a link.
  */
 export function readPackFolder(folder: string): Array<IPackFile> {
-    let root: string;
+  let root: string;
 
-    try {
-        root = realpathSync(folder);
+  try {
+    root = realpathSync(folder);
 
-        if (!lstatSync(root).isDirectory()) {
-            throw new Error('No folder.');
-        }
-    } catch {
-        throw new PackProblem('not-found', `The folder ${folder} does not exist.`);
+    if (!lstatSync(root).isDirectory()) {
+      throw new Error('No folder.');
     }
+  } catch {
+    throw new PackProblem('not-found', `The folder ${folder} does not exist.`);
+  }
 
-    const files = new Array<IPackFile>();
-    const visit = (directory: string, prefix: string): void => {
-        for (const entry of readdirSync(directory, { withFileTypes: true })) {
-            const path = `${prefix}${entry.name}`;
+  const files = new Array<IPackFile>();
+  const visit = (directory: string, prefix: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = `${prefix}${entry.name}`;
 
-            if (entry.isSymbolicLink()) {
-                throw new PackProblem('unsafe', `This pack holds a link, which Wortlaut refuses: ${path}`);
-            }
+      if (entry.isSymbolicLink()) {
+        throw new PackProblem('unsafe', `This pack holds a link, which Wortlaut refuses: ${path}`);
+      }
 
-            if (entry.isDirectory()) {
-                if (!LEFT_OUT.has(entry.name)) {
-                    visit(join(directory, entry.name), `${path}/`);
-                }
-            } else if (entry.isFile()) {
-                files.push({ path, bytes: readBounded(join(directory, entry.name), path) });
-
-                if (files.length > PACK_LIMITS.maxFiles) {
-                    throw new PackProblem('too-large', `This pack holds more than ${PACK_LIMITS.maxFiles} files.`);
-                }
-            } else {
-                throw new PackProblem('unsafe', `This pack holds a special file, which Wortlaut refuses: ${path}`);
-            }
+      if (entry.isDirectory()) {
+        if (!LEFT_OUT.has(entry.name)) {
+          visit(join(directory, entry.name), `${path}/`);
         }
-    };
+      } else if (entry.isFile()) {
+        files.push({ path, bytes: readBounded(join(directory, entry.name), path) });
 
-    visit(root, '');
+        if (files.length > PACK_LIMITS.maxFiles) {
+          throw new PackProblem(
+            'too-large',
+            `This pack holds more than ${PACK_LIMITS.maxFiles} files.`,
+          );
+        }
+      } else {
+        throw new PackProblem(
+          'unsafe',
+          `This pack holds a special file, which Wortlaut refuses: ${path}`,
+        );
+      }
+    }
+  };
 
-    return files;
+  visit(root, '');
+
+  return files;
 }
 
 /**
@@ -75,9 +81,12 @@ export function readPackFolder(folder: string): Array<IPackFile> {
  * @throws PackProblem for a file that is too large.
  */
 export function readBounded(file: string, path: string): Buffer {
-    if (lstatSync(file).size > PACK_LIMITS.maxFileBytes) {
-        throw new PackProblem('too-large', `The file ${path} of this pack is larger than ${PACK_LIMITS.maxFileBytes} bytes.`);
-    }
+  if (lstatSync(file).size > PACK_LIMITS.maxFileBytes) {
+    throw new PackProblem(
+      'too-large',
+      `The file ${path} of this pack is larger than ${PACK_LIMITS.maxFileBytes} bytes.`,
+    );
+  }
 
-    return readFileSync(file);
+  return readFileSync(file);
 }

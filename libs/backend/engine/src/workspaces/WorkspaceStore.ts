@@ -14,57 +14,62 @@ import { writePrivateFileAtomically } from '../io/AtomicFile.js';
  * @internal
  */
 export class WorkspaceStore {
+  // #region Fields
 
-    // #region Fields
+  private readonly _file: string;
 
-    private readonly _file: string;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `WorkspaceStore` class.
+   *
+   * @param file The path of the file.
+   */
+  public constructor(file: string) {
+    this._file = file;
+  }
 
-    /**
-     * Constructs a new instance of the `WorkspaceStore` class.
-     *
-     * @param file The path of the file.
-     */
-    public constructor(file: string) {
-        this._file = file;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Returns the stored workspaces.
+   *
+   * @returns The workspaces, none when the file does not exist yet.
+   * @throws EngineError when the file exists and is invalid.
+   */
+  public read(): Array<WorkspaceRecord> {
+    if (!existsSync(this._file)) {
+      return [];
     }
 
-    // #endregion
-
-    // #region Methods
-
-    /**
-     * Returns the stored workspaces.
-     *
-     * @returns The workspaces, none when the file does not exist yet.
-     * @throws EngineError when the file exists and is invalid.
-     */
-    public read(): Array<WorkspaceRecord> {
-        if (!existsSync(this._file)) {
-            return [];
-        }
-
-        try {
-            return WorkspaceFileSchema.parse(JSON.parse(readFileSync(this._file, 'utf8'))).workspaces;
-        } catch {
-            throw new EngineError('workspace-store-invalid', `The workspace list ${this._file} cannot be read. It was left as it is.`, [this._file]);
-        }
+    try {
+      return WorkspaceFileSchema.parse(JSON.parse(readFileSync(this._file, 'utf8'))).workspaces;
+    } catch {
+      throw new EngineError(
+        'workspace-store-invalid',
+        `The workspace list ${this._file} cannot be read. It was left as it is.`,
+        [this._file],
+      );
     }
+  }
 
-    /**
-     * Changes the stored workspaces.
-     *
-     * @param change Receives the workspaces and returns the new ones.
-     */
-    public update(change: (workspaces: Array<WorkspaceRecord>) => Array<WorkspaceRecord>): void {
-        const content = WorkspaceFileSchema.parse({ schemaVersion: 1, workspaces: change(this.read()) });
+  /**
+   * Changes the stored workspaces.
+   *
+   * @param change Receives the workspaces and returns the new ones.
+   */
+  public update(change: (workspaces: Array<WorkspaceRecord>) => Array<WorkspaceRecord>): void {
+    const content = WorkspaceFileSchema.parse({
+      schemaVersion: 1,
+      workspaces: change(this.read()),
+    });
 
-        writePrivateFileAtomically(this._file, JSON.stringify(content));
-    }
+    writePrivateFileAtomically(this._file, JSON.stringify(content));
+  }
 
-    // #endregion
-
+  // #endregion
 }

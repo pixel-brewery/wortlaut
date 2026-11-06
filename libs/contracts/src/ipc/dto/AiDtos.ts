@@ -24,15 +24,15 @@ export type AiProviderId = z.output<typeof AiProviderIdSchema>;
  * @public
  */
 export const AiProviderSchema = z.strictObject({
-    id: AiProviderIdSchema,
-    name: z.string(),
-    kind: z.enum(['local', 'key']),
-    state: z.enum(['ready', 'not-installed', 'signed-out', 'no-key', 'unknown']),
+  id: AiProviderIdSchema,
+  name: z.string(),
+  kind: z.enum(['local', 'key']),
+  state: z.enum(['ready', 'not-installed', 'signed-out', 'no-key', 'unknown']),
 
-    /**
-     * What the state means, in a sentence.
-     */
-    description: z.string()
+  /**
+   * What the state means, in a sentence.
+   */
+  description: z.string(),
 });
 
 /**
@@ -46,9 +46,8 @@ export type AiProvider = z.output<typeof AiProviderSchema>;
  * @public
  */
 export const AiSetKeyRequestSchema = z.strictObject({
-    providerId: z.enum(['openai', 'google']),
-    key: z.string().min(1)
-        .max(4096)
+  providerId: z.enum(['openai', 'google']),
+  key: z.string().min(1).max(4096),
 });
 
 /**
@@ -57,8 +56,8 @@ export const AiSetKeyRequestSchema = z.strictObject({
  * @public
  */
 export const AiKeyTestSchema = z.strictObject({
-    ok: z.boolean(),
-    message: z.string()
+  ok: z.boolean(),
+  message: z.string(),
 });
 
 /**
@@ -72,7 +71,7 @@ export type AiKeyTest = z.output<typeof AiKeyTestSchema>;
  * @public
  */
 export const AiModelsSchema = z.strictObject({
-    models: z.array(z.string())
+  models: z.array(z.string()),
 });
 
 /**
@@ -86,10 +85,10 @@ export type AiModels = z.output<typeof AiModelsSchema>;
  * @public
  */
 export const AiSafetySchema = z.strictObject({
-    reviewBeforeWriting: z.boolean(),
-    protectPlaceholders: z.boolean(),
-    keepPartialResults: z.boolean(),
-    keepRawOutput: z.boolean()
+  reviewBeforeWriting: z.boolean(),
+  protectPlaceholders: z.boolean(),
+  keepPartialResults: z.boolean(),
+  keepRawOutput: z.boolean(),
 });
 
 /**
@@ -104,29 +103,24 @@ export type AiSafety = z.output<typeof AiSafetySchema>;
  * @public
  */
 export const AiDefaultsSchema = z.strictObject({
-    defaultProvider: AiProviderIdSchema.nullable(),
-    model: z.string(),
-    temperature: z.number().min(0)
-        .max(1),
-    chunkSize: z.number().int()
-        .min(1)
-        .max(100),
-    limit: z.number().int()
-        .positive()
-        .nullable(),
-    instructions: z.string(),
-    localeInstructions: z.record(z.string(), z.string()),
-    safety: AiSafetySchema,
+  defaultProvider: AiProviderIdSchema.nullable(),
+  model: z.string(),
+  temperature: z.number().min(0).max(1),
+  chunkSize: z.number().int().min(1).max(100),
+  limit: z.number().int().positive().nullable(),
+  instructions: z.string(),
+  localeInstructions: z.record(z.string(), z.string()),
+  safety: AiSafetySchema,
 
-    /**
-     * The target locales of the project, each with a field of its own.
-     */
-    locales: z.array(z.string()),
+  /**
+   * The target locales of the project, each with a field of its own.
+   */
+  locales: z.array(z.string()),
 
-    /**
-     * The file the values go to, as a display value.
-     */
-    sourceFile: z.string()
+  /**
+   * The file the values go to, as a display value.
+   */
+  sourceFile: z.string(),
 });
 
 /**
@@ -139,7 +133,15 @@ export type AiDefaults = z.output<typeof AiDefaultsSchema>;
  *
  * @public
  */
-export const AiDefaultsChangesSchema = AiDefaultsSchema.pick({ model: true, temperature: true, chunkSize: true, limit: true, instructions: true, localeInstructions: true, safety: true });
+export const AiDefaultsChangesSchema = AiDefaultsSchema.pick({
+  model: true,
+  temperature: true,
+  chunkSize: true,
+  limit: true,
+  instructions: true,
+  localeInstructions: true,
+  safety: true,
+});
 
 /**
  * @public
@@ -159,38 +161,30 @@ export const GenerateScopeSchema = z.enum(['all', 'new', 'missing']);
  * @public
  */
 export const GenerateInputSchema = z.strictObject({
-    locales: z.array(LocaleTagSchema).min(1)
-        .max(64),
-    scope: GenerateScopeSchema,
+  locales: z.array(LocaleTagSchema).min(1).max(64),
+  scope: GenerateScopeSchema,
 
-    /**
-     * Only the keys below this namespace, as the whole start of the key.
-     */
-    namespace: z.string().max(300)
-        .nullable(),
+  /**
+   * Only the keys below this namespace, as the whole start of the key.
+   */
+  namespace: z.string().max(300).nullable(),
 
-    /**
-     * Only these keys, for a run that started from a finding of Analyze.
-     */
-    keys: z.array(z.string().max(1000)).max(20000)
-        .nullable(),
-    limit: z.number().int()
-        .positive()
-        .nullable(),
-    provider: AiProviderIdSchema,
+  /**
+   * Only these keys, for a run that started from a finding of Analyze.
+   */
+  keys: z.array(z.string().max(1000)).max(20000).nullable(),
+  limit: z.number().int().positive().nullable(),
+  provider: AiProviderIdSchema,
 
-    /**
-     * The model of an API key provider. A local assistant uses its own, so this is empty there.
-     */
-    model: z.string().max(200),
-    temperature: z.number().min(0)
-        .max(1),
-    chunkSize: z.number().int()
-        .min(1)
-        .max(100),
-    instructions: z.string().max(20000),
-    reviewBeforeWriting: z.boolean(),
-    protectPlaceholders: z.boolean()
+  /**
+   * The model of an API key provider. A local assistant uses its own, so this is empty there.
+   */
+  model: z.string().max(200),
+  temperature: z.number().min(0).max(1),
+  chunkSize: z.number().int().min(1).max(100),
+  instructions: z.string().max(20000),
+  reviewBeforeWriting: z.boolean(),
+  protectPlaceholders: z.boolean(),
 });
 
 /**
@@ -204,40 +198,40 @@ export type GenerateInput = z.output<typeof GenerateInputSchema>;
  * @public
  */
 export const GenerateOverviewSchema = z.strictObject({
-    baseLocale: z.string(),
-    format: z.string(),
-    keyCount: z.number().int()
-        .nonnegative(),
-    targets: z.array(z.strictObject({
-        locale: z.string(),
-        isNew: z.boolean(),
-        missing: z.number().int()
-            .nonnegative(),
-        identical: z.number().int()
-            .nonnegative(),
-        selected: z.boolean()
-    })),
-    namespaces: z.array(z.strictObject({
-        name: z.string(),
+  baseLocale: z.string(),
+  format: z.string(),
+  keyCount: z.number().int().nonnegative(),
+  targets: z.array(
+    z.strictObject({
+      locale: z.string(),
+      isNew: z.boolean(),
+      missing: z.number().int().nonnegative(),
+      identical: z.number().int().nonnegative(),
+      selected: z.boolean(),
+    }),
+  ),
+  namespaces: z.array(
+    z.strictObject({
+      name: z.string(),
 
-        /**
-         * The whole start of the keys below this namespace.
-         */
-        path: z.string(),
-        count: z.number().int()
-            .nonnegative()
-    })),
-    defaults: AiDefaultsSchema,
+      /**
+       * The whole start of the keys below this namespace.
+       */
+      path: z.string(),
+      count: z.number().int().nonnegative(),
+    }),
+  ),
+  defaults: AiDefaultsSchema,
 
-    /**
-     * The run that is going on for this project.
-     */
-    activeRunId: IdSchema.nullable(),
+  /**
+   * The run that is going on for this project.
+   */
+  activeRunId: IdSchema.nullable(),
 
-    /**
-     * The last run of this project since the app started.
-     */
-    latestRunId: IdSchema.nullable()
+  /**
+   * The last run of this project since the app started.
+   */
+  latestRunId: IdSchema.nullable(),
 });
 
 /**
@@ -251,22 +245,19 @@ export type GenerateOverview = z.output<typeof GenerateOverviewSchema>;
  * @public
  */
 export const GenerateEstimateSchema = z.strictObject({
-    keys: z.number().int()
-        .nonnegative(),
-    chunks: z.number().int()
-        .nonnegative(),
-    estimatedTokens: z.number().int()
-        .nonnegative(),
+  keys: z.number().int().nonnegative(),
+  chunks: z.number().int().nonnegative(),
+  estimatedTokens: z.number().int().nonnegative(),
 
-    /**
-     * The figure counts only what Wortlaut can see, and the provider adds more of its own.
-     */
-    tokensAreLowerBound: z.boolean(),
+  /**
+   * The figure counts only what Wortlaut can see, and the provider adds more of its own.
+   */
+  tokensAreLowerBound: z.boolean(),
 
-    /**
-     * What the figure covers, in a sentence for the screen.
-     */
-    tokensNote: z.string()
+  /**
+   * What the figure covers, in a sentence for the screen.
+   */
+  tokensNote: z.string(),
 });
 
 /**
@@ -280,8 +271,8 @@ export type GenerateEstimate = z.output<typeof GenerateEstimateSchema>;
  * @public
  */
 export const GenerateCommandSchema = z.strictObject({
-    command: z.string(),
-    shown: z.string()
+  command: z.string(),
+  shown: z.string(),
 });
 
 /**
@@ -295,8 +286,8 @@ export type GenerateCommand = z.output<typeof GenerateCommandSchema>;
  * @public
  */
 export const GenerateSetupRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    input: GenerateInputSchema
+  projectId: IdSchema,
+  input: GenerateInputSchema,
 });
 
 /**
@@ -305,8 +296,8 @@ export const GenerateSetupRequestSchema = z.strictObject({
  * @public
  */
 export const GenerateDraftRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    input: GenerateInputSchema.extend({ locales: z.array(LocaleTagSchema).max(64) })
+  projectId: IdSchema,
+  input: GenerateInputSchema.extend({ locales: z.array(LocaleTagSchema).max(64) }),
 });
 
 /**
@@ -327,22 +318,22 @@ export type GenerateStatus = z.output<typeof GenerateStatusSchema>;
  * @public
  */
 export const GenerateRowSchema = z.strictObject({
-    key: z.string(),
-    base: z.string(),
-    value: z.string(),
+  key: z.string(),
+  base: z.string(),
+  value: z.string(),
 
-    /**
-     * What is wrong with the value, or what a reviewer should look at.
-     */
-    note: z.string().nullable(),
-    severity: z.enum(['none', 'warning', 'danger']),
-    accepted: z.boolean(),
+  /**
+   * What is wrong with the value, or what a reviewer should look at.
+   */
+  note: z.string().nullable(),
+  severity: z.enum(['none', 'warning', 'danger']),
+  accepted: z.boolean(),
 
-    /**
-     * With Protect placeholders on, a value with wrong placeholders cannot be accepted until an edit corrects it.
-     */
-    canAccept: z.boolean(),
-    written: z.boolean()
+  /**
+   * With Protect placeholders on, a value with wrong placeholders cannot be accepted until an edit corrects it.
+   */
+  canAccept: z.boolean(),
+  written: z.boolean(),
 });
 
 /**
@@ -356,10 +347,10 @@ export type GenerateRow = z.output<typeof GenerateRowSchema>;
  * @public
  */
 export const GenerateCheckSchema = z.strictObject({
-    id: z.enum(['placeholders', 'row-count', 'identical', 'keys']),
-    title: z.string(),
-    text: z.string(),
-    severity: z.enum(['success', 'warning', 'danger'])
+  id: z.enum(['placeholders', 'row-count', 'identical', 'keys']),
+  title: z.string(),
+  text: z.string(),
+  severity: z.enum(['success', 'warning', 'danger']),
 });
 
 /**
@@ -373,32 +364,25 @@ export type GenerateCheck = z.output<typeof GenerateCheckSchema>;
  * @public
  */
 export const GenerateLocaleProgressSchema = z.strictObject({
-    locale: z.string(),
-    status: z.enum(['waiting', 'running', 'failed', 'stopped', 'done']),
+  locale: z.string(),
+  status: z.enum(['waiting', 'running', 'failed', 'stopped', 'done']),
 
-    /**
-     * The target file, as a display value.
-     */
-    target: z.string(),
-    doneKeys: z.number().int()
-        .nonnegative(),
-    totalKeys: z.number().int()
-        .nonnegative(),
-    doneChunks: z.number().int()
-        .nonnegative(),
-    totalChunks: z.number().int()
-        .nonnegative(),
+  /**
+   * The target file, as a display value.
+   */
+  target: z.string(),
+  doneKeys: z.number().int().nonnegative(),
+  totalKeys: z.number().int().nonnegative(),
+  doneChunks: z.number().int().nonnegative(),
+  totalChunks: z.number().int().nonnegative(),
 
-    /**
-     * One state per chunk, in their order.
-     */
-    chunks: z.array(z.enum(['waiting', 'running', 'done', 'failed'])),
-    estimatedTokens: z.number().int()
-        .nonnegative(),
-    needsAttention: z.number().int()
-        .nonnegative(),
-    writable: z.number().int()
-        .nonnegative()
+  /**
+   * One state per chunk, in their order.
+   */
+  chunks: z.array(z.enum(['waiting', 'running', 'done', 'failed'])),
+  estimatedTokens: z.number().int().nonnegative(),
+  needsAttention: z.number().int().nonnegative(),
+  writable: z.number().int().nonnegative(),
 });
 
 /**
@@ -412,50 +396,50 @@ export type GenerateLocaleProgress = z.output<typeof GenerateLocaleProgressSchem
  * @public
  */
 export const GenerateRunSchema = z.strictObject({
-    runId: IdSchema,
-    projectId: IdSchema,
-    status: GenerateStatusSchema,
+  runId: IdSchema,
+  projectId: IdSchema,
+  status: GenerateStatusSchema,
 
-    /**
-     * A failed chunk, numbered from one, with the reason of the provider.
-     */
-    failure: z.strictObject({
-        locale: z.string(),
-        chunk: z.number().int()
-            .positive(),
-        message: z.string(),
+  /**
+   * A failed chunk, numbered from one, with the reason of the provider.
+   */
+  failure: z
+    .strictObject({
+      locale: z.string(),
+      chunk: z.number().int().positive(),
+      message: z.string(),
 
-        /**
-         * The run waits, and can go on from this chunk. A run that could not start cannot.
-         */
-        canResume: z.boolean()
-    }).nullable(),
-    dryRun: z.boolean(),
-    provider: AiProviderSchema.pick({ id: true, name: true, kind: true }),
-    baseLocale: z.string(),
-    input: GenerateInputSchema,
-    startedAt: z.iso.datetime(),
-    elapsedMs: z.number().int()
-        .nonnegative(),
-    locales: z.array(GenerateLocaleProgressSchema),
+      /**
+       * The run waits, and can go on from this chunk. A run that could not start cannot.
+       */
+      canResume: z.boolean(),
+    })
+    .nullable(),
+  dryRun: z.boolean(),
+  provider: AiProviderSchema.pick({ id: true, name: true, kind: true }),
+  baseLocale: z.string(),
+  input: GenerateInputSchema,
+  startedAt: z.iso.datetime(),
+  elapsedMs: z.number().int().nonnegative(),
+  locales: z.array(GenerateLocaleProgressSchema),
 
-    /**
-     * The locale whose rows and checks this answer holds.
-     */
-    locale: z.string(),
-    rows: z.array(GenerateRowSchema),
-    checks: z.array(GenerateCheckSchema),
-    log: z.array(z.string()),
+  /**
+   * The locale whose rows and checks this answer holds.
+   */
+  locale: z.string(),
+  rows: z.array(GenerateRowSchema),
+  checks: z.array(GenerateCheckSchema),
+  log: z.array(z.string()),
 
-    /**
-     * The pending change set that holds what is not written yet.
-     */
-    changeSetId: IdSchema.nullable(),
+  /**
+   * The pending change set that holds what is not written yet.
+   */
+  changeSetId: IdSchema.nullable(),
 
-    /**
-     * The change set holds only what a failed or stopped run finished.
-     */
-    partial: z.boolean()
+  /**
+   * The change set holds only what a failed or stopped run finished.
+   */
+  partial: z.boolean(),
 });
 
 /**
@@ -469,12 +453,11 @@ export type GenerateRun = z.output<typeof GenerateRunSchema>;
  * @public
  */
 export const GenerateRowChangeSchema = z.strictObject({
-    runId: IdSchema,
-    locale: z.string().max(40),
-    key: z.string().max(1000),
-    value: z.string().max(100000)
-        .optional(),
-    accepted: z.boolean().optional()
+  runId: IdSchema,
+  locale: z.string().max(40),
+  key: z.string().max(1000),
+  value: z.string().max(100000).optional(),
+  accepted: z.boolean().optional(),
 });
 
 /**
@@ -483,10 +466,9 @@ export const GenerateRowChangeSchema = z.strictObject({
  * @public
  */
 export const TestSetupSchema = z.strictObject({
-    provider: AiProviderIdSchema,
-    model: z.string().max(200),
-    temperature: z.number().min(0)
-        .max(1)
+  provider: AiProviderIdSchema,
+  model: z.string().max(200),
+  temperature: z.number().min(0).max(1),
 });
 
 /**
@@ -500,12 +482,9 @@ export type TestSetup = z.output<typeof TestSetupSchema>;
  * @public
  */
 export const TestSampleRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    namespace: z.string().max(300)
-        .nullable(),
-    size: z.number().int()
-        .min(1)
-        .max(100)
+  projectId: IdSchema,
+  namespace: z.string().max(300).nullable(),
+  size: z.number().int().min(1).max(100),
 });
 
 /**
@@ -514,12 +493,13 @@ export const TestSampleRequestSchema = z.strictObject({
  * @public
  */
 export const TestSampleSchema = z.strictObject({
-    baseLocale: z.string(),
-    locales: z.array(z.string()),
-    namespaces: z.array(z.strictObject({ name: z.string(), path: z.string(), count: z.number().int()
-        .nonnegative() })),
-    rows: z.array(z.strictObject({ key: z.string(), base: z.string(), comment: z.string() })),
-    instructions: z.string()
+  baseLocale: z.string(),
+  locales: z.array(z.string()),
+  namespaces: z.array(
+    z.strictObject({ name: z.string(), path: z.string(), count: z.number().int().nonnegative() }),
+  ),
+  rows: z.array(z.strictObject({ key: z.string(), base: z.string(), comment: z.string() })),
+  instructions: z.string(),
 });
 
 /**
@@ -533,12 +513,20 @@ export type TestSample = z.output<typeof TestSampleSchema>;
  * @public
  */
 export const TestTranslateRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    locale: LocaleTagSchema,
-    rows: z.array(z.strictObject({ key: z.string().max(1000), base: z.string().max(10000), comment: z.string().max(10000) })).min(1)
-        .max(200),
-    setups: z.array(TestSetupSchema).length(2),
-    instructions: z.string().max(20000)
+  projectId: IdSchema,
+  locale: LocaleTagSchema,
+  rows: z
+    .array(
+      z.strictObject({
+        key: z.string().max(1000),
+        base: z.string().max(10000),
+        comment: z.string().max(10000),
+      }),
+    )
+    .min(1)
+    .max(200),
+  setups: z.array(TestSetupSchema).length(2),
+  instructions: z.string().max(20000),
 });
 
 /**
@@ -552,32 +540,35 @@ export type TestTranslateRequest = z.output<typeof TestTranslateRequestSchema>;
  * @public
  */
 export const TestTranslationSchema = z.strictObject({
-    id: IdSchema,
-    isRunning: z.boolean(),
-    locale: z.string(),
-    rows: z.array(z.strictObject({ key: z.string(), base: z.string() })),
-    setups: z.array(z.strictObject({
-        name: z.enum(['A', 'B']),
-        provider: AiProviderIdSchema,
-        providerName: z.string(),
-        model: z.string(),
-        temperature: z.number(),
-        status: z.enum(['running', 'done', 'failed', 'stopped']),
-        durationMs: z.number().int()
-            .nonnegative()
-            .nullable(),
+  id: IdSchema,
+  isRunning: z.boolean(),
+  locale: z.string(),
+  rows: z.array(z.strictObject({ key: z.string(), base: z.string() })),
+  setups: z.array(
+    z.strictObject({
+      name: z.enum(['A', 'B']),
+      provider: AiProviderIdSchema,
+      providerName: z.string(),
+      model: z.string(),
+      temperature: z.number(),
+      status: z.enum(['running', 'done', 'failed', 'stopped']),
+      durationMs: z.number().int().nonnegative().nullable(),
 
-        /**
-         * What the provider reported, or an estimate, or `null` when neither is known.
-         */
-        estimatedTokens: z.number().int()
-            .nonnegative()
-            .nullable(),
-        issues: z.number().int()
-            .nonnegative(),
-        failure: z.string().nullable(),
-        results: z.array(z.strictObject({ key: z.string(), value: z.string().nullable(), note: z.string().nullable() }))
-    }))
+      /**
+       * What the provider reported, or an estimate, or `null` when neither is known.
+       */
+      estimatedTokens: z.number().int().nonnegative().nullable(),
+      issues: z.number().int().nonnegative(),
+      failure: z.string().nullable(),
+      results: z.array(
+        z.strictObject({
+          key: z.string(),
+          value: z.string().nullable(),
+          note: z.string().nullable(),
+        }),
+      ),
+    }),
+  ),
 });
 
 /**
@@ -591,15 +582,15 @@ export type TestTranslation = z.output<typeof TestTranslationSchema>;
  * @public
  */
 export const AiSuggestValueRequestSchema = z.strictObject({
-    requestId: z.uuid(),
-    projectId: IdSchema,
-    key: z.string().max(1000),
-    locale: z.string().max(40),
+  requestId: z.uuid(),
+  projectId: IdSchema,
+  key: z.string().max(1000),
+  locale: z.string().max(40),
 
-    /**
-     * The comment in the editor, which may not be saved yet.
-     */
-    comment: z.string().max(10000)
+  /**
+   * The comment in the editor, which may not be saved yet.
+   */
+  comment: z.string().max(10000),
 });
 
 /**
@@ -608,13 +599,13 @@ export const AiSuggestValueRequestSchema = z.strictObject({
  * @public
  */
 export const AiValueProposalSchema = z.strictObject({
-    value: z.string(),
-    providerName: z.string(),
+  value: z.string(),
+  providerName: z.string(),
 
-    /**
-     * What is wrong with the placeholders, or `null` when they match.
-     */
-    problem: z.string().nullable()
+  /**
+   * What is wrong with the placeholders, or `null` when they match.
+   */
+  problem: z.string().nullable(),
 });
 
 /**
@@ -628,11 +619,10 @@ export type AiValueProposal = z.output<typeof AiValueProposalSchema>;
  * @public
  */
 export const AiNameKeysRequestSchema = z.strictObject({
-    requestId: z.uuid(),
-    projectId: IdSchema,
-    scanId: IdSchema,
-    rowIds: z.array(IdSchema).min(1)
-        .max(500)
+  requestId: z.uuid(),
+  projectId: IdSchema,
+  scanId: IdSchema,
+  rowIds: z.array(IdSchema).min(1).max(500),
 });
 
 /**
@@ -641,9 +631,9 @@ export const AiNameKeysRequestSchema = z.strictObject({
  * @public
  */
 export const AiKeyNamesSchema = z.strictObject({
-    names: z.array(z.strictObject({ rowId: IdSchema, key: z.string() })),
-    providerName: z.string(),
-    dropped: z.array(z.string())
+  names: z.array(z.strictObject({ rowId: IdSchema, key: z.string() })),
+  providerName: z.string(),
+  dropped: z.array(z.string()),
 });
 
 /**
@@ -657,10 +647,9 @@ export type AiKeyNames = z.output<typeof AiKeyNamesSchema>;
  * @public
  */
 export const AiSuggestPatternsRequestSchema = z.strictObject({
-    requestId: z.uuid(),
-    projectId: IdSchema,
-    keys: z.array(z.string().max(1000)).min(1)
-        .max(2000)
+  requestId: z.uuid(),
+  projectId: IdSchema,
+  keys: z.array(z.string().max(1000)).min(1).max(2000),
 });
 
 /**
@@ -669,10 +658,11 @@ export const AiSuggestPatternsRequestSchema = z.strictObject({
  * @public
  */
 export const AiPatternProposalsSchema = z.strictObject({
-    patterns: z.array(z.strictObject({ pattern: z.string(), matchCount: z.number().int()
-        .nonnegative() })),
-    providerName: z.string(),
-    dropped: z.array(z.string())
+  patterns: z.array(
+    z.strictObject({ pattern: z.string(), matchCount: z.number().int().nonnegative() }),
+  ),
+  providerName: z.string(),
+  dropped: z.array(z.string()),
 });
 
 /**

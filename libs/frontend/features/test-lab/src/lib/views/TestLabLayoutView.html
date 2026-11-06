@@ -7,7 +7,12 @@
     <nav aria-label="Test lab">
       <mosaik-tab-strip [hasIndicator]="true">
         @for (tab of presenter.tabs(); track tab.id) {
-          <mosaik-tab-strip-item [attr.test-id]="'test-lab-tab-' + tab.id" [label]="tab.label" [isSelected]="tab.isSelected" (click)="presenter.open(tab.route)" />
+          <mosaik-tab-strip-item
+            [attr.test-id]="'test-lab-tab-' + tab.id"
+            [label]="tab.label"
+            [isSelected]="tab.isSelected"
+            (click)="presenter.open(tab.route)"
+          />
         }
       </mosaik-tab-strip>
     </nav>

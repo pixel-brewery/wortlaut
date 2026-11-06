@@ -4,7 +4,7 @@
  * @public
  */
 export const IPC_CHANNELS = Object.freeze({
-    request: 'wortlaut:request',
-    event: 'wortlaut:event',
-    folderDrop: 'wortlaut:folder-drop'
+  request: 'wortlaut:request',
+  event: 'wortlaut:event',
+  folderDrop: 'wortlaut:folder-drop',
 });

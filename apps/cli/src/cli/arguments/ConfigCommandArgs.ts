@@ -9,7 +9,4 @@ import { CLI_ARGS, REVIEW_ARG } from '../CliArgs.js';
  *
  * @internal
  */
-export const CONFIG_COMMAND_ARGS = [
-    ...CLI_ARGS,
-    REVIEW_ARG
-];
+export const CONFIG_COMMAND_ARGS = [...CLI_ARGS, REVIEW_ARG];

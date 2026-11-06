@@ -9,6 +9,4 @@ import { CLI_ARGS } from '../CliArgs.js';
  *
  * @internal
  */
-export const CHANGES_COMMAND_ARGS = [
-    ...CLI_ARGS
-];
+export const CHANGES_COMMAND_ARGS = [...CLI_ARGS];

@@ -13,5 +13,9 @@ export const FOLDER_DROP_ATTRIBUTE = 'data-folder-drop';
  * @returns `true` when a drop target is in the path.
  */
 export function isFolderDropTarget(path: ReadonlyArray<EventTarget>): boolean {
-    return path.some((target) => typeof (target as Element).hasAttribute === 'function' && (target as Element).hasAttribute(FOLDER_DROP_ATTRIBUTE));
+  return path.some(
+    (target) =>
+      typeof (target as Element).hasAttribute === 'function' &&
+      (target as Element).hasAttribute(FOLDER_DROP_ATTRIBUTE),
+  );
 }

@@ -1,37 +1,95 @@
 <div class="page-scroll">
   <main class="page">
     @if (presenter.error() && !presenter.run()) {
-      <wortlaut-failure-state header="This run could not be read" [message]="presenter.error()" (retry)="presenter.load()" />
+      <wortlaut-failure-state
+        header="This run could not be read"
+        [message]="presenter.error()"
+        (retry)="presenter.load()"
+      />
     } @else if (presenter.run(); as run) {
       <div class="run-header">
         <div class="run-title">
           <div class="run-heading">
-            <h1><wortlaut-locale-label [code]="run.baseLocale" [label]="presenter.baseName()" /> to <wortlaut-locale-label [code]="run.locale" [label]="presenter.targetName()" /></h1>
-            <mosaik-badge appearance="soft" [label]="presenter.status().label" [variant]="presenter.status().variant" />
+            <h1>
+              <wortlaut-locale-label [code]="run.baseLocale" [label]="presenter.baseName()" /> to
+              <wortlaut-locale-label [code]="run.locale" [label]="presenter.targetName()" />
+            </h1>
+            <mosaik-badge
+              appearance="soft"
+              [label]="presenter.status().label"
+              [variant]="presenter.status().variant"
+            />
           </div>
-          <p class="lead">{{ presenter.subtitle() }}<code class="inline">{{ presenter.current()?.target }}</code></p>
+          <p class="lead">
+            {{ presenter.subtitle() }}<code class="inline">{{ presenter.current()?.target }}</code>
+          </p>
         </div>
         <div class="actions">
           @switch (run.status) {
             @case ('running') {
-              <mosaik-button label="Pause" variant="neutral" appearance="outline" (click)="presenter.pause()" />
-              <mosaik-button label="Stop and keep result" variant="neutral" appearance="outline" (click)="presenter.stop()" />
+              <mosaik-button
+                label="Pause"
+                variant="neutral"
+                appearance="outline"
+                (click)="presenter.pause()"
+              />
+              <mosaik-button
+                label="Stop and keep result"
+                variant="neutral"
+                appearance="outline"
+                (click)="presenter.stop()"
+              />
             }
             @case ('paused') {
-              <mosaik-button label="Resume" variant="neutral" appearance="outline" (click)="presenter.resume()" />
-              <mosaik-button label="Stop and keep result" variant="neutral" appearance="outline" (click)="presenter.stop()" />
+              <mosaik-button
+                label="Resume"
+                variant="neutral"
+                appearance="outline"
+                (click)="presenter.resume()"
+              />
+              <mosaik-button
+                label="Stop and keep result"
+                variant="neutral"
+                appearance="outline"
+                (click)="presenter.stop()"
+              />
             }
             @case ('failed') {
               @if (run.failure?.canResume) {
-                <mosaik-button variant="neutral" appearance="outline" [label]="'Resume from chunk ' + run.failure.chunk" (click)="presenter.resume()" />
-                <mosaik-button label="Stop and keep result" variant="neutral" appearance="outline" (click)="presenter.stop()" />
+                <mosaik-button
+                  variant="neutral"
+                  appearance="outline"
+                  [label]="'Resume from chunk ' + run.failure.chunk"
+                  (click)="presenter.resume()"
+                />
+                <mosaik-button
+                  label="Stop and keep result"
+                  variant="neutral"
+                  appearance="outline"
+                  (click)="presenter.stop()"
+                />
               } @else {
-                <mosaik-button label="Back to set up" variant="neutral" appearance="outline" (click)="presenter.backToSetup()" />
+                <mosaik-button
+                  label="Back to set up"
+                  variant="neutral"
+                  appearance="outline"
+                  (click)="presenter.backToSetup()"
+                />
               }
             }
             @default {
-              <mosaik-button label="Back to set up" appearance="plain" (click)="presenter.backToSetup()" />
-              <mosaik-button label="Run again" variant="neutral" appearance="outline" [isBusy]="presenter.busy()" (click)="presenter.again()" />
+              <mosaik-button
+                label="Back to set up"
+                appearance="plain"
+                (click)="presenter.backToSetup()"
+              />
+              <mosaik-button
+                label="Run again"
+                variant="neutral"
+                appearance="outline"
+                [isBusy]="presenter.busy()"
+                (click)="presenter.again()"
+              />
             }
           }
         </div>
@@ -40,21 +98,43 @@
       @if (presenter.localeSwitch().length > 0) {
         <mosaik-segment appearance="soft" size="small" aria-label="Locale">
           @for (locale of presenter.localeSwitch(); track locale.code) {
-            <mosaik-segment-item class="locale-flag" [icon]="(locale.code | localeFlag) ?? ''" [label]="locale.name" [isChecked]="locale.isChecked" (click)="presenter.pickLocale(locale.code)" />
+            <mosaik-segment-item
+              class="locale-flag"
+              [icon]="(locale.code | localeFlag) ?? ''"
+              [label]="locale.name"
+              [isChecked]="locale.isChecked"
+              (click)="presenter.pickLocale(locale.code)"
+            />
           }
         </mosaik-segment>
       }
 
       @if (run.failure; as failure) {
         @if (failure.canResume) {
-          <mosaik-message variant="danger" [header]="'Chunk ' + failure.chunk + ' failed: ' + failure.message" [content]="presenter.failureContent()" />
+          <mosaik-message
+            variant="danger"
+            [header]="'Chunk ' + failure.chunk + ' failed: ' + failure.message"
+            [content]="presenter.failureContent()"
+          />
         } @else {
-          <mosaik-message variant="danger" header="This run could not start" [content]="failure.message" />
+          <mosaik-message
+            variant="danger"
+            header="This run could not start"
+            [content]="failure.message"
+          />
         }
       } @else if (run.status === 'stopped') {
-        <mosaik-message variant="info" header="The run was stopped" [content]="presenter.stoppedContent()" />
+        <mosaik-message
+          variant="info"
+          header="The run was stopped"
+          [content]="presenter.stoppedContent()"
+        />
       } @else if (run.status === 'paused') {
-        <mosaik-message variant="info" header="The run is paused" content="The chunk in flight finishes, and no new one starts. Nothing was written to the target file." />
+        <mosaik-message
+          variant="info"
+          header="The run is paused"
+          content="The chunk in flight finishes, and no new one starts. Nothing was written to the target file."
+        />
       }
       @if (presenter.message(); as message) {
         <mosaik-message variant="danger" header="That did not work" [content]="message" />
@@ -66,9 +146,18 @@
           <div slot="content" class="progress">
             <div class="progress-head">
               <div class="progress-keys">{{ presenter.progress().keys }}</div>
-              <div class="progress-figures muted"><span>{{ presenter.progress().chunk }}</span><span>{{ presenter.elapsed() }}</span><span>{{ presenter.progress().tokens }}</span></div>
+              <div class="progress-figures muted">
+                <span>{{ presenter.progress().chunk }}</span
+                ><span>{{ presenter.elapsed() }}</span
+                ><span>{{ presenter.progress().tokens }}</span>
+              </div>
             </div>
-            <mosaik-progress-bar aria-label="Translated keys" [min]="0" [max]="presenter.progress().totalKeys || 1" [value]="presenter.progress().doneKeys" />
+            <mosaik-progress-bar
+              aria-label="Translated keys"
+              [min]="0"
+              [max]="presenter.progress().totalKeys || 1"
+              [value]="presenter.progress().doneKeys"
+            />
             <div aria-hidden="true" class="cells">
               @for (cell of presenter.cells(); track cell.index) {
                 <span class="cell" [class]="'cell-' + cell.state" [title]="cell.title"></span>
@@ -76,36 +165,78 @@
             </div>
             <div class="legend">
               <span class="legend-item"><span class="cell cell-done"></span>Done</span>
-              <span class="legend-item"><span class="cell" [class]="run.status === 'failed' ? 'cell-failed' : 'cell-running'"></span>{{ run.status === 'failed' ? 'Failed' : 'Running' }}</span>
+              <span class="legend-item"
+                ><span
+                  class="cell"
+                  [class]="run.status === 'failed' ? 'cell-failed' : 'cell-running'"
+                ></span
+                >{{ run.status === 'failed' ? 'Failed' : 'Running' }}</span
+              >
               <span class="legend-item"><span class="cell cell-waiting"></span>Waiting</span>
             </div>
           </div>
           @if (presenter.hasMoreCells()) {
             <div slot="footer" class="table-footer note actions">
               <span>{{ presenter.cells().length }} of {{ presenter.chunkCount() }} chunks</span>
-              <mosaik-button test-id="generate-more-chunks" label="Show more chunks" appearance="plain" size="small" (click)="presenter.showMoreCells()" />
+              <mosaik-button
+                test-id="generate-more-chunks"
+                label="Show more chunks"
+                appearance="plain"
+                size="small"
+                (click)="presenter.showMoreCells()"
+              />
             </div>
           }
         </mosaik-card>
       </section>
 
-      <mosaik-split class="pane-split page-content" test-id="generate-review-split" paneSizeKey="generate.review" paneSize="280px" lock="end" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize translation checks and log' }">
+      <mosaik-split
+        class="pane-split page-content"
+        test-id="generate-review-split"
+        paneSizeKey="generate.review"
+        paneSize="280px"
+        lock="end"
+        min="220px"
+        max="55%"
+        [intl]="{ resizeLabel: 'Resize translation checks and log' }"
+      >
         <section slot="start" aria-labelledby="review" class="review-main card-section pane-start">
           <mosaik-card>
             <div slot="header" class="review-toolbar">
               @if (presenter.dryRun()) {
                 <div class="review-notice">
-                  <mosaik-message variant="info" header="Dry run is on" content="Accepted translations stay in this list until you turn off dry run in the title bar." />
+                  <mosaik-message
+                    variant="info"
+                    header="Dry run is on"
+                    content="Accepted translations stay in this list until you turn off dry run in the title bar."
+                  />
                 </div>
               }
               <div class="review-head">
                 <h2 id="review">Review</h2>
                 <div class="review-tools">
                   <mosaik-segment appearance="soft" size="small" aria-label="Filter translations">
-                    <mosaik-segment-item label="All" [isChecked]="presenter.filter() === 'all'" (click)="presenter.pickFilter('all')" />
-                    <mosaik-segment-item [label]="'Needs attention ' + presenter.attentionCount()" [isChecked]="presenter.filter() === 'attention'" (click)="presenter.pickFilter('attention')" />
+                    <mosaik-segment-item
+                      label="All"
+                      [isChecked]="presenter.filter() === 'all'"
+                      (click)="presenter.pickFilter('all')"
+                    />
+                    <mosaik-segment-item
+                      [label]="'Needs attention ' + presenter.attentionCount()"
+                      [isChecked]="presenter.filter() === 'attention'"
+                      (click)="presenter.pickFilter('attention')"
+                    />
                   </mosaik-segment>
-                  <mosaik-button variant="primary" appearance="solid" size="small" [label]="presenter.writeLabel()" [title]="presenter.writeBlocker() ?? ''" [disabled]="presenter.writeBlocker() !== null || presenter.busy()" [isBusy]="presenter.busy()" (click)="presenter.write()" />
+                  <mosaik-button
+                    variant="primary"
+                    appearance="solid"
+                    size="small"
+                    [label]="presenter.writeLabel()"
+                    [title]="presenter.writeBlocker() ?? ''"
+                    [disabled]="presenter.writeBlocker() !== null || presenter.busy()"
+                    [isBusy]="presenter.busy()"
+                    (click)="presenter.write()"
+                  />
                 </div>
               </div>
               @if (presenter.writeBlocker(); as blocker) {
@@ -119,8 +250,16 @@
                     <mosaik-table columns="minmax(0, 2fr) minmax(0, 5fr) 96px" appearance="plain">
                       <mosaik-table-header>
                         <mosaik-table-header-row>
-                          <mosaik-table-header-cell><wortlaut-locale-label [code]="run.baseLocale" [label]="presenter.baseName()" /></mosaik-table-header-cell>
-                          <mosaik-table-header-cell><wortlaut-locale-label [code]="run.locale" [label]="presenter.targetName()" /></mosaik-table-header-cell>
+                          <mosaik-table-header-cell
+                            ><wortlaut-locale-label
+                              [code]="run.baseLocale"
+                              [label]="presenter.baseName()"
+                          /></mosaik-table-header-cell>
+                          <mosaik-table-header-cell
+                            ><wortlaut-locale-label
+                              [code]="run.locale"
+                              [label]="presenter.targetName()"
+                          /></mosaik-table-header-cell>
                           <mosaik-table-header-cell text="Accept" />
                         </mosaik-table-header-row>
                       </mosaik-table-header>
@@ -135,7 +274,13 @@
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
                               <div class="value-cell">
-                                <mosaik-textbox [attr.aria-label]="presenter.targetName() + ' for ' + row.key" [value]="row.value" [invalid]="row.isDanger" [readonly]="row.written || presenter.busy()" (input)="onEdit(row.key, $event)" />
+                                <mosaik-textbox
+                                  [attr.aria-label]="presenter.targetName() + ' for ' + row.key"
+                                  [value]="row.value"
+                                  [invalid]="row.isDanger"
+                                  [readonly]="row.written || presenter.busy()"
+                                  (input)="onEdit(row.key, $event)"
+                                />
                                 @if (row.note) {
                                   <div class="row-note" [class]="row.noteClass">{{ row.note }}</div>
                                 } @else if (row.written) {
@@ -144,7 +289,13 @@
                               </div>
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
-                              <mosaik-checkbox [attr.aria-label]="'Accept ' + row.key" [isChecked]="row.accepted" [disabled]="!row.canAccept || row.written || presenter.busy()" (checked)="presenter.accept(row, true)" (unchecked)="presenter.accept(row, false)" />
+                              <mosaik-checkbox
+                                [attr.aria-label]="'Accept ' + row.key"
+                                [isChecked]="row.accepted"
+                                [disabled]="!row.canAccept || row.written || presenter.busy()"
+                                (checked)="presenter.accept(row, true)"
+                                (unchecked)="presenter.accept(row, false)"
+                              />
                             </mosaik-table-body-cell>
                           </mosaik-table-body-row>
                         }
@@ -153,11 +304,25 @@
                   </div>
                 </div>
               } @else {
-                <div class="review-empty muted">{{ presenter.filter() === 'attention' ? 'No row needs attention.' : 'Translations show up here as chunks finish.' }}</div>
+                <div class="review-empty muted">
+                  {{
+                    presenter.filter() === 'attention'
+                      ? 'No row needs attention.'
+                      : 'Translations show up here as chunks finish.'
+                  }}
+                </div>
               }
             </div>
             @if (presenter.rows().length > 0 && presenter.hasMoreRows()) {
-              <div slot="footer" class="more"><mosaik-button test-id="generate-review-show-more" label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" /></div>
+              <div slot="footer" class="more">
+                <mosaik-button
+                  test-id="generate-review-show-more"
+                  label="Show more"
+                  appearance="plain"
+                  size="small"
+                  (click)="presenter.showMore()"
+                />
+              </div>
             }
           </mosaik-card>
         </section>
@@ -170,7 +335,9 @@
                 <ul class="checks">
                   @for (check of presenter.checks(); track check.id) {
                     <li class="check">
-                      <span class="check-icon"><mosaik-icon size="small" [icon]="check.icon" [variant]="check.severity" /></span>
+                      <span class="check-icon"
+                        ><mosaik-icon size="small" [icon]="check.icon" [variant]="check.severity"
+                      /></span>
                       <div class="check-text">
                         <span class="check-title">{{ check.title }}</span>
                         <span class="note">{{ check.text }}</span>
@@ -184,7 +351,13 @@
           <section aria-label="Log" class="card-section">
             <mosaik-card appearance="soft">
               <mosaik-card-header slot="header" text="Log" />
-              <div slot="content" class="log-body"><wortlaut-text-window [text]="presenter.log()" [pageKey]="run.runId + ':log'" test-id="generate-log" /></div>
+              <div slot="content" class="log-body">
+                <wortlaut-text-window
+                  [text]="presenter.log()"
+                  [pageKey]="run.runId + ':log'"
+                  test-id="generate-log"
+                />
+              </div>
             </mosaik-card>
           </section>
         </aside>

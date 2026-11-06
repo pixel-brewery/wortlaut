@@ -10,13 +10,11 @@ import { z } from 'zod';
  * @public
  */
 export const RunProgressEventSchema = z.strictObject({
-    runId: z.string(),
-    phase: z.string(),
-    completed: z.number().int()
-        .nonnegative(),
-    total: z.number().int()
-        .nonnegative(),
-    detail: z.string().nullable()
+  runId: z.string(),
+  phase: z.string(),
+  completed: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  detail: z.string().nullable(),
 });
 
 /**

@@ -7,8 +7,7 @@
  * @returns The regular expression that matches the whole key.
  */
 export function createKeyPattern(pattern: string): RegExp {
-    const parts = pattern.split('*')
-        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const parts = pattern.split('*').map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
-    return new RegExp(`^${parts.join('.*')}$`, 's');
+  return new RegExp(`^${parts.join('.*')}$`, 's');
 }

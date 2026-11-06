@@ -12,5 +12,7 @@ import { join } from 'node:path';
  * @returns The version.
  */
 export function packageVersion(): string {
-    return (JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8')) as { version: string }).version;
+  return (
+    JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8')) as { version: string }
+  ).version;
 }

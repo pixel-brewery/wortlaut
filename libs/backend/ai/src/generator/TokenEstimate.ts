@@ -21,15 +21,15 @@ const CHARS_PER_TOKEN = 4;
  * they stay out of this list instead of getting a number that looks like knowledge.
  */
 const ASSISTANT_CONTEXT_PER_CHUNK: Readonly<Record<string, { name: string; tokens: number }>> = {
-    codex: { name: 'Codex', tokens: 14000 }
+  codex: { name: 'Codex', tokens: 14000 },
 };
 
 /**
  * The local assistants without a measured figure, by their names.
  */
 const UNMEASURED_ASSISTANTS: Readonly<Record<string, string>> = {
-    'claude-code': 'Claude Code',
-    opencode: 'OpenCode'
+  'claude-code': 'Claude Code',
+  opencode: 'OpenCode',
 };
 
 /**
@@ -38,17 +38,17 @@ const UNMEASURED_ASSISTANTS: Readonly<Record<string, string>> = {
  * @public
  */
 export interface ITokenEstimate {
-    tokens: number;
+  tokens: number;
 
-    /**
-     * The figure counts only what Wortlaut can see, and the provider adds more of its own.
-     */
-    isLowerBound: boolean;
+  /**
+   * The figure counts only what Wortlaut can see, and the provider adds more of its own.
+   */
+  isLowerBound: boolean;
 
-    /**
-     * What the figure covers, in a sentence for the screen.
-     */
-    note: string;
+  /**
+   * What the figure covers, in a sentence for the screen.
+   */
+  note: string;
 }
 
 /**
@@ -61,11 +61,18 @@ export interface ITokenEstimate {
  * @param instructions The instructions, sent with every chunk.
  * @returns The estimated tokens.
  */
-export function estimateTokens(models: ReadonlyArray<Pick<IResourceModel, 'key' | 'value' | 'comment'>>, chunkCount: number, instructions?: string | ReadonlyArray<string>): number {
-    const rows = models.reduce((sum, model) => sum + model.key.length + model.value.length + (model.comment?.length ?? 0) + 2, 0);
-    const prompt = chunkCount * (PROMPT_OVERHEAD + joinInstructions(instructions).length);
+export function estimateTokens(
+  models: ReadonlyArray<Pick<IResourceModel, 'key' | 'value' | 'comment'>>,
+  chunkCount: number,
+  instructions?: string | ReadonlyArray<string>,
+): number {
+  const rows = models.reduce(
+    (sum, model) => sum + model.key.length + model.value.length + (model.comment?.length ?? 0) + 2,
+    0,
+  );
+  const prompt = chunkCount * (PROMPT_OVERHEAD + joinInstructions(instructions).length);
 
-    return Math.ceil((prompt + rows * 2) / CHARS_PER_TOKEN);
+  return Math.ceil((prompt + rows * 2) / CHARS_PER_TOKEN);
 }
 
 /**
@@ -79,27 +86,37 @@ export function estimateTokens(models: ReadonlyArray<Pick<IResourceModel, 'key' 
  * @param instructions The instructions, sent with every chunk.
  * @returns The estimate and what it covers.
  */
-export function estimateTokensFor(provider: string, models: ReadonlyArray<Pick<IResourceModel, 'key' | 'value' | 'comment'>>, chunkCount: number, instructions?: string | ReadonlyArray<string>): ITokenEstimate {
-    const counted = estimateTokens(models, chunkCount, instructions);
-    const measured = ASSISTANT_CONTEXT_PER_CHUNK[provider] as { name: string; tokens: number } | undefined;
+export function estimateTokensFor(
+  provider: string,
+  models: ReadonlyArray<Pick<IResourceModel, 'key' | 'value' | 'comment'>>,
+  chunkCount: number,
+  instructions?: string | ReadonlyArray<string>,
+): ITokenEstimate {
+  const counted = estimateTokens(models, chunkCount, instructions);
+  const measured = ASSISTANT_CONTEXT_PER_CHUNK[provider] as
+    { name: string; tokens: number } | undefined;
 
-    if (measured) {
-        return {
-            tokens: counted + chunkCount * measured.tokens,
-            isLowerBound: false,
-            note: `A rough figure. ${measured.name} adds its own instructions and tools to every chunk, about ${Math.round(measured.tokens / 1000)} k in the runs that were measured, and it can be far off on this computer.`
-        };
-    }
+  if (measured) {
+    return {
+      tokens: counted + chunkCount * measured.tokens,
+      isLowerBound: false,
+      note: `A rough figure. ${measured.name} adds its own instructions and tools to every chunk, about ${Math.round(measured.tokens / 1000)} k in the runs that were measured, and it can be far off on this computer.`,
+    };
+  }
 
-    const unmeasured = UNMEASURED_ASSISTANTS[provider] as string | undefined;
+  const unmeasured = UNMEASURED_ASSISTANTS[provider] as string | undefined;
 
-    if (unmeasured) {
-        return {
-            tokens: counted,
-            isLowerBound: true,
-            note: `Counts your prompt and the answer only. ${unmeasured} adds its own instructions and tools to every chunk, and Wortlaut cannot tell how many that is.`
-        };
-    }
+  if (unmeasured) {
+    return {
+      tokens: counted,
+      isLowerBound: true,
+      note: `Counts your prompt and the answer only. ${unmeasured} adds its own instructions and tools to every chunk, and Wortlaut cannot tell how many that is.`,
+    };
+  }
 
-    return { tokens: counted, isLowerBound: false, note: 'A rough figure for your prompt and the answer. The provider counts its own way.' };
+  return {
+    tokens: counted,
+    isLowerBound: false,
+    note: 'A rough figure for your prompt and the answer. The provider counts its own way.',
+  };
 }

@@ -12,12 +12,14 @@ import { IdSchema } from './ShellDtos.js';
  * @public
  */
 export const TestPresetSchema = z.strictObject({
-    id: PresetSchema,
-    name: z.string(),
-    samples: z.array(z.strictObject({
-        fileName: z.string(),
-        content: z.string()
-    }))
+  id: PresetSchema,
+  name: z.string(),
+  samples: z.array(
+    z.strictObject({
+      fileName: z.string(),
+      content: z.string(),
+    }),
+  ),
 });
 
 /**
@@ -31,10 +33,10 @@ export type TestPreset = z.output<typeof TestPresetSchema>;
  * @public
  */
 export const TestDetectRequestSchema = z.strictObject({
-    projectId: IdSchema.nullable(),
-    preset: PresetSchema,
-    fileName: z.string().max(200),
-    content: z.string().max(1048576)
+  projectId: IdSchema.nullable(),
+  preset: PresetSchema,
+  fileName: z.string().max(200),
+  content: z.string().max(1048576),
 });
 
 /**
@@ -43,22 +45,22 @@ export const TestDetectRequestSchema = z.strictObject({
  * @public
  */
 export const TestDetectResultSchema = z.strictObject({
-    detector: z.string().nullable(),
-    prefix: z.string(),
-    matches: z.array(z.strictObject({
-        line: z.number().int()
-            .positive(),
-        column: z.number().int()
-            .nonnegative(),
-        value: z.string(),
-        isHardCoded: z.boolean()
-    })),
-    resource: z.string(),
+  detector: z.string().nullable(),
+  prefix: z.string(),
+  matches: z.array(
+    z.strictObject({
+      line: z.number().int().positive(),
+      column: z.number().int().nonnegative(),
+      value: z.string(),
+      isHardCoded: z.boolean(),
+    }),
+  ),
+  resource: z.string(),
 
-    /**
-     * Why the detector could not work on this text.
-     */
-    failure: z.string().nullable()
+  /**
+   * Why the detector could not work on this text.
+   */
+  failure: z.string().nullable(),
 });
 
 /**
@@ -72,9 +74,9 @@ export type TestDetectResult = z.output<typeof TestDetectResultSchema>;
  * @public
  */
 export const TestPatternRequestSchema = z.strictObject({
-    projectId: IdSchema,
-    pattern: z.string().max(2000),
-    list: z.enum(['usedKeys', 'identicalKeys'])
+  projectId: IdSchema,
+  pattern: z.string().max(2000),
+  list: z.enum(['usedKeys', 'identicalKeys']),
 });
 
 /**
@@ -83,16 +85,14 @@ export const TestPatternRequestSchema = z.strictObject({
  * @public
  */
 export const TestPatternResultSchema = z.strictObject({
-    error: z.string().nullable(),
-    matchCount: z.number().int()
-        .nonnegative(),
-    total: z.number().int()
-        .nonnegative(),
+  error: z.string().nullable(),
+  matchCount: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
 
-    /**
-     * The keys with their result, matches first, up to a bound.
-     */
-    keys: z.array(z.strictObject({ key: z.string(), isMatch: z.boolean() }))
+  /**
+   * The keys with their result, matches first, up to a bound.
+   */
+  keys: z.array(z.strictObject({ key: z.string(), isMatch: z.boolean() })),
 });
 
 /**

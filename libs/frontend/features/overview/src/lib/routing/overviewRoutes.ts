@@ -10,9 +10,9 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const overviewRoutes: Routes = [
-    {
-        path: 'overview',
-        title: 'Overview · Wortlaut',
-        loadComponent: () => import('../views/OverviewView').then((module) => module.OverviewView)
-    }
+  {
+    path: 'overview',
+    title: 'Overview · Wortlaut',
+    loadComponent: () => import('../views/OverviewView').then((module) => module.OverviewView),
+  },
 ];

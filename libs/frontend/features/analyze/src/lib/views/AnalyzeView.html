@@ -12,31 +12,74 @@
           </p>
         }
       </div>
-      <mosaik-button variant="primary" appearance="solid" icon="play" iconSize="small" [label]="presenter.runLabel()" [disabled]="!presenter.canRun()" (click)="presenter.analyze()" />
+      <mosaik-button
+        variant="primary"
+        appearance="solid"
+        icon="play"
+        iconSize="small"
+        [label]="presenter.runLabel()"
+        [disabled]="!presenter.canRun()"
+        (click)="presenter.analyze()"
+      />
     </div>
 
     @if (presenter.overview.isLoading()) {
       <wortlaut-loading-state label="Reading the rules" />
     } @else if (presenter.overview.isFailed()) {
-      <wortlaut-failure-state header="This project could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
+      <wortlaut-failure-state
+        header="This project could not be read"
+        [message]="presenter.overview.error()"
+        (retry)="presenter.load()"
+      />
     } @else if (presenter.overview.value()) {
-      <wortlaut-dry-run-notice text="Allow, Declare used, Merge and Delete wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+      <wortlaut-dry-run-notice
+        text="Allow, Declare used, Merge and Delete wait in Review until you turn off dry run in the title bar. Nothing is written to your repository."
+      />
 
       @for (pack of presenter.refusedPacks(); track pack.name) {
-        <mosaik-message variant="danger" [header]="'The rule pack ' + pack.name + ' failed verification and is disabled'" [content]="pack.reason" />
+        <mosaik-message
+          variant="danger"
+          [header]="'The rule pack ' + pack.name + ' failed verification and is disabled'"
+          [content]="pack.reason"
+        />
       }
 
       @if (presenter.prepared(); as prepared) {
         <div class="prepared">
-          <mosaik-message variant="info" header="Prepared in the test lab" [content]="'Add ' + prepared.pattern + ' to ' + prepared.listName + '.'" />
+          <mosaik-message
+            variant="info"
+            header="Prepared in the test lab"
+            [content]="'Add ' + prepared.pattern + ' to ' + prepared.listName + '.'"
+          />
           <div class="actions">
-            <mosaik-button label="Add it" variant="neutral" appearance="outline" size="small" [isBusy]="presenter.busy()" (click)="presenter.applyPrepared()" />
-            <mosaik-button label="Leave it" appearance="plain" size="small" (click)="presenter.dismissPrepared()" />
+            <mosaik-button
+              label="Add it"
+              variant="neutral"
+              appearance="outline"
+              size="small"
+              [isBusy]="presenter.busy()"
+              (click)="presenter.applyPrepared()"
+            />
+            <mosaik-button
+              label="Leave it"
+              appearance="plain"
+              size="small"
+              (click)="presenter.dismissPrepared()"
+            />
           </div>
         </div>
       }
 
-      <mosaik-split class="pane-split page-content" test-id="analyze-workspace-split" paneSizeKey="analyze.workspace" paneSize="280px" lock="start" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize analyzer rules and results' }">
+      <mosaik-split
+        class="pane-split page-content"
+        test-id="analyze-workspace-split"
+        paneSizeKey="analyze.workspace"
+        paneSize="280px"
+        lock="start"
+        min="220px"
+        max="55%"
+        [intl]="{ resizeLabel: 'Resize analyzer rules and results' }"
+      >
         <section slot="start" aria-label="Rules" class="page-column-side pane-start">
           <mosaik-card>
             <div slot="content" class="card-body">
@@ -44,9 +87,21 @@
                 <div class="rule-group">{{ group.label }}</div>
                 @for (rule of group.rules; track rule.id) {
                   <div class="rule" [class.rule-selected]="rule.isSelected">
-                    <mosaik-toggle-switch class="rule-switch" [attr.test-id]="'analyze-rule-switch-' + rule.id" [attr.aria-label]="'Run ' + rule.id" [isChecked]="rule.isOn" (checked)="presenter.setRule(rule.id, true)" (unchecked)="presenter.setRule(rule.id, false)" />
+                    <mosaik-toggle-switch
+                      class="rule-switch"
+                      [attr.test-id]="'analyze-rule-switch-' + rule.id"
+                      [attr.aria-label]="'Run ' + rule.id"
+                      [isChecked]="rule.isOn"
+                      (checked)="presenter.setRule(rule.id, true)"
+                      (unchecked)="presenter.setRule(rule.id, false)"
+                    />
                     <div class="rule-pick">
-                      <mosaik-tooltip #resultTooltip [content]="rule.resultDetail" (focusin)="resultTooltip.open()" (focusout)="resultTooltip.close()">
+                      <mosaik-tooltip
+                        #resultTooltip
+                        [content]="rule.resultDetail"
+                        (focusin)="resultTooltip.open()"
+                        (focusout)="resultTooltip.close()"
+                      >
                         <mosaik-clickable
                           role="button"
                           tabindex="0"
@@ -60,7 +115,13 @@
                           <div class="rule-text">
                             <span class="rule-head">
                               <code class="inline rule-id">{{ rule.id }}</code>
-                              <mosaik-badge appearance="soft" class="rule-badge locale-flag" [icon]="(rule.resultLocale | localeFlag) ?? ''" [label]="rule.result" [variant]="rule.variant" />
+                              <mosaik-badge
+                                appearance="soft"
+                                class="rule-badge locale-flag"
+                                [icon]="(rule.resultLocale | localeFlag) ?? ''"
+                                [label]="rule.result"
+                                [variant]="rule.variant"
+                              />
                             </span>
                             <span class="note">{{ rule.description }}</span>
                           </div>
@@ -72,7 +133,15 @@
               }
             </div>
             <div slot="footer" class="rules-footer">
-              <mosaik-button routerLink="/rule-packs" label="Get more rules" variant="neutral" appearance="outline" size="small" icon="skills" iconSize="small" />
+              <mosaik-button
+                routerLink="/rule-packs"
+                label="Get more rules"
+                variant="neutral"
+                appearance="outline"
+                size="small"
+                icon="skills"
+                iconSize="small"
+              />
             </div>
           </mosaik-card>
         </section>
@@ -84,7 +153,11 @@
           @if (presenter.run.failure(); as failure) {
             <mosaik-message variant="danger" header="The analysis failed" [content]="failure" />
           } @else if (presenter.run.wasStopped()) {
-            <mosaik-message variant="info" header="The analysis was stopped" content="Run it again to see its results." />
+            <mosaik-message
+              variant="info"
+              header="The analysis was stopped"
+              content="Run it again to see its results."
+            />
           }
           @if (presenter.message(); as message) {
             <mosaik-message variant="danger" header="That did not work" [content]="message" />
@@ -95,7 +168,16 @@
             <mosaik-message variant="warning" header="No proposal" [content]="message" />
           }
 
-          <mosaik-split class="pane-split pane-split-vertical" test-id="analyze-results-split" paneSizeKey="analyze.results" paneSize="65%" orientation="vertical" min="25%" max="80%" [intl]="{ resizeLabel: 'Resize analysis results and exceptions' }">
+          <mosaik-split
+            class="pane-split pane-split-vertical"
+            test-id="analyze-results-split"
+            paneSizeKey="analyze.results"
+            paneSize="65%"
+            orientation="vertical"
+            min="25%"
+            max="80%"
+            [intl]="{ resizeLabel: 'Resize analysis results and exceptions' }"
+          >
             <div slot="start" class="analysis-result pane-start">
               @if (presenter.card(); as card) {
                 <section [attr.aria-label]="card.title" class="card-section">
@@ -103,23 +185,45 @@
                     <mosaik-card-header slot="header" [text]="card.title" [subText]="card.message">
                       @if (card.hasAi === 'translate') {
                         <div slot="suffix" class="card-suffix">
-                          <mosaik-button label="Translate with AI" variant="neutral" appearance="outline" size="small" icon="sparkle" iconSize="small" (click)="presenter.translateWithAi()" />
+                          <mosaik-button
+                            label="Translate with AI"
+                            variant="neutral"
+                            appearance="outline"
+                            size="small"
+                            icon="sparkle"
+                            iconSize="small"
+                            (click)="presenter.translateWithAi()"
+                          />
                         </div>
                       } @else if (card.hasAi === 'patterns') {
                         <div slot="suffix" class="card-suffix">
-                          <mosaik-button label="Suggest patterns" variant="neutral" appearance="outline" size="small" icon="sparkle" iconSize="small" [isBusy]="presenter.aiBusy()" (click)="presenter.suggestPatterns()" />
+                          <mosaik-button
+                            label="Suggest patterns"
+                            variant="neutral"
+                            appearance="outline"
+                            size="small"
+                            icon="sparkle"
+                            iconSize="small"
+                            [isBusy]="presenter.aiBusy()"
+                            (click)="presenter.suggestPatterns()"
+                          />
                         </div>
                       }
                     </mosaik-card-header>
                     <div slot="content" class="card-body">
                       <div class="table-scroll">
                         <div class="table-min">
-                          <mosaik-table columns="minmax(0, 1fr) minmax(0, 1.2fr) 210px" appearance="plain">
+                          <mosaik-table
+                            columns="minmax(0, 1fr) minmax(0, 1.2fr) 210px"
+                            appearance="plain"
+                          >
                             <mosaik-table-header>
                               <mosaik-table-header-row>
                                 <mosaik-table-header-cell [text]="card.columnA" />
                                 <mosaik-table-header-cell [text]="card.columnB" />
-                                <mosaik-table-header-cell><span class="cell-right">Action</span></mosaik-table-header-cell>
+                                <mosaik-table-header-cell
+                                  ><span class="cell-right">Action</span></mosaik-table-header-cell
+                                >
                               </mosaik-table-header-row>
                             </mosaik-table-header>
                             <mosaik-table-body>
@@ -132,15 +236,29 @@
                                       <code class="inline cell-text">{{ row.a }}</code>
                                     }
                                   </mosaik-table-body-cell>
-                                  <mosaik-table-body-cell><span class="muted cell-text">{{ row.b }}</span></mosaik-table-body-cell>
+                                  <mosaik-table-body-cell
+                                    ><span class="muted cell-text">{{
+                                      row.b
+                                    }}</span></mosaik-table-body-cell
+                                  >
                                   <mosaik-table-body-cell>
                                     <div class="row-actions">
                                       @if (row.isWaiting) {
-                                        <mosaik-badge label="Waiting in Review" variant="info" appearance="soft" />
+                                        <mosaik-badge
+                                          label="Waiting in Review"
+                                          variant="info"
+                                          appearance="soft"
+                                        />
                                       } @else {
                                         @for (action of card.actions; track action.id) {
                                           @if (action.id !== 'allow-for-rule' || row.key) {
-                                            <mosaik-button appearance="plain" size="small" [label]="action.label" [disabled]="presenter.busy()" (click)="presenter.act(action.id, row)" />
+                                            <mosaik-button
+                                              appearance="plain"
+                                              size="small"
+                                              [label]="action.label"
+                                              [disabled]="presenter.busy()"
+                                              (click)="presenter.act(action.id, row)"
+                                            />
                                           }
                                         }
                                       }
@@ -156,17 +274,24 @@
                     <div slot="footer" class="table-footer note footer-line">
                       {{ card.footer }}
                       @if (presenter.hasMoreRows()) {
-                        <mosaik-button label="Show more" appearance="plain" size="small" (click)="presenter.showMore()" />
+                        <mosaik-button
+                          label="Show more"
+                          appearance="plain"
+                          size="small"
+                          (click)="presenter.showMore()"
+                        />
                       }
                     </div>
                   </mosaik-card>
                 </section>
               } @else if (!presenter.run.isRunning()) {
                 <div class="state-frame">
-                  <mosaik-empty-state header="No analysis yet" content="Run the rules to see what they find in your catalogs." />
+                  <mosaik-empty-state
+                    header="No analysis yet"
+                    content="Run the rules to see what they find in your catalogs."
+                  />
                 </div>
               }
-
             </div>
             <section slot="end" aria-label="Exceptions" class="card-section pane-end">
               <mosaik-card>

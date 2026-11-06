@@ -1,6 +1,6 @@
 // #region Imports
 
-import { configs } from '@pixel-brewery/eslint-config';
+import { baseConfig } from '../../tools/linting/base.eslint.config.mjs';
 
 // #endregion
 
@@ -10,16 +10,16 @@ import { configs } from '@pixel-brewery/eslint-config';
  * @public
  */
 export default [
-    ...configs.base,
-    {
-        languageOptions: {
-            parserOptions: {
-                project: 'tsconfig.eslint.json'
-            }
-        },
-        files: ['**/*.ts'],
-        rules: {
-            // Override rules here...
-        }
-    }
+  ...baseConfig,
+  {
+    languageOptions: {
+      parserOptions: {
+        project: 'tsconfig.eslint.json',
+      },
+    },
+    files: ['**/*.ts'],
+    rules: {
+      // Override rules here...
+    },
+  },
 ];

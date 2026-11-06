@@ -1134,85 +1134,85 @@ pressing Escape does not close it.
 
 Schemas and types for all of these live in `libs/contracts`.
 
-| Capability | Owner | Boards |
-| --- | --- | --- |
-| Command use cases over core and AI, with injected logger and progress events | `libs/backend/engine` | Detect, Analyze, Transform and sort, Generate: run and review, Projects in a workspace, MCP and plugins |
-| Change sets: build, diff, persist, recheck, write all or none | `libs/backend/engine` | Detect, Analyze, Translations, Transform and sort, Generate: run and review, Settings: project, Rule packs, Add a rule pack, Runs |
-| Review list: stored pending change sets, shared between processes | `libs/backend/engine` | Generate: run and review, MCP and plugins, CLI and Nx; needs a board |
-| Run store: every surface, bounded, safe for several writers, repeatable | `libs/backend/engine` | Runs, Overview, MCP and plugins, CLI and Nx, Projects in a workspace |
-| Configuration resolution with a source per value (`nx.json`, `project.json`, configurations, `wortlaut.config.json`, `localizator.config.json`, `.env` tokens, arguments) | `libs/backend/engine` | CLI and Nx, Projects in a workspace, Settings: project, Settings: AI, Runs |
-| Configuration writes with a minimal diff in the source file | `libs/backend/engine` | Settings: project, Settings: AI, Analyze, Test lab: key patterns, Project setup |
-| One path resolution for `root` and `resourceRoot`, several resource roots | `libs/backend/engine` | CLI and Nx, Settings: project |
-| Folder inspection and project discovery by executor, configuration or catalogs | `libs/backend/engine` | Welcome, Project setup, Workspaces, Settings: workspace |
-| Workspaces in the profile: create, change, remove, recent, export, import | `libs/backend/engine` | Welcome, Workspaces, Settings: workspace, Project setup, Shell: titlebar |
-| Project summary: coverage, namespaces, next steps, last results | `libs/backend/engine` | Overview, Workspaces, Projects in a workspace |
-| Catalog queries: namespaces, search, filters, key detail | `libs/backend/engine` | Translations, Overview, Transform and sort, MCP and plugins |
-| Catalog edits: set value, set comment, merge keys, delete key | `libs/backend/engine` | Translations, Analyze, Overview |
-| Detect apply: source and catalog in one change set | `libs/backend/engine` | Detect |
-| Multi-project runner | `libs/backend/engine` | Projects in a workspace |
-| Rule packs: fetch, check, access summary, install, pin, update, verify, available list | `libs/backend/engine` | Rule packs, Add a rule pack, CLI and Nx |
-| Rule settings: severity, per-rule exceptions, per-run selection | `libs/backend/engine` | Analyze, Rule packs, Settings: project |
-| Test lab use cases over the same paths | `libs/backend/engine` | Test lab: translation, Test lab: detector, Test lab: key patterns |
-| Command printer for "Same as" and Copy command | `libs/backend/engine` | Detect, Transform and sort, Generate: set up, Add a rule pack, Runs, Projects in a workspace |
-| Result cache, run configuration export, search across keys, files and commands | `libs/backend/engine` | Settings: application, Shell: titlebar |
-| Local assistant strategies through Synapse (`claude-code`, `codex`, `opencode`) | `libs/backend/ai` | Generate: set up, Project setup, Settings: AI, Test lab: translation |
-| Chunk validation: row count, keys, placeholders, retry budget, report per chunk | `libs/backend/ai` | Generate: run and review, Test lab: translation, MCP and plugins |
-| Generator without writes: results returned, partial merge removed, raw dump optional | `libs/backend/ai` | Generate: run and review, Settings: AI, Runs |
-| Pause, resume, stop and progress per chunk | `libs/backend/ai` | Generate: run and review |
-| Key scopes: all, new, missing, namespace, explicit keys | `libs/backend/ai` | Generate: set up, Analyze |
-| Token estimate, prompt preview, per-locale instructions, model list, key test | `libs/backend/ai` | Generate: set up, Settings: AI, Test lab: translation |
-| AI proposals: value suggestion, key names, key patterns | `libs/backend/ai` | Translations, Detect, Analyze |
-| `.tsx` in the React preset, skip test files in detect, generated keys with prefix and suffix | `libs/backend/core` | Detect, Test lab: detector |
-| Source rewrite at a detected position, per detector | `libs/backend/core` | Detect, Analyze |
-| Key usage with file and line, reuse hints by base value | `libs/backend/core` | Translations, Detect, Analyze |
-| Catalog writer that keeps order and nested or flat JSON, PO formatter, finished PO, comment sidecar | `libs/backend/core` | Translations, Detect, Transform and sort, Settings: project |
-| Findings in one shape, severity on rule results, shared placeholder extraction | `libs/backend/core` | Analyze, Rule packs, Translations, Generate: run and review |
-| Declarative rule evaluator with named checks (ICU parsing, placeholders, length ratio, punctuation) | `libs/backend/core` | Analyze, Rule packs, Add a rule pack |
-| `KeyMatcher` public; one grammar decision for identical keys | `libs/backend/core` | Test lab: key patterns, Analyze, Settings: project |
-| MCP server and the 12 tools | `libs/backend/mcp` | MCP and plugins, CLI and Nx |
-| Levels: storage, enforcement, read-only default, client name on runs | `libs/backend/mcp` | MCP and plugins, Runs |
-| Claude and Codex plugins: server and skill, no logic | `libs/backend/mcp` | MCP and plugins |
-| Electron shell: sandbox, single instance, typed IPC, preload | `apps/desktop` | all boards |
-| Native dialogs, root checks, folder drop | `apps/desktop` | Welcome, Project setup, Workspaces, Settings: workspace, Settings: project, Add a rule pack, Settings: application |
-| Keys through `safeStorage`: set, test, clear, exists | `apps/desktop` | Project setup, Settings: AI |
-| Synapse host: provider composition, login state, install hints | `apps/desktop` | Settings: AI, Generate: set up, Project setup, Translations |
-| Run hosting in main or a utility process, awaited shutdown | `apps/desktop` | Generate: run and review, Projects in a workspace, Detect, Analyze |
-| App settings, dry run state, open in editor, app information | `apps/desktop` | Settings: application, Shell: titlebar, CLI and Nx, Analyze, Shell: sidebar |
-| Push events when another process changes the review list or runs | `apps/desktop` | MCP and plugins, Runs |
-| Shell, routes, ⌘K palette, shortcuts, Soho in light and dark | `libs/frontend` | Shell: titlebar, Shell: sidebar, Settings: application |
-| One view and presenter per board, with all four states | `libs/frontend` | all boards with a route |
-| Shared review table and the review list view | `libs/frontend` | Generate: run and review; needs a board for MCP proposals |
-| Rename to `wortlaut`, keep the `localizator` binary alias and `run()` | `apps/cli` | CLI and Nx |
-| Missing flags: detect options, `--instructions`, `--limit`, `--type po`, key scope, new strategies | `apps/cli` | Detect, Generate: set up, CLI and Nx, Settings: project |
-| New commands: `init`, `config`, `workspace`, `project`, `rules`, `ai status`, `changes`, `mcp` | `apps/cli` | CLI and Nx, Add a rule pack, MCP and plugins |
-| `--json`, exit code by severity, keys from the environment, runs recorded | `apps/cli` | CLI and Nx, Generate: set up, Runs, Rule packs |
+| Capability                                                                                                                                                                | Owner                 | Boards                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Command use cases over core and AI, with injected logger and progress events                                                                                              | `libs/backend/engine` | Detect, Analyze, Transform and sort, Generate: run and review, Projects in a workspace, MCP and plugins                           |
+| Change sets: build, diff, persist, recheck, write all or none                                                                                                             | `libs/backend/engine` | Detect, Analyze, Translations, Transform and sort, Generate: run and review, Settings: project, Rule packs, Add a rule pack, Runs |
+| Review list: stored pending change sets, shared between processes                                                                                                         | `libs/backend/engine` | Generate: run and review, MCP and plugins, CLI and Nx; needs a board                                                              |
+| Run store: every surface, bounded, safe for several writers, repeatable                                                                                                   | `libs/backend/engine` | Runs, Overview, MCP and plugins, CLI and Nx, Projects in a workspace                                                              |
+| Configuration resolution with a source per value (`nx.json`, `project.json`, configurations, `wortlaut.config.json`, `localizator.config.json`, `.env` tokens, arguments) | `libs/backend/engine` | CLI and Nx, Projects in a workspace, Settings: project, Settings: AI, Runs                                                        |
+| Configuration writes with a minimal diff in the source file                                                                                                               | `libs/backend/engine` | Settings: project, Settings: AI, Analyze, Test lab: key patterns, Project setup                                                   |
+| One path resolution for `root` and `resourceRoot`, several resource roots                                                                                                 | `libs/backend/engine` | CLI and Nx, Settings: project                                                                                                     |
+| Folder inspection and project discovery by executor, configuration or catalogs                                                                                            | `libs/backend/engine` | Welcome, Project setup, Workspaces, Settings: workspace                                                                           |
+| Workspaces in the profile: create, change, remove, recent, export, import                                                                                                 | `libs/backend/engine` | Welcome, Workspaces, Settings: workspace, Project setup, Shell: titlebar                                                          |
+| Project summary: coverage, namespaces, next steps, last results                                                                                                           | `libs/backend/engine` | Overview, Workspaces, Projects in a workspace                                                                                     |
+| Catalog queries: namespaces, search, filters, key detail                                                                                                                  | `libs/backend/engine` | Translations, Overview, Transform and sort, MCP and plugins                                                                       |
+| Catalog edits: set value, set comment, merge keys, delete key                                                                                                             | `libs/backend/engine` | Translations, Analyze, Overview                                                                                                   |
+| Detect apply: source and catalog in one change set                                                                                                                        | `libs/backend/engine` | Detect                                                                                                                            |
+| Multi-project runner                                                                                                                                                      | `libs/backend/engine` | Projects in a workspace                                                                                                           |
+| Rule packs: fetch, check, access summary, install, pin, update, verify, available list                                                                                    | `libs/backend/engine` | Rule packs, Add a rule pack, CLI and Nx                                                                                           |
+| Rule settings: severity, per-rule exceptions, per-run selection                                                                                                           | `libs/backend/engine` | Analyze, Rule packs, Settings: project                                                                                            |
+| Test lab use cases over the same paths                                                                                                                                    | `libs/backend/engine` | Test lab: translation, Test lab: detector, Test lab: key patterns                                                                 |
+| Command printer for "Same as" and Copy command                                                                                                                            | `libs/backend/engine` | Detect, Transform and sort, Generate: set up, Add a rule pack, Runs, Projects in a workspace                                      |
+| Result cache, run configuration export, search across keys, files and commands                                                                                            | `libs/backend/engine` | Settings: application, Shell: titlebar                                                                                            |
+| Local assistant strategies through Synapse (`claude-code`, `codex`, `opencode`)                                                                                           | `libs/backend/ai`     | Generate: set up, Project setup, Settings: AI, Test lab: translation                                                              |
+| Chunk validation: row count, keys, placeholders, retry budget, report per chunk                                                                                           | `libs/backend/ai`     | Generate: run and review, Test lab: translation, MCP and plugins                                                                  |
+| Generator without writes: results returned, partial merge removed, raw dump optional                                                                                      | `libs/backend/ai`     | Generate: run and review, Settings: AI, Runs                                                                                      |
+| Pause, resume, stop and progress per chunk                                                                                                                                | `libs/backend/ai`     | Generate: run and review                                                                                                          |
+| Key scopes: all, new, missing, namespace, explicit keys                                                                                                                   | `libs/backend/ai`     | Generate: set up, Analyze                                                                                                         |
+| Token estimate, prompt preview, per-locale instructions, model list, key test                                                                                             | `libs/backend/ai`     | Generate: set up, Settings: AI, Test lab: translation                                                                             |
+| AI proposals: value suggestion, key names, key patterns                                                                                                                   | `libs/backend/ai`     | Translations, Detect, Analyze                                                                                                     |
+| `.tsx` in the React preset, skip test files in detect, generated keys with prefix and suffix                                                                              | `libs/backend/core`   | Detect, Test lab: detector                                                                                                        |
+| Source rewrite at a detected position, per detector                                                                                                                       | `libs/backend/core`   | Detect, Analyze                                                                                                                   |
+| Key usage with file and line, reuse hints by base value                                                                                                                   | `libs/backend/core`   | Translations, Detect, Analyze                                                                                                     |
+| Catalog writer that keeps order and nested or flat JSON, PO formatter, finished PO, comment sidecar                                                                       | `libs/backend/core`   | Translations, Detect, Transform and sort, Settings: project                                                                       |
+| Findings in one shape, severity on rule results, shared placeholder extraction                                                                                            | `libs/backend/core`   | Analyze, Rule packs, Translations, Generate: run and review                                                                       |
+| Declarative rule evaluator with named checks (ICU parsing, placeholders, length ratio, punctuation)                                                                       | `libs/backend/core`   | Analyze, Rule packs, Add a rule pack                                                                                              |
+| `KeyMatcher` public; one grammar decision for identical keys                                                                                                              | `libs/backend/core`   | Test lab: key patterns, Analyze, Settings: project                                                                                |
+| MCP server and the 12 tools                                                                                                                                               | `libs/backend/mcp`    | MCP and plugins, CLI and Nx                                                                                                       |
+| Levels: storage, enforcement, read-only default, client name on runs                                                                                                      | `libs/backend/mcp`    | MCP and plugins, Runs                                                                                                             |
+| Claude and Codex plugins: server and skill, no logic                                                                                                                      | `libs/backend/mcp`    | MCP and plugins                                                                                                                   |
+| Electron shell: sandbox, single instance, typed IPC, preload                                                                                                              | `apps/desktop`        | all boards                                                                                                                        |
+| Native dialogs, root checks, folder drop                                                                                                                                  | `apps/desktop`        | Welcome, Project setup, Workspaces, Settings: workspace, Settings: project, Add a rule pack, Settings: application                |
+| Keys through `safeStorage`: set, test, clear, exists                                                                                                                      | `apps/desktop`        | Project setup, Settings: AI                                                                                                       |
+| Synapse host: provider composition, login state, install hints                                                                                                            | `apps/desktop`        | Settings: AI, Generate: set up, Project setup, Translations                                                                       |
+| Run hosting in main or a utility process, awaited shutdown                                                                                                                | `apps/desktop`        | Generate: run and review, Projects in a workspace, Detect, Analyze                                                                |
+| App settings, dry run state, open in editor, app information                                                                                                              | `apps/desktop`        | Settings: application, Shell: titlebar, CLI and Nx, Analyze, Shell: sidebar                                                       |
+| Push events when another process changes the review list or runs                                                                                                          | `apps/desktop`        | MCP and plugins, Runs                                                                                                             |
+| Shell, routes, ⌘K palette, shortcuts, Soho in light and dark                                                                                                              | `libs/frontend`       | Shell: titlebar, Shell: sidebar, Settings: application                                                                            |
+| One view and presenter per board, with all four states                                                                                                                    | `libs/frontend`       | all boards with a route                                                                                                           |
+| Shared review table and the review list view                                                                                                                              | `libs/frontend`       | Generate: run and review; needs a board for MCP proposals                                                                         |
+| Rename to `wortlaut`, keep the `localizator` binary alias and `run()`                                                                                                     | `apps/cli`            | CLI and Nx                                                                                                                        |
+| Missing flags: detect options, `--instructions`, `--limit`, `--type po`, key scope, new strategies                                                                        | `apps/cli`            | Detect, Generate: set up, CLI and Nx, Settings: project                                                                           |
+| New commands: `init`, `config`, `workspace`, `project`, `rules`, `ai status`, `changes`, `mcp`                                                                            | `apps/cli`            | CLI and Nx, Add a rule pack, MCP and plugins                                                                                      |
+| `--json`, exit code by severity, keys from the environment, runs recorded                                                                                                 | `apps/cli`            | CLI and Nx, Generate: set up, Runs, Rule packs                                                                                    |
 
 ## Suggested build order
 
 Each phase ends in something that runs.
 
 1. **Move and rename.** `libs/backend/core`, `libs/backend/ai` and `apps/cli` under the new names, with the `localizator` alias, `run()`
-   and today's tests. Register the missing flags and fix `.tsx`. *Runs:* `wortlaut` and `localizator` produce the same
+   and today's tests. Register the missing flags and fix `.tsx`. _Runs:_ `wortlaut` and `localizator` produce the same
    files as 0.1.185 on a fixture.
 2. **Engine foundation.** `libs/backend/engine` with `libs/contracts`: command use cases, configuration resolution, path
    resolution, change sets, review list, run store. The generator stops writing. Add `init`, `config`, `changes`,
-   `--json`. *Runs:* `wortlaut sort --review` builds a change set, `wortlaut changes apply` writes it, and the run is
+   `--json`. _Runs:_ `wortlaut sort --review` builds a change set, `wortlaut changes apply` writes it, and the run is
    recorded. Without the option, `wortlaut sort` applies straight away and writes what it always wrote.
 3. **Desktop shell, read-only.** `apps/desktop`, `apps/frontend/app`, `libs/frontend`, typed IPC, Welcome, Project setup, Workspaces, Projects
-   in a workspace, Overview, Runs, Settings: workspace and project, CLI and Nx, both shell boards. *Runs:* a real
+   in a workspace, Overview, Runs, Settings: workspace and project, CLI and Nx, both shell boards. _Runs:_ a real
    repository opens, Overview shows real values, and effective settings show their sources, in light and dark.
 4. **Commands in the app.** Detect with source rewrite, Analyze with exceptions, Transform and sort, Translations, the
-   review list view, Test lab: detector and key patterns. *Runs:* scan, fix a string, allow a finding, sort and apply
+   review list view, Test lab: detector and key patterns. _Runs:_ scan, fix a string, allow a finding, sort and apply
    without AI.
 5. **AI.** Keychain, API key providers, Synapse, validation, Generate: set up, run and review, pause and resume, Test
-   lab: translation, Settings: AI, AI suggestions. *Runs:* translate a locale with Claude Code, review, apply; quitting
+   lab: translation, Settings: AI, AI suggestions. _Runs:_ translate a locale with Claude Code, review, apply; quitting
    mid-run leaves nothing written.
-6. **Rule packs.** Evaluator, Message checks pack, lock file, Rule packs, Add a rule pack, `wortlaut rules`. *Runs:* a
+6. **Rule packs.** Evaluator, Message checks pack, lock file, Rule packs, Add a rule pack, `wortlaut rules`. _Runs:_ a
    pack from a folder and from GitHub gives the same findings in the app and the CLI, and a changed hash is refused.
-7. **MCP and plugins.** `libs/backend/mcp`, levels, `wortlaut mcp`, MCP and plugins, the two plugins. *Runs:* Claude Code proposes
+7. **MCP and plugins.** `libs/backend/mcp`, levels, `wortlaut mcp`, MCP and plugins, the two plugins. _Runs:_ Claude Code proposes
    translations, they appear in the review list, and approval writes them.
 8. **Fleet and polish.** Run on all projects, result cache, workspace export and import, ⌘K, shortcuts, run configuration
-   export, packaging. *Runs:* an installed app analyzes all projects of an Nx workspace.
+   export, packaging. _Runs:_ an installed app analyzes all projects of an Nx workspace.
 9. **Mosaik integration.** Mosaik does not use Wortlaut itself, so the executor and the resource rules leave it: Wortlaut publishes
    them as `wortlaut-nx-tasks` and `wortlaut-eslint-rules`, the consumer repositories move, and Mosaik removes `tools/localizator`,
-   its executor, its Vite plugin and its resource rules. *Runs:* the consumer repositories' real targets work on the released packages.
+   its executor, its Vite plugin and its resource rules. _Runs:_ the consumer repositories' real targets work on the released packages.

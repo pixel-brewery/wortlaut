@@ -12,11 +12,9 @@ import type { ResourceType } from './ResourceType';
  * @public
  */
 export interface IPoResourceInfo extends IResourceInfo<Array<IPoEntry>> {
+  // #region Properties
 
-    // #region Properties
+  readonly type: typeof ResourceType.Po;
 
-    readonly type: typeof ResourceType.Po;
-
-    // #endregion
-
+  // #endregion
 }

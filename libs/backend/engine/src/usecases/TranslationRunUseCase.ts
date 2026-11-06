@@ -14,19 +14,19 @@ import type { IUseCase, IUseCaseContext, IUseCaseOutput } from '../runs/CommandR
  * @internal
  */
 export interface ITranslationRunOptions {
-    strategy: string;
-    model?: string;
-    temperature?: number;
-    locales: Array<string>;
-    baseLocale: string;
-    chunkSize: number;
-    limit: number | null;
-    scope?: string;
-    namespace: string | null;
-    keyCount: number | null;
-    review: boolean;
-    type: string;
-    resourceRoot: string | Array<string>;
+  strategy: string;
+  model?: string;
+  temperature?: number;
+  locales: Array<string>;
+  baseLocale: string;
+  chunkSize: number;
+  limit: number | null;
+  scope?: string;
+  namespace: string | null;
+  keyCount: number | null;
+  review: boolean;
+  type: string;
+  resourceRoot: string | Array<string>;
 }
 
 /**
@@ -36,85 +36,94 @@ export interface ITranslationRunOptions {
  * @internal
  */
 export class TranslationRunUseCase implements IUseCase<ITranslationRunOptions, TranslationSession> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'generate';
 
-    public readonly command = 'generate';
+  private readonly _session: TranslationSession;
+  private readonly _strategy: IResourceGeneratorStrategy;
+  private readonly _secrets: ReadonlyArray<string>;
+  private readonly _keepPartial: boolean;
+  private readonly _onStart: (context: IUseCaseContext) => void;
 
-    private readonly _session: TranslationSession;
-    private readonly _strategy: IResourceGeneratorStrategy;
-    private readonly _secrets: ReadonlyArray<string>;
-    private readonly _keepPartial: boolean;
-    private readonly _onStart: (context: IUseCaseContext) => void;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `TranslationRunUseCase` class.
+   *
+   * @param session The session.
+   * @param strategy The strategy.
+   * @param secrets What must stay out of everything the run stores.
+   * @param keepPartial Whether a stopped run keeps what it finished.
+   * @param onStart Hands over the context of the run.
+   */
+  public constructor(
+    session: TranslationSession,
+    strategy: IResourceGeneratorStrategy,
+    secrets: ReadonlyArray<string>,
+    keepPartial: boolean,
+    onStart: (context: IUseCaseContext) => void,
+  ) {
+    this._session = session;
+    this._strategy = strategy;
+    this._secrets = secrets;
+    this._keepPartial = keepPartial;
+    this._onStart = onStart;
+  }
 
-    /**
-     * Constructs a new instance of the `TranslationRunUseCase` class.
-     *
-     * @param session The session.
-     * @param strategy The strategy.
-     * @param secrets What must stay out of everything the run stores.
-     * @param keepPartial Whether a stopped run keeps what it finished.
-     * @param onStart Hands over the context of the run.
-     */
-    public constructor(session: TranslationSession, strategy: IResourceGeneratorStrategy, secrets: ReadonlyArray<string>, keepPartial: boolean, onStart: (context: IUseCaseContext) => void) {
-        this._session = session;
-        this._strategy = strategy;
-        this._secrets = secrets;
-        this._keepPartial = keepPartial;
-        this._onStart = onStart;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @override
+   */
+  public detail(options: ITranslationRunOptions): string {
+    return `${options.strategy}: ${options.baseLocale} to ${options.locales.join(', ')}`;
+  }
+
+  /**
+   * @override
+   */
+  public async execute(
+    _options: ITranslationRunOptions,
+    context: IUseCaseContext,
+  ): Promise<IUseCaseOutput<TranslationSession>> {
+    const session = this._session;
+
+    for (const secret of this._secrets) {
+      context.scrubber.add(secret);
     }
 
-    // #endregion
-
-    // #region Methods
-
-    /**
-     * @override
-     */
-    public detail(options: ITranslationRunOptions): string {
-        return `${options.strategy}: ${options.baseLocale} to ${options.locales.join(', ')}`;
+    for (const target of session.targetPaths) {
+      context.changes.snapshot(target);
+      session.noteRead(target);
     }
 
-    /**
-     * @override
-     */
-    public async execute(_options: ITranslationRunOptions, context: IUseCaseContext): Promise<IUseCaseOutput<TranslationSession>> {
-        const session = this._session;
+    this._onStart(context);
 
-        for (const secret of this._secrets) {
-            context.scrubber.add(secret);
-        }
+    await session.run(this._strategy, context.signal, (line) => context.logger.log(line));
 
-        for (const target of session.targetPaths) {
-            context.changes.snapshot(target);
-            session.noteRead(target);
-        }
+    const failed = session.status === 'stopped';
 
-        this._onStart(context);
-
-        await session.run(this._strategy, context.signal, (line) => context.logger.log(line));
-
-        const failed = session.status === 'stopped';
-
-        if (!failed || this._keepPartial) {
-            for (const { path, content } of await composeTargets(session, null)) {
-                context.changes.propose(path, content);
-            }
-        }
-
-        session.partial = failed;
-
-        return {
-            result: session,
-            data: { status: session.status, translated: session.translatedCount() },
-            failure: failed ? new EngineError('run-stopped', 'The run was stopped. Nothing was written.') : null
-        };
+    if (!failed || this._keepPartial) {
+      for (const { path, content } of await composeTargets(session, null)) {
+        context.changes.propose(path, content);
+      }
     }
 
-    // #endregion
+    session.partial = failed;
 
+    return {
+      result: session,
+      data: { status: session.status, translated: session.translatedCount() },
+      failure: failed
+        ? new EngineError('run-stopped', 'The run was stopped. Nothing was written.')
+        : null,
+    };
+  }
+
+  // #endregion
 }

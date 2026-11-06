@@ -13,17 +13,20 @@ import type { IResourceInfo } from '../models/interfaces/IResourceInfo';
  * @param resource The resource.
  * @returns The catalog identifier.
  */
-export function getResourceCatalog(resource: Pick<IResourceInfo, 'path' | 'locale' | 'type'>): string {
-    const path = resource.path.replace(/\\/g, '/');
-    const directoryLength = path.lastIndexOf('/') + 1;
-    const fileName = path.slice(directoryLength);
-    const localeSegment = `.${resource.locale}.`;
-    const localeIndex = resource.locale ? fileName.lastIndexOf(localeSegment) : -1;
-    const catalogFileName = localeIndex >= 0
-        ? `${fileName.slice(0, localeIndex)}${fileName.slice(localeIndex + localeSegment.length - 1)}`
-        : fileName;
+export function getResourceCatalog(
+  resource: Pick<IResourceInfo, 'path' | 'locale' | 'type'>,
+): string {
+  const path = resource.path.replace(/\\/g, '/');
+  const directoryLength = path.lastIndexOf('/') + 1;
+  const fileName = path.slice(directoryLength);
+  const localeSegment = `.${resource.locale}.`;
+  const localeIndex = resource.locale ? fileName.lastIndexOf(localeSegment) : -1;
+  const catalogFileName =
+    localeIndex >= 0
+      ? `${fileName.slice(0, localeIndex)}${fileName.slice(localeIndex + localeSegment.length - 1)}`
+      : fileName;
 
-    return `${resource.type}:${path.slice(0, directoryLength)}${catalogFileName}`;
+  return `${resource.type}:${path.slice(0, directoryLength)}${catalogFileName}`;
 }
 
 /**
@@ -34,10 +37,16 @@ export function getResourceCatalog(resource: Pick<IResourceInfo, 'path' | 'local
  * @param resources The resources to search.
  * @returns The resources of the same catalog in another locale, in the order of `resources`.
  */
-export function getOtherCatalogLocales(resource: IResourceInfo, resources: ReadonlyArray<IResourceInfo>): Array<IResourceInfo> {
-    const catalog = getResourceCatalog(resource);
+export function getOtherCatalogLocales(
+  resource: IResourceInfo,
+  resources: ReadonlyArray<IResourceInfo>,
+): Array<IResourceInfo> {
+  const catalog = getResourceCatalog(resource);
 
-    return resources.filter((candidate) => candidate.locale !== resource.locale && getResourceCatalog(candidate) === catalog);
+  return resources.filter(
+    (candidate) =>
+      candidate.locale !== resource.locale && getResourceCatalog(candidate) === catalog,
+  );
 }
 
 /**
@@ -49,8 +58,16 @@ export function getOtherCatalogLocales(resource: IResourceInfo, resources: Reado
  * @param locale The locale to find.
  * @returns The first resource of the same catalog in the locale, or `null` when there is none.
  */
-export function findCatalogLocale(resource: IResourceInfo, resources: ReadonlyArray<IResourceInfo>, locale: string): IResourceInfo | null {
-    const catalog = getResourceCatalog(resource);
+export function findCatalogLocale(
+  resource: IResourceInfo,
+  resources: ReadonlyArray<IResourceInfo>,
+  locale: string,
+): IResourceInfo | null {
+  const catalog = getResourceCatalog(resource);
 
-    return resources.find((candidate) => candidate.locale === locale && getResourceCatalog(candidate) === catalog) ?? null;
+  return (
+    resources.find(
+      (candidate) => candidate.locale === locale && getResourceCatalog(candidate) === catalog,
+    ) ?? null
+  );
 }

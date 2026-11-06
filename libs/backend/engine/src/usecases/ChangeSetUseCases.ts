@@ -13,49 +13,51 @@ import type { IUseCase, IUseCaseOutput } from '../runs/CommandRunner.js';
  * @internal
  */
 export class ApplyChangeSetUseCase implements IUseCase<{ id: string }, ChangeSet> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'changes.apply';
 
-    public readonly command = 'changes.apply';
+  private readonly _reviewList: ReviewList;
+  private readonly _applier: ChangeSetApplier;
 
-    private readonly _reviewList: ReviewList;
-    private readonly _applier: ChangeSetApplier;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `ApplyChangeSetUseCase` class.
+   *
+   * @param reviewList The review list.
+   * @param applier The applier.
+   */
+  public constructor(reviewList: ReviewList, applier: ChangeSetApplier) {
+    this._reviewList = reviewList;
+    this._applier = applier;
+  }
 
-    /**
-     * Constructs a new instance of the `ApplyChangeSetUseCase` class.
-     *
-     * @param reviewList The review list.
-     * @param applier The applier.
-     */
-    public constructor(reviewList: ReviewList, applier: ChangeSetApplier) {
-        this._reviewList = reviewList;
-        this._applier = applier;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @override
+   */
+  public execute(options: { id: string }): Promise<IUseCaseOutput<ChangeSet>> {
+    const changeSet = this._reviewList.get(options.id);
 
-    /**
-     * @override
-     */
-    public execute(options: { id: string }): Promise<IUseCaseOutput<ChangeSet>> {
-        const changeSet = this._reviewList.get(options.id);
+    // The review list follows within the journal's cover: after a crash the set is finished and gone from it, or still in it.
+    this._applier.apply(changeSet, () => this._reviewList.remove(changeSet.id));
 
-        // The review list follows within the journal's cover: after a crash the set is finished and gone from it, or still in it.
-        this._applier.apply(changeSet, () => this._reviewList.remove(changeSet.id));
+    const applied: ChangeSet = { ...changeSet, state: 'applied' };
 
-        const applied: ChangeSet = { ...changeSet, state: 'applied' };
+    return Promise.resolve({
+      result: applied,
+      data: { id: applied.id, files: applied.files.map((file) => file.path) },
+      handledChangeSet: applied,
+    });
+  }
 
-        return Promise.resolve({ result: applied, data: { id: applied.id, files: applied.files.map((file) => file.path) }, handledChangeSet: applied });
-    }
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -64,43 +66,45 @@ export class ApplyChangeSetUseCase implements IUseCase<{ id: string }, ChangeSet
  * @internal
  */
 export class DiscardChangeSetUseCase implements IUseCase<{ id: string }, ChangeSet> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'changes.discard';
 
-    public readonly command = 'changes.discard';
+  private readonly _reviewList: ReviewList;
 
-    private readonly _reviewList: ReviewList;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `DiscardChangeSetUseCase` class.
+   *
+   * @param reviewList The review list.
+   */
+  public constructor(reviewList: ReviewList) {
+    this._reviewList = reviewList;
+  }
 
-    /**
-     * Constructs a new instance of the `DiscardChangeSetUseCase` class.
-     *
-     * @param reviewList The review list.
-     */
-    public constructor(reviewList: ReviewList) {
-        this._reviewList = reviewList;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @override
+   */
+  public execute(options: { id: string }): Promise<IUseCaseOutput<ChangeSet>> {
+    const changeSet = this._reviewList.get(options.id);
 
-    /**
-     * @override
-     */
-    public execute(options: { id: string }): Promise<IUseCaseOutput<ChangeSet>> {
-        const changeSet = this._reviewList.get(options.id);
+    this._reviewList.remove(changeSet.id);
 
-        this._reviewList.remove(changeSet.id);
+    const discarded: ChangeSet = { ...changeSet, state: 'discarded' };
 
-        const discarded: ChangeSet = { ...changeSet, state: 'discarded' };
+    return Promise.resolve({
+      result: discarded,
+      data: { id: discarded.id },
+      handledChangeSet: discarded,
+    });
+  }
 
-        return Promise.resolve({ result: discarded, data: { id: discarded.id }, handledChangeSet: discarded });
-    }
-
-    // #endregion
-
+  // #endregion
 }

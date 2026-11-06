@@ -3,15 +3,29 @@
   <main class="workspaces">
     <div class="page-title">
       <h1>Workspaces</h1>
-      <p class="lead">Keep the projects, AI connections and shared defaults of each customer or product together.</p>
+      <p class="lead">
+        Keep the projects, AI connections and shared defaults of each customer or product together.
+      </p>
     </div>
 
     @if (presenter.message(); as message) {
       <mosaik-message variant="danger" header="That did not work" [content]="message" />
     }
 
-    <mosaik-split class="pane-split page-content" paneSizeKey="workspaces.workspace" paneSize="55%" min="300px" max="65%" [intl]="{ resizeLabel: 'Resize workspace list' }" test-id="workspaces-workspace-split">
-      <section slot="start" class="workspace-list pane-start" aria-labelledby="workspace-list-title">
+    <mosaik-split
+      class="pane-split page-content"
+      paneSizeKey="workspaces.workspace"
+      paneSize="55%"
+      min="300px"
+      max="65%"
+      [intl]="{ resizeLabel: 'Resize workspace list' }"
+      test-id="workspaces-workspace-split"
+    >
+      <section
+        slot="start"
+        class="workspace-list pane-start"
+        aria-labelledby="workspace-list-title"
+      >
         <div class="pane-heading">
           <div>
             <h2 id="workspace-list-title">Your workspaces</h2>
@@ -22,14 +36,25 @@
           @if (presenter.workspaces.isLoading()) {
             <wortlaut-loading-state label="Loading the workspaces" />
           } @else if (presenter.workspaces.isFailed()) {
-            <wortlaut-failure-state header="The workspaces could not be read" [message]="presenter.workspaces.error()" (retry)="presenter.workspaces.reload()" />
+            <wortlaut-failure-state
+              header="The workspaces could not be read"
+              [message]="presenter.workspaces.error()"
+              (retry)="presenter.workspaces.reload()"
+            />
           } @else {
             @for (workspace of presenter.cards(); track workspace.id) {
-              <section [attr.aria-label]="workspace.name" [attr.test-id]="'workspace-card-' + workspace.id">
+              <section
+                [attr.aria-label]="workspace.name"
+                [attr.test-id]="'workspace-card-' + workspace.id"
+              >
                 <mosaik-card>
                   <div slot="content" class="card-box workspace-card">
                     <div class="workspace-head">
-                      <wortlaut-workspace-tile size="large" [code]="workspace.code" [color]="workspace.color" />
+                      <wortlaut-workspace-tile
+                        size="large"
+                        [code]="workspace.code"
+                        [color]="workspace.color"
+                      />
                       <div class="workspace-title">
                         <h2>{{ workspace.name }}</h2>
                         <span class="note">{{ workspace.code }}</span>
@@ -49,7 +74,11 @@
                     </dl>
                     <div class="tags">
                       @for (tag of presenter.tagsOf(workspace); track tag.label) {
-                        <mosaik-badge appearance="soft" [label]="tag.label" [variant]="tag.variant" />
+                        <mosaik-badge
+                          appearance="soft"
+                          [label]="tag.label"
+                          [variant]="tag.variant"
+                        />
                       }
                     </div>
                   </div>
@@ -59,23 +88,51 @@
                       variant="danger"
                       appearance="plain"
                       size="small"
-                      [disabled]="presenter.busy() || presenter.removingId() !== null || presenter.removalTarget() !== null"
+                      [disabled]="
+                        presenter.busy() ||
+                        presenter.removingId() !== null ||
+                        presenter.removalTarget() !== null
+                      "
                       [isBusy]="presenter.removingId() === workspace.id"
                       [attr.test-id]="'workspace-remove-' + workspace.id"
                       (pressed)="onRequestRemoval(workspace.id)"
                     />
                     <div class="actions">
-                      <mosaik-button label="Settings" appearance="plain" size="small" [disabled]="presenter.removingId() !== null" (click)="presenter.openSettings(workspace.id)" />
-                      <mosaik-button label="Open" variant="neutral" appearance="outline" size="small" icon="arrowRight" [disabled]="presenter.removingId() !== null" [attr.test-id]="'workspace-open-' + workspace.id" (click)="presenter.open(workspace.id)" />
+                      <mosaik-button
+                        label="Settings"
+                        appearance="plain"
+                        size="small"
+                        [disabled]="presenter.removingId() !== null"
+                        (click)="presenter.openSettings(workspace.id)"
+                      />
+                      <mosaik-button
+                        label="Open"
+                        variant="neutral"
+                        appearance="outline"
+                        size="small"
+                        icon="arrowRight"
+                        [disabled]="presenter.removingId() !== null"
+                        [attr.test-id]="'workspace-open-' + workspace.id"
+                        (click)="presenter.open(workspace.id)"
+                      />
                     </div>
                   </div>
                 </mosaik-card>
               </section>
             } @empty {
-              <mosaik-empty-state header="No workspaces yet" content="Create the first one with a repository folder." />
+              <mosaik-empty-state
+                header="No workspaces yet"
+                content="Create the first one with a repository folder."
+              />
             }
             @if (presenter.hasMore()) {
-              <mosaik-button label="Show more" appearance="plain" size="small" test-id="workspaces-more-items" (click)="presenter.showMore()" />
+              <mosaik-button
+                label="Show more"
+                appearance="plain"
+                size="small"
+                test-id="workspaces-more-items"
+                (click)="presenter.showMore()"
+              />
             }
           }
         </div>
@@ -83,22 +140,43 @@
 
       <section slot="end" class="new-workspace pane-end" aria-label="New workspace">
         <mosaik-card>
-          <mosaik-card-header slot="header" text="New workspace" subText="A separate home for one customer or product." />
+          <mosaik-card-header
+            slot="header"
+            text="New workspace"
+            subText="A separate home for one customer or product."
+          />
           <div slot="content" class="card-pad new-form" test-id="workspace-create-content">
             <section class="form-section" aria-labelledby="workspace-identity-title">
               <h3 id="workspace-identity-title">Identity</h3>
               <div class="identity-fields">
-                <mosaik-textbox label="Name" placeholder="For example Acme" [formField]="presenter.form.name" [disabled]="presenter.busy()" test-id="workspace-name" />
+                <mosaik-textbox
+                  label="Name"
+                  placeholder="For example Acme"
+                  [formField]="presenter.form.name"
+                  [disabled]="presenter.busy()"
+                  test-id="workspace-name"
+                />
                 <mosaik-textbox label="Short code" [value]="presenter.code()" [readonly]="true" />
               </div>
-              <span class="note">The short code follows the name and appears beside it in the app.</span>
+              <span class="note"
+                >The short code follows the name and appears beside it in the app.</span
+              >
             </section>
             <section class="form-section" aria-labelledby="workspace-color-title">
               <h3 id="workspace-color-title">Color</h3>
               <div class="color-choice">
-                <mosaik-color-swatch-group aria-label="Workspace color" [disabled]="presenter.busy()">
+                <mosaik-color-swatch-group
+                  aria-label="Workspace color"
+                  [disabled]="presenter.busy()"
+                >
                   @for (color of presenter.colors(); track color.id) {
-                    <mosaik-color-swatch [value]="color.token" [name]="color.id" tabindex="0" [isChecked]="color.isChecked" (checked)="presenter.pickColor(color.id)" />
+                    <mosaik-color-swatch
+                      [value]="color.token"
+                      [name]="color.id"
+                      tabindex="0"
+                      [isChecked]="color.isChecked"
+                      (checked)="presenter.pickColor(color.id)"
+                    />
                   }
                 </mosaik-color-swatch-group>
                 <mosaik-colorbox
@@ -116,14 +194,35 @@
                   (change)="onCustomColorChange($event)"
                 />
               </div>
-              <span class="note">Choose a preset, enter a hex color, or open the color picker for your own color.</span>
+              <span class="note"
+                >Choose a preset, enter a hex color, or open the color picker for your own
+                color.</span
+              >
             </section>
             <section class="form-section" aria-labelledby="workspace-repository-title">
               <h3 id="workspace-repository-title">Repository</h3>
-              <mosaik-filebox label="Repository folder" placeholder="Choose a repository folder" [value]="presenter.folder()?.displayPath ?? ''" [readonly]="true" [disabled]="presenter.busy()" test-id="workspace-folder">
-                <mosaik-button slot="suffix" icon="folderOpen" label="Browse" appearance="plain" size="small" [disabled]="presenter.busy()" (click)="presenter.chooseFolder()" />
+              <mosaik-filebox
+                label="Repository folder"
+                placeholder="Choose a repository folder"
+                [value]="presenter.folder()?.displayPath ?? ''"
+                [readonly]="true"
+                [disabled]="presenter.busy()"
+                test-id="workspace-folder"
+              >
+                <mosaik-button
+                  slot="suffix"
+                  icon="folderOpen"
+                  label="Browse"
+                  appearance="plain"
+                  size="small"
+                  [disabled]="presenter.busy()"
+                  (click)="presenter.chooseFolder()"
+                />
               </mosaik-filebox>
-              <span class="note">Wortlaut finds Nx projects with a wortlaut target and folders with catalogs. Your repository stays where it is.</span>
+              <span class="note"
+                >Wortlaut finds Nx projects with a wortlaut target and folders with catalogs. Your
+                repository stays where it is.</span
+              >
             </section>
             <section class="form-section" aria-label="Where it runs">
               <div class="location-heading">

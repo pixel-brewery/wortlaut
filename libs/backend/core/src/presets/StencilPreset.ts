@@ -14,60 +14,58 @@ import type { IFrameworkPreset } from './interfaces/IFrameworkPreset.js';
  * @public
  */
 export class StencilPreset implements IFrameworkPreset {
+  // #region Fields
 
-    // #region Fields
+  private readonly _parsers: Record<string, IDetector>;
 
-    private readonly _parsers: Record<string, IDetector>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `StencilPreset` class.
+   *
+   * @public
+   * @param logger The logger.
+   */
+  public constructor(logger: ILogger) {
+    this._parsers = {
+      '.tsx': new TSXDetector(logger),
+      '.ts': new TypeScriptDetector(logger),
+    };
+  }
 
-    /**
-     * Constructs a new instance of the `StencilPreset` class.
-     *
-     * @public
-     * @param logger The logger.
-     */
-    public constructor(logger: ILogger) {
-        this._parsers = {
-            '.tsx': new TSXDetector(logger),
-            '.ts': new TypeScriptDetector(logger)
-        };
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Returns parsers mapped to file extensions.
+   *
+   * @returns A mapping of file extensions to parsers.
+   */
+  public getParsers(): Record<string, IDetector> {
+    return this._parsers;
+  }
 
-    /**
-     * Returns parsers mapped to file extensions.
-     *
-     * @returns A mapping of file extensions to parsers.
-     */
-    public getParsers(): Record<string, IDetector> {
-        return this._parsers;
-    }
+  /**
+   * Returns a parser for a specific file extension.
+   *
+   * @param extension The file extension.
+   * @returns The parser.
+   */
+  public getParser(extension: string): IDetector {
+    return this._parsers[extension];
+  }
 
-    /**
-     * Returns a parser for a specific file extension.
-     *
-     * @param extension The file extension.
-     * @returns The parser.
-     */
-    public getParser(extension: string): IDetector {
-        return this._parsers[extension];
-    }
+  /**
+   * Returns the extensions supported by the preset.
+   *
+   * @returns An array of supported extensions.
+   */
+  public getExtensions(): Array<string> {
+    return Object.keys(this._parsers);
+  }
 
-    /**
-     * Returns the extensions supported by the preset.
-     *
-     * @returns An array of supported extensions.
-     */
-    public getExtensions(): Array<string> {
-        return Object.keys(this._parsers);
-    }
-
-    // #endregion
-
+  // #endregion
 }

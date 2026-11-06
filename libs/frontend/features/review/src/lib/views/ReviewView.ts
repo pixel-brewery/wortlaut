@@ -1,15 +1,36 @@
 // #region Imports
 
-import { afterRenderEffect, ChangeDetectionStrategy, Component, ElementRef, inject, type OnInit, viewChild } from '@angular/core';
+import {
+  afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  type OnInit,
+  viewChild,
+} from '@angular/core';
 import { BadgeComponent } from '@pixel-brewery/mosaik-elements-angular/components/badge';
 import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/components/button';
-import { CardComponent, CardHeaderComponent } from '@pixel-brewery/mosaik-elements-angular/components/card';
+import {
+  CardComponent,
+  CardHeaderComponent,
+} from '@pixel-brewery/mosaik-elements-angular/components/card';
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
-import { ListComponent, ListItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/list';
+import {
+  ListComponent,
+  ListItemComponent,
+} from '@pixel-brewery/mosaik-elements-angular/components/list';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
 import { PaginatorComponent } from '@pixel-brewery/mosaik-elements-angular/components/paginator';
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
-import { DryRunNoticeComponent, FailureStateComponent, FileDiffComponent, LoadingStateComponent, PaneSizeDirective, WriteResultComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import {
+  DryRunNoticeComponent,
+  FailureStateComponent,
+  FileDiffComponent,
+  LoadingStateComponent,
+  PaneSizeDirective,
+  WriteResultComponent,
+} from '@pixel-brewery/wortlaut-frontend-ui';
 import { ReviewViewPresenter } from '../view-presenters/ReviewViewPresenter';
 
 // #endregion
@@ -18,65 +39,80 @@ import { ReviewViewPresenter } from '../view-presenters/ReviewViewPresenter';
  * The change sets that wait for a decision, each with its diff.
  */
 @Component({
-    selector: 'wortlaut-review',
-    host: { class: 'page-frame' },
-    imports: [BadgeComponent, ButtonComponent, CardComponent, CardHeaderComponent, DryRunNoticeComponent, EmptyStateComponent, FailureStateComponent, FileDiffComponent, ListComponent, ListItemComponent, LoadingStateComponent, PaneSizeDirective, MessageComponent, PaginatorComponent, SplitComponent, WriteResultComponent],
-    providers: [ReviewViewPresenter],
-    templateUrl: './ReviewView.html',
-    styleUrl: './ReviewView.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-review',
+  host: { class: 'page-frame' },
+  imports: [
+    BadgeComponent,
+    ButtonComponent,
+    CardComponent,
+    CardHeaderComponent,
+    DryRunNoticeComponent,
+    EmptyStateComponent,
+    FailureStateComponent,
+    FileDiffComponent,
+    ListComponent,
+    ListItemComponent,
+    LoadingStateComponent,
+    PaneSizeDirective,
+    MessageComponent,
+    PaginatorComponent,
+    SplitComponent,
+    WriteResultComponent,
+  ],
+  providers: [ReviewViewPresenter],
+  templateUrl: './ReviewView.html',
+  styleUrl: './ReviewView.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReviewView implements OnInit {
+  // #region Fields
 
-    // #region Fields
+  private readonly _fileScroller = viewChild<ElementRef<HTMLElement>>('fileScroller');
 
-    private readonly _fileScroller = viewChild<ElementRef<HTMLElement>>('fileScroller');
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Opens each file page and change set at the beginning of its file list.
+   *
+   * @public
+   */
+  public constructor() {
+    afterRenderEffect(() => {
+      this.presenter.filePage();
+      this.presenter.selectedId();
 
-    /**
-     * Opens each file page and change set at the beginning of its file list.
-     *
-     * @public
-     */
-    public constructor() {
-        afterRenderEffect(() => {
-            this.presenter.filePage();
-            this.presenter.selectedId();
+      const scroller = this._fileScroller()?.nativeElement;
 
-            const scroller = this._fileScroller()?.nativeElement;
+      if (scroller) {
+        scroller.scrollTop = 0;
+      }
+    });
+  }
 
-            if (scroller) {
-                scroller.scrollTop = 0;
-            }
-        });
-    }
+  // #endregion
 
-    // #endregion
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the presenter.
+   *
+   * @readonly
+   */
+  protected readonly presenter = inject(ReviewViewPresenter);
 
-    /**
-     * Gets the presenter.
-     *
-     * @readonly
-     */
-    protected readonly presenter = inject(ReviewViewPresenter);
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @public
+   * @override
+   */
+  public ngOnInit(): void {
+    void this.presenter.load();
+  }
 
-    /**
-     * @public
-     * @override
-     */
-    public ngOnInit(): void {
-        void this.presenter.load();
-    }
-
-    // #endregion
-
+  // #endregion
 }

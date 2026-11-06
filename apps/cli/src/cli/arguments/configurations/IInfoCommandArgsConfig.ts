@@ -8,12 +8,12 @@ import { DEFAULT_CLI_ARGS_CONFIG, type ICliArgsConfig } from './ICliArgsConfig.j
  * @internal
  */
 export interface IInfoCommandArgsConfig extends ICliArgsConfig {
-    // nothing
+  // nothing
 }
 
 /**
  * @internal
  */
 export const DEFAULT_INFO_COMMAND_ARGS_CONFIG: IInfoCommandArgsConfig = {
-    ...DEFAULT_CLI_ARGS_CONFIG
+  ...DEFAULT_CLI_ARGS_CONFIG,
 };

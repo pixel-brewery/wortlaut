@@ -18,45 +18,53 @@ process.argv = Cli.normalizeArguments(process.argv);
  *
  * @internal
  */
-(async() => {
-    if (asksForMcpServer(process.argv)) {
-        await startMcpServer(process.argv);
+(async () => {
+  if (asksForMcpServer(process.argv)) {
+    await startMcpServer(process.argv);
 
-        return;
+    return;
+  }
+
+  const catchAction = (error: Error): void => {
+    // Arguments fail before a command exists, and a script that asked for JSON gets its document all the same.
+    if (CommandLine.asksForJson(process.argv)) {
+      process.stdout.write(
+        `${JSON.stringify({
+          ok: false,
+          command: process.argv[2] ?? '',
+          error: {
+            code: 'invalid-arguments',
+            message: stripVTControlCharacters(error.message),
+            files: [],
+            changeSetId: null,
+            runId: null,
+          },
+        })}\n`,
+      );
     }
 
-    const catchAction = (error: Error): void => {
-        // Arguments fail before a command exists, and a script that asked for JSON gets its document all the same.
-        if (CommandLine.asksForJson(process.argv)) {
-            process.stdout.write(`${JSON.stringify({
-                ok: false,
-                command: process.argv[2] ?? '',
-                error: { code: 'invalid-arguments', message: stripVTControlCharacters(error.message), files: [], changeSetId: null, runId: null }
-            })}\n`);
-        }
+    logger.error(String(error));
+    process.exitCode = 1;
+  };
 
-        logger.error(String(error));
-        process.exitCode = 1;
-    };
+  let cli: Cli | null = null;
+  try {
+    cli = new Cli();
+  } catch (error) {
+    catchAction(error as Error);
+    return;
+  }
 
-    let cli: Cli | null = null;
-    try {
-        cli = new Cli();
-    } catch (error) {
-        catchAction(error as Error);
-        return;
-    }
+  try {
+    await cli.init();
+  } catch (error) {
+    catchAction(error);
+    return;
+  }
 
-    try {
-        await cli.init();
-    } catch (error) {
-        catchAction(error);
-        return;
-    }
-
-    await cli.run();
+  await cli.run();
 })().catch((error: unknown) => {
-    // A failure the engine knows says what the user has to know; everything else needs its stack.
-    logger.error(error instanceof EngineError ? error.message : error);
-    process.exit(1);
+  // A failure the engine knows says what the user has to know; everything else needs its stack.
+  logger.error(error instanceof EngineError ? error.message : error);
+  process.exit(1);
 });

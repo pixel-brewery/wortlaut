@@ -10,53 +10,55 @@ import type { IFormatter, IFormatterResult } from './interfaces/IFormatter.js';
  * @public
  */
 export class ResxFormatter implements IFormatter {
+  // #region Fields
 
-    // #region Fields
+  private readonly _indent: number;
 
-    private readonly _indent: number;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `ResxFormatter` class.
+   *
+   * @public
+   */
+  public constructor(options?: { indent: number }) {
+    this._indent = options?.indent ?? 2;
+  }
 
-    /**
-     * Constructs a new instance of the `ResxFormatter` class.
-     *
-     * @public
-     */
-    public constructor(options?: { indent: number }) {
-        this._indent = options?.indent ?? 2;
-    }
+  // #endregion
 
-    // #endregion
+  /**
+   * Formats extracted strings into the RESX XML format.
+   *
+   * @public
+   * @param strings A record of string keys and their values.
+   * @returns The formatted output as a RESX string.
+   */
+  public format(strings: Record<string, string>): IFormatterResult {
+    const escapeXml = (value: string): string =>
+      value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
 
-    /**
-     * Formats extracted strings into the RESX XML format.
-     *
-     * @public
-     * @param strings A record of string keys and their values.
-     * @returns The formatted output as a RESX string.
-     */
-    public format(strings: Record<string, string>): IFormatterResult {
-        const escapeXml = (value: string): string => value
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
-
-        const content = `<?xml version="1.0" encoding="utf-8"?>
+    const content = `<?xml version="1.0" encoding="utf-8"?>
 <root>
-${Object.entries(strings).map(([key, value]) => `    <data name="${escapeXml(key)}" xml:space="preserve">
+${Object.entries(strings)
+  .map(
+    ([key, value]) => `    <data name="${escapeXml(key)}" xml:space="preserve">
         <value>${escapeXml(value)}</value>
-    </data>`)
-    .join('\n')}
+    </data>`,
+  )
+  .join('\n')}
 </root>`;
 
-        return {
-            content: content,
-            changes: strings
-        };
-    }
-
+    return {
+      content: content,
+      changes: strings,
+    };
+  }
 }

@@ -22,27 +22,33 @@ export type WortlautExecutorOptions = Omit<IWortlautTaskOptions, 'cwd'>;
  * @param context The context of the target.
  * @returns Whether the target succeeded.
  */
-export default async function runExecutor(options: WortlautExecutorOptions, context: ExecutorContext): Promise<{ success: boolean }> {
-    try {
-        const cwd = join(context.root, context.projectsConfigurations?.projects[context.projectName ?? '']?.root ?? '');
-        const { gate } = await runTask({
-            ...options,
-            cwd,
-            verbose: context.isVerbose || options.verbose,
-            cache: {
-                enabled: options.cache?.enabled ?? context.target?.cache ?? false,
-                dirPath: join(cwd, '.cache')
-            },
-            actions: {
-                ...options.actions,
-                transform: { types: options.actions.transform?.types ?? ['json'] }
-            }
-        });
+export default async function runExecutor(
+  options: WortlautExecutorOptions,
+  context: ExecutorContext,
+): Promise<{ success: boolean }> {
+  try {
+    const cwd = join(
+      context.root,
+      context.projectsConfigurations?.projects[context.projectName ?? '']?.root ?? '',
+    );
+    const { gate } = await runTask({
+      ...options,
+      cwd,
+      verbose: context.isVerbose || options.verbose,
+      cache: {
+        enabled: options.cache?.enabled ?? context.target?.cache ?? false,
+        dirPath: join(cwd, '.cache'),
+      },
+      actions: {
+        ...options.actions,
+        transform: { types: options.actions.transform?.types ?? ['json'] },
+      },
+    });
 
-        return { success: !gate || (gate.errors === 0 && gate.refusedPacks.length === 0) };
-    } catch (error) {
-        console.error(error);
+    return { success: !gate || (gate.errors === 0 && gate.refusedPacks.length === 0) };
+  } catch (error) {
+    console.error(error);
 
-        return { success: false };
-    }
+    return { success: false };
+  }
 }

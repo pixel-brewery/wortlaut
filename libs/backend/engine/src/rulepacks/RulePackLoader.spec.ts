@@ -12,182 +12,228 @@ import { createManifest, printManifest } from './testing/PackFixtures';
 // #endregion
 
 describe('RulePackLoader', () => {
-    let root: string;
-    let repository: string;
+  let root: string;
+  let repository: string;
 
-    const write = (path: string, content: string): void => {
-        const file = join(repository, path);
+  const write = (path: string, content: string): void => {
+    const file = join(repository, path);
 
-        mkdirSync(dirname(file), { recursive: true });
-        writeFileSync(file, content);
-    };
-    const pin = (id: string, source: string, text: string, overrides: Record<string, unknown> = {}): void => {
-        const pack = PackInspector.inspect([{ path: 'wortlaut-pack.json', bytes: Buffer.from(text) }], { source: { kind: 'shipped', id }, commit: null, version: null });
-        const lock = RuleLockFile.read(repository).lock;
-
-        write('wortlaut.lock.json', RuleLockFile.print({ schemaVersion: 1, packs: { ...lock.packs, [id]: { name: pack.manifest.name, source, version: pack.version, commit: null, hash: pack.hash, rules: pack.ruleHashes, ...overrides } } }));
-    };
-
-    beforeEach(() => {
-        root = realpathSync(mkdtempSync(join(tmpdir(), 'wortlaut-loader-')));
-        repository = join(root, 'repo');
-        mkdirSync(join(repository, '.git'), { recursive: true });
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, content);
+  };
+  const pin = (
+    id: string,
+    source: string,
+    text: string,
+    overrides: Record<string, unknown> = {},
+  ): void => {
+    const pack = PackInspector.inspect([{ path: 'wortlaut-pack.json', bytes: Buffer.from(text) }], {
+      source: { kind: 'shipped', id },
+      commit: null,
+      version: null,
     });
+    const lock = RuleLockFile.read(repository).lock;
 
-    afterEach(() => {
-        rmSync(root, { recursive: true, force: true });
-    });
+    write(
+      'wortlaut.lock.json',
+      RuleLockFile.print({
+        schemaVersion: 1,
+        packs: {
+          ...lock.packs,
+          [id]: {
+            name: pack.manifest.name,
+            source,
+            version: pack.version,
+            commit: null,
+            hash: pack.hash,
+            rules: pack.ruleHashes,
+            ...overrides,
+          },
+        },
+      }),
+    );
+  };
 
-    it('has nothing to do without a lock file', () => {
-        expect(RulePackLoader.load(repository)).toEqual({ directory: null, lock: null, packs: [] });
-    });
+  beforeEach(() => {
+    root = realpathSync(mkdtempSync(join(tmpdir(), 'wortlaut-loader-')));
+    repository = join(root, 'repo');
+    mkdirSync(join(repository, '.git'), { recursive: true });
+  });
 
-    it('loads a pinned copy and a folder inside the repository that match their pins', () => {
-        // arrange
-        const text = printManifest(createManifest());
-        const other = printManifest(createManifest({ id: 'other-pack', rules: [{ id: 'other-rule', description: 'x', message: 'x', limit: { maxLength: 1 } }] }));
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
 
-        write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
-        write('rules/other/wortlaut-pack.json', other);
-        pin('our-pack', 'github:o/r', text);
-        pin('other-pack', 'folder:rules/other', other);
+  it('has nothing to do without a lock file', () => {
+    expect(RulePackLoader.load(repository)).toEqual({ directory: null, lock: null, packs: [] });
+  });
 
-        // act
-        const { packs } = RulePackLoader.load(repository);
+  it('loads a pinned copy and a folder inside the repository that match their pins', () => {
+    // arrange
+    const text = printManifest(createManifest());
+    const other = printManifest(
+      createManifest({
+        id: 'other-pack',
+        rules: [{ id: 'other-rule', description: 'x', message: 'x', limit: { maxLength: 1 } }],
+      }),
+    );
 
-        // assert
-        expect(packs.map((pack) => [pack.id, pack.refusal, pack.enabled])).toEqual([['other-pack', null, true], ['our-pack', null, true]]);
-        expect(packs[1].manifest?.rules).toHaveLength(3);
-    });
+    write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
+    write('rules/other/wortlaut-pack.json', other);
+    pin('our-pack', 'github:o/r', text);
+    pin('other-pack', 'folder:rules/other', other);
 
-    it('refuses a pack whose content changed, and names both hashes', () => {
-        // arrange
-        const text = printManifest(createManifest());
+    // act
+    const { packs } = RulePackLoader.load(repository);
 
-        pin('our-pack', 'github:o/r', text);
-        write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text.replace('Remove TODO.', 'Keep TODO.'));
+    // assert
+    expect(packs.map((pack) => [pack.id, pack.refusal, pack.enabled])).toEqual([
+      ['other-pack', null, true],
+      ['our-pack', null, true],
+    ]);
+    expect(packs[1].manifest?.rules).toHaveLength(3);
+  });
 
-        // act
-        const [pack] = RulePackLoader.load(repository).packs;
+  it('refuses a pack whose content changed, and names both hashes', () => {
+    // arrange
+    const text = printManifest(createManifest());
 
-        // assert
-        expect(pack.manifest).toBeNull();
-        expect(pack.enabled).toBe(false);
-        expect(pack.foundHash).toMatch(/^sha256:/);
-        expect(pack.foundHash).not.toBe(pack.entry.hash);
-        expect(pack.refusal).toMatch(/does not match its pin, so its rules do not run/);
-    });
+    pin('our-pack', 'github:o/r', text);
+    write(
+      '.wortlaut/rule-packs/our-pack/wortlaut-pack.json',
+      text.replace('Remove TODO.', 'Keep TODO.'),
+    );
 
-    it('refuses a pack whose pinned copy is gone', () => {
-        // arrange
-        pin('our-pack', 'github:o/r', printManifest(createManifest()));
+    // act
+    const [pack] = RulePackLoader.load(repository).packs;
 
-        // act & assert
-        expect(RulePackLoader.load(repository).packs[0].refusal).toMatch(/missing/);
-    });
+    // assert
+    expect(pack.manifest).toBeNull();
+    expect(pack.enabled).toBe(false);
+    expect(pack.foundHash).toMatch(/^sha256:/);
+    expect(pack.foundHash).not.toBe(pack.entry.hash);
+    expect(pack.refusal).toMatch(/does not match its pin, so its rules do not run/);
+  });
 
-    it('stays refused however a project feels about it', () => {
-        // arrange
-        pin('our-pack', 'github:o/r', printManifest(createManifest()));
+  it('refuses a pack whose pinned copy is gone', () => {
+    // arrange
+    pin('our-pack', 'github:o/r', printManifest(createManifest()));
 
-        // act
-        const [pack] = RulePackLoader.load(repository, []).packs;
+    // act & assert
+    expect(RulePackLoader.load(repository).packs[0].refusal).toMatch(/missing/);
+  });
 
-        // assert
-        expect(pack.enabled).toBe(false);
-    });
+  it('stays refused however a project feels about it', () => {
+    // arrange
+    pin('our-pack', 'github:o/r', printManifest(createManifest()));
 
-    it('keeps a disabled pack verified, and off', () => {
-        // arrange
-        const text = printManifest(createManifest());
+    // act
+    const [pack] = RulePackLoader.load(repository, []).packs;
 
-        write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
-        pin('our-pack', 'github:o/r', text);
+    // assert
+    expect(pack.enabled).toBe(false);
+  });
 
-        // act
-        const [pack] = RulePackLoader.load(repository, ['our-pack']).packs;
+  it('keeps a disabled pack verified, and off', () => {
+    // arrange
+    const text = printManifest(createManifest());
 
-        // assert
-        expect(pack).toMatchObject({ refusal: null, enabled: false });
-        expect(pack.manifest).not.toBeNull();
-    });
+    write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
+    pin('our-pack', 'github:o/r', text);
 
-    it('refuses a folder pin that leaves the repository, and never reads it', () => {
-        // arrange
-        const text = printManifest(createManifest());
+    // act
+    const [pack] = RulePackLoader.load(repository, ['our-pack']).packs;
 
-        mkdirSync(join(root, 'outside'));
-        writeFileSync(join(root, 'outside', 'wortlaut-pack.json'), text);
-        pin('our-pack', 'folder:../outside', text);
+    // assert
+    expect(pack).toMatchObject({ refusal: null, enabled: false });
+    expect(pack.manifest).not.toBeNull();
+  });
 
-        // act
-        const [pack] = RulePackLoader.load(repository).packs;
+  it('refuses a folder pin that leaves the repository, and never reads it', () => {
+    // arrange
+    const text = printManifest(createManifest());
 
-        // assert
-        expect(pack.manifest).toBeNull();
-        expect(pack.refusal).toMatch(/points at a folder outside of the repository/);
-    });
+    mkdirSync(join(root, 'outside'));
+    writeFileSync(join(root, 'outside', 'wortlaut-pack.json'), text);
+    pin('our-pack', 'folder:../outside', text);
 
-    it('refuses a definition that is a link, even with the right content', () => {
-        // arrange
-        const text = printManifest(createManifest());
+    // act
+    const [pack] = RulePackLoader.load(repository).packs;
 
-        writeFileSync(join(root, 'real.json'), text);
-        mkdirSync(join(repository, '.wortlaut/rule-packs/our-pack'), { recursive: true });
-        symlinkSync(join(root, 'real.json'), join(repository, '.wortlaut/rule-packs/our-pack/wortlaut-pack.json'));
-        pin('our-pack', 'github:o/r', text);
+    // assert
+    expect(pack.manifest).toBeNull();
+    expect(pack.refusal).toMatch(/points at a folder outside of the repository/);
+  });
 
-        // act
-        const [pack] = RulePackLoader.load(repository).packs;
+  it('refuses a definition that is a link, even with the right content', () => {
+    // arrange
+    const text = printManifest(createManifest());
 
-        // assert
-        expect(pack.manifest).toBeNull();
-        expect(pack.refusal).toMatch(/is a link/);
-    });
+    writeFileSync(join(root, 'real.json'), text);
+    mkdirSync(join(repository, '.wortlaut/rule-packs/our-pack'), { recursive: true });
+    symlinkSync(
+      join(root, 'real.json'),
+      join(repository, '.wortlaut/rule-packs/our-pack/wortlaut-pack.json'),
+    );
+    pin('our-pack', 'github:o/r', text);
 
-    it('refuses a folder that a link leads out of the repository', () => {
-        // arrange
-        const text = printManifest(createManifest());
+    // act
+    const [pack] = RulePackLoader.load(repository).packs;
 
-        mkdirSync(join(root, 'outside'));
-        writeFileSync(join(root, 'outside', 'wortlaut-pack.json'), text);
-        symlinkSync(join(root, 'outside'), join(repository, 'rules'));
-        pin('our-pack', 'folder:rules', text);
+    // assert
+    expect(pack.manifest).toBeNull();
+    expect(pack.refusal).toMatch(/is a link/);
+  });
 
-        // act & assert
-        expect(RulePackLoader.load(repository).packs[0].refusal).toMatch(/leads outside of the repository/);
-    });
+  it('refuses a folder that a link leads out of the repository', () => {
+    // arrange
+    const text = printManifest(createManifest());
 
-    it('refuses a definition that pins as another pack, and rules that collide', () => {
-        // arrange
-        const text = printManifest(createManifest());
-        const twin = printManifest(createManifest({ id: 'twin-pack' }));
+    mkdirSync(join(root, 'outside'));
+    writeFileSync(join(root, 'outside', 'wortlaut-pack.json'), text);
+    symlinkSync(join(root, 'outside'), join(repository, 'rules'));
+    pin('our-pack', 'folder:rules', text);
 
-        write('.wortlaut/rule-packs/renamed/wortlaut-pack.json', text);
-        pin('renamed', 'github:o/r', text);
-        write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
-        write('.wortlaut/rule-packs/twin-pack/wortlaut-pack.json', twin);
-        pin('our-pack', 'github:o/s', text);
-        pin('twin-pack', 'github:o/t', twin);
+    // act & assert
+    expect(RulePackLoader.load(repository).packs[0].refusal).toMatch(
+      /leads outside of the repository/,
+    );
+  });
 
-        // act
-        const packs = RulePackLoader.load(repository).packs;
+  it('refuses a definition that pins as another pack, and rules that collide', () => {
+    // arrange
+    const text = printManifest(createManifest());
+    const twin = printManifest(createManifest({ id: 'twin-pack' }));
 
-        // assert
-        expect(packs.find((pack) => pack.id === 'renamed')?.refusal).toMatch(/names the pack 'our-pack'/);
-        expect(packs.find((pack) => pack.id === 'our-pack')?.refusal).toBeNull();
-        expect(packs.find((pack) => pack.id === 'twin-pack')?.refusal).toMatch(/same id as another rule/);
-    });
+    write('.wortlaut/rule-packs/renamed/wortlaut-pack.json', text);
+    pin('renamed', 'github:o/r', text);
+    write('.wortlaut/rule-packs/our-pack/wortlaut-pack.json', text);
+    write('.wortlaut/rule-packs/twin-pack/wortlaut-pack.json', twin);
+    pin('our-pack', 'github:o/s', text);
+    pin('twin-pack', 'github:o/t', twin);
 
-    it('says when the lock file itself cannot be read', () => {
-        // arrange
-        write('wortlaut.lock.json', 'nope');
+    // act
+    const packs = RulePackLoader.load(repository).packs;
 
-        // act
-        const loaded = RulePackLoader.load(repository);
+    // assert
+    expect(packs.find((pack) => pack.id === 'renamed')?.refusal).toMatch(
+      /names the pack 'our-pack'/,
+    );
+    expect(packs.find((pack) => pack.id === 'our-pack')?.refusal).toBeNull();
+    expect(packs.find((pack) => pack.id === 'twin-pack')?.refusal).toMatch(
+      /same id as another rule/,
+    );
+  });
 
-        // assert
-        expect(loaded.lock?.problem).toMatch(/not valid JSON/);
-        expect(loaded.packs).toEqual([]);
-    });
+  it('says when the lock file itself cannot be read', () => {
+    // arrange
+    write('wortlaut.lock.json', 'nope');
+
+    // act
+    const loaded = RulePackLoader.load(repository);
+
+    // assert
+    expect(loaded.lock?.problem).toMatch(/not valid JSON/);
+    expect(loaded.packs).toEqual([]);
+  });
 });

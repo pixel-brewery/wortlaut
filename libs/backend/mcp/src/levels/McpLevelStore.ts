@@ -28,53 +28,51 @@ const LevelFileSchema = z.strictObject({ level: McpLevelSchema });
  * @public
  */
 export class McpLevelStore {
+  // #region Fields
 
-    // #region Fields
+  private readonly _path: string;
 
-    private readonly _path: string;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `McpLevelStore` class.
+   *
+   * @public
+   * @param profile The directory of the user's profile.
+   */
+  public constructor(profile: string) {
+    this._path = join(profile, MCP_LEVEL_FILE_NAME);
+  }
 
-    /**
-     * Constructs a new instance of the `McpLevelStore` class.
-     *
-     * @public
-     * @param profile The directory of the user's profile.
-     */
-    public constructor(profile: string) {
-        this._path = join(profile, MCP_LEVEL_FILE_NAME);
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Returns the level the user chose.
+   *
+   * @public
+   * @returns The level, or `null` when none was chosen.
+   */
+  public read(): McpLevel | null {
+    try {
+      return LevelFileSchema.parse(JSON.parse(readFileSync(this._path, 'utf8'))).level;
+    } catch {
+      return null;
     }
+  }
 
-    // #endregion
+  /**
+   * Stores the level.
+   *
+   * @public
+   * @param level The level.
+   */
+  public write(level: McpLevel): void {
+    writePrivateFileAtomically(this._path, `${JSON.stringify({ level })}\n`);
+  }
 
-    // #region Methods
-
-    /**
-     * Returns the level the user chose.
-     *
-     * @public
-     * @returns The level, or `null` when none was chosen.
-     */
-    public read(): McpLevel | null {
-        try {
-            return LevelFileSchema.parse(JSON.parse(readFileSync(this._path, 'utf8'))).level;
-        } catch {
-            return null;
-        }
-    }
-
-    /**
-     * Stores the level.
-     *
-     * @public
-     * @param level The level.
-     */
-    public write(level: McpLevel): void {
-        writePrivateFileAtomically(this._path, `${JSON.stringify({ level })}\n`);
-    }
-
-    // #endregion
-
+  // #endregion
 }

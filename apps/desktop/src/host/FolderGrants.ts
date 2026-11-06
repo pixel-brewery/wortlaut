@@ -20,116 +20,114 @@ const MAX_GRANTS = 256;
  * @public
  */
 export class FolderGrants {
+  // #region Fields
 
-    // #region Fields
+  private readonly _home: string;
+  private readonly _grants: Map<string, string>;
 
-    private readonly _home: string;
-    private readonly _grants: Map<string, string>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `FolderGrants` class.
+   *
+   * @param home The home directory, for display paths.
+   */
+  public constructor(home: string) {
+    this._home = home;
+    this._grants = new Map();
+  }
 
-    /**
-     * Constructs a new instance of the `FolderGrants` class.
-     *
-     * @param home The home directory, for display paths.
-     */
-    public constructor(home: string) {
-        this._home = home;
-        this._grants = new Map();
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Grants a folder after checking that it is a readable directory. Links are resolved first, so a later check that a
+   * folder stays inside another compares where they really are.
+   *
+   * @param path The path of the folder.
+   * @param insideToken A folder that it must lie inside.
+   * @returns The selection for the renderer.
+   * @throws Error with a message for the user when the path is no readable folder or lies outside.
+   */
+  public grant(path: string, insideToken: string | null = null): FolderSelection {
+    const folder = this.checkFolder(path);
+
+    if (insideToken && !PathResolver.isInside(this.resolve(insideToken), folder)) {
+      throw new Error('Choose a folder inside the project.');
     }
 
-    // #endregion
+    const token = randomUUID();
 
-    // #region Methods
+    this._grants.set(token, folder);
 
-    /**
-     * Grants a folder after checking that it is a readable directory. Links are resolved first, so a later check that a
-     * folder stays inside another compares where they really are.
-     *
-     * @param path The path of the folder.
-     * @param insideToken A folder that it must lie inside.
-     * @returns The selection for the renderer.
-     * @throws Error with a message for the user when the path is no readable folder or lies outside.
-     */
-    public grant(path: string, insideToken: string | null = null): FolderSelection {
-        const folder = this.checkFolder(path);
+    for (const oldest of this._grants.keys()) {
+      if (this._grants.size <= MAX_GRANTS) {
+        break;
+      }
 
-        if (insideToken && !PathResolver.isInside(this.resolve(insideToken), folder)) {
-            throw new Error('Choose a folder inside the project.');
-        }
-
-        const token = randomUUID();
-
-        this._grants.set(token, folder);
-
-        for (const oldest of this._grants.keys()) {
-            if (this._grants.size <= MAX_GRANTS) {
-                break;
-            }
-
-            this._grants.delete(oldest);
-        }
-
-        return { token, displayPath: DisplayPath.of(folder, this._home), name: basename(folder) };
+      this._grants.delete(oldest);
     }
 
-    /**
-     * Returns the folder behind a token.
-     *
-     * @param token The token.
-     * @returns The absolute path.
-     * @throws Error when the token was not handed out by this app.
-     */
-    public resolve(token: string): string {
-        const folder = this._grants.get(token);
+    return { token, displayPath: DisplayPath.of(folder, this._home), name: basename(folder) };
+  }
 
-        if (!folder) {
-            throw new Error('This folder is no longer available. Choose it again.');
-        }
+  /**
+   * Returns the folder behind a token.
+   *
+   * @param token The token.
+   * @returns The absolute path.
+   * @throws Error when the token was not handed out by this app.
+   */
+  public resolve(token: string): string {
+    const folder = this._grants.get(token);
 
-        return folder;
+    if (!folder) {
+      throw new Error('This folder is no longer available. Choose it again.');
     }
 
-    /**
-     * Returns the folder behind a token that must lie inside another granted folder.
-     *
-     * @param token The token.
-     * @param insideToken The other folder.
-     * @returns The absolute path.
-     * @throws Error when the token is unknown or the folder lies outside.
-     */
-    public resolveInside(token: string, insideToken: string): string {
-        const folder = this.resolve(token);
+    return folder;
+  }
 
-        if (!PathResolver.isInside(this.resolve(insideToken), folder)) {
-            throw new Error('Choose a folder inside the project.');
-        }
+  /**
+   * Returns the folder behind a token that must lie inside another granted folder.
+   *
+   * @param token The token.
+   * @param insideToken The other folder.
+   * @returns The absolute path.
+   * @throws Error when the token is unknown or the folder lies outside.
+   */
+  public resolveInside(token: string, insideToken: string): string {
+    const folder = this.resolve(token);
 
-        return folder;
+    if (!PathResolver.isInside(this.resolve(insideToken), folder)) {
+      throw new Error('Choose a folder inside the project.');
     }
 
-    /**
-     * @private
-     */
-    private checkFolder(path: string): string {
-        let folder: string;
+    return folder;
+  }
 
-        try {
-            folder = realpathSync(path);
-            accessSync(folder, constants.R_OK);
-        } catch {
-            throw new Error('This folder cannot be read.');
-        }
+  /**
+   * @private
+   */
+  private checkFolder(path: string): string {
+    let folder: string;
 
-        if (!statSync(folder).isDirectory()) {
-            throw new Error('That is a file. Choose a folder.');
-        }
-
-        return folder;
+    try {
+      folder = realpathSync(path);
+      accessSync(folder, constants.R_OK);
+    } catch {
+      throw new Error('This folder cannot be read.');
     }
 
-    // #endregion
+    if (!statSync(folder).isDirectory()) {
+      throw new Error('That is a file. Choose a folder.');
+    }
 
+    return folder;
+  }
+
+  // #endregion
 }

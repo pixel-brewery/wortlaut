@@ -11,8 +11,8 @@ import { expand, type DotenvExpandOutput } from 'dotenv-expand';
  * @public
  */
 export interface IEnvOptions {
-    env?: Record<string, string>;
-    envFile?: string;
+  env?: Record<string, string>;
+  envFile?: string;
 }
 
 /**
@@ -23,10 +23,18 @@ export interface IEnvOptions {
  * @param environmentVariables The variables to load it into.
  * @returns The expanded file, with `error` when it could not be read.
  */
-export function loadAndExpandDotEnvFile(filename: string, environmentVariables: NodeJS.ProcessEnv): DotenvExpandOutput {
-    const env = loadDotEnvFile({ path: filename, processEnv: environmentVariables as Record<string, string>, override: false, quiet: true });
+export function loadAndExpandDotEnvFile(
+  filename: string,
+  environmentVariables: NodeJS.ProcessEnv,
+): DotenvExpandOutput {
+  const env = loadDotEnvFile({
+    path: filename,
+    processEnv: environmentVariables as Record<string, string>,
+    override: false,
+    quiet: true,
+  });
 
-    return expand({ ...env, processEnv: environmentVariables as Record<string, string> });
+  return expand({ ...env, processEnv: environmentVariables as Record<string, string> });
 }
 
 /**
@@ -39,33 +47,38 @@ export function loadAndExpandDotEnvFile(filename: string, environmentVariables: 
  * @throws When the file does not set a variable that an option names.
  */
 export function resolveOptionTree<T>(input: T, environmentVariables: DotenvExpandOutput): T {
-    if (typeof input === 'string') {
-        return resolveOption(input, environmentVariables) as T;
-    }
+  if (typeof input === 'string') {
+    return resolveOption(input, environmentVariables) as T;
+  }
 
-    if (Array.isArray(input)) {
-        return input.map((item: unknown) => resolveOptionTree(item, environmentVariables)) as T;
-    }
+  if (Array.isArray(input)) {
+    return input.map((item: unknown) => resolveOptionTree(item, environmentVariables)) as T;
+  }
 
-    if (typeof input === 'object' && input !== null) {
-        return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, resolveOptionTree(value, environmentVariables)])) as T;
-    }
+  if (typeof input === 'object' && input !== null) {
+    return Object.fromEntries(
+      Object.entries(input).map(([key, value]) => [
+        key,
+        resolveOptionTree(value, environmentVariables),
+      ]),
+    ) as T;
+  }
 
-    return input;
+  return input;
 }
 
 function resolveOption(raw: string, environmentVariables: DotenvExpandOutput): string {
-    const name = (/^\{env\.([A-Z0-9_]+)\}$/).exec(raw)?.[1];
+  const name = /^\{env\.([A-Z0-9_]+)\}$/.exec(raw)?.[1];
 
-    if (!name) {
-        return raw;
-    }
+  if (!name) {
+    return raw;
+  }
 
-    const value = environmentVariables.parsed?.[name];
+  const value = environmentVariables.parsed?.[name];
 
-    if (!value) {
-        throw new Error(`The environment variable ${name} is not set.`);
-    }
+  if (!value) {
+    throw new Error(`The environment variable ${name} is not set.`);
+  }
 
-    return value;
+  return value;
 }

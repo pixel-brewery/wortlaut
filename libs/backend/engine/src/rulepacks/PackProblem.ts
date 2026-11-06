@@ -10,44 +10,46 @@ import type { RulePackProblem } from '@pixel-brewery/wortlaut-contracts';
  * @internal
  */
 export class PackProblem extends Error {
+  // #region Fields
 
-    // #region Fields
+  private readonly _kind: RulePackProblem['kind'];
+  private readonly _details: ReadonlyArray<string>;
 
-    private readonly _kind: RulePackProblem['kind'];
-    private readonly _details: ReadonlyArray<string>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `PackProblem` class.
+   *
+   * @param kind What kind of refusal it is.
+   * @param message The reason, for the user.
+   * @param details The definitions that are wrong, one line each.
+   */
+  public constructor(
+    kind: RulePackProblem['kind'],
+    message: string,
+    details: ReadonlyArray<string> = [],
+  ) {
+    super(message);
 
-    /**
-     * Constructs a new instance of the `PackProblem` class.
-     *
-     * @param kind What kind of refusal it is.
-     * @param message The reason, for the user.
-     * @param details The definitions that are wrong, one line each.
-     */
-    public constructor(kind: RulePackProblem['kind'], message: string, details: ReadonlyArray<string> = []) {
-        super(message);
+    this.name = 'PackProblem';
+    this._kind = kind;
+    this._details = details;
+  }
 
-        this.name = 'PackProblem';
-        this._kind = kind;
-        this._details = details;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Returns what the screen shows.
+   *
+   * @returns The problem.
+   */
+  public describe(): RulePackProblem {
+    return { kind: this._kind, message: this.message, details: [...this._details] };
+  }
 
-    /**
-     * Returns what the screen shows.
-     *
-     * @returns The problem.
-     */
-    public describe(): RulePackProblem {
-        return { kind: this._kind, message: this.message, details: [...this._details] };
-    }
-
-    // #endregion
-
+  // #endregion
 }

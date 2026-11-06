@@ -12,5 +12,5 @@ import { SHELL_NAVIGATION } from '../contracts/shellTokens';
  * @returns The shell's environment providers.
  */
 export function provideShell(): EnvironmentProviders {
-    return makeEnvironmentProviders([{ provide: SHELL_NAVIGATION, useValue: [] }]);
+  return makeEnvironmentProviders([{ provide: SHELL_NAVIGATION, useValue: [] }]);
 }

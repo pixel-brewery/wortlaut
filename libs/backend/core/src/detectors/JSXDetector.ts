@@ -13,12 +13,10 @@ import { escapeRegExp } from './Utils.js';
  * @public
  */
 export interface IJSXDetectorOptions extends IBaseDetectorOptions {
-
-    /**
-     * The function name or regex used for translation (default: `/t|translate/`).
-     */
-    marker?: string | RegExp;
-
+  /**
+   * The function name or regex used for translation (default: `/t|translate/`).
+   */
+  marker?: string | RegExp;
 }
 
 /**
@@ -42,95 +40,91 @@ export interface IJSXDetectorOptions extends IBaseDetectorOptions {
  * @public
  */
 export class JSXDetector extends BaseDetector {
+  // #region Fields
 
-    // #region Fields
+  private readonly _marker: string | RegExp;
 
-    private readonly _marker: string | RegExp;
+  // #endregion
 
-    // #endregion
+  // #region Constructor
 
-    // #region Constructor
+  /**
+   * Constructs a new instance of the `JSXDetector` class.
+   *
+   * @public
+   * @param logger The logger.
+   * @param options Configuration options for the detector.
+   */
+  public constructor(logger: ILogger, options?: IJSXDetectorOptions) {
+    super(logger, options);
 
-    /**
-     * Constructs a new instance of the `JSXDetector` class.
-     *
-     * @public
-     * @param logger The logger.
-     * @param options Configuration options for the detector.
-     */
-    public constructor(logger: ILogger, options?: IJSXDetectorOptions) {
-        super(logger, options);
+    this._marker = options?.marker ?? /t|translate/;
+  }
 
-        this._marker = options?.marker ?? /t|translate/;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Provides the regex patterns for extracting strings from JSX content.
+   *
+   * @protected
+   * @returns A RegExp for extracting strings.
+   */
+  protected override getRegexes(): Array<RegExp> {
+    const functionPattern =
+      this._marker instanceof RegExp ? this._marker.source : escapeRegExp(this._marker);
 
-    /**
-     * Provides the regex patterns for extracting strings from JSX content.
-     *
-     * @protected
-     * @returns A RegExp for extracting strings.
-     */
-    protected override getRegexes(): Array<RegExp> {
-        const functionPattern =
-            this._marker instanceof RegExp
-                ? this._marker.source
-                : escapeRegExp(this._marker);
+    return [
+      new RegExp(
+        `(?<function>${functionPattern})` + // Function name
+          '\\(' + // Opening parenthesis
+          '\\s*' + // Optional whitespace
+          '(?<quote>[\'"`])' + // Quote type
+          '(?<value>(?:\\\\.|[^\\\\])*?)' + // Content inside quotes
+          '\\k<quote>' + // Match the same quote type
+          '(?:,\\s*(?<context>\\{.*?\\}))?' + // Optional context object
+          '\\)', // Closing parenthesis
+        'gs',
+      ),
+    ];
+  }
 
-        return [
-            new RegExp(
-                `(?<function>${functionPattern})` + // Function name
-                '\\(' + // Opening parenthesis
-                '\\s*' + // Optional whitespace
-                "(?<quote>['\"`])" + // Quote type
-                '(?<value>(?:\\\\.|[^\\\\])*?)' + // Content inside quotes
-                '\\k<quote>' + // Match the same quote type
-                '(?:,\\s*(?<context>\\{.*?\\}))?' + // Optional context object
-                '\\)', // Closing parenthesis
-                'gs'
-            )
-        ];
-    }
+  /**
+   * Pre-processes content before applying regex matching.
+   *
+   * @protected
+   * @param content The raw content.
+   * @returns The processed content.
+   */
+  protected override preProcessContent(content: string): string {
+    this.log('Pre-processing JSX content.');
+    return content.replace(/\r?\n/g, ' '); // Normalize multiline strings
+  }
 
-    /**
-     * Pre-processes content before applying regex matching.
-     *
-     * @protected
-     * @param content The raw content.
-     * @returns The processed content.
-     */
-    protected override preProcessContent(content: string): string {
-        this.log('Pre-processing JSX content.');
-        return content.replace(/\r?\n/g, ' '); // Normalize multiline strings
-    }
+  /**
+   * Post-processes results after regex matching.
+   *
+   * @protected
+   * @param results The raw results from regex matching.
+   * @returns The processed results.
+   */
+  protected override postProcessResults(results: Array<IDetectorResult>): Array<IDetectorResult> {
+    this.log(`Post-processing JSX results: ${JSON.stringify(results)}`);
 
-    /**
-     * Post-processes results after regex matching.
-     *
-     * @protected
-     * @param results The raw results from regex matching.
-     * @returns The processed results.
-     */
-    protected override postProcessResults(results: Array<IDetectorResult>): Array<IDetectorResult> {
-        this.log(`Post-processing JSX results: ${JSON.stringify(results)}`);
+    return results
+      .filter((result) => result.match.value !== undefined)
+      .map((result) => {
+        if (result.match.value !== undefined) {
+          result.match.value = result.match.value
+            .replace(/\\"/g, '"') // Unescape double quotes
+            .replace(/\\'/g, "'") // Unescape single quotes
+            .trim(); // Remove extra whitespace
+        }
 
-        return results
-            .filter((result) => result.match.value !== undefined)
-            .map((result) => {
-                if (result.match.value !== undefined) {
-                    result.match.value = result.match.value
-                        .replace(/\\"/g, '"')   // Unescape double quotes
-                        .replace(/\\'/g, "'")   // Unescape single quotes
-                        .trim();                // Remove extra whitespace
-                }
+        return result;
+      });
+  }
 
-                return result;
-            });
-    }
-
-    // #endregion
-
+  // #endregion
 }

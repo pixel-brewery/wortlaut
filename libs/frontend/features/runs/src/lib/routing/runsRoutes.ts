@@ -10,14 +10,14 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const runsRoutes: Routes = [
-    {
-        path: 'runs',
-        title: 'Runs · Wortlaut',
-        loadComponent: () => import('../views/RunsView').then((module) => module.RunsView)
-    },
-    {
-        path: 'runs/:runId',
-        title: 'Runs · Wortlaut',
-        loadComponent: () => import('../views/RunsView').then((module) => module.RunsView)
-    }
+  {
+    path: 'runs',
+    title: 'Runs · Wortlaut',
+    loadComponent: () => import('../views/RunsView').then((module) => module.RunsView),
+  },
+  {
+    path: 'runs/:runId',
+    title: 'Runs · Wortlaut',
+    loadComponent: () => import('../views/RunsView').then((module) => module.RunsView),
+  },
 ];

@@ -17,15 +17,15 @@ export type RuleSeverity = 'error' | 'warning' | 'off';
  * @public
  */
 export interface IRuleFinding {
-    rule: string;
+  rule: string;
 
-    /**
-     * The key it is about, or `null` when it is about a whole resource.
-     */
-    key: string | null;
-    locale: string;
-    message: string;
-    severity: Exclude<RuleSeverity, 'off'>;
+  /**
+   * The key it is about, or `null` when it is about a whole resource.
+   */
+  key: string | null;
+  locale: string;
+  message: string;
+  severity: Exclude<RuleSeverity, 'off'>;
 }
 
 /**
@@ -34,13 +34,13 @@ export interface IRuleFinding {
  * @public
  */
 export const BUILT_IN_RULE_SEVERITIES: Readonly<Record<string, Exclude<RuleSeverity, 'off'>>> = {
-    'duplicate-keys': 'error',
-    'duplicate-values': 'warning',
-    'empty-values': 'error',
-    'key-consistency': 'error',
-    'missing-translations': 'warning',
-    'multiple-key-usage': 'warning',
-    'unused-keys': 'warning'
+  'duplicate-keys': 'error',
+  'duplicate-values': 'warning',
+  'empty-values': 'error',
+  'key-consistency': 'error',
+  'missing-translations': 'warning',
+  'multiple-key-usage': 'warning',
+  'unused-keys': 'warning',
 };
 
 /**
@@ -51,19 +51,26 @@ const DEFAULT_SEVERITY = 'warning';
 /**
  * The lists in which the rules report what they found.
  */
-const FOUND_LISTS = ['duplicates', 'keys', 'missingKeys', 'multipleUsageKeys', 'unusedKeys', 'untranslatedKeys'];
+const FOUND_LISTS = [
+  'duplicates',
+  'keys',
+  'missingKeys',
+  'multipleUsageKeys',
+  'unusedKeys',
+  'untranslatedKeys',
+];
 
 /**
  * What the built-in rules say about one thing they found.
  */
 const FINDING_MESSAGES: Readonly<Record<string, string>> = {
-    'duplicate-keys': 'The key is defined more than once.',
-    'duplicate-values': 'Several keys carry this text.',
-    'empty-values': 'The key has no text.',
-    'key-consistency': 'Another locale defines this key, and this one lacks it.',
-    'missing-translations': 'The value is identical to the base locale.',
-    'multiple-key-usage': 'The key appears more than once in the resource.',
-    'unused-keys': 'No source uses the key.'
+  'duplicate-keys': 'The key is defined more than once.',
+  'duplicate-values': 'Several keys carry this text.',
+  'empty-values': 'The key has no text.',
+  'key-consistency': 'Another locale defines this key, and this one lacks it.',
+  'missing-translations': 'The value is identical to the base locale.',
+  'multiple-key-usage': 'The key appears more than once in the resource.',
+  'unused-keys': 'No source uses the key.',
 };
 
 /**
@@ -74,9 +81,13 @@ const FINDING_MESSAGES: Readonly<Record<string, string>> = {
  * @returns The things it found, in their order.
  */
 export function foundItemsOf(data: unknown): Array<string> {
-    const entries = (Array.isArray(data) ? data : [data]) as Array<Record<string, unknown>>;
+  const entries = (Array.isArray(data) ? data : [data]) as Array<Record<string, unknown>>;
 
-    return entries.flatMap((entry) => FOUND_LISTS.flatMap((name) => Array.isArray(entry?.[name]) ? entry[name] as Array<string> : []));
+  return entries.flatMap((entry) =>
+    FOUND_LISTS.flatMap((name) =>
+      Array.isArray(entry?.[name]) ? (entry[name] as Array<string>) : [],
+    ),
+  );
 }
 
 /**
@@ -89,14 +100,20 @@ export function foundItemsOf(data: unknown): Array<string> {
  * @param own What the rule says about itself.
  * @returns The severity.
  */
-export function severityOfRule(rule: string, severities?: Readonly<Record<string, RuleSeverity>>, own?: RuleSeverity): Exclude<RuleSeverity, 'off'> {
-    const configured = severities?.[rule];
+export function severityOfRule(
+  rule: string,
+  severities?: Readonly<Record<string, RuleSeverity>>,
+  own?: RuleSeverity,
+): Exclude<RuleSeverity, 'off'> {
+  const configured = severities?.[rule];
 
-    if (configured && configured !== 'off') {
-        return configured;
-    }
+  if (configured && configured !== 'off') {
+    return configured;
+  }
 
-    return (own && own !== 'off' ? own : undefined) ?? BUILT_IN_RULE_SEVERITIES[rule] ?? DEFAULT_SEVERITY;
+  return (
+    (own && own !== 'off' ? own : undefined) ?? BUILT_IN_RULE_SEVERITIES[rule] ?? DEFAULT_SEVERITY
+  );
 }
 
 /**
@@ -108,15 +125,25 @@ export function severityOfRule(rule: string, severities?: Readonly<Record<string
  * @param severity What the rule is worth.
  * @returns One finding per thing it found, or one for the resource when it names none.
  */
-export function createRuleFindings(rule: string, result: IAnalyzerRuleResult, severity: Exclude<RuleSeverity, 'off'>): Array<IRuleFinding> {
-    if (result.success) {
-        return [];
-    }
+export function createRuleFindings(
+  rule: string,
+  result: IAnalyzerRuleResult,
+  severity: Exclude<RuleSeverity, 'off'>,
+): Array<IRuleFinding> {
+  if (result.success) {
+    return [];
+  }
 
-    const locale = result.resource.locale;
-    const items = foundItemsOf(result.data);
+  const locale = result.resource.locale;
+  const items = foundItemsOf(result.data);
 
-    return items.length === 0
-        ? [{ rule, key: null, locale, message: result.message, severity }]
-        : items.map((key) => ({ rule, key, locale, message: FINDING_MESSAGES[rule] ?? result.message, severity }));
+  return items.length === 0
+    ? [{ rule, key: null, locale, message: result.message, severity }]
+    : items.map((key) => ({
+        rule,
+        key,
+        locale,
+        message: FINDING_MESSAGES[rule] ?? result.message,
+        severity,
+      }));
 }

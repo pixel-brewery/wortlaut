@@ -1,7 +1,16 @@
-<mosaik-dialog width="720px" [hasBackdrop]="true" [isOpen]="true" [clickOutsideToClose]="false" [pressEscapeToClose]="false">
+<mosaik-dialog
+  width="720px"
+  [hasBackdrop]="true"
+  [isOpen]="true"
+  [clickOutsideToClose]="false"
+  [pressEscapeToClose]="false"
+>
   <mosaik-dialog-header slot="header">
     <mosaik-dialog-header-text slot="header" text="Add a rule pack" />
-    <mosaik-dialog-header-sub-text slot="subHeader" text="Wortlaut checks the pack first and shows what it may do. Nothing runs before you confirm." />
+    <mosaik-dialog-header-sub-text
+      slot="subHeader"
+      text="Wortlaut checks the pack first and shows what it may do. Nothing runs before you confirm."
+    />
   </mosaik-dialog-header>
   <mosaik-dialog-content slot="content">
     <div class="section">
@@ -9,33 +18,66 @@
         <span class="section-label">Where it comes from</span>
         <mosaik-segment appearance="soft" size="small" aria-label="Where it comes from">
           @for (kind of presenter.kinds(); track kind.id) {
-            <mosaik-segment-item [label]="kind.name" [isChecked]="kind.isOn" (click)="presenter.setKind(kind.id)" />
+            <mosaik-segment-item
+              [label]="kind.name"
+              [isChecked]="kind.isOn"
+              (click)="presenter.setKind(kind.id)"
+            />
           }
         </mosaik-segment>
       </div>
       <div class="source-row">
         <div class="source-field">
           @if (presenter.isFolder()) {
-            <mosaik-textbox [label]="presenter.field().label" [placeholder]="presenter.field().placeholder" [value]="presenter.folderPath()" [readonly]="true" />
+            <mosaik-textbox
+              [label]="presenter.field().label"
+              [placeholder]="presenter.field().placeholder"
+              [value]="presenter.folderPath()"
+              [readonly]="true"
+            />
           } @else {
-            <mosaik-textbox [label]="presenter.field().label" [placeholder]="presenter.field().placeholder" [formField]="presenter.form.source" />
+            <mosaik-textbox
+              [label]="presenter.field().label"
+              [placeholder]="presenter.field().placeholder"
+              [formField]="presenter.form.source"
+            />
           }
         </div>
         @if (presenter.isFolder()) {
-          <mosaik-button label="Choose folder" variant="neutral" appearance="outline" icon="folderOpen" (click)="presenter.chooseFolder()" />
+          <mosaik-button
+            label="Choose folder"
+            variant="neutral"
+            appearance="outline"
+            icon="folderOpen"
+            (click)="presenter.chooseFolder()"
+          />
         }
-        <mosaik-button label="Check pack" variant="neutral" appearance="outline" icon="search" [disabled]="!presenter.canCheck()" [isBusy]="presenter.checking()" (click)="presenter.checkPack()" />
+        <mosaik-button
+          label="Check pack"
+          variant="neutral"
+          appearance="outline"
+          icon="search"
+          [disabled]="!presenter.canCheck()"
+          [isBusy]="presenter.checking()"
+          (click)="presenter.checkPack()"
+        />
       </div>
       @if (presenter.message(); as message) {
         <mosaik-message variant="danger" header="That did not work" [content]="message" />
       }
       @if (presenter.problem(); as problem) {
         <div class="problem">
-          <mosaik-message variant="danger" header="This pack cannot be added" [content]="problem.message" />
+          <mosaik-message
+            variant="danger"
+            header="This pack cannot be added"
+            [content]="problem.message"
+          />
           @if (problem.details.length > 0) {
             <ul class="problem-details">
               @for (detail of problem.details; track detail) {
-                <li><code class="inline small">{{ detail }}</code></li>
+                <li>
+                  <code class="inline small">{{ detail }}</code>
+                </li>
               }
             </ul>
           }
@@ -53,7 +95,9 @@
           <mosaik-table-body>
             @for (rule of pack.rules; track rule.id) {
               <mosaik-table-body-row>
-                <mosaik-table-body-cell><code class="inline">{{ rule.id }}</code></mosaik-table-body-cell>
+                <mosaik-table-body-cell
+                  ><code class="inline">{{ rule.id }}</code></mosaik-table-body-cell
+                >
                 <mosaik-table-body-cell [text]="rule.description" />
               </mosaik-table-body-row>
             }
@@ -71,12 +115,20 @@
             </li>
           }
         </ul>
-        <mosaik-message variant="info" header="This pack only contains rule definitions" content="It runs no code." />
+        <mosaik-message
+          variant="info"
+          header="This pack only contains rule definitions"
+          content="It runs no code."
+        />
       </div>
 
       <div class="section">
         @if (presenter.targetsNote(); as note) {
-          <mosaik-message variant="warning" header="This pack cannot be pinned from here" [content]="note" />
+          <mosaik-message
+            variant="warning"
+            header="This pack cannot be pinned from here"
+            [content]="note"
+          />
         } @else {
           <div class="target">
             <mosaik-select label="Add to" [formField]="presenter.form.target">
@@ -86,16 +138,28 @@
             </mosaik-select>
           </div>
           <div class="same-as">
-            <span class="note">{{ presenter.pinNote() }} <code class="small">wortlaut.lock.json</code>. Same as:</span>
+            <span class="note"
+              >{{ presenter.pinNote() }} <code class="small">wortlaut.lock.json</code>. Same
+              as:</span
+            >
             <code class="small command">{{ presenter.sameAs() }}</code>
           </div>
         }
-        <wortlaut-dry-run-notice text="Install and pin leaves its change sets in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+        <wortlaut-dry-run-notice
+          text="Install and pin leaves its change sets in Review until you turn off dry run in the title bar. Nothing is written to your repository."
+        />
       </div>
     }
   </mosaik-dialog-content>
   <mosaik-dialog-actions slot="actions">
     <mosaik-button label="Cancel" appearance="plain" (click)="presenter.close()" />
-    <mosaik-button label="Install and pin" variant="primary" appearance="solid" [disabled]="!presenter.canInstall()" [isBusy]="presenter.installing()" (click)="presenter.install()" />
+    <mosaik-button
+      label="Install and pin"
+      variant="primary"
+      appearance="solid"
+      [disabled]="!presenter.canInstall()"
+      [isBusy]="presenter.installing()"
+      (click)="presenter.install()"
+    />
   </mosaik-dialog-actions>
 </mosaik-dialog>

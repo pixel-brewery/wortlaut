@@ -2,7 +2,10 @@
   <main class="page">
     <div class="page-title">
       <h1>MCP and plugins</h1>
-      <p class="lead">Use Wortlaut from Claude, Codex and other assistants. They work on the same engine as the app, the CLI and Nx.</p>
+      <p class="lead">
+        Use Wortlaut from Claude, Codex and other assistants. They work on the same engine as the
+        app, the CLI and Nx.
+      </p>
     </div>
 
     @if (presenter.message(); as message) {
@@ -11,18 +14,30 @@
 
     <section aria-label="What assistants may do" class="card-section access-card">
       <mosaik-card>
-        <mosaik-card-header slot="header" text="What assistants may do" [subText]="presenter.levelText()">
+        <mosaik-card-header
+          slot="header"
+          text="What assistants may do"
+          [subText]="presenter.levelText()"
+        >
           <div slot="suffix" class="card-suffix">
             <mosaik-segment appearance="soft" size="small" aria-label="What assistants may do">
               @for (level of presenter.levels(); track level.id) {
-                <mosaik-segment-item [label]="level.label" [isChecked]="level.isChecked" (click)="presenter.setLevel(level.id)" />
+                <mosaik-segment-item
+                  [label]="level.label"
+                  [isChecked]="level.isChecked"
+                  (click)="presenter.setLevel(level.id)"
+                />
               }
             </mosaik-segment>
           </div>
         </mosaik-card-header>
         <div slot="content" class="card-pad">
           @if (presenter.status.isFailed()) {
-            <wortlaut-failure-state header="The server could not be checked" [message]="presenter.status.error()" (retry)="presenter.status.reload()" />
+            <wortlaut-failure-state
+              header="The server could not be checked"
+              [message]="presenter.status.error()"
+              (retry)="presenter.status.reload()"
+            />
           } @else if (presenter.status.value(); as status) {
             <div class="status">
               <mosaik-dot fill="full" [variant]="status.ready ? 'success' : 'warning'" />
@@ -45,19 +60,26 @@
         <mosaik-card-header slot="header" text="Connect an assistant">
           @if (presenter.client()) {
             <div slot="suffix" class="card-suffix">
-            <mosaik-tab-strip aria-label="Assistants" [hasIndicator]="true">
-              @for (tab of presenter.clientTabs(); track tab.id) {
-                <mosaik-tab-strip-item [label]="tab.label" [isSelected]="tab.isSelected" (click)="presenter.pickClient(tab.id)" />
-              }
-            </mosaik-tab-strip>
+              <mosaik-tab-strip aria-label="Assistants" [hasIndicator]="true">
+                @for (tab of presenter.clientTabs(); track tab.id) {
+                  <mosaik-tab-strip-item
+                    [label]="tab.label"
+                    [isSelected]="tab.isSelected"
+                    (click)="presenter.pickClient(tab.id)"
+                  />
+                }
+              </mosaik-tab-strip>
             </div>
           }
         </mosaik-card-header>
         <div slot="content" class="card-pad">
           @if (presenter.clients.isFailed()) {
-            <wortlaut-failure-state header="The steps could not be read" [message]="presenter.clients.error()" (retry)="presenter.clients.reload()" />
+            <wortlaut-failure-state
+              header="The steps could not be read"
+              [message]="presenter.clients.error()"
+              (retry)="presenter.clients.reload()"
+            />
           } @else if (presenter.client(); as client) {
-
             <div class="client-state">
               <mosaik-badge appearance="soft" [label]="client.state" [variant]="client.variant" />
               <span class="muted">{{ client.about }}</span>
@@ -68,7 +90,15 @@
                 <mosaik-card appearance="soft">
                   <div slot="content" class="step-code">
                     <pre class="step-text">{{ step.code }}</pre>
-                    <mosaik-button icon="copy" iconSize="small" size="small" appearance="plain" aria-label="Copy" [label]="presenter.copied() === step.code ? 'Copied' : ''" (click)="presenter.copy(step.code)" />
+                    <mosaik-button
+                      icon="copy"
+                      iconSize="small"
+                      size="small"
+                      appearance="plain"
+                      aria-label="Copy"
+                      [label]="presenter.copied() === step.code ? 'Copied' : ''"
+                      (click)="presenter.copy(step.code)"
+                    />
                   </div>
                 </mosaik-card>
               </div>
@@ -84,11 +114,17 @@
       <section aria-label="Tools" class="tools">
         <mosaik-card>
           <mosaik-card-header slot="header" text="Tools">
-            <div slot="suffix" class="card-suffix"><span class="note">{{ presenter.availability() }}</span></div>
+            <div slot="suffix" class="card-suffix">
+              <span class="note">{{ presenter.availability() }}</span>
+            </div>
           </mosaik-card-header>
           <div slot="content" class="card-body">
             @if (presenter.tools.isFailed()) {
-              <wortlaut-failure-state header="The tools could not be read" [message]="presenter.tools.error()" (retry)="presenter.tools.reload()" />
+              <wortlaut-failure-state
+                header="The tools could not be read"
+                [message]="presenter.tools.error()"
+                (retry)="presenter.tools.reload()"
+              />
             } @else {
               <div class="table-scroll">
                 <div class="table-min">
@@ -103,9 +139,22 @@
                     <mosaik-table-body>
                       @for (tool of presenter.toolRows(); track tool.id) {
                         <mosaik-table-body-row>
-                          <mosaik-table-body-cell><code class="inline" [class.dimmed]="!tool.isAvailable">{{ tool.id }}</code></mosaik-table-body-cell>
-                          <mosaik-table-body-cell><span class="tool-text">{{ tool.description }}</span></mosaik-table-body-cell>
-                          <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="tool.badge" [variant]="tool.variant" /></mosaik-table-body-cell>
+                          <mosaik-table-body-cell
+                            ><code class="inline" [class.dimmed]="!tool.isAvailable">{{
+                              tool.id
+                            }}</code></mosaik-table-body-cell
+                          >
+                          <mosaik-table-body-cell
+                            ><span class="tool-text">{{
+                              tool.description
+                            }}</span></mosaik-table-body-cell
+                          >
+                          <mosaik-table-body-cell
+                            ><mosaik-badge
+                              appearance="soft"
+                              [label]="tool.badge"
+                              [variant]="tool.variant"
+                          /></mosaik-table-body-cell>
                         </mosaik-table-body-row>
                       }
                     </mosaik-table-body>
@@ -120,11 +169,17 @@
       <section aria-label="Recent activity" class="activity">
         <mosaik-card>
           <mosaik-card-header slot="header" text="Recent activity">
-            <div slot="suffix" class="card-suffix"><mosaik-anchor href="#/runs" label="All runs" /></div>
+            <div slot="suffix" class="card-suffix">
+              <mosaik-anchor href="#/runs" label="All runs" />
+            </div>
           </mosaik-card-header>
           <div slot="content" class="card-body">
             @if (presenter.activity.isFailed()) {
-              <wortlaut-failure-state header="The activity could not be read" [message]="presenter.activity.error()" (retry)="presenter.activity.reload()" />
+              <wortlaut-failure-state
+                header="The activity could not be read"
+                [message]="presenter.activity.error()"
+                (retry)="presenter.activity.reload()"
+              />
             } @else if (presenter.activityRows().length > 0) {
               <ul class="activity-list">
                 @for (entry of presenter.activityRows(); track entry.id) {
@@ -141,7 +196,10 @@
               <wortlaut-loading-state label="Reading the activity" />
             } @else {
               <div class="state-frame">
-                <mosaik-empty-state header="Nothing yet" content="What an assistant does through the server appears here." />
+                <mosaik-empty-state
+                  header="Nothing yet"
+                  content="What an assistant does through the server appears here."
+                />
               </div>
             }
           </div>

@@ -11,9 +11,11 @@ import { PresetSchema, ProjectOptionsSchema } from '../settings/ProjectOptions.j
  * @public
  */
 export const WorkspaceColorSchema = z.union([
-    z.enum(['teal', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet', 'pink', 'slate']),
-    z.string().regex(/^#[0-9a-fA-F]{6}$/u)
-        .transform((value): `#${string}` => `#${value.slice(1).toUpperCase()}`)
+  z.enum(['teal', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet', 'pink', 'slate']),
+  z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/u)
+    .transform((value): `#${string}` => `#${value.slice(1).toUpperCase()}`),
 ]);
 
 /**
@@ -34,10 +36,9 @@ export const WorkspaceCodeSchema = z.string().regex(/^[\p{Lu}\p{Nd}]{1,3}$/u);
  * @public
  */
 export const ProjectSnapshotSchema = z.strictObject({
-    keyCount: z.number().int()
-        .nonnegative(),
-    locales: z.array(z.string()),
-    scannedAt: z.iso.datetime()
+  keyCount: z.number().int().nonnegative(),
+  locales: z.array(z.string()),
+  scannedAt: z.iso.datetime(),
 });
 
 /**
@@ -63,24 +64,24 @@ export type ProjectKind = z.output<typeof ProjectKindSchema>;
  * @public
  */
 export const ProjectRecordSchema = z.strictObject({
-    id: z.string().regex(/^[A-Za-z0-9-]+$/),
-    name: z.string().min(1),
-    folder: z.string().min(1),
-    kind: ProjectKindSchema,
+  id: z.string().regex(/^[A-Za-z0-9-]+$/),
+  name: z.string().min(1),
+  folder: z.string().min(1),
+  kind: ProjectKindSchema,
 
-    /**
-     * The name of the Nx target that runs Wortlaut for this project.
-     */
-    nxTarget: z.string().nullable(),
+  /**
+   * The name of the Nx target that runs Wortlaut for this project.
+   */
+  nxTarget: z.string().nullable(),
 
-    /**
-     * What was chosen at setup for a project without a configuration of its own, in the shape of command arguments
-     * relative to the folder. A configuration in the repository always wins over it.
-     */
-    setup: ProjectOptionsSchema.nullable(),
+  /**
+   * What was chosen at setup for a project without a configuration of its own, in the shape of command arguments
+   * relative to the folder. A configuration in the repository always wins over it.
+   */
+  setup: ProjectOptionsSchema.nullable(),
 
-    snapshot: ProjectSnapshotSchema.nullable(),
-    addedAt: z.iso.datetime()
+  snapshot: ProjectSnapshotSchema.nullable(),
+  addedAt: z.iso.datetime(),
 });
 
 /**
@@ -95,9 +96,9 @@ export type ProjectRecord = z.output<typeof ProjectRecordSchema>;
  * @public
  */
 export const WorkspaceDefaultsSchema = z.strictObject({
-    baseLocale: z.string().nullable(),
-    targetLocales: z.array(z.string()),
-    preset: PresetSchema.nullable()
+  baseLocale: z.string().nullable(),
+  targetLocales: z.array(z.string()),
+  preset: PresetSchema.nullable(),
 });
 
 /**
@@ -111,17 +112,16 @@ export type WorkspaceDefaults = z.output<typeof WorkspaceDefaultsSchema>;
  * @public
  */
 export const WorkspaceRecordSchema = z.strictObject({
-    id: z.string().regex(/^[A-Za-z0-9-]+$/),
-    name: z.string().min(1)
-        .max(80),
-    code: WorkspaceCodeSchema,
-    color: WorkspaceColorSchema,
-    repositories: z.array(z.string().min(1)),
-    scanForProjects: z.boolean(),
-    defaults: WorkspaceDefaultsSchema,
-    projects: z.array(ProjectRecordSchema),
-    createdAt: z.iso.datetime(),
-    openedAt: z.iso.datetime().nullable()
+  id: z.string().regex(/^[A-Za-z0-9-]+$/),
+  name: z.string().min(1).max(80),
+  code: WorkspaceCodeSchema,
+  color: WorkspaceColorSchema,
+  repositories: z.array(z.string().min(1)),
+  scanForProjects: z.boolean(),
+  defaults: WorkspaceDefaultsSchema,
+  projects: z.array(ProjectRecordSchema),
+  createdAt: z.iso.datetime(),
+  openedAt: z.iso.datetime().nullable(),
 });
 
 /**
@@ -135,8 +135,8 @@ export type WorkspaceRecord = z.output<typeof WorkspaceRecordSchema>;
  * @public
  */
 export const WorkspaceFileSchema = z.strictObject({
-    schemaVersion: z.literal(1),
-    workspaces: z.array(WorkspaceRecordSchema)
+  schemaVersion: z.literal(1),
+  workspaces: z.array(WorkspaceRecordSchema),
 });
 
 /**

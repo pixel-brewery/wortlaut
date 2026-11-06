@@ -4,8 +4,8 @@
  * @public
  */
 export interface IFormatterResult {
-    content: string;
-    changes: Record<string, string>;
+  content: string;
+  changes: Record<string, string>;
 }
 
 /**
@@ -14,13 +14,11 @@ export interface IFormatterResult {
  * @public
  */
 export interface IFormatter {
-
-    /**
-     * Formats extracted strings into a desired format.
-     *
-     * @param strings The extracted strings as key-value pairs.
-     * @returns The formatted output.
-     */
-    format(strings: Record<string, string>): IFormatterResult;
-
+  /**
+   * Formats extracted strings into a desired format.
+   *
+   * @param strings The extracted strings as key-value pairs.
+   * @returns The formatted output.
+   */
+  format(strings: Record<string, string>): IFormatterResult;
 }

@@ -4,22 +4,20 @@
  * @public
  */
 export const ResourceMode = {
+  /**
+   * `json` - JSON mode.
+   */
+  Json: 'json',
 
-    /**
-     * `json` - JSON mode.
-     */
-    Json: 'json',
+  /**
+   * `resx` - RESX mode.
+   */
+  Resx: 'resx',
 
-    /**
-     * `resx` - RESX mode.
-     */
-    Resx: 'resx',
-
-    /**
-     * `po` - PO mode.
-     */
-    Po: 'po'
-
+  /**
+   * `po` - PO mode.
+   */
+  Po: 'po',
 } as const;
 
 /**

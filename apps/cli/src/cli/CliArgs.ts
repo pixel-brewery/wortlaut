@@ -13,14 +13,14 @@ import { DEFAULT_CLI_ARGS_CONFIG } from './arguments/configurations/ICliArgsConf
  * @internal
  */
 export const EMOJI_ARG: IProgramArg = {
-    alias: ['-e', '--emoji'], // Long alias changed to kebab-case
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.emoji,
-        metavar: 'boolean',
-        help: 'Enables or disables emoji display in the output.'
-    }
+  alias: ['-e', '--emoji'], // Long alias changed to kebab-case
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.emoji,
+    metavar: 'boolean',
+    help: 'Enables or disables emoji display in the output.',
+  },
 };
 
 /**
@@ -29,14 +29,14 @@ export const EMOJI_ARG: IProgramArg = {
  * @internal
  */
 export const DEBUG_ARG: IProgramArg = {
-    alias: ['-d', '--debug'], // Long alias changed to kebab-case
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.debug,
-        metavar: 'boolean',
-        help: 'Enables extended debug logging.'
-    }
+  alias: ['-d', '--debug'], // Long alias changed to kebab-case
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.debug,
+    metavar: 'boolean',
+    help: 'Enables extended debug logging.',
+  },
 };
 
 /**
@@ -45,14 +45,14 @@ export const DEBUG_ARG: IProgramArg = {
  * @internal
  */
 export const DRY_RUN_ARG: IProgramArg = {
-    alias: ['-dr', '--dry-run'], // Long alias changed to kebab-case
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.dryRun,
-        metavar: 'boolean',
-        help: 'Enables dry run mode to prevent any changes.'
-    }
+  alias: ['-dr', '--dry-run'], // Long alias changed to kebab-case
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.dryRun,
+    metavar: 'boolean',
+    help: 'Enables dry run mode to prevent any changes.',
+  },
 };
 
 /**
@@ -61,13 +61,13 @@ export const DRY_RUN_ARG: IProgramArg = {
  * @internal
  */
 export const CWD_ARG: IProgramArg = {
-    alias: ['-c', '--cwd'], // Short alias shortened to -c, long alias changed to kebab-case
-    options: {
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.cwd,
-        metavar: 'string',
-        help: 'Specifies the current working directory for command execution.'
-    }
+  alias: ['-c', '--cwd'], // Short alias shortened to -c, long alias changed to kebab-case
+  options: {
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.cwd,
+    metavar: 'string',
+    help: 'Specifies the current working directory for command execution.',
+  },
 };
 
 /**
@@ -76,14 +76,14 @@ export const CWD_ARG: IProgramArg = {
  * @internal
  */
 export const JSON_ARG: IProgramArg = {
-    alias: '--json',
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.json,
-        metavar: 'boolean',
-        help: 'Prints one JSON document on stdout for scripts and CI. Logs go to stderr.'
-    }
+  alias: '--json',
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.json,
+    metavar: 'boolean',
+    help: 'Prints one JSON document on stdout for scripts and CI. Logs go to stderr.',
+  },
 };
 
 /**
@@ -92,13 +92,13 @@ export const JSON_ARG: IProgramArg = {
  * @internal
  */
 export const TARGET_ARG: IProgramArg = {
-    alias: '--target',
-    options: {
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.target,
-        metavar: 'string',
-        help: 'The Nx target to read the configuration from. By default the one that runs the Wortlaut executor.'
-    }
+  alias: '--target',
+  options: {
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.target,
+    metavar: 'string',
+    help: 'The Nx target to read the configuration from. By default the one that runs the Wortlaut executor.',
+  },
 };
 
 /**
@@ -107,13 +107,13 @@ export const TARGET_ARG: IProgramArg = {
  * @internal
  */
 export const CONFIGURATION_ARG: IProgramArg = {
-    alias: '--configuration',
-    options: {
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.configuration,
-        metavar: 'string',
-        help: 'The Nx configuration to read. By default the default configuration of the target.'
-    }
+  alias: '--configuration',
+  options: {
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.configuration,
+    metavar: 'string',
+    help: 'The Nx configuration to read. By default the default configuration of the target.',
+  },
 };
 
 /**
@@ -122,14 +122,14 @@ export const CONFIGURATION_ARG: IProgramArg = {
  * @internal
  */
 export const REVIEW_ARG: IProgramArg = {
-    alias: '--review',
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: false,
-        metavar: 'boolean',
-        help: 'Leaves the change set in the review list. `wortlaut changes apply <id>` writes it.'
-    }
+  alias: '--review',
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: false,
+    metavar: 'boolean',
+    help: 'Leaves the change set in the review list. `wortlaut changes apply <id>` writes it.',
+  },
 };
 
 /**
@@ -138,14 +138,14 @@ export const REVIEW_ARG: IProgramArg = {
  * @internal
  */
 export const CACHE_ARG: IProgramArg = {
-    alias: '--cache',
-    options: {
-        type: (value: string) => Boolean.parse(value),
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.cache,
-        metavar: 'boolean',
-        help: 'Reuses the results of files that did not change. It changes no result, and a dry run only reads the cache.'
-    }
+  alias: '--cache',
+  options: {
+    type: (value: string) => Boolean.parse(value),
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.cache,
+    metavar: 'boolean',
+    help: 'Reuses the results of files that did not change. It changes no result, and a dry run only reads the cache.',
+  },
 };
 
 /**
@@ -154,14 +154,14 @@ export const CACHE_ARG: IProgramArg = {
  * @internal
  */
 export const CACHE_DIR_ARG: IProgramArg = {
-    alias: '--cache-dir',
-    options: {
-        type: String,
-        required: false,
-        default: DEFAULT_CLI_ARGS_CONFIG.cacheDir,
-        metavar: 'path',
-        help: 'The folder of the cache, relative to the working directory. By default `.wortlaut/cache`.'
-    }
+  alias: '--cache-dir',
+  options: {
+    type: String,
+    required: false,
+    default: DEFAULT_CLI_ARGS_CONFIG.cacheDir,
+    metavar: 'path',
+    help: 'The folder of the cache, relative to the working directory. By default `.wortlaut/cache`.',
+  },
 };
 
 // #endregion
@@ -174,15 +174,15 @@ export const CACHE_DIR_ARG: IProgramArg = {
  * @internal
  */
 export const CLI_ARGS = [
-    CACHE_ARG,
-    CACHE_DIR_ARG,
-    EMOJI_ARG,
-    DEBUG_ARG,
-    DRY_RUN_ARG,
-    CWD_ARG,
-    JSON_ARG,
-    TARGET_ARG,
-    CONFIGURATION_ARG
+  CACHE_ARG,
+  CACHE_DIR_ARG,
+  EMOJI_ARG,
+  DEBUG_ARG,
+  DRY_RUN_ARG,
+  CWD_ARG,
+  JSON_ARG,
+  TARGET_ARG,
+  CONFIGURATION_ARG,
 ];
 
 // #endregion

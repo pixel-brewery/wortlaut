@@ -10,4 +10,6 @@ import { CONTENT_LANGUAGE_NAMES } from './ContentLanguageNames';
  *
  * @public
  */
-export const CONTENT_LANGUAGE_CODES = Object.keys(CONTENT_LANGUAGE_NAMES) as ReadonlyArray<keyof typeof CONTENT_LANGUAGE_NAMES>;
+export const CONTENT_LANGUAGE_CODES = Object.keys(CONTENT_LANGUAGE_NAMES) as ReadonlyArray<
+  keyof typeof CONTENT_LANGUAGE_NAMES
+>;

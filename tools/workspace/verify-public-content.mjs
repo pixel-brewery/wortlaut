@@ -105,7 +105,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (violations.length) {
     console.error(`Private project references found in ${violations.length} file(s):`);
     for (const path of violations) {
-      const publicPath = path.replace(new RegExp(privateIdentifiers.join('|'), 'gi'), '[private-project]');
+      const publicPath = path.replace(
+        new RegExp(privateIdentifiers.join('|'), 'gi'),
+        '[private-project]',
+      );
       console.error(`- ${publicPath}`);
     }
     process.exitCode = 1;

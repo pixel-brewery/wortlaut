@@ -32,7 +32,11 @@
   <mosaik-toggle-switch
     label="Dry run"
     labelPosition="before"
-    [title]="presenter.session.dryRun() ? 'Dry run is on: changes wait in Review and nothing is written' : 'Dry run is off: controls write to your repository'"
+    [title]="
+      presenter.session.dryRun()
+        ? 'Dry run is on: changes wait in Review and nothing is written'
+        : 'Dry run is off: controls write to your repository'
+    "
     [isChecked]="presenter.session.dryRun()"
     (checked)="presenter.session.setDryRun(true)"
     (unchecked)="presenter.session.setDryRun(false)"

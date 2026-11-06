@@ -16,7 +16,8 @@
 
 .history-title {
   flex: none;
-  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 2);
+  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 2)
+    calc(var(--mosaik-layout-space) * 2);
 }
 
 .history-body {
@@ -68,7 +69,8 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--mosaik-layout-space) * 2);
-  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 4) calc(var(--mosaik-layout-space) * 4);
+  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 4)
+    calc(var(--mosaik-layout-space) * 4);
   min-height: 0;
   overflow: hidden;
 }

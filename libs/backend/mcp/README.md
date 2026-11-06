@@ -4,11 +4,11 @@ The MCP server of Wortlaut: twelve tools over the engine that the app and the co
 one needs. It starts with `wortlaut mcp` over stdio, holds no state beyond its process and no logic of its own, and never starts
 a provider or a model.
 
-| Level | Tools |
-| --- | --- |
-| Read only | `list_projects`, `get_config`, `search_keys`, `detect`, `analyze`, `test_pattern`, `next_translations` |
-| Propose changes | also `propose_translations`, `propose_keys`: they wait in the review list |
-| Write | also `apply_changes`, `transform`, `sort`, with `dryRun` to only report |
+| Level           | Tools                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| Read only       | `list_projects`, `get_config`, `search_keys`, `detect`, `analyze`, `test_pattern`, `next_translations` |
+| Propose changes | also `propose_translations`, `propose_keys`: they wait in the review list                              |
+| Write           | also `apply_changes`, `transform`, `sort`, with `dryRun` to only report                                |
 
 The user sets the level in the app under MCP and plugins. It lives in `mcp.json` of the profile, is read for every call, and no
 argument can raise it. Without a level or a known project the server is read only. No tool takes a path, and a project is named by

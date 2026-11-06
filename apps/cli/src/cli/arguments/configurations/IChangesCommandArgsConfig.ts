@@ -8,32 +8,30 @@ import { DEFAULT_CLI_ARGS_CONFIG, type ICliArgsConfig } from './ICliArgsConfig.j
  * @internal
  */
 export interface IChangesCommandArgsConfig extends ICliArgsConfig {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The sub-command: `list`, `show`, `apply` or `discard`. Read from the positionals.
+   *
+   * @default 'list'
+   */
+  action: string;
 
-    /**
-     * The sub-command: `list`, `show`, `apply` or `discard`. Read from the positionals.
-     *
-     * @default 'list'
-     */
-    action: string;
+  /**
+   * The id of the change set. Read from the positionals.
+   *
+   * @default ''
+   */
+  id: string;
 
-    /**
-     * The id of the change set. Read from the positionals.
-     *
-     * @default ''
-     */
-    id: string;
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
  * @internal
  */
 export const DEFAULT_CHANGES_COMMAND_ARGS_CONFIG: IChangesCommandArgsConfig = {
-    ...DEFAULT_CLI_ARGS_CONFIG,
-    action: 'list',
-    id: ''
+  ...DEFAULT_CLI_ARGS_CONFIG,
+  action: 'list',
+  id: '',
 };

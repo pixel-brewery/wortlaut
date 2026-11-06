@@ -11,7 +11,11 @@
 }
 
 .palette-backdrop {
-  --backdrop-background-color: color-mix(in oklab, var(--mosaik-scheme-semi-transparent) 64%, transparent);
+  --backdrop-background-color: color-mix(
+    in oklab,
+    var(--mosaik-scheme-semi-transparent) 64%,
+    transparent
+  );
   --backdrop-blur: 0;
 }
 
@@ -21,7 +25,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: min(14vh, calc(var(--mosaik-layout-space) * 14)) calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 3);
+  padding: min(14vh, calc(var(--mosaik-layout-space) * 14)) calc(var(--mosaik-layout-space) * 2)
+    calc(var(--mosaik-layout-space) * 3);
   pointer-events: none;
 }
 
@@ -53,7 +58,8 @@
   align-items: center;
   gap: var(--mosaik-layout-space);
   min-width: 0;
-  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 2) calc(var(--mosaik-layout-space) * 1.25) var(--mosaik-layout-space);
+  padding: calc(var(--mosaik-layout-space) * 1.25) calc(var(--mosaik-layout-space) * 2)
+    calc(var(--mosaik-layout-space) * 1.25) var(--mosaik-layout-space);
 }
 
 .palette-search {
@@ -82,7 +88,8 @@
 
 .palette-label {
   flex: none;
-  padding: calc(var(--mosaik-layout-space) * 0.75) calc(var(--mosaik-layout-space) * 1.5) calc(var(--mosaik-layout-space) / 4);
+  padding: calc(var(--mosaik-layout-space) * 0.75) calc(var(--mosaik-layout-space) * 1.5)
+    calc(var(--mosaik-layout-space) / 4);
 }
 
 .palette-option {

@@ -3,45 +3,98 @@
     <div class="page-header">
       <div class="page-title">
         <h1>Rule packs</h1>
-        <p class="lead">Rules come in packs. Install one and its rules work in Analyze, in the CLI, in Nx and through MCP. Nobody has to write them.</p>
+        <p class="lead">
+          Rules come in packs. Install one and its rules work in Analyze, in the CLI, in Nx and
+          through MCP. Nobody has to write them.
+        </p>
       </div>
-      <mosaik-button routerLink="/rule-packs/add" label="Add rule pack" variant="primary" appearance="solid" icon="add" />
+      <mosaik-button
+        routerLink="/rule-packs/add"
+        label="Add rule pack"
+        variant="primary"
+        appearance="solid"
+        icon="add"
+      />
     </div>
 
     @if (presenter.list.isLoading()) {
       <wortlaut-loading-state label="Reading the rule packs" />
     } @else if (presenter.list.isFailed()) {
-      <wortlaut-failure-state header="The rule packs could not be read" [message]="presenter.list.error()" (retry)="presenter.load()" />
+      <wortlaut-failure-state
+        header="The rule packs could not be read"
+        [message]="presenter.list.error()"
+        (retry)="presenter.load()"
+      />
     } @else if (presenter.selected(); as pack) {
-      <wortlaut-dry-run-notice text="Adding a pack, severities, switches and updates wait in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+      <wortlaut-dry-run-notice
+        text="Adding a pack, severities, switches and updates wait in Review until you turn off dry run in the title bar. Nothing is written to your repository."
+      />
       @if (presenter.message(); as message) {
         <mosaik-message variant="danger" header="That did not work" [content]="message" />
       }
       @for (result of presenter.results(); track result.id) {
         @if (result.failure) {
-          <mosaik-message variant="danger" [header]="'Nothing was written in ' + result.repository" [content]="result.failure" />
+          <mosaik-message
+            variant="danger"
+            [header]="'Nothing was written in ' + result.repository"
+            [content]="result.failure"
+          />
         } @else {
           <wortlaut-write-result [outcome]="result.outcome" />
         }
       }
 
-      <mosaik-split class="pane-split page-content" paneSizeKey="rule-packs.workspace" paneSize="260px" lock="start" min="220px" max="45%" [intl]="{ resizeLabel: 'Resize rule pack list' }" test-id="rule-packs-workspace-split">
+      <mosaik-split
+        class="pane-split page-content"
+        paneSizeKey="rule-packs.workspace"
+        paneSize="260px"
+        lock="start"
+        min="220px"
+        max="45%"
+        [intl]="{ resizeLabel: 'Resize rule pack list' }"
+        test-id="rule-packs-workspace-split"
+      >
         <div slot="start" class="pane-start">
           <div class="packs">
             <h2 class="column-title">In this workspace</h2>
             @for (card of presenter.visiblePacks(); track card.id) {
               <mosaik-card [isSelected]="card.isSelected">
                 <div slot="content" class="card-body">
-                  <mosaik-clickable class="pack-pick" role="button" tabindex="0" [attr.aria-label]="card.name" [attr.aria-pressed]="card.isSelected" [attr.test-id]="'rule-pack-' + card.id" (click)="presenter.pick(card.id)" (keydown.enter)="presenter.pick(card.id)" (keydown.space)="$event.preventDefault(); presenter.pick(card.id)">
+                  <mosaik-clickable
+                    class="pack-pick"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="card.name"
+                    [attr.aria-pressed]="card.isSelected"
+                    [attr.test-id]="'rule-pack-' + card.id"
+                    (click)="presenter.pick(card.id)"
+                    (keydown.enter)="presenter.pick(card.id)"
+                    (keydown.space)="$event.preventDefault(); presenter.pick(card.id)"
+                  >
                     <div class="pack-text">
                       <span class="pack-head">
                         <span class="pack-name">{{ card.name }}</span>
                         @if (card.isRefused) {
-                          <mosaik-badge class="pack-badge" label="Refused" variant="danger" appearance="soft" />
+                          <mosaik-badge
+                            class="pack-badge"
+                            label="Refused"
+                            variant="danger"
+                            appearance="soft"
+                          />
                         } @else if (card.isOff) {
-                          <mosaik-badge class="pack-badge" label="Off" variant="neutral" appearance="soft" />
+                          <mosaik-badge
+                            class="pack-badge"
+                            label="Off"
+                            variant="neutral"
+                            appearance="soft"
+                          />
                         } @else {
-                          <mosaik-badge class="pack-badge" variant="neutral" appearance="soft" [label]="card.count" />
+                          <mosaik-badge
+                            class="pack-badge"
+                            variant="neutral"
+                            appearance="soft"
+                            [label]="card.count"
+                          />
                         }
                       </span>
                       <span class="note">{{ card.about }}</span>
@@ -52,7 +105,13 @@
             }
 
             @if (presenter.hasMorePacks()) {
-              <mosaik-button label="Show more" appearance="plain" size="small" test-id="rule-packs-more-items" (click)="presenter.showMorePacks()" />
+              <mosaik-button
+                label="Show more"
+                appearance="plain"
+                size="small"
+                test-id="rule-packs-more-items"
+                (click)="presenter.showMorePacks()"
+              />
             }
 
             <h2 class="column-title available-title">Available</h2>
@@ -66,7 +125,15 @@
                     <span class="pack-name">{{ available.name }}</span>
                     <span class="note">{{ available.description }}</span>
                   </div>
-                  <mosaik-button routerLink="/rule-packs/add" label="Add" variant="neutral" appearance="outline" size="small" class="available-add" [queryParams]="{ source: available.source }" />
+                  <mosaik-button
+                    routerLink="/rule-packs/add"
+                    label="Add"
+                    variant="neutral"
+                    appearance="outline"
+                    size="small"
+                    class="available-add"
+                    [queryParams]="{ source: available.source }"
+                  />
                 </div>
               </mosaik-card>
             } @empty {
@@ -82,13 +149,23 @@
             <mosaik-card>
               <mosaik-card-header slot="header" [text]="pack.name">
                 <div slot="suffix" class="card-suffix">
-                  <mosaik-toggle-switch label="Enabled in this workspace" [isChecked]="pack.enabled" [disabled]="pack.locked || pack.refusal !== null || presenter.busy()" (checked)="presenter.setEnabled(true)" (unchecked)="presenter.setEnabled(false)" />
+                  <mosaik-toggle-switch
+                    label="Enabled in this workspace"
+                    [isChecked]="pack.enabled"
+                    [disabled]="pack.locked || pack.refusal !== null || presenter.busy()"
+                    (checked)="presenter.setEnabled(true)"
+                    (unchecked)="presenter.setEnabled(false)"
+                  />
                 </div>
               </mosaik-card-header>
               <div slot="content" class="card-body">
                 @if (pack.refusal; as refusal) {
                   <div class="refusal">
-                    <mosaik-message variant="danger" header="This pack failed verification and is disabled" [content]="refusal.reason" />
+                    <mosaik-message
+                      variant="danger"
+                      header="This pack failed verification and is disabled"
+                      [content]="refusal.reason"
+                    />
                   </div>
                 }
                 <div class="table-scroll">
@@ -111,12 +188,25 @@
                               </div>
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
-                              <mosaik-badge appearance="soft" [label]="rule.result" [variant]="rule.variant" />
+                              <mosaik-badge
+                                appearance="soft"
+                                [label]="rule.result"
+                                [variant]="rule.variant"
+                              />
                             </mosaik-table-body-cell>
                             <mosaik-table-body-cell>
-                              <mosaik-select size="small" [attr.aria-label]="'Severity of ' + rule.id" [value]="rule.severity" [disabled]="pack.refusal !== null || presenter.busy()" (selectionChanged)="onSeverity(rule.id, $event.newValue)">
+                              <mosaik-select
+                                size="small"
+                                [attr.aria-label]="'Severity of ' + rule.id"
+                                [value]="rule.severity"
+                                [disabled]="pack.refusal !== null || presenter.busy()"
+                                (selectionChanged)="onSeverity(rule.id, $event.newValue)"
+                              >
                                 @for (severity of presenter.severities; track severity.value) {
-                                  <mosaik-select-item [value]="severity.value" [label]="severity.label" />
+                                  <mosaik-select-item
+                                    [value]="severity.value"
+                                    [label]="severity.label"
+                                  />
                                 }
                               </mosaik-select>
                             </mosaik-table-body-cell>
@@ -129,7 +219,13 @@
               </div>
               @if (presenter.hasMoreRules()) {
                 <div slot="footer" class="table-footer">
-                  <mosaik-button label="Show more rules" appearance="plain" size="small" test-id="rule-packs-more-rules" (click)="presenter.showMoreRules()" />
+                  <mosaik-button
+                    label="Show more rules"
+                    appearance="plain"
+                    size="small"
+                    test-id="rule-packs-more-rules"
+                    (click)="presenter.showMoreRules()"
+                  />
                 </div>
               }
             </mosaik-card>
@@ -140,7 +236,14 @@
               <mosaik-card-header slot="header" text="Source and trust">
                 @if (presenter.canReviewUpdate()) {
                   <div slot="suffix" class="card-suffix">
-                    <mosaik-button label="Review update" variant="neutral" appearance="outline" size="small" icon="sync" (click)="presenter.openReview()" />
+                    <mosaik-button
+                      label="Review update"
+                      variant="neutral"
+                      appearance="outline"
+                      size="small"
+                      icon="sync"
+                      (click)="presenter.openReview()"
+                    />
                   </div>
                 }
               </mosaik-card-header>
@@ -149,13 +252,19 @@
                   @for (row of presenter.sourceRows(); track row.label) {
                     <div class="source-row">
                       <dt class="note">{{ row.label }}</dt>
-                      <dd><code class="inline wrap">{{ row.value }}</code></dd>
+                      <dd>
+                        <code class="inline wrap">{{ row.value }}</code>
+                      </dd>
                     </div>
                   }
                 </dl>
                 <div class="chips">
                   @for (badge of presenter.accessBadges(); track badge.label) {
-                    <mosaik-badge appearance="soft" [label]="badge.label" [variant]="badge.variant" />
+                    <mosaik-badge
+                      appearance="soft"
+                      [label]="badge.label"
+                      [variant]="badge.variant"
+                    />
                   }
                 </div>
               </div>
@@ -168,10 +277,19 @@
 </div>
 
 @if (presenter.reviewing(); as update) {
-  <mosaik-dialog width="800px" [hasBackdrop]="true" [isOpen]="true" [clickOutsideToClose]="false" [pressEscapeToClose]="false">
+  <mosaik-dialog
+    width="800px"
+    [hasBackdrop]="true"
+    [isOpen]="true"
+    [clickOutsideToClose]="false"
+    [pressEscapeToClose]="false"
+  >
     <mosaik-dialog-header slot="header">
       <mosaik-dialog-header-text slot="header" text="Review update" />
-      <mosaik-dialog-header-sub-text slot="subHeader" [text]="update.name + ': ' + update.summary" />
+      <mosaik-dialog-header-sub-text
+        slot="subHeader"
+        [text]="update.name + ': ' + update.summary"
+      />
     </mosaik-dialog-header>
     <mosaik-dialog-content slot="content">
       <div class="review">
@@ -179,7 +297,9 @@
           @for (row of presenter.reviewPin(); track row.label) {
             <div class="source-row">
               <dt class="note">{{ row.label }}</dt>
-              <dd><code class="inline wrap">{{ row.value }}</code></dd>
+              <dd>
+                <code class="inline wrap">{{ row.value }}</code>
+              </dd>
             </div>
           }
         </dl>
@@ -195,11 +315,31 @@
             <mosaik-table-body>
               @for (rule of update.rules; track rule.id) {
                 <mosaik-table-body-row>
-                  <mosaik-table-body-cell><code class="inline">{{ rule.id }}</code></mosaik-table-body-cell>
+                  <mosaik-table-body-cell
+                    ><code class="inline">{{ rule.id }}</code></mosaik-table-body-cell
+                  >
                   <mosaik-table-body-cell>
-                    <mosaik-badge appearance="soft" [label]="rule.change === 'added' ? 'New' : rule.change === 'changed' ? 'Changed' : 'Removed'" [variant]="rule.change === 'added' ? 'success' : rule.change === 'changed' ? 'info' : 'warning'" />
+                    <mosaik-badge
+                      appearance="soft"
+                      [label]="
+                        rule.change === 'added'
+                          ? 'New'
+                          : rule.change === 'changed'
+                            ? 'Changed'
+                            : 'Removed'
+                      "
+                      [variant]="
+                        rule.change === 'added'
+                          ? 'success'
+                          : rule.change === 'changed'
+                            ? 'info'
+                            : 'warning'
+                      "
+                    />
                   </mosaik-table-body-cell>
-                  <mosaik-table-body-cell><span class="muted">{{ rule.description }}</span></mosaik-table-body-cell>
+                  <mosaik-table-body-cell
+                    ><span class="muted">{{ rule.description }}</span></mosaik-table-body-cell
+                  >
                 </mosaik-table-body-row>
               }
             </mosaik-table-body>
@@ -209,10 +349,18 @@
           @for (file of repository.files; track file.file) {
             <section [attr.aria-label]="file.file">
               <mosaik-card>
-                <mosaik-card-header slot="header" [text]="file.file" [subText]="repository.repository">
+                <mosaik-card-header
+                  slot="header"
+                  [text]="file.file"
+                  [subText]="repository.repository"
+                >
                   <div slot="suffix" class="card-suffix">
                     <span class="note">+{{ file.additions }} −{{ file.deletions }}</span>
-                    <mosaik-badge appearance="soft" [label]="file.action === 'create' ? 'New file' : 'Changed'" [variant]="file.action === 'create' ? 'success' : 'neutral'" />
+                    <mosaik-badge
+                      appearance="soft"
+                      [label]="file.action === 'create' ? 'New file' : 'Changed'"
+                      [variant]="file.action === 'create' ? 'success' : 'neutral'"
+                    />
                   </div>
                 </mosaik-card-header>
                 <div slot="content" class="card-body">
@@ -222,12 +370,25 @@
             </section>
           }
         }
-        <wortlaut-dry-run-notice text="Approving leaves this update in Review until you turn off dry run in the title bar. Nothing is written to your repository." />
+        <wortlaut-dry-run-notice
+          text="Approving leaves this update in Review until you turn off dry run in the title bar. Nothing is written to your repository."
+        />
       </div>
     </mosaik-dialog-content>
     <mosaik-dialog-actions slot="actions">
-      <mosaik-button label="Not now" appearance="plain" [disabled]="presenter.busy()" (click)="presenter.closeReview()" />
-      <mosaik-button variant="primary" appearance="solid" [label]="presenter.dryRun() ? 'Leave in Review' : 'Approve and write'" [isBusy]="presenter.busy()" (click)="presenter.approveUpdate()" />
+      <mosaik-button
+        label="Not now"
+        appearance="plain"
+        [disabled]="presenter.busy()"
+        (click)="presenter.closeReview()"
+      />
+      <mosaik-button
+        variant="primary"
+        appearance="solid"
+        [label]="presenter.dryRun() ? 'Leave in Review' : 'Approve and write'"
+        [isBusy]="presenter.busy()"
+        (click)="presenter.approveUpdate()"
+      />
     </mosaik-dialog-actions>
   </mosaik-dialog>
 }

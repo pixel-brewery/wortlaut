@@ -17,85 +17,87 @@ import { ResxResourceReaderAdapter } from './adapter/ResxResourceReaderAdapter';
  * @public
  */
 export class ResourceReader {
+  // #region Fields
 
-    // #region Fields
+  private readonly _fileSystem: IFileSystem;
+  private readonly _logger: ILogger;
+  private readonly _adapters: Map<ResourceMode, IResourceReaderAdapter>;
 
-    private readonly _fileSystem: IFileSystem;
-    private readonly _logger: ILogger;
-    private readonly _adapters: Map<ResourceMode, IResourceReaderAdapter>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Creates a new instance of `ResourceReader`.
+   *
+   * @public
+   * @param logger The logger interface.
+   * @param fileSystem The file system interface.
+   */
+  public constructor(logger: ILogger, fileSystem: IFileSystem) {
+    this._fileSystem = fileSystem;
+    this._logger = logger;
+    this._adapters = new Map<ResourceMode, IResourceReaderAdapter>()
+      .set(ResourceMode.Json, new JsonResourceReaderAdapter(this._fileSystem, this._logger))
+      .set(ResourceMode.Resx, new ResxResourceReaderAdapter(this._fileSystem, this._logger))
+      .set(ResourceMode.Po, new PoResourceReaderAdapter(this._fileSystem, this._logger));
+  }
 
-    /**
-     * Creates a new instance of `ResourceReader`.
-     *
-     * @public
-     * @param logger The logger interface.
-     * @param fileSystem The file system interface.
-     */
-    public constructor(logger: ILogger, fileSystem: IFileSystem) {
-        this._fileSystem = fileSystem;
-        this._logger = logger;
-        this._adapters = new Map<ResourceMode, IResourceReaderAdapter>()
-            .set(ResourceMode.Json, new JsonResourceReaderAdapter(this._fileSystem, this._logger))
-            .set(ResourceMode.Resx, new ResxResourceReaderAdapter(this._fileSystem, this._logger))
-            .set(ResourceMode.Po, new PoResourceReaderAdapter(this._fileSystem, this._logger));
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Scans a directory for resources of the given type.
+   *
+   * @public
+   * @param path The path or paths to scan.
+   * @param type The type of resource to scan for.
+   * @returns An array of resource information found in the directory.
+   */
+  public scanDirectory(path: string | Array<string>, type: ResourceMode): Array<IResourceInfo> {
+    this._logger.log(t`${magenta(`Scanning for ${bold(type)} resources...`)}`);
+
+    const adapter = this._adapters.get(type);
+
+    if (!adapter) {
+      throw new Error('No adapter found for the specified mode.');
     }
 
-    // #endregion
+    const result = adapter.scanDirectory(path);
 
-    // #region Methods
+    this._logger.log(
+      t`${magenta(`Scanning complete.${result.length === 0 ? yellow(' No resources found.') : ''}`)}`,
+    );
 
-    /**
-     * Scans a directory for resources of the given type.
-     *
-     * @public
-     * @param path The path or paths to scan.
-     * @param type The type of resource to scan for.
-     * @returns An array of resource information found in the directory.
-     */
-    public scanDirectory(path: string | Array<string>, type: ResourceMode): Array<IResourceInfo> {
-        this._logger.log(t`${magenta(`Scanning for ${bold(type)} resources...`)}`);
+    return result;
+  }
 
-        const adapter = this._adapters.get(type);
+  /**
+   * Scans a specific file for resources of the given type.
+   *
+   * @public
+   * @param path The path to the file to scan.
+   * @param type The type of resource to scan for.
+   * @returns The resource information or null if the file is not a valid resource.
+   */
+  public scanFile(path: string, type: ResourceMode): IResourceInfo | null {
+    this._logger.log(t`${magenta(`Scanning for ${bold(type)} resource in file...`)}`);
 
-        if (!adapter) {
-            throw new Error('No adapter found for the specified mode.');
-        }
+    const adapter = this._adapters.get(type);
 
-        const result = adapter.scanDirectory(path);
-
-        this._logger.log(t`${magenta(`Scanning complete.${result.length === 0 ? yellow(' No resources found.') : ''}`)}`);
-
-        return result;
+    if (!adapter) {
+      throw new Error('No adapter found for the specified mode.');
     }
 
-    /**
-     * Scans a specific file for resources of the given type.
-     *
-     * @public
-     * @param path The path to the file to scan.
-     * @param type The type of resource to scan for.
-     * @returns The resource information or null if the file is not a valid resource.
-     */
-    public scanFile(path: string, type: ResourceMode): IResourceInfo | null {
-        this._logger.log(t`${magenta(`Scanning for ${bold(type)} resource in file...`)}`);
+    const result = adapter.scanFile(path);
 
-        const adapter = this._adapters.get(type);
+    this._logger.log(
+      t`${magenta(`Scanning complete.${result ? '' : yellow(' No resource found.')}`)}`,
+    );
 
-        if (!adapter) {
-            throw new Error('No adapter found for the specified mode.');
-        }
+    return result;
+  }
 
-        const result = adapter.scanFile(path);
-
-        this._logger.log(t`${magenta(`Scanning complete.${result ? '' : yellow(' No resource found.')}`)}`);
-
-        return result;
-    }
-
-    // #endregion
-
+  // #endregion
 }

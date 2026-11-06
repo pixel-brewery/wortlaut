@@ -14,17 +14,21 @@ import { join } from 'node:path';
  * @param home The user's home directory.
  * @returns The absolute path of the profile.
  */
-export function resolveProfileRoot(env: NodeJS.ProcessEnv, platform: NodeJS.Platform, home: string): string {
-    if (env.WORTLAUT_HOME) {
-        return env.WORTLAUT_HOME;
-    }
+export function resolveProfileRoot(
+  env: NodeJS.ProcessEnv,
+  platform: NodeJS.Platform,
+  home: string,
+): string {
+  if (env.WORTLAUT_HOME) {
+    return env.WORTLAUT_HOME;
+  }
 
-    switch (platform) {
-        case 'darwin':
-            return join(home, 'Library', 'Application Support', 'Wortlaut');
-        case 'win32':
-            return join(env.APPDATA ?? join(home, 'AppData', 'Roaming'), 'Wortlaut');
-        default:
-            return join(env.XDG_DATA_HOME ?? join(home, '.local', 'share'), 'wortlaut');
-    }
+  switch (platform) {
+    case 'darwin':
+      return join(home, 'Library', 'Application Support', 'Wortlaut');
+    case 'win32':
+      return join(env.APPDATA ?? join(home, 'AppData', 'Roaming'), 'Wortlaut');
+    default:
+      return join(env.XDG_DATA_HOME ?? join(home, '.local', 'share'), 'wortlaut');
+  }
 }

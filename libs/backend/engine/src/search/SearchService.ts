@@ -1,7 +1,12 @@
 // #region Imports
 
 import { extname } from 'node:path';
-import type { ProjectRecord, SearchFileResult, SearchResults, WorkspaceRecord } from '@pixel-brewery/wortlaut-contracts';
+import type {
+  ProjectRecord,
+  SearchFileResult,
+  SearchResults,
+  WorkspaceRecord,
+} from '@pixel-brewery/wortlaut-contracts';
 import { Presets } from '@pixel-brewery/wortlaut-core';
 import type { CatalogService } from '../catalogs/CatalogService.js';
 import { EngineError } from '../errors/EngineError.js';
@@ -35,18 +40,18 @@ const MAX_REMEMBERED_FILES = 512;
  * @internal
  */
 export interface ISearchServiceInit {
-    workspaces: WorkspaceService;
-    projects: ProjectService;
-    catalogs: CatalogService;
-    now: () => Date;
+  workspaces: WorkspaceService;
+  projects: ProjectService;
+  catalogs: CatalogService;
+  now: () => Date;
 }
 
 /**
  * The files of a project, as the last look found them.
  */
 interface IFileList {
-    readAt: number;
-    files: Array<{ path: string; file: string; kind: SearchFileResult['kind'] }>;
+  readAt: number;
+  files: Array<{ path: string; file: string; kind: SearchFileResult['kind'] }>;
 }
 
 /**
@@ -56,199 +61,224 @@ interface IFileList {
  * @public
  */
 export class SearchService {
+  // #region Fields
 
-    // #region Fields
+  private readonly _init: ISearchServiceInit;
+  private readonly _fileLists: Map<string, IFileList>;
+  private readonly _files: Map<string, string>;
 
-    private readonly _init: ISearchServiceInit;
-    private readonly _fileLists: Map<string, IFileList>;
-    private readonly _files: Map<string, string>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `SearchService` class.
+   *
+   * @param init What the search is composed of.
+   */
+  public constructor(init: ISearchServiceInit) {
+    this._init = init;
+    this._fileLists = new Map();
+    this._files = new Map();
+  }
 
-    /**
-     * Constructs a new instance of the `SearchService` class.
-     *
-     * @param init What the search is composed of.
-     */
-    public constructor(init: ISearchServiceInit) {
-        this._init = init;
-        this._fileLists = new Map();
-        this._files = new Map();
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Searches the keys and files of a workspace.
+   *
+   * @public
+   * @param workspaceId The workspace.
+   * @param projectId The open project, whose results come first.
+   * @param text What to look for.
+   * @returns What it found.
+   */
+  public query(workspaceId: string, projectId: string | null, text: string): SearchResults {
+    const search = text.trim().toLowerCase();
+    const workspace = this._init.workspaces.require(workspaceId);
+    const results: SearchResults = { keys: [], files: [], truncated: false };
+
+    if (search.length === 0) {
+      return results;
     }
 
-    // #endregion
-
-    // #region Methods
-
-    /**
-     * Searches the keys and files of a workspace.
-     *
-     * @public
-     * @param workspaceId The workspace.
-     * @param projectId The open project, whose results come first.
-     * @param text What to look for.
-     * @returns What it found.
-     */
-    public query(workspaceId: string, projectId: string | null, text: string): SearchResults {
-        const search = text.trim().toLowerCase();
-        const workspace = this._init.workspaces.require(workspaceId);
-        const results: SearchResults = { keys: [], files: [], truncated: false };
-
-        if (search.length === 0) {
-            return results;
-        }
-
-        for (const project of this.inOrder(workspace, projectId)) {
-            this.addKeys(results, project, search);
-            this.addFiles(results, project, search);
-        }
-
-        return results;
+    for (const project of this.inOrder(workspace, projectId)) {
+      this.addKeys(results, project, search);
+      this.addFiles(results, project, search);
     }
 
-    /**
-     * Returns the path of a file the search found.
-     *
-     * @public
-     * @param id The id of the result.
-     * @returns The absolute path.
-     * @throws EngineError when no search handed out this id.
-     */
-    public pathOf(id: string): string {
-        const path = this._files.get(id);
+    return results;
+  }
 
-        if (!path) {
-            throw new EngineError('invalid-arguments', 'This result is no longer available. Search again.');
-        }
+  /**
+   * Returns the path of a file the search found.
+   *
+   * @public
+   * @param id The id of the result.
+   * @returns The absolute path.
+   * @throws EngineError when no search handed out this id.
+   */
+  public pathOf(id: string): string {
+    const path = this._files.get(id);
 
-        return path;
+    if (!path) {
+      throw new EngineError(
+        'invalid-arguments',
+        'This result is no longer available. Search again.',
+      );
     }
 
-    /**
-     * @private
-     */
-    private inOrder(workspace: WorkspaceRecord, projectId: string | null): Array<ProjectRecord> {
-        return [...workspace.projects].sort((a, b) => Number(b.id === projectId) - Number(a.id === projectId));
+    return path;
+  }
+
+  /**
+   * @private
+   */
+  private inOrder(workspace: WorkspaceRecord, projectId: string | null): Array<ProjectRecord> {
+    return [...workspace.projects].sort(
+      (a, b) => Number(b.id === projectId) - Number(a.id === projectId),
+    );
+  }
+
+  /**
+   * @private
+   */
+  private addKeys(results: SearchResults, project: ProjectRecord, search: string): void {
+    if (results.keys.length >= MAX_RESULTS) {
+      results.truncated = true;
+
+      return;
     }
 
-    /**
-     * @private
-     */
-    private addKeys(results: SearchResults, project: ProjectRecord, search: string): void {
-        if (results.keys.length >= MAX_RESULTS) {
-            results.truncated = true;
+    try {
+      const { rows, matching } = this._init.catalogs.keys({
+        projectId: project.id,
+        namespace: null,
+        search,
+        filter: 'all',
+        targetLocale: null,
+        limit: MAX_RESULTS - results.keys.length,
+      });
 
-            return;
-        }
+      results.keys.push(
+        ...rows.map((row) => ({
+          key: row.key,
+          value: row.base,
+          projectId: project.id,
+          projectName: project.name,
+        })),
+      );
+      results.truncated ||= matching > rows.length;
+    } catch {
+      // Its catalogs cannot be read right now, so it has no results.
+    }
+  }
 
-        try {
-            const { rows, matching } = this._init.catalogs.keys({ projectId: project.id, namespace: null, search, filter: 'all', targetLocale: null, limit: MAX_RESULTS - results.keys.length });
+  /**
+   * @private
+   */
+  private addFiles(results: SearchResults, project: ProjectRecord, search: string): void {
+    for (const entry of this.filesOf(project).filter(({ file }) =>
+      file.toLowerCase().includes(search),
+    )) {
+      if (results.files.length >= MAX_RESULTS) {
+        results.truncated = true;
 
-            results.keys.push(...rows.map((row) => ({ key: row.key, value: row.base, projectId: project.id, projectName: project.name })));
-            results.truncated ||= matching > rows.length;
-        } catch {
-            // Its catalogs cannot be read right now, so it has no results.
-        }
+        return;
+      }
+
+      results.files.push({
+        id: this.remember(entry.path),
+        file: entry.file,
+        kind: entry.kind,
+        projectId: project.id,
+        projectName: project.name,
+      });
+    }
+  }
+
+  /**
+   * Lists the catalogs and the settings file of a project and its source files, with what Detect would read.
+   *
+   * @private
+   */
+  private filesOf(project: ProjectRecord): IFileList['files'] {
+    const now = this._init.now().getTime();
+    const known = this._fileLists.get(project.id);
+
+    if (known && now - known.readAt < FILE_LIST_TTL_MS) {
+      return known.files;
     }
 
-    /**
-     * @private
-     */
-    private addFiles(results: SearchResults, project: ProjectRecord, search: string): void {
-        for (const entry of this.filesOf(project).filter(({ file }) => file.toLowerCase().includes(search))) {
-            if (results.files.length >= MAX_RESULTS) {
-                results.truncated = true;
+    const files = new Map<string, IFileList['files'][number]>();
+    const add = (path: string, kind: SearchFileResult['kind']): void => {
+      if (!files.has(path)) {
+        files.set(path, { path, file: DisplayPath.relativeTo(project.folder, path), kind });
+      }
+    };
 
-                return;
-            }
+    try {
+      for (const catalog of this._init.catalogs.stats(project.id).catalogs) {
+        add(catalog.path, 'catalog');
+      }
 
-            results.files.push({ id: this.remember(entry.path), file: entry.file, kind: entry.kind, projectId: project.id, projectName: project.name });
-        }
+      const settings = this._init.projects.sourceFilePath(project.id);
+
+      if (settings) {
+        add(settings, 'settings');
+      }
+
+      for (const path of this.sourcesOf(project)) {
+        add(path, 'source');
+      }
+    } catch {
+      // What could be read stays in the list.
     }
 
-    /**
-     * Lists the catalogs and the settings file of a project and its source files, with what Detect would read.
-     *
-     * @private
-     */
-    private filesOf(project: ProjectRecord): IFileList['files'] {
-        const now = this._init.now().getTime();
-        const known = this._fileLists.get(project.id);
+    const list = { readAt: now, files: Array.from(files.values()) };
 
-        if (known && now - known.readAt < FILE_LIST_TTL_MS) {
-            return known.files;
-        }
+    this._fileLists.set(project.id, list);
 
-        const files = new Map<string, IFileList['files'][number]>();
-        const add = (path: string, kind: SearchFileResult['kind']): void => {
-            if (!files.has(path)) {
-                files.set(path, { path, file: DisplayPath.relativeTo(project.folder, path), kind });
-            }
-        };
+    return list.files;
+  }
 
-        try {
-            for (const catalog of this._init.catalogs.stats(project.id).catalogs) {
-                add(catalog.path, 'catalog');
-            }
+  /**
+   * @private
+   */
+  private sourcesOf(project: ProjectRecord): Array<string> {
+    const configuration = this._init.projects.resolve(project);
+    const { root } = configuration;
+    const preset = configuration.options.actions?.detect?.preset;
 
-            const settings = this._init.projects.sourceFilePath(project.id);
-
-            if (settings) {
-                add(settings, 'settings');
-            }
-
-            for (const path of this.sourcesOf(project)) {
-                add(path, 'source');
-            }
-        } catch {
-            // What could be read stays in the list.
-        }
-
-        const list = { readAt: now, files: Array.from(files.values()) };
-
-        this._fileLists.set(project.id, list);
-
-        return list.files;
+    if (!root || !preset) {
+      return [];
     }
 
-    /**
-     * @private
-     */
-    private sourcesOf(project: ProjectRecord): Array<string> {
-        const configuration = this._init.projects.resolve(project);
-        const { root } = configuration;
-        const preset = configuration.options.actions?.detect?.preset;
+    const extensions = new Set(Presets.get(QUIET_LOGGER, preset as Presets).getExtensions());
 
-        if (!root || !preset) {
-            return [];
-        }
+    return walkRepository(root).files.filter((file) => extensions.has(extname(file)));
+  }
 
-        const extensions = new Set(Presets.get(QUIET_LOGGER, preset as Presets).getExtensions());
+  /**
+   * @private
+   */
+  private remember(path: string): string {
+    const id = createSortableId(this._init.now());
 
-        return walkRepository(root).files.filter((file) => extensions.has(extname(file)));
+    this._files.set(id, path);
+
+    for (const oldest of this._files.keys()) {
+      if (this._files.size <= MAX_REMEMBERED_FILES) {
+        break;
+      }
+
+      this._files.delete(oldest);
     }
 
-    /**
-     * @private
-     */
-    private remember(path: string): string {
-        const id = createSortableId(this._init.now());
+    return id;
+  }
 
-        this._files.set(id, path);
-
-        for (const oldest of this._files.keys()) {
-            if (this._files.size <= MAX_REMEMBERED_FILES) {
-                break;
-            }
-
-            this._files.delete(oldest);
-        }
-
-        return id;
-    }
-
-    // #endregion
-
+  // #endregion
 }

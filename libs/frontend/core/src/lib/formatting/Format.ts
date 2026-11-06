@@ -8,9 +8,26 @@ import { CONTENT_LANGUAGE_NAMES } from '../locales/ContentLanguageNames';
 const LANGUAGE_NAMES = new Intl.DisplayNames(['en'], { type: 'language', fallback: 'code' });
 const LIST = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' });
 const NUMBERS = new Intl.NumberFormat('en');
-const SURFACES: Readonly<Record<Surface, string>> = { cli: 'CLI', nx: 'Nx', api: 'API', desktop: 'Desktop app', mcp: 'MCP' };
-const PRESETS: Readonly<Record<string, string>> = { angular: 'Angular', lit: 'Lit', react: 'React', stencil: 'Stencil', vue: 'Vue' };
-const FORMATS: Readonly<Record<string, string>> = { json: 'JSON', resx: 'RESX', po: 'PO', ts: 'TypeScript' };
+const SURFACES: Readonly<Record<Surface, string>> = {
+  cli: 'CLI',
+  nx: 'Nx',
+  api: 'API',
+  desktop: 'Desktop app',
+  mcp: 'MCP',
+};
+const PRESETS: Readonly<Record<string, string>> = {
+  angular: 'Angular',
+  lit: 'Lit',
+  react: 'React',
+  stencil: 'Stencil',
+  vue: 'Vue',
+};
+const FORMATS: Readonly<Record<string, string>> = {
+  json: 'JSON',
+  resx: 'RESX',
+  po: 'PO',
+  ts: 'TypeScript',
+};
 
 /**
  * Returns the English name of a locale.
@@ -19,21 +36,21 @@ const FORMATS: Readonly<Record<string, string>> = { json: 'JSON', resx: 'RESX', 
  * @returns Its name, or the code when it has none.
  */
 export function localeName(code: string): string {
-    const normalizedCode = code.replace('_', '-');
-    const languageCode = code.toLowerCase();
-    const fallbackName = Object.hasOwn(CONTENT_LANGUAGE_NAMES, languageCode)
-        ? CONTENT_LANGUAGE_NAMES[languageCode as keyof typeof CONTENT_LANGUAGE_NAMES]
-        : null;
+  const normalizedCode = code.replace('_', '-');
+  const languageCode = code.toLowerCase();
+  const fallbackName = Object.hasOwn(CONTENT_LANGUAGE_NAMES, languageCode)
+    ? CONTENT_LANGUAGE_NAMES[languageCode as keyof typeof CONTENT_LANGUAGE_NAMES]
+    : null;
 
-    try {
-        const name = LANGUAGE_NAMES.of(normalizedCode);
+  try {
+    const name = LANGUAGE_NAMES.of(normalizedCode);
 
-        return !name || name.toLowerCase() === normalizedCode.toLowerCase()
-            ? fallbackName ?? name ?? code
-            : name;
-    } catch {
-        return fallbackName ?? code;
-    }
+    return !name || name.toLowerCase() === normalizedCode.toLowerCase()
+      ? (fallbackName ?? name ?? code)
+      : name;
+  } catch {
+    return fallbackName ?? code;
+  }
 }
 
 /**
@@ -43,7 +60,7 @@ export function localeName(code: string): string {
  * @returns For example `English and German`.
  */
 export function localeList(codes: ReadonlyArray<string>): string {
-    return LIST.format(codes.map((code) => localeName(code)));
+  return LIST.format(codes.map((code) => localeName(code)));
 }
 
 /**
@@ -53,7 +70,7 @@ export function localeList(codes: ReadonlyArray<string>): string {
  * @returns For example `13,209`.
  */
 export function formatCount(value: number): string {
-    return NUMBERS.format(value);
+  return NUMBERS.format(value);
 }
 
 /**
@@ -65,7 +82,7 @@ export function formatCount(value: number): string {
  * @returns For example `1 project` or `26 projects`.
  */
 export function countOf(count: number, one: string, many = `${one}s`): string {
-    return `${formatCount(count)} ${count === 1 ? one : many}`;
+  return `${formatCount(count)} ${count === 1 ? one : many}`;
 }
 
 /**
@@ -75,7 +92,7 @@ export function countOf(count: number, one: string, many = `${one}s`): string {
  * @returns Its name.
  */
 export function presetName(preset: string | null): string {
-    return preset ? PRESETS[preset] ?? preset : 'No preset';
+  return preset ? (PRESETS[preset] ?? preset) : 'No preset';
 }
 
 /**
@@ -85,7 +102,7 @@ export function presetName(preset: string | null): string {
  * @returns Its name.
  */
 export function formatName(format: string): string {
-    return FORMATS[format] ?? format;
+  return FORMATS[format] ?? format;
 }
 
 /**
@@ -96,7 +113,7 @@ export function formatName(format: string): string {
  * @returns Its name, for example `Desktop app` or `Claude Code via MCP`.
  */
 export function surfaceName(surface: Surface, client: string | null = null): string {
-    return client ? `${client} via ${SURFACES[surface]}` : SURFACES[surface];
+  return client ? `${client} via ${SURFACES[surface]}` : SURFACES[surface];
 }
 
 /**
@@ -107,32 +124,32 @@ export function surfaceName(surface: Surface, client: string | null = null): str
  * @returns For example `2 min ago`, `Yesterday, 16:42` or `Monday, 09:30`.
  */
 export function formatInstant(instant: string, now: Date): string {
-    const date = new Date(instant);
-    const elapsed = now.getTime() - date.getTime();
-    const minutes = Math.floor(elapsed / 60_000);
+  const date = new Date(instant);
+  const elapsed = now.getTime() - date.getTime();
+  const minutes = Math.floor(elapsed / 60_000);
 
-    if (minutes < 1) {
-        return 'Just now';
-    }
+  if (minutes < 1) {
+    return 'Just now';
+  }
 
-    if (minutes < 60) {
-        return `${minutes} min ago`;
-    }
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
 
-    const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    const days = daysBetween(date, now);
+  const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const days = daysBetween(date, now);
 
-    if (days === 0) {
-        return `Today, ${time}`;
-    }
+  if (days === 0) {
+    return `Today, ${time}`;
+  }
 
-    if (days === 1) {
-        return `Yesterday, ${time}`;
-    }
+  if (days === 1) {
+    return `Yesterday, ${time}`;
+  }
 
-    return days < 7
-        ? `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${time}`
-        : `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}, ${time}`;
+  return days < 7
+    ? `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${time}`
+    : `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}, ${time}`;
 }
 
 /**
@@ -142,21 +159,21 @@ export function formatInstant(instant: string, now: Date): string {
  * @returns For example `1.8 s` or `2 min 24 s`.
  */
 export function formatDuration(milliseconds: number): string {
-    if (milliseconds < 60_000) {
-        return `${(milliseconds / 1000).toFixed(1)} s`;
-    }
+  if (milliseconds < 60_000) {
+    return `${(milliseconds / 1000).toFixed(1)} s`;
+  }
 
-    const seconds = Math.round(milliseconds / 1000);
+  const seconds = Math.round(milliseconds / 1000);
 
-    return `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
+  return `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
 }
 
 /**
  * @private
  */
 function daysBetween(from: Date, to: Date): number {
-    const start = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime();
-    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
+  const start = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime();
+  const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime();
 
-    return Math.round((end - start) / 86_400_000);
+  return Math.round((end - start) / 86_400_000);
 }

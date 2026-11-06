@@ -1,14 +1,22 @@
 @if (presenter.presets.isLoading()) {
   <wortlaut-loading-state label="Loading the samples" />
 } @else if (presenter.presets.isFailed()) {
-  <wortlaut-failure-state header="The samples could not be read" [message]="presenter.presets.error()" (retry)="presenter.load()" />
+  <wortlaut-failure-state
+    header="The samples could not be read"
+    [message]="presenter.presets.error()"
+    (retry)="presenter.load()"
+  />
 } @else {
   <div class="settings">
     <div class="setting">
       <span class="setting-label">Preset</span>
       <mosaik-segment appearance="soft" size="small" aria-label="Preset">
         @for (preset of presenter.presetTabs(); track preset.id) {
-          <mosaik-segment-item [label]="preset.name" [isChecked]="preset.isChecked" (click)="presenter.pickPreset(preset.id)" />
+          <mosaik-segment-item
+            [label]="preset.name"
+            [isChecked]="preset.isChecked"
+            (click)="presenter.pickPreset(preset.id)"
+          />
         }
       </mosaik-segment>
     </div>
@@ -16,12 +24,21 @@
       <span class="setting-label">Sample</span>
       <mosaik-segment appearance="soft" size="small" aria-label="Sample">
         @for (sample of presenter.sampleTabs(); track sample.fileName) {
-          <mosaik-segment-item [label]="sample.fileName" [isChecked]="sample.isChecked" (click)="presenter.pickSample(sample.fileName)" />
+          <mosaik-segment-item
+            [label]="sample.fileName"
+            [isChecked]="sample.isChecked"
+            (click)="presenter.pickSample(sample.fileName)"
+          />
         }
       </mosaik-segment>
     </div>
     <div class="setting-prefix">
-      <mosaik-textbox label="Key prefix" placeholder="None" [value]="presenter.result.value()?.prefix ?? ''" [readonly]="true" />
+      <mosaik-textbox
+        label="Key prefix"
+        placeholder="None"
+        [value]="presenter.result.value()?.prefix ?? ''"
+        [readonly]="true"
+      />
     </div>
     <div class="setting-detector">
       <span class="note">Detector for this file</span>
@@ -30,24 +47,59 @@
   </div>
 
   @if (presenter.result.value()?.failure; as failure) {
-    <mosaik-message variant="danger" header="The detector could not read this" [content]="failure" />
+    <mosaik-message
+      variant="danger"
+      header="The detector could not read this"
+      [content]="failure"
+    />
   }
 
-  <mosaik-split class="pane-split page-content" test-id="test-detector-split" paneSizeKey="test.detector" paneSize="50%" min="30%" max="70%" [intl]="{ resizeLabel: 'Resize source code and detector results' }">
+  <mosaik-split
+    class="pane-split page-content"
+    test-id="test-detector-split"
+    paneSizeKey="test.detector"
+    paneSize="50%"
+    min="30%"
+    max="70%"
+    [intl]="{ resizeLabel: 'Resize source code and detector results' }"
+  >
     <section slot="start" aria-label="Source code" class="panel-source pane-start">
       <mosaik-card appearance="soft">
         <div slot="header" class="source-head">
           Source
           @if (presenter.isPasting()) {
-            <mosaik-button test-id="test-detector-show-matches" label="Show matches" variant="neutral" appearance="outline" size="small" (click)="presenter.finishPasting()" />
+            <mosaik-button
+              test-id="test-detector-show-matches"
+              label="Show matches"
+              variant="neutral"
+              appearance="outline"
+              size="small"
+              (click)="presenter.finishPasting()"
+            />
           } @else {
-            <mosaik-button test-id="test-detector-paste" label="Paste your code" variant="neutral" appearance="outline" size="small" icon="copy" iconSize="small" (click)="presenter.startPasting()" />
+            <mosaik-button
+              test-id="test-detector-paste"
+              label="Paste your code"
+              variant="neutral"
+              appearance="outline"
+              size="small"
+              icon="copy"
+              iconSize="small"
+              (click)="presenter.startPasting()"
+            />
           }
         </div>
         <div slot="content" class="card-body">
           @if (presenter.isPasting()) {
             <div class="source-paste">
-              <mosaik-textbox test-id="test-detector-source" aria-label="Your code" placeholder="Paste your code here" [multiline]="true" [multilineRows]="14" [formField]="presenter.pasteForm.text" />
+              <mosaik-textbox
+                test-id="test-detector-source"
+                aria-label="Your code"
+                placeholder="Paste your code here"
+                [multiline]="true"
+                [multilineRows]="14"
+                [formField]="presenter.pasteForm.text"
+              />
             </div>
           } @else {
             <div class="source-lines">
@@ -63,14 +115,34 @@
         @if (!presenter.isPasting() && presenter.hasMoreLines()) {
           <div slot="footer" class="table-footer note actions">
             <span>{{ presenter.lines().length }} of {{ presenter.lineCount() }} lines</span>
-            <mosaik-button test-id="test-detector-more-lines" label="Show more lines" appearance="plain" size="small" (click)="presenter.showMoreLines()" />
+            <mosaik-button
+              test-id="test-detector-more-lines"
+              label="Show more lines"
+              appearance="plain"
+              size="small"
+              (click)="presenter.showMoreLines()"
+            />
           </div>
         }
       </mosaik-card>
     </section>
 
-    <mosaik-split slot="end" class="pane-split pane-split-vertical pane-end" test-id="test-detector-results-split" orientation="vertical" paneSizeKey="test.detector.results" paneSize="50%" min="120px" max="65%" [intl]="{ resizeLabel: 'Resize detector matches and extracted resource' }">
-      <section slot="start" [attr.aria-label]="presenter.matchesTitle()" class="card-section pane-start">
+    <mosaik-split
+      slot="end"
+      class="pane-split pane-split-vertical pane-end"
+      test-id="test-detector-results-split"
+      orientation="vertical"
+      paneSizeKey="test.detector.results"
+      paneSize="50%"
+      min="120px"
+      max="65%"
+      [intl]="{ resizeLabel: 'Resize detector matches and extracted resource' }"
+    >
+      <section
+        slot="start"
+        [attr.aria-label]="presenter.matchesTitle()"
+        class="card-section pane-start"
+      >
         <mosaik-card>
           <mosaik-card-header slot="header" [text]="presenter.matchesTitle()" />
           <div slot="content" class="card-body">
@@ -88,9 +160,22 @@
                     <mosaik-table-body>
                       @for (match of presenter.matches(); track match.id) {
                         <mosaik-table-body-row>
-                          <mosaik-table-body-cell><span class="muted nowrap">{{ match.position }}</span></mosaik-table-body-cell>
-                          <mosaik-table-body-cell><code class="inline cell-text">{{ match.value }}</code></mosaik-table-body-cell>
-                          <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="match.type" [variant]="match.variant" /></mosaik-table-body-cell>
+                          <mosaik-table-body-cell
+                            ><span class="muted nowrap">{{
+                              match.position
+                            }}</span></mosaik-table-body-cell
+                          >
+                          <mosaik-table-body-cell
+                            ><code class="inline cell-text">{{
+                              match.value
+                            }}</code></mosaik-table-body-cell
+                          >
+                          <mosaik-table-body-cell
+                            ><mosaik-badge
+                              appearance="soft"
+                              [label]="match.type"
+                              [variant]="match.variant"
+                          /></mosaik-table-body-cell>
                         </mosaik-table-body-row>
                       }
                     </mosaik-table-body>
@@ -99,14 +184,23 @@
               </div>
             } @else {
               <div class="row-line">
-                <mosaik-empty-state header="No matches" content="The detector found no string in this text." />
+                <mosaik-empty-state
+                  header="No matches"
+                  content="The detector found no string in this text."
+                />
               </div>
             }
           </div>
           @if (presenter.hasMoreMatches()) {
             <div slot="footer" class="table-footer note actions">
               <span>{{ presenter.matches().length }} of {{ presenter.matchCount() }} matches</span>
-              <mosaik-button test-id="test-detector-more-matches" label="Show more matches" appearance="plain" size="small" (click)="presenter.showMoreMatches()" />
+              <mosaik-button
+                test-id="test-detector-more-matches"
+                label="Show more matches"
+                appearance="plain"
+                size="small"
+                (click)="presenter.showMoreMatches()"
+              />
             </div>
           }
         </mosaik-card>
@@ -116,7 +210,11 @@
         <mosaik-card>
           <mosaik-card-header slot="header" text="Extracted resource" />
           <div slot="content" class="card-body resource-body">
-            <wortlaut-text-window test-id="test-detector-resource" [text]="presenter.result.value()?.resource ?? ''" [pageKey]="presenter.result.value()?.resource ?? ''" />
+            <wortlaut-text-window
+              test-id="test-detector-resource"
+              [text]="presenter.result.value()?.resource ?? ''"
+              [pageKey]="presenter.result.value()?.resource ?? ''"
+            />
           </div>
         </mosaik-card>
       </section>

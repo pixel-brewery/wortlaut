@@ -182,7 +182,8 @@ a {
   display: flex;
   flex-direction: column;
   gap: calc(var(--mosaik-layout-space) * 3);
-  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 4) calc(var(--mosaik-layout-space) * 4);
+  padding: calc(var(--mosaik-layout-space) * 3) calc(var(--mosaik-layout-space) * 4)
+    calc(var(--mosaik-layout-space) * 4);
 }
 
 .page-header {
@@ -314,7 +315,11 @@ mosaik-table-body-cell {
 }
 
 mosaik-table-body-row:hover mosaik-table-body-cell {
-  --table-body-cell-state-color: color-mix(in oklab, var(--mosaik-color-neutral-100) 50%, transparent);
+  --table-body-cell-state-color: color-mix(
+    in oklab,
+    var(--mosaik-color-neutral-100) 50%,
+    transparent
+  );
   --table-body-cell-state-opacity: 1;
 }
 

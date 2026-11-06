@@ -12,11 +12,9 @@ import type { ResourceType } from './ResourceType';
  * @public
  */
 export interface IJsonResourceInfo extends IResourceInfo<JSONObject> {
+  // #region Properties
 
-    // #region Properties
+  readonly type: typeof ResourceType.Json;
 
-    readonly type: typeof ResourceType.Json;
-
-    // #endregion
-
+  // #endregion
 }

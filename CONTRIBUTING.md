@@ -28,10 +28,28 @@ keys never leave the keychain.
 ## Verification
 
 ```sh
+yarn format:check
 yarn verify
-yarn test:e2e
-yarn package && yarn verify:package && yarn test:e2e --packaged
 ```
+
+`yarn format` applies the shared Prettier style to repository-owned source. It uses the
+Angular parser for frontend templates and preserves installed guidance, vendor inputs and
+generated artifacts. ESLint still applies the shared code and architecture rules.
+
+`yarn verify` first runs `verify:code`, which covers repository rules, Mosaik source
+checks, formatting, lint, types, tests and builds. It then installs the packed packages in
+fresh npm and Yarn consumers, exercises the built desktop app and runs `package:smoke`.
+Use a graphical desktop session and the package-registry access used for dependency
+installation. The native smoke tests use isolated projects and profiles.
+
+`yarn e2e` builds and exercises the unpackaged app. `yarn package:smoke` (also
+`yarn forge:package`) creates the local Forge package, verifies the archive contents and
+exercises the packaged executable. `yarn test:e2e` and `yarn test:e2e --packaged` reuse
+their respective existing outputs.
+
+Wortlaut keeps its English interface copy in source. The engine and clean-consumer checks
+verify catalog behavior, including a real Nx catalog analysis and an ESLint run on resources
+in the isolated npm consumer.
 
 Work goes to `dev`. A code change merged into `main` requests a release, see [Releasing](docs/release.md).
 

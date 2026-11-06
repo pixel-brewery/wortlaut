@@ -12,24 +12,26 @@ import messageChecks from './shipped/message-checks/wortlaut-pack.json';
  * @internal
  */
 export namespace ShippedPacks {
+  /**
+   * Returns the packs.
+   *
+   * @returns Their definitions with the text of their files.
+   */
+  export function all(): Array<{ id: string; manifest: RulePackManifest; text: string }> {
+    return [messageChecks as RulePackManifest].map((manifest) => ({
+      id: manifest.id,
+      manifest,
+      text: `${JSON.stringify(manifest, null, 2)}\n`,
+    }));
+  }
 
-    /**
-     * Returns the packs.
-     *
-     * @returns Their definitions with the text of their files.
-     */
-    export function all(): Array<{ id: string; manifest: RulePackManifest; text: string }> {
-        return [messageChecks as RulePackManifest].map((manifest) => ({ id: manifest.id, manifest, text: `${JSON.stringify(manifest, null, 2)}\n` }));
-    }
-
-    /**
-     * Returns the text of a definition file.
-     *
-     * @param id The pack.
-     * @returns The text, or `null` when Wortlaut ships no such pack.
-     */
-    export function textOf(id: string): string | null {
-        return all().find((pack) => pack.id === id)?.text ?? null;
-    }
-
+  /**
+   * Returns the text of a definition file.
+   *
+   * @param id The pack.
+   * @returns The text, or `null` when Wortlaut ships no such pack.
+   */
+  export function textOf(id: string): string | null {
+    return all().find((pack) => pack.id === id)?.text ?? null;
+  }
 }

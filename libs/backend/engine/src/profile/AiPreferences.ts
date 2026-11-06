@@ -12,52 +12,54 @@ import { writePrivateFileAtomically } from '../io/AtomicFile.js';
  * @public
  */
 export class AiPreferences {
+  // #region Fields
 
-    // #region Fields
+  private readonly _file: string;
 
-    private readonly _file: string;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `AiPreferences` class.
+   *
+   * @public
+   * @param file The file in the profile.
+   */
+  public constructor(file: string) {
+    this._file = file;
+  }
 
-    /**
-     * Constructs a new instance of the `AiPreferences` class.
-     *
-     * @public
-     * @param file The file in the profile.
-     */
-    public constructor(file: string) {
-        this._file = file;
+  // #endregion
+
+  // #region Properties
+
+  /**
+   * Gets the default provider, or `null` when none was chosen.
+   *
+   * @public
+   */
+  public get defaultProvider(): string | null {
+    try {
+      if (!existsSync(this._file)) {
+        return null;
+      }
+
+      const value = (JSON.parse(readFileSync(this._file, 'utf8')) as { defaultProvider?: unknown })
+        .defaultProvider;
+
+      return typeof value === 'string' ? value : null;
+    } catch {
+      return null;
     }
+  }
 
-    // #endregion
+  public set defaultProvider(value: string | null) {
+    writePrivateFileAtomically(
+      this._file,
+      `${JSON.stringify({ defaultProvider: value }, null, 2)}\n`,
+    );
+  }
 
-    // #region Properties
-
-    /**
-     * Gets the default provider, or `null` when none was chosen.
-     *
-     * @public
-     */
-    public get defaultProvider(): string | null {
-        try {
-            if (!existsSync(this._file)) {
-                return null;
-            }
-
-            const value = (JSON.parse(readFileSync(this._file, 'utf8')) as { defaultProvider?: unknown }).defaultProvider;
-
-            return typeof value === 'string' ? value : null;
-        } catch {
-            return null;
-        }
-    }
-
-    public set defaultProvider(value: string | null) {
-        writePrivateFileAtomically(this._file, `${JSON.stringify({ defaultProvider: value }, null, 2)}\n`);
-    }
-
-    // #endregion
-
+  // #endregion
 }

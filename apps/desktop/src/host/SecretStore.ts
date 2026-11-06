@@ -13,14 +13,14 @@ import { writePrivateFileAtomically } from '@pixel-brewery/wortlaut-engine';
  * @public
  */
 export interface ISecretStore {
-    set(provider: KeyProviderId, key: string): void;
+  set(provider: KeyProviderId, key: string): void;
 
-    /**
-     * Returns a key, for main only.
-     */
-    get(provider: KeyProviderId): string | null;
-    has(provider: KeyProviderId): boolean;
-    clear(provider: KeyProviderId): void;
+  /**
+   * Returns a key, for main only.
+   */
+  get(provider: KeyProviderId): string | null;
+  has(provider: KeyProviderId): boolean;
+  clear(provider: KeyProviderId): void;
 }
 
 /**
@@ -29,9 +29,9 @@ export interface ISecretStore {
  * @public
  */
 export interface ISafeStorageLike {
-    isEncryptionAvailable(): boolean;
-    encryptString(text: string): Buffer;
-    decryptString(bytes: Buffer): string;
+  isEncryptionAvailable(): boolean;
+  encryptString(text: string): Buffer;
+  decryptString(bytes: Buffer): string;
 }
 
 /**
@@ -42,97 +42,100 @@ export interface ISafeStorageLike {
  * @public
  */
 export class KeychainSecretStore implements ISecretStore {
+  // #region Fields
 
-    // #region Fields
+  private readonly _file: string;
+  private readonly _safeStorage: ISafeStorageLike;
 
-    private readonly _file: string;
-    private readonly _safeStorage: ISafeStorageLike;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `KeychainSecretStore` class.
+   *
+   * @public
+   * @param file The private file in the profile.
+   * @param safeStorage What encrypts the keys.
+   */
+  public constructor(file: string, safeStorage: ISafeStorageLike) {
+    this._file = file;
+    this._safeStorage = safeStorage;
+  }
 
-    /**
-     * Constructs a new instance of the `KeychainSecretStore` class.
-     *
-     * @public
-     * @param file The private file in the profile.
-     * @param safeStorage What encrypts the keys.
-     */
-    public constructor(file: string, safeStorage: ISafeStorageLike) {
-        this._file = file;
-        this._safeStorage = safeStorage;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @override
+   * @throws Error when the system cannot encrypt.
+   */
+  public set(provider: KeyProviderId, key: string): void {
+    if (!this._safeStorage.isEncryptionAvailable()) {
+      throw new Error('The system keychain is not available, so this key is not stored.');
     }
 
-    // #endregion
+    this.write({
+      ...this.read(),
+      [provider]: this._safeStorage.encryptString(key).toString('base64'),
+    });
+  }
 
-    // #region Methods
+  /**
+   * @override
+   */
+  public get(provider: KeyProviderId): string | null {
+    const stored = this.read()[provider];
 
-    /**
-     * @override
-     * @throws Error when the system cannot encrypt.
-     */
-    public set(provider: KeyProviderId, key: string): void {
-        if (!this._safeStorage.isEncryptionAvailable()) {
-            throw new Error('The system keychain is not available, so this key is not stored.');
-        }
-
-        this.write({ ...this.read(), [provider]: this._safeStorage.encryptString(key).toString('base64') });
+    if (!stored) {
+      return null;
     }
 
-    /**
-     * @override
-     */
-    public get(provider: KeyProviderId): string | null {
-        const stored = this.read()[provider];
-
-        if (!stored) {
-            return null;
-        }
-
-        try {
-            return this._safeStorage.decryptString(Buffer.from(stored, 'base64'));
-        } catch {
-            return null;
-        }
+    try {
+      return this._safeStorage.decryptString(Buffer.from(stored, 'base64'));
+    } catch {
+      return null;
     }
+  }
 
-    /**
-     * @override
-     */
-    public has(provider: KeyProviderId): boolean {
-        return Boolean(this.read()[provider]);
+  /**
+   * @override
+   */
+  public has(provider: KeyProviderId): boolean {
+    return Boolean(this.read()[provider]);
+  }
+
+  /**
+   * @override
+   */
+  public clear(provider: KeyProviderId): void {
+    const { [provider]: _removed, ...others } = this.read();
+
+    this.write(others);
+  }
+
+  /**
+   * @private
+   */
+  private read(): Partial<Record<KeyProviderId, string>> {
+    try {
+      return existsSync(this._file)
+        ? (JSON.parse(readFileSync(this._file, 'utf8')) as Partial<Record<KeyProviderId, string>>)
+        : {};
+    } catch {
+      return {};
     }
+  }
 
-    /**
-     * @override
-     */
-    public clear(provider: KeyProviderId): void {
-        const { [provider]: _removed, ...others } = this.read();
+  /**
+   * @private
+   */
+  private write(keys: Partial<Record<KeyProviderId, string>>): void {
+    writePrivateFileAtomically(this._file, `${JSON.stringify(keys, null, 2)}\n`);
+  }
 
-        this.write(others);
-    }
-
-    /**
-     * @private
-     */
-    private read(): Partial<Record<KeyProviderId, string>> {
-        try {
-            return existsSync(this._file) ? JSON.parse(readFileSync(this._file, 'utf8')) as Partial<Record<KeyProviderId, string>> : {};
-        } catch {
-            return {};
-        }
-    }
-
-    /**
-     * @private
-     */
-    private write(keys: Partial<Record<KeyProviderId, string>>): void {
-        writePrivateFileAtomically(this._file, `${JSON.stringify(keys, null, 2)}\n`);
-    }
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
@@ -141,43 +144,41 @@ export class KeychainSecretStore implements ISecretStore {
  * @public
  */
 export class MemorySecretStore implements ISecretStore {
+  // #region Fields
 
-    // #region Fields
+  private readonly _keys = new Map<KeyProviderId, string>();
 
-    private readonly _keys = new Map<KeyProviderId, string>();
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @override
+   */
+  public set(provider: KeyProviderId, key: string): void {
+    this._keys.set(provider, key);
+  }
 
-    /**
-     * @override
-     */
-    public set(provider: KeyProviderId, key: string): void {
-        this._keys.set(provider, key);
-    }
+  /**
+   * @override
+   */
+  public get(provider: KeyProviderId): string | null {
+    return this._keys.get(provider) ?? null;
+  }
 
-    /**
-     * @override
-     */
-    public get(provider: KeyProviderId): string | null {
-        return this._keys.get(provider) ?? null;
-    }
+  /**
+   * @override
+   */
+  public has(provider: KeyProviderId): boolean {
+    return this._keys.has(provider);
+  }
 
-    /**
-     * @override
-     */
-    public has(provider: KeyProviderId): boolean {
-        return this._keys.has(provider);
-    }
+  /**
+   * @override
+   */
+  public clear(provider: KeyProviderId): void {
+    this._keys.delete(provider);
+  }
 
-    /**
-     * @override
-     */
-    public clear(provider: KeyProviderId): void {
-        this._keys.delete(provider);
-    }
-
-    // #endregion
-
+  // #endregion
 }

@@ -11,7 +11,7 @@
  * ```
  */
 export function escapeRegExp(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -41,21 +41,21 @@ export function escapeRegExp(value: string): string {
  * ```
  */
 export function isResourceKey(key: string, prefix?: string, suffix?: string): boolean {
-    // Check for prefix, if specified
-    if (prefix && !key.startsWith(prefix)) {
-        return false; // Key must start with the given prefix
-    }
+  // Check for prefix, if specified
+  if (prefix && !key.startsWith(prefix)) {
+    return false; // Key must start with the given prefix
+  }
 
-    // Check for suffix, if specified
-    if (suffix && !key.endsWith(suffix)) {
-        return false; // Key must end with the given suffix
-    }
+  // Check for suffix, if specified
+  if (suffix && !key.endsWith(suffix)) {
+    return false; // Key must end with the given suffix
+  }
 
-    // Check for spaces
-    if ((/\s/).test(key)) {
-        return false; // Keys should not contain spaces
-    }
+  // Check for spaces
+  if (/\s/.test(key)) {
+    return false; // Keys should not contain spaces
+  }
 
-    // All conditions met: key is considered a resource key
-    return true;
+  // All conditions met: key is considered a resource key
+  return true;
 }

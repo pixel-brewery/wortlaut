@@ -48,7 +48,8 @@ export const KeyScopeSchema = z.enum(['all', 'new', 'missing']);
  *
  * @public
  */
-export const ProjectOptionsSchema = z.object({
+export const ProjectOptionsSchema = z
+  .object({
     verbose: z.boolean(),
     dryRun: z.boolean(),
     review: z.boolean(),
@@ -56,26 +57,36 @@ export const ProjectOptionsSchema = z.object({
     mode: z.string(),
     envFile: z.string(),
     env: z.record(z.string(), z.string()),
-    cache: z.object({
+    cache: z
+      .object({
         enabled: z.boolean(),
-        dirPath: z.string()
-    }).partial(),
-    actions: z.object({
-        detect: z.object({
+        dirPath: z.string(),
+      })
+      .partial(),
+    actions: z
+      .object({
+        detect: z
+          .object({
             languages: z.array(LocaleTagSchema),
             root: z.string(),
             resourceRoot: z.union([z.string(), z.array(z.string())]),
             preset: z.union([PresetSchema, z.literal('')]),
             type: ResourceFormatSchema,
-            resourceKey: z.object({
+            resourceKey: z
+              .object({
                 prefix: z.string(),
-                suffix: z.string()
-            }).partial()
-        }).partial(),
-        sort: z.object({
-            order: z.enum(['asc', 'desc'])
-        }).partial(),
-        analyze: z.object({
+                suffix: z.string(),
+              })
+              .partial(),
+          })
+          .partial(),
+        sort: z
+          .object({
+            order: z.enum(['asc', 'desc']),
+          })
+          .partial(),
+        analyze: z
+          .object({
             rules: z.array(z.string()),
             usedKeys: z.array(z.string()),
             baseLocale: LocaleTagSchema,
@@ -96,22 +107,23 @@ export const ProjectOptionsSchema = z.object({
             /**
              * The rule packs of the lock file that do not run in this project.
              */
-            disabledPacks: z.array(z.string())
-        }).partial(),
-        transform: z.object({
-            types: z.array(ResourceTargetSchema)
-        }).partial(),
-        generate: z.object({
+            disabledPacks: z.array(z.string()),
+          })
+          .partial(),
+        transform: z
+          .object({
+            types: z.array(ResourceTargetSchema),
+          })
+          .partial(),
+        generate: z
+          .object({
             apiKey: z.string(),
             model: z.string(),
             temperature: z.number(),
             locales: z.array(LocaleTagSchema),
             baseLocale: LocaleTagSchema,
-            chunkSize: z.number().int()
-                .positive(),
-            limit: z.number().int()
-                .positive()
-                .nullable(),
+            chunkSize: z.number().int().positive(),
+            limit: z.number().int().positive().nullable(),
             instructions: z.union([z.string(), z.array(z.string())]),
             onlyNew: z.boolean(),
             scope: KeyScopeSchema,
@@ -122,10 +134,13 @@ export const ProjectOptionsSchema = z.object({
             reviewBeforeWriting: z.boolean(),
             protectPlaceholders: z.boolean(),
             keepPartialResults: z.boolean(),
-            keepRawOutput: z.boolean()
-        }).partial()
-    }).partial()
-}).partial();
+            keepRawOutput: z.boolean(),
+          })
+          .partial(),
+      })
+      .partial(),
+  })
+  .partial();
 
 /**
  * @public

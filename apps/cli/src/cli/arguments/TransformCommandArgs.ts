@@ -14,15 +14,18 @@ import { DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG } from './configurations/ITransfo
  * @internal
  */
 export const TYPES_ARG: IProgramArg = {
-    alias: ['-ts', '--types'],
-    options: {
-        type: (value: string) => value.split(',').map((type) => type.trim())
-            .filter((type) => type.length > 0),
-        required: false,
-        default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.types,
-        metavar: 'Array',
-        help: 'A comma-separated list of the types to transform the resources into.'
-    }
+  alias: ['-ts', '--types'],
+  options: {
+    type: (value: string) =>
+      value
+        .split(',')
+        .map((type) => type.trim())
+        .filter((type) => type.length > 0),
+    required: false,
+    default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.types,
+    metavar: 'Array',
+    help: 'A comma-separated list of the types to transform the resources into.',
+  },
 };
 
 /**
@@ -31,14 +34,14 @@ export const TYPES_ARG: IProgramArg = {
  * @internal
  */
 export const TYPE_ARG: IProgramArg = {
-    alias: ['-t', '--type'],
-    options: {
-        required: false,
-        default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.type,
-        metavar: 'string',
-        help: 'The type of the resources to read.',
-        choices: ['json', 'resx', 'po']
-    }
+  alias: ['-t', '--type'],
+  options: {
+    required: false,
+    default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.type,
+    metavar: 'string',
+    help: 'The type of the resources to read.',
+    choices: ['json', 'resx', 'po'],
+  },
 };
 
 /**
@@ -47,13 +50,13 @@ export const TYPE_ARG: IProgramArg = {
  * @internal
  */
 export const RESOURCE_ROOT_ARG: IProgramArg = {
-    alias: ['-rr', '--resource-root'],
-    options: {
-        required: false,
-        default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.resourceRoot,
-        metavar: 'string',
-        help: 'The directory that contains the resources.'
-    }
+  alias: ['-rr', '--resource-root'],
+  options: {
+    required: false,
+    default: DEFAULT_TRANSFORM_COMMAND_ARGS_CONFIG.resourceRoot,
+    metavar: 'string',
+    help: 'The directory that contains the resources.',
+  },
 };
 
 /**
@@ -62,11 +65,11 @@ export const RESOURCE_ROOT_ARG: IProgramArg = {
  * @internal
  */
 export const TRANSFORM_COMMAND_ARGS = [
-    ...CLI_ARGS,
-    TYPES_ARG,
-    TYPE_ARG,
-    RESOURCE_ROOT_ARG,
-    REVIEW_ARG
+  ...CLI_ARGS,
+  TYPES_ARG,
+  TYPE_ARG,
+  RESOURCE_ROOT_ARG,
+  REVIEW_ARG,
 ];
 
 // #endregion

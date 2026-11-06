@@ -13,33 +13,34 @@ import type { IResourceSerializer } from './interfaces/IResourceSerializer';
  * @public
  */
 export class TypescriptResourceSerializer implements IResourceSerializer<ITypeScriptResourceInfo> {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Serializes an array of transform models into a TypeScript resource.
+   *
+   * @public
+   * @param models The array of transform models to serialize.
+   * @param info The resource info.
+   * @returns An instance of `ITypeScriptResourceInfo` representing the serialized data.
+   */
+  public serialize(
+    models: Array<IResourceModel>,
+    info: Pick<ITypeScriptResourceInfo, 'name' | 'path' | 'locale'>,
+  ): ITypeScriptResourceInfo {
+    // Keys are text from a catalog, and `__proto__` has to stay a key like any other.
+    const output = Object.create(null) as Record<string, string>;
 
-    /**
-     * Serializes an array of transform models into a TypeScript resource.
-     *
-     * @public
-     * @param models The array of transform models to serialize.
-     * @param info The resource info.
-     * @returns An instance of `ITypeScriptResourceInfo` representing the serialized data.
-     */
-    public serialize(models: Array<IResourceModel>, info: Pick<ITypeScriptResourceInfo, 'name' | 'path' | 'locale'>): ITypeScriptResourceInfo {
-        // Keys are text from a catalog, and `__proto__` has to stay a key like any other.
-        const output = Object.create(null) as Record<string, string>;
+    models.forEach((model) => {
+      output[model.key] = model.value;
+    });
 
-        models.forEach((model) => {
-            output[model.key] = model.value;
-        });
+    return new TypeScriptResourceInfo({
+      name: info.name,
+      path: info.path,
+      locale: info.locale,
+      content: () => output,
+    });
+  }
 
-        return new TypeScriptResourceInfo({
-            name: info.name,
-            path: info.path,
-            locale: info.locale,
-            content: () => output
-        });
-    }
-
-    // #endregion
-
+  // #endregion
 }

@@ -16,32 +16,34 @@ const DECLARATION = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
  * @public
  */
 export namespace ResxText {
+  /**
+   * Writes entries as a RESX file, in the order they have.
+   *
+   * @public
+   * @param entries The entries.
+   * @returns The text.
+   */
+  export function serialize(entries: ReadonlyArray<IResxEntry>): string {
+    const blocks = entries.map((entry) =>
+      [
+        `  <data name="${escape(entry.key)}" xml:space="preserve">`,
+        `    <value>${escape(entry.value)}</value>`,
+        ...(entry.comment ? [`    <comment>${escape(entry.comment)}</comment>`] : []),
+        '  </data>',
+      ].join('\n'),
+    );
 
-    /**
-     * Writes entries as a RESX file, in the order they have.
-     *
-     * @public
-     * @param entries The entries.
-     * @returns The text.
-     */
-    export function serialize(entries: ReadonlyArray<IResxEntry>): string {
-        const blocks = entries.map((entry) => [
-            `  <data name="${escape(entry.key)}" xml:space="preserve">`,
-            `    <value>${escape(entry.value)}</value>`,
-            ...entry.comment ? [`    <comment>${escape(entry.comment)}</comment>`] : [],
-            '  </data>'
-        ].join('\n'));
+    return [DECLARATION, '<root>', ...blocks, '</root>'].join('\n');
+  }
 
-        return [DECLARATION, '<root>', ...blocks, '</root>'].join('\n');
-    }
-
-    /**
-     * @private
-     */
-    function escape(value: string): string {
-        return value.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
-    }
-
+  /**
+   * @private
+   */
+  function escape(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 }

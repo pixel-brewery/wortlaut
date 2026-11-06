@@ -11,39 +11,37 @@ import type { IUseCase, IUseCaseOutput } from '../runs/CommandRunner.js';
  * @internal
  */
 export class AiStatusUseCase implements IUseCase<Record<string, never>, Array<IAiProviderInfo>> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'ai.status';
 
-    public readonly command = 'ai.status';
+  private readonly _host: IAiProviderHost;
 
-    private readonly _host: IAiProviderHost;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `AiStatusUseCase` class.
+   *
+   * @param host The providers.
+   */
+  public constructor(host: IAiProviderHost) {
+    this._host = host;
+  }
 
-    /**
-     * Constructs a new instance of the `AiStatusUseCase` class.
-     *
-     * @param host The providers.
-     */
-    public constructor(host: IAiProviderHost) {
-        this._host = host;
-    }
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @override
+   */
+  public async execute(): Promise<IUseCaseOutput<Array<IAiProviderInfo>>> {
+    const providers = await this._host.list();
 
-    /**
-     * @override
-     */
-    public async execute(): Promise<IUseCaseOutput<Array<IAiProviderInfo>>> {
-        const providers = await this._host.list();
+    return { result: providers, data: { providers } };
+  }
 
-        return { result: providers, data: { providers } };
-    }
-
-    // #endregion
-
+  // #endregion
 }

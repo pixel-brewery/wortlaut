@@ -33,7 +33,8 @@
   flex-grow: 1;
   align-items: flex-start;
   gap: var(--mosaik-layout-space);
-  padding: var(--mosaik-layout-space) var(--mosaik-layout-space) var(--mosaik-layout-space) calc(var(--mosaik-layout-space) * 1.5);
+  padding: var(--mosaik-layout-space) var(--mosaik-layout-space) var(--mosaik-layout-space)
+    calc(var(--mosaik-layout-space) * 1.5);
 }
 
 .step-text {

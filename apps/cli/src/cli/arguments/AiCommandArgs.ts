@@ -7,6 +7,4 @@ import { CLI_ARGS } from '../CliArgs.js';
 /**
  * @internal
  */
-export const AI_COMMAND_ARGS = [
-    ...CLI_ARGS
-];
+export const AI_COMMAND_ARGS = [...CLI_ARGS];

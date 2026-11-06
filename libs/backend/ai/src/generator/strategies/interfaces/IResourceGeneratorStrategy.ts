@@ -11,8 +11,8 @@ import type EventEmitter from 'events';
  * @public
  */
 export interface IResourceGeneratorStrategyEventMap {
-    start: [];
-    end: [];
+  start: [];
+  end: [];
 }
 
 /**
@@ -21,31 +21,30 @@ export interface IResourceGeneratorStrategyEventMap {
  * @public
  */
 export interface ITranscribeOptions {
+  /**
+   * Cancels a call in flight.
+   */
+  signal?: AbortSignal;
 
-    /**
-     * Cancels a call in flight.
-     */
-    signal?: AbortSignal;
+  /**
+   * The instructions of this call, instead of those of the strategy.
+   */
+  instructions?: string | ReadonlyArray<string>;
 
-    /**
-     * The instructions of this call, instead of those of the strategy.
-     */
-    instructions?: string | ReadonlyArray<string>;
+  /**
+   * Why the last answer was rejected.
+   */
+  feedback?: string;
 
-    /**
-     * Why the last answer was rejected.
-     */
-    feedback?: string;
+  /**
+   * Receives the raw answer.
+   */
+  onRaw?: (text: string) => void;
 
-    /**
-     * Receives the raw answer.
-     */
-    onRaw?: (text: string) => void;
-
-    /**
-     * Receives the tokens the provider reports.
-     */
-    onUsage?: (tokens: number) => void;
+  /**
+   * Receives the tokens the provider reports.
+   */
+  onUsage?: (tokens: number) => void;
 }
 
 /**
@@ -54,10 +53,10 @@ export interface ITranscribeOptions {
  * @public
  */
 export interface ICompletionRequest {
-    system: string;
-    content: string;
-    signal?: AbortSignal;
-    onUsage?: (tokens: number) => void;
+  system: string;
+  content: string;
+  signal?: AbortSignal;
+  onUsage?: (tokens: number) => void;
 }
 
 /**
@@ -65,33 +64,38 @@ export interface ICompletionRequest {
  *
  * @public
  */
-export interface IResourceGeneratorStrategy extends Pick<EventEmitter<IResourceGeneratorStrategyEventMap>, 'on'> {
+export interface IResourceGeneratorStrategy extends Pick<
+  EventEmitter<IResourceGeneratorStrategyEventMap>,
+  'on'
+> {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Transcribes a resource to the specified locale.
+   *
+   * @public
+   * @param data The resource to translate.
+   * @param locale The target locale.
+   * @param options What goes with the call.
+   * @returns The answer of the model, which the caller has to check.
+   */
+  transcribe(
+    data: {
+      resource: IResourceInfo;
+      models: Array<IResourceModel>;
+    },
+    locale: string,
+    options?: ITranscribeOptions,
+  ): Promise<Array<IResourceModel>>;
 
-    /**
-     * Transcribes a resource to the specified locale.
-     *
-     * @public
-     * @param data The resource to translate.
-     * @param locale The target locale.
-     * @param options What goes with the call.
-     * @returns The answer of the model, which the caller has to check.
-     */
-    transcribe(data: {
-        resource: IResourceInfo;
-        models: Array<IResourceModel>;
-    }, locale: string, options?: ITranscribeOptions): Promise<Array<IResourceModel>>;
+  /**
+   * Asks a free question.
+   *
+   * @public
+   * @param request The question.
+   * @returns The answer as text, which the caller has to check.
+   */
+  complete?(request: ICompletionRequest): Promise<string>;
 
-    /**
-     * Asks a free question.
-     *
-     * @public
-     * @param request The question.
-     * @returns The answer as text, which the caller has to check.
-     */
-    complete?(request: ICompletionRequest): Promise<string>;
-
-    // #endregion
-
+  // #endregion
 }

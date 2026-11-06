@@ -8,29 +8,29 @@
  * @returns `true` when the pattern covers the whole key.
  */
 export function matchesKeyGlob(pattern: string, key: string): boolean {
-    let patternIndex = 0;
-    let keyIndex = 0;
-    let lastStar = -1;
-    let resume = 0;
+  let patternIndex = 0;
+  let keyIndex = 0;
+  let lastStar = -1;
+  let resume = 0;
 
-    while (keyIndex < key.length) {
-        if (patternIndex < pattern.length && pattern[patternIndex] === '*') {
-            lastStar = patternIndex++;
-            resume = keyIndex;
-        } else if (patternIndex < pattern.length && pattern[patternIndex] === key[keyIndex]) {
-            patternIndex++;
-            keyIndex++;
-        } else if (lastStar >= 0) {
-            patternIndex = lastStar + 1;
-            keyIndex = ++resume;
-        } else {
-            return false;
-        }
+  while (keyIndex < key.length) {
+    if (patternIndex < pattern.length && pattern[patternIndex] === '*') {
+      lastStar = patternIndex++;
+      resume = keyIndex;
+    } else if (patternIndex < pattern.length && pattern[patternIndex] === key[keyIndex]) {
+      patternIndex++;
+      keyIndex++;
+    } else if (lastStar >= 0) {
+      patternIndex = lastStar + 1;
+      keyIndex = ++resume;
+    } else {
+      return false;
     }
+  }
 
-    while (patternIndex < pattern.length && pattern[patternIndex] === '*') {
-        patternIndex++;
-    }
+  while (patternIndex < pattern.length && pattern[patternIndex] === '*') {
+    patternIndex++;
+  }
 
-    return patternIndex === pattern.length;
+  return patternIndex === pattern.length;
 }

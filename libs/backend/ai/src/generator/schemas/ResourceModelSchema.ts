@@ -9,21 +9,21 @@
  * @public
  */
 export const RESOURCE_MODEL_SCHEMA = {
-    type: 'object' as const,
-    properties: {
-        key: {
-            type: 'string' as const,
-            description: 'The key of the resource model. Must not be translated.'
-        },
-        value: {
-            type: 'string' as const,
-            description: 'The translated value of the resource model.'
-        },
-        comment: {
-            type: 'string' as const,
-            description: 'The comment of the resource model.'
-        }
+  type: 'object' as const,
+  properties: {
+    key: {
+      type: 'string' as const,
+      description: 'The key of the resource model. Must not be translated.',
     },
-    required: ['key', 'value', 'comment'],
-    additionalProperties: false as const
+    value: {
+      type: 'string' as const,
+      description: 'The translated value of the resource model.',
+    },
+    comment: {
+      type: 'string' as const,
+      description: 'The comment of the resource model.',
+    },
+  },
+  required: ['key', 'value', 'comment'],
+  additionalProperties: false as const,
 };

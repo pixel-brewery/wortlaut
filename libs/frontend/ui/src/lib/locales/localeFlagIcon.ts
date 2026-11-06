@@ -17,22 +17,28 @@ const DEFAULT_REGIONS: Readonly<Partial<Record<string, string>>> = { en: 'GB', p
  * @returns Its registered flag name, or `undefined` when no appropriate Reicon definition exists.
  */
 export function localeFlagIcon(code: string | null | undefined): string | undefined {
-    if (!code) {
-        return undefined;
+  if (!code) {
+    return undefined;
+  }
+
+  try {
+    const locale = new Intl.Locale(code.replaceAll('_', '-'));
+
+    if (
+      !locale.language ||
+      UNASSIGNED_LANGUAGES.has(locale.language) ||
+      !LANGUAGE_NAMES.of(locale.language)
+    ) {
+      return undefined;
     }
 
-    try {
-        const locale = new Intl.Locale(code.replaceAll('_', '-'));
+    // Maximizing an explicit unknown region such as ZZ would silently replace it with a different country.
+    const region = locale.region ?? DEFAULT_REGIONS[locale.language] ?? locale.maximize().region;
 
-        if (!locale.language || UNASSIGNED_LANGUAGES.has(locale.language) || !LANGUAGE_NAMES.of(locale.language)) {
-            return undefined;
-        }
-
-        // Maximizing an explicit unknown region such as ZZ would silently replace it with a different country.
-        const region = locale.region ?? DEFAULT_REGIONS[locale.language] ?? locale.maximize().region;
-
-        return region && (/^[A-Z]{2}$/).test(region) && Object.hasOwn(REGION_FLAGS, region) ? `localeFlag${region}` : undefined;
-    } catch {
-        return undefined;
-    }
+    return region && /^[A-Z]{2}$/.test(region) && Object.hasOwn(REGION_FLAGS, region)
+      ? `localeFlag${region}`
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }

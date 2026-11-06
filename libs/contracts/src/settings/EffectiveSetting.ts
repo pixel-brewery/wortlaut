@@ -10,14 +10,14 @@ import { z } from 'zod';
  * @public
  */
 export const SettingSourceKindSchema = z.enum([
-    'default',
-    'nx-target-defaults',
-    'project-json',
-    'nx-configuration',
-    'wortlaut-config',
-    'localizator-config',
-    'arguments',
-    'lock-file'
+  'default',
+  'nx-target-defaults',
+  'project-json',
+  'nx-configuration',
+  'wortlaut-config',
+  'localizator-config',
+  'arguments',
+  'lock-file',
 ]);
 
 /**
@@ -31,12 +31,12 @@ export type SettingSourceKind = z.output<typeof SettingSourceKindSchema>;
  * @public
  */
 export const SettingSourceSchema = z.strictObject({
-    kind: SettingSourceKindSchema,
+  kind: SettingSourceKindSchema,
 
-    /**
-     * The absolute path of the file, or `null` for defaults and arguments.
-     */
-    file: z.string().nullable()
+  /**
+   * The absolute path of the file, or `null` for defaults and arguments.
+   */
+  file: z.string().nullable(),
 });
 
 /**
@@ -51,10 +51,10 @@ export type SettingSource = z.output<typeof SettingSourceSchema>;
  * @public
  */
 export const EffectiveSettingSchema = z.strictObject({
-    key: z.string(),
-    value: z.unknown(),
-    secret: z.boolean(),
-    source: SettingSourceSchema
+  key: z.string(),
+  value: z.unknown(),
+  secret: z.boolean(),
+  source: SettingSourceSchema,
 });
 
 /**

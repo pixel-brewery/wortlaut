@@ -106,4 +106,3 @@ a run while it goes on and while its review stays open, and `TranslationRunUseCa
 pending, or pending and partial for a stopped or quit run. Write N accepted is a change set of its own, but no run of its own: with
 `continuesRun` it joins the record of the translation, which keeps its duration and takes over the log and the files. A target
 that changed since the run read it fails that write and names the file. `wortlaut.comments.json` holds the comments of a JSON project.
-

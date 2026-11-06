@@ -28,8 +28,8 @@ export type RunState = z.output<typeof RunStateSchema>;
  * @public
  */
 export const RunLogEntrySchema = z.strictObject({
-    level: z.enum(['debug', 'info', 'warn', 'error']),
-    message: z.string()
+  level: z.enum(['debug', 'info', 'warn', 'error']),
+  message: z.string(),
 });
 
 /**
@@ -43,9 +43,9 @@ export type RunLogEntry = z.output<typeof RunLogEntrySchema>;
  * @public
  */
 export const RunFailureSchema = z.strictObject({
-    code: z.string(),
-    message: z.string(),
-    files: z.array(z.string())
+  code: z.string(),
+  message: z.string(),
+  files: z.array(z.string()),
 });
 
 /**
@@ -59,21 +59,20 @@ export type RunFailure = z.output<typeof RunFailureSchema>;
  * @public
  */
 export const RunAssistantSchema = z.strictObject({
+  /**
+   * The name the client gave itself. It is a label and decides nothing.
+   */
+  client: z.string().max(128),
 
-    /**
-     * The name the client gave itself. It is a label and decides nothing.
-     */
-    client: z.string().max(128),
+  /**
+   * The tool it called.
+   */
+  tool: z.string().max(64),
 
-    /**
-     * The tool it called.
-     */
-    tool: z.string().max(64),
-
-    /**
-     * What came of the call, in a few words.
-     */
-    result: z.string().max(400)
+  /**
+   * What came of the call, in a few words.
+   */
+  result: z.string().max(400),
 });
 
 /**
@@ -87,7 +86,8 @@ export type RunAssistant = z.output<typeof RunAssistantSchema>;
  *
  * @public
  */
-export const RunRecordSchema = z.strictObject({
+export const RunRecordSchema = z
+  .strictObject({
     schemaVersion: z.literal(1),
     id: z.string().regex(/^[A-Za-z0-9-]+$/),
     command: RunCommandNameSchema,
@@ -98,16 +98,14 @@ export const RunRecordSchema = z.strictObject({
     cwd: z.string(),
     startedAt: z.iso.datetime(),
     finishedAt: z.iso.datetime(),
-    durationMs: z.number().int()
-        .nonnegative(),
+    durationMs: z.number().int().nonnegative(),
     options: z.record(z.string(), z.unknown()),
     log: z.array(RunLogEntrySchema),
 
     /**
      * How many log entries the bound on the log dropped.
      */
-    droppedLogEntries: z.number().int()
-        .nonnegative(),
+    droppedLogEntries: z.number().int().nonnegative(),
 
     findings: z.array(FindingSchema),
 
@@ -122,12 +120,17 @@ export const RunRecordSchema = z.strictObject({
     assistant: RunAssistantSchema.optional(),
 
     changeSet: ChangeSetSummarySchema.nullable(),
-    failure: RunFailureSchema.nullable()
-}).superRefine((record, context) => {
+    failure: RunFailureSchema.nullable(),
+  })
+  .superRefine((record, context) => {
     for (const name of findSecretNames(record.options)) {
-        context.addIssue({ code: 'custom', path: ['options'], message: `A run must not hold the secret option '${name}'.` });
+      context.addIssue({
+        code: 'custom',
+        path: ['options'],
+        message: `A run must not hold the secret option '${name}'.`,
+      });
     }
-});
+  });
 
 /**
  * @public

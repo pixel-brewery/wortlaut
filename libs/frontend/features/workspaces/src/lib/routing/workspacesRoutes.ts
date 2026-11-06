@@ -10,11 +10,11 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const workspacesRoutes: Routes = [
-    {
-        path: 'workspaces',
-        title: 'Workspaces · Wortlaut',
-        loadComponent: () => import('../views/WorkspacesView').then((module) => module.WorkspacesView)
-    }
+  {
+    path: 'workspaces',
+    title: 'Workspaces · Wortlaut',
+    loadComponent: () => import('../views/WorkspacesView').then((module) => module.WorkspacesView),
+  },
 ];
 
 /**
@@ -23,9 +23,9 @@ export const workspacesRoutes: Routes = [
  * @public
  */
 export const projectsRoutes: Routes = [
-    {
-        path: 'projects',
-        title: 'Projects · Wortlaut',
-        loadComponent: () => import('../views/ProjectsView').then((module) => module.ProjectsView)
-    }
+  {
+    path: 'projects',
+    title: 'Projects · Wortlaut',
+    loadComponent: () => import('../views/ProjectsView').then((module) => module.ProjectsView),
+  },
 ];

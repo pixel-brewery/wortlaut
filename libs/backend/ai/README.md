@@ -1,7 +1,7 @@
 # 📦 @pixel-brewery/wortlaut-ai
 
-| Package Status | Source |
-|----------------|--------|
+| Package Status                                                                                                                                                                               | Source                                       |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | [![GitHub Packages](https://img.shields.io/github/v/release/RueDeRennes/mosaik?label=GitHub%20Packages&logo=github)](https://github.com/orgs/pixel-brewery/packages/npm/package/wortlaut-ai) | [tools/wortlaut/ai](../../tools/wortlaut/ai) |
 
 > AI-based translation strategies for the Wortlaut toolchain.
@@ -30,7 +30,6 @@ With Yarn, use `nodeLinker: node-modules` in `.yarnrc.yml`. Yarn Plug'n'Play is
 currently limited by Utilities 0.1.187 loading optional compiler/XML peers; see
 [package installation](https://github.com/pixel-brewery/wortlaut/blob/main/docs/release.md#package-installation).
 
-
 ---
 
 ## 🔧 Usage
@@ -46,8 +45,8 @@ const generator = new ResourceGenerator(logger, fileSystem, transformer, reader,
     apiKey: process.env.GEMINI_API_KEY,
     model: 'gemini-2.0-flash',
     temperature: 0.7,
-    instructions: '' // Additional instructions for the AI
-  }
+    instructions: '', // Additional instructions for the AI
+  },
 });
 const run = await generator.run(baseResource, ['de', 'fr'], 'chatgpt');
 // run.status is completed, failed or stopped; run.results holds the proposals.

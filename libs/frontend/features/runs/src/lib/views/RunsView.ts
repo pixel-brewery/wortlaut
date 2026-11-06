@@ -5,11 +5,23 @@ import { BadgeComponent } from '@pixel-brewery/mosaik-elements-angular/component
 import { ButtonComponent } from '@pixel-brewery/mosaik-elements-angular/components/button';
 import { CardComponent } from '@pixel-brewery/mosaik-elements-angular/components/card';
 import { EmptyStateComponent } from '@pixel-brewery/mosaik-elements-angular/components/empty';
-import { ListComponent, ListItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/list';
+import {
+  ListComponent,
+  ListItemComponent,
+} from '@pixel-brewery/mosaik-elements-angular/components/list';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
-import { TabStripComponent, TabStripItemComponent } from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
+import {
+  TabStripComponent,
+  TabStripItemComponent,
+} from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
-import { FailureStateComponent, LoadingStateComponent, PaneSizeDirective, RunProgressComponent, TextWindowComponent } from '@pixel-brewery/wortlaut-frontend-ui';
+import {
+  FailureStateComponent,
+  LoadingStateComponent,
+  PaneSizeDirective,
+  RunProgressComponent,
+  TextWindowComponent,
+} from '@pixel-brewery/wortlaut-frontend-ui';
 import { RunsViewPresenter } from '../view-presenters/RunsViewPresenter';
 
 // #endregion
@@ -18,37 +30,51 @@ import { RunsViewPresenter } from '../view-presenters/RunsViewPresenter';
  * Every run of the open project, with its log, its changes and its configuration.
  */
 @Component({
-    selector: 'wortlaut-runs',
-    host: { class: 'page-frame' },
-    imports: [BadgeComponent, ButtonComponent, CardComponent, EmptyStateComponent, FailureStateComponent, ListComponent, ListItemComponent, LoadingStateComponent, PaneSizeDirective, MessageComponent, SplitComponent, RunProgressComponent, TabStripComponent, TabStripItemComponent, TextWindowComponent],
-    providers: [RunsViewPresenter],
-    templateUrl: './RunsView.html',
-    styleUrl: './RunsView.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-runs',
+  host: { class: 'page-frame' },
+  imports: [
+    BadgeComponent,
+    ButtonComponent,
+    CardComponent,
+    EmptyStateComponent,
+    FailureStateComponent,
+    ListComponent,
+    ListItemComponent,
+    LoadingStateComponent,
+    PaneSizeDirective,
+    MessageComponent,
+    SplitComponent,
+    RunProgressComponent,
+    TabStripComponent,
+    TabStripItemComponent,
+    TextWindowComponent,
+  ],
+  providers: [RunsViewPresenter],
+  templateUrl: './RunsView.html',
+  styleUrl: './RunsView.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RunsView implements OnInit {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the presenter.
+   *
+   * @readonly
+   */
+  protected readonly presenter = inject(RunsViewPresenter);
 
-    /**
-     * Gets the presenter.
-     *
-     * @readonly
-     */
-    protected readonly presenter = inject(RunsViewPresenter);
+  // #endregion
 
-    // #endregion
+  // #region Methods
 
-    // #region Methods
+  /**
+   * @public
+   * @override
+   */
+  public ngOnInit(): void {
+    void this.presenter.load();
+  }
 
-    /**
-     * @public
-     * @override
-     */
-    public ngOnInit(): void {
-        void this.presenter.load();
-    }
-
-    // #endregion
-
+  // #endregion
 }

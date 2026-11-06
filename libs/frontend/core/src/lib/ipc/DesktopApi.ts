@@ -1,7 +1,13 @@
 // #region Imports
 
 import { Injectable } from '@angular/core';
-import type { IpcEvent, IpcMethod, IpcRequest, IpcResponse, IWortlautApi } from '@pixel-brewery/wortlaut-contracts';
+import type {
+  IpcEvent,
+  IpcMethod,
+  IpcRequest,
+  IpcResponse,
+  IWortlautApi,
+} from '@pixel-brewery/wortlaut-contracts';
 
 // #endregion
 
@@ -10,43 +16,41 @@ import type { IpcEvent, IpcMethod, IpcRequest, IpcResponse, IWortlautApi } from 
  */
 @Injectable({ providedIn: 'root' })
 export class DesktopApi {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Sends a request.
+   *
+   * @param method The name of the request.
+   * @param payload The payload.
+   * @returns The validated response.
+   */
+  public request<M extends IpcMethod>(method: M, payload: IpcRequest<M>): Promise<IpcResponse<M>> {
+    return this.bridge().request(method, payload);
+  }
 
-    /**
-     * Sends a request.
-     *
-     * @param method The name of the request.
-     * @param payload The payload.
-     * @returns The validated response.
-     */
-    public request<M extends IpcMethod>(method: M, payload: IpcRequest<M>): Promise<IpcResponse<M>> {
-        return this.bridge().request(method, payload);
+  /**
+   * Subscribes to events.
+   *
+   * @param listener Receives each validated event.
+   * @returns The function that ends the subscription.
+   */
+  public onEvent(listener: (event: IpcEvent) => void): () => void {
+    return this.bridge().onEvent(listener);
+  }
+
+  /**
+   * @private
+   */
+  private bridge(): IWortlautApi {
+    const api = (window as Window & { wortlaut?: IWortlautApi }).wortlaut;
+
+    if (!api) {
+      throw new Error('Wortlaut runs only in its desktop window.');
     }
 
-    /**
-     * Subscribes to events.
-     *
-     * @param listener Receives each validated event.
-     * @returns The function that ends the subscription.
-     */
-    public onEvent(listener: (event: IpcEvent) => void): () => void {
-        return this.bridge().onEvent(listener);
-    }
+    return api;
+  }
 
-    /**
-     * @private
-     */
-    private bridge(): IWortlautApi {
-        const api = (window as Window & { wortlaut?: IWortlautApi }).wortlaut;
-
-        if (!api) {
-            throw new Error('Wortlaut runs only in its desktop window.');
-        }
-
-        return api;
-    }
-
-    // #endregion
-
+  // #endregion
 }

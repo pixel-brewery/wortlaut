@@ -1,12 +1,23 @@
 export { AssistantCommands, type IAssistantOutcome } from './assistants/AssistantCommands.js';
-export { DEFAULT_CACHE_FOLDER, ResultCache, type IResultCacheRequest } from './cache/ResultCache.js';
+export {
+  DEFAULT_CACHE_FOLDER,
+  ResultCache,
+  type IResultCacheRequest,
+} from './cache/ResultCache.js';
 export { ChangeSetApplier } from './changes/ChangeSetApplier.js';
 export type { IRecoveredChangeSet } from './changes/ChangeSetRecovery.js';
 export { ChangeSetBuilder } from './changes/ChangeSetBuilder.js';
 export { ReviewList } from './changes/ReviewList.js';
 export { ReviewService } from './changes/ReviewService.js';
 export { CatalogService } from './catalogs/CatalogService.js';
-export { ProjectCommands, toConfigurationFile, type IBatchChange, type IBatchWrite, type IRunHosting, type ISettingsFolders } from './commands/ProjectCommands.js';
+export {
+  ProjectCommands,
+  toConfigurationFile,
+  type IBatchChange,
+  type IBatchWrite,
+  type IRunHosting,
+  type ISettingsFolders,
+} from './commands/ProjectCommands.js';
 export { TestLab } from './testlab/TestLab.js';
 export { TranslationLab } from './testlab/TranslationLab.js';
 export { GenerateService } from './generate/GenerateService.js';
@@ -14,10 +25,28 @@ export { AiPreferences } from './profile/AiPreferences.js';
 export type { CatalogEdit, ICatalogEditOptions } from './usecases/CatalogEditUseCase.js';
 export type { IDetectApplyOptions } from './usecases/DetectApplyUseCase.js';
 export { CommandOptions } from './configuration/CommandOptions.js';
-export { ConfigurationResolver, CONFIG_FILE_NAME, isWortlautExecutor, type IConfigurationRequest, type IResolvedConfiguration, type IResolvedNxTarget } from './configuration/ConfigurationResolver.js';
-export { ConfigurationWriter, type IConfigurationEdit } from './configuration/ConfigurationWriter.js';
+export {
+  ConfigurationResolver,
+  CONFIG_FILE_NAME,
+  isWortlautExecutor,
+  type IConfigurationRequest,
+  type IResolvedConfiguration,
+  type IResolvedNxTarget,
+} from './configuration/ConfigurationResolver.js';
+export {
+  ConfigurationWriter,
+  type IConfigurationEdit,
+} from './configuration/ConfigurationWriter.js';
 export { EngineError, type EngineErrorCode } from './errors/EngineError.js';
-export type { IAnalyzeOptions, IDetectOptions, IDetectScanOptions, IGenerateOptions, IInitOptions, ISortOptions, ITransformOptions } from './interfaces/ICommandOptions.js';
+export type {
+  IAnalyzeOptions,
+  IDetectOptions,
+  IDetectScanOptions,
+  IGenerateOptions,
+  IInitOptions,
+  ISortOptions,
+  ITransformOptions,
+} from './interfaces/ICommandOptions.js';
 export { createSortableId, writePrivateFileAtomically } from './io/AtomicFile.js';
 export { DisplayPath } from './paths/DisplayPath.js';
 export { LiteralFileSystem } from './io/LiteralFileSystem.js';
@@ -34,12 +63,23 @@ export { HttpPackFetcher, type INpmPackage, type IPackFetcher } from './rulepack
 export type { IInspectedPack } from './rulepacks/PackInspector.js';
 export { PackSources, type PackSource } from './rulepacks/PackSource.js';
 export { LEGACY_LOCK_FILE_NAME, LOCK_FILE_NAME } from './rulepacks/RuleLockFile.js';
-export { RulePackService, type IPackCheckOutcome, type IPackScope, type IPackStatus, type IPackUpdatePreview } from './rulepacks/RulePackService.js';
+export {
+  RulePackService,
+  type IPackCheckOutcome,
+  type IPackScope,
+  type IPackStatus,
+  type IPackUpdatePreview,
+} from './rulepacks/RulePackService.js';
 export { SecretScrubber } from './security/SecretScrubber.js';
 export type { IConfigSetOptions } from './usecases/ConfigSetUseCase.js';
 
 export type { IInfoResult } from './usecases/InfoUseCase.js';
-export { WorkspaceService, type IProjectRegistration, type IWorkspaceChange, type IWorkspaceCreation } from './workspaces/WorkspaceService.js';
+export {
+  WorkspaceService,
+  type IProjectRegistration,
+  type IWorkspaceChange,
+  type IWorkspaceCreation,
+} from './workspaces/WorkspaceService.js';
 export { MAX_WORKSPACE_FILE_BYTES, WorkspaceTransfer } from './workspaces/WorkspaceTransfer.js';
 export { SearchService } from './search/SearchService.js';
 export { WortlautEngine, type IEngineInit } from './WortlautEngine.js';

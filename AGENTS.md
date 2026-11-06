@@ -100,8 +100,11 @@ keep working for existing consumers, see the [Surfaces reference](.agents/skills
 
 - `yarn install` needs `GITHUB_TOKEN` for `@pixel-brewery/*` on GitHub Packages.
 - `yarn nx run-many -t build --parallel=1` and `yarn nx run-many -t test --parallel=1`
-- `yarn typecheck`, `yarn lint`, `yarn verify:skills`, `yarn verify:structure`, `yarn verify:paths`
-- `yarn start` builds the renderer and the desktop bundles and runs the app.
-- `yarn package` and `yarn make` package the app for this machine into the ignored `out/`.
+- `yarn verify:code` covers repository rules, formatting, Mosaik source checks, lint, types, tests and builds.
+- `yarn verify` adds clean package consumers and built and packaged desktop checks. Run it in a graphical session with registry access.
+- `yarn start` builds the renderer and the desktop bundles and runs the app. `yarn start:built` reuses an existing build.
+- `yarn package:smoke` checks the local Forge package and exercises its executable. `yarn make` creates installers in the ignored `out/`.
+
+See [Contributor verification](CONTRIBUTING.md#verification) for the independent check commands.
 
 Prefer running tasks through Nx, prefixed with Yarn. Do not guess Nx flags.

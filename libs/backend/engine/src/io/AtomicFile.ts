@@ -24,26 +24,30 @@ const BUSY_PAUSES_MS = [50, 100, 200, 400, 800];
  * @param to The path it gets.
  * @param platform The platform, for a test.
  */
-export function renameOver(from: string, to: string, platform: NodeJS.Platform = process.platform): void {
-    for (const pause of platform === 'win32' ? BUSY_PAUSES_MS : []) {
-        try {
-            renameSync(from, to);
+export function renameOver(
+  from: string,
+  to: string,
+  platform: NodeJS.Platform = process.platform,
+): void {
+  for (const pause of platform === 'win32' ? BUSY_PAUSES_MS : []) {
+    try {
+      renameSync(from, to);
 
-            return;
-        } catch (error) {
-            if (!BUSY_CODES.has((error as NodeJS.ErrnoException).code ?? '')) {
-                throw error;
-            }
+      return;
+    } catch (error) {
+      if (!BUSY_CODES.has((error as NodeJS.ErrnoException).code ?? '')) {
+        throw error;
+      }
 
-            const until = Date.now() + pause;
+      const until = Date.now() + pause;
 
-            while (Date.now() < until) {
-                // Every caller is synchronous, and the main thread of the desktop app is one of them.
-            }
-        }
+      while (Date.now() < until) {
+        // Every caller is synchronous, and the main thread of the desktop app is one of them.
+      }
     }
+  }
 
-    renameSync(from, to);
+  renameSync(from, to);
 }
 
 /**
@@ -54,18 +58,18 @@ export function renameOver(from: string, to: string, platform: NodeJS.Platform =
  * @param content The content.
  */
 export function writePrivateFileAtomically(path: string, content: string): void {
-    const directory = dirname(path);
-    const temporary = join(directory, `.${randomBytes(6).toString('hex')}.tmp`);
+  const directory = dirname(path);
+  const temporary = join(directory, `.${randomBytes(6).toString('hex')}.tmp`);
 
-    mkdirSync(directory, { recursive: true, mode: 0o700 });
+  mkdirSync(directory, { recursive: true, mode: 0o700 });
 
-    try {
-        writeFileSync(temporary, content, { encoding: 'utf8', mode: 0o600, flush: true });
-        renameOver(temporary, path);
-    } catch (error) {
-        rmSync(temporary, { force: true });
-        throw error;
-    }
+  try {
+    writeFileSync(temporary, content, { encoding: 'utf8', mode: 0o600, flush: true });
+    renameOver(temporary, path);
+  } catch (error) {
+    rmSync(temporary, { force: true });
+    throw error;
+  }
 }
 
 /**
@@ -76,5 +80,5 @@ export function writePrivateFileAtomically(path: string, content: string): void 
  * @returns The id.
  */
 export function createSortableId(now: Date): string {
-    return `${now.toISOString().replace(/[-:.]/g, '')}-${randomBytes(4).toString('hex')}`;
+  return `${now.toISOString().replace(/[-:.]/g, '')}-${randomBytes(4).toString('hex')}`;
 }

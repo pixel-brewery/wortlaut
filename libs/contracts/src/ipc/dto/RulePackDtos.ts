@@ -14,11 +14,11 @@ import { IdSchema } from './ShellDtos.js';
  * @public
  */
 export const RulePackAccessSchema = z.strictObject({
-    declarative: z.boolean(),
-    readsCatalogs: z.boolean(),
-    readsSource: z.boolean(),
-    network: z.boolean(),
-    ai: z.boolean()
+  declarative: z.boolean(),
+  readsCatalogs: z.boolean(),
+  readsSource: z.boolean(),
+  network: z.boolean(),
+  ai: z.boolean(),
 });
 
 /**
@@ -32,13 +32,10 @@ export type RulePackAccess = z.output<typeof RulePackAccessSchema>;
  * @public
  */
 export const RulePackSourceRequestSchema = z.discriminatedUnion('kind', [
-    z.strictObject({ kind: z.literal('github'), value: z.string().min(1)
-        .max(300) }),
-    z.strictObject({ kind: z.literal('npm'), value: z.string().min(1)
-        .max(300) }),
-    z.strictObject({ kind: z.literal('shipped'), value: z.string().min(1)
-        .max(300) }),
-    z.strictObject({ kind: z.literal('folder'), folderToken: z.uuid() })
+  z.strictObject({ kind: z.literal('github'), value: z.string().min(1).max(300) }),
+  z.strictObject({ kind: z.literal('npm'), value: z.string().min(1).max(300) }),
+  z.strictObject({ kind: z.literal('shipped'), value: z.string().min(1).max(300) }),
+  z.strictObject({ kind: z.literal('folder'), folderToken: z.uuid() }),
 ]);
 
 /**
@@ -52,13 +49,21 @@ export type RulePackSourceRequest = z.output<typeof RulePackSourceRequestSchema>
  * @public
  */
 export const RulePackProblemSchema = z.strictObject({
-    kind: z.enum(['not-found', 'not-a-pack', 'has-code', 'invalid', 'unsafe', 'too-large', 'network']),
-    message: z.string(),
+  kind: z.enum([
+    'not-found',
+    'not-a-pack',
+    'has-code',
+    'invalid',
+    'unsafe',
+    'too-large',
+    'network',
+  ]),
+  message: z.string(),
 
-    /**
-     * The definitions that are wrong, one line each.
-     */
-    details: z.array(z.string())
+  /**
+   * The definitions that are wrong, one line each.
+   */
+  details: z.array(z.string()),
 });
 
 /**
@@ -72,8 +77,8 @@ export type RulePackProblem = z.output<typeof RulePackProblemSchema>;
  * @public
  */
 export const RulePackTargetSchema = z.discriminatedUnion('kind', [
-    z.strictObject({ kind: z.literal('workspace'), workspaceId: IdSchema }),
-    z.strictObject({ kind: z.literal('project'), projectId: IdSchema })
+  z.strictObject({ kind: z.literal('workspace'), workspaceId: IdSchema }),
+  z.strictObject({ kind: z.literal('project'), projectId: IdSchema }),
 ]);
 
 /**
@@ -87,8 +92,8 @@ export type RulePackTarget = z.output<typeof RulePackTargetSchema>;
  * @public
  */
 export const RulePackTargetChoiceSchema = z.strictObject({
-    target: RulePackTargetSchema,
-    label: z.string()
+  target: RulePackTargetSchema,
+  label: z.string(),
 });
 
 /**
@@ -102,42 +107,45 @@ export type RulePackTargetChoice = z.output<typeof RulePackTargetChoiceSchema>;
  * @public
  */
 export const RulePackCheckSchema = z.strictObject({
+  /**
+   * Names the checked pack for Install and pin, or `null` when it cannot be installed.
+   */
+  checkId: IdSchema.nullable(),
 
-    /**
-     * Names the checked pack for Install and pin, or `null` when it cannot be installed.
-     */
-    checkId: IdSchema.nullable(),
+  /**
+   * The source as a command line names it.
+   */
+  source: z.string(),
 
-    /**
-     * The source as a command line names it.
-     */
-    source: z.string(),
+  /**
+   * The command that does the same, or `null` when there is nothing to do.
+   */
+  sameAs: z.string().nullable(),
+  problem: RulePackProblemSchema.nullable(),
+  pack: z
+    .strictObject({
+      id: z.string(),
+      name: z.string(),
+      description: z.string(),
+      version: z.string(),
+      commit: z.string().nullable(),
+      hash: z.string(),
+      rules: z.array(
+        z.strictObject({ id: z.string(), description: z.string(), severity: RuleSeveritySchema }),
+      ),
+      access: RulePackAccessSchema,
+    })
+    .nullable(),
 
-    /**
-     * The command that does the same, or `null` when there is nothing to do.
-     */
-    sameAs: z.string().nullable(),
-    problem: RulePackProblemSchema.nullable(),
-    pack: z.strictObject({
-        id: z.string(),
-        name: z.string(),
-        description: z.string(),
-        version: z.string(),
-        commit: z.string().nullable(),
-        hash: z.string(),
-        rules: z.array(z.strictObject({ id: z.string(), description: z.string(), severity: RuleSeveritySchema })),
-        access: RulePackAccessSchema
-    }).nullable(),
+  /**
+   * Where this pack can be pinned for everyone.
+   */
+  targets: z.array(RulePackTargetChoiceSchema),
 
-    /**
-     * Where this pack can be pinned for everyone.
-     */
-    targets: z.array(RulePackTargetChoiceSchema),
-
-    /**
-     * Why it can go nowhere, such as a folder outside of every repository.
-     */
-    targetsNote: z.string().nullable()
+  /**
+   * Why it can go nowhere, such as a folder outside of every repository.
+   */
+  targetsNote: z.string().nullable(),
 });
 
 /**
@@ -151,11 +159,13 @@ export type RulePackCheck = z.output<typeof RulePackCheckSchema>;
  * @public
  */
 export const RulePackWriteSchema = z.strictObject({
-    results: z.array(z.strictObject({
-        repository: z.string(),
-        outcome: WriteOutcomeSchema.nullable(),
-        failure: z.string().nullable()
-    }))
+  results: z.array(
+    z.strictObject({
+      repository: z.string(),
+      outcome: WriteOutcomeSchema.nullable(),
+      failure: z.string().nullable(),
+    }),
+  ),
 });
 
 /**
@@ -169,10 +179,10 @@ export type RulePackWrite = z.output<typeof RulePackWriteSchema>;
  * @public
  */
 export const RulePackRefusalSchema = z.strictObject({
-    reason: z.string(),
-    repository: z.string().nullable(),
-    pinnedHash: z.string().nullable(),
-    foundHash: z.string().nullable()
+  reason: z.string(),
+  repository: z.string().nullable(),
+  pinnedHash: z.string().nullable(),
+  foundHash: z.string().nullable(),
 });
 
 /**
@@ -186,15 +196,15 @@ export type RulePackRefusal = z.output<typeof RulePackRefusalSchema>;
  * @public
  */
 export const RulePackRuleSchema = z.strictObject({
-    id: z.string(),
-    description: z.string(),
-    severity: RuleSeveritySchema,
+  id: z.string(),
+  description: z.string(),
+  severity: RuleSeveritySchema,
 
-    /**
-     * The latest result per project, summed up, such as `2 projects failing`.
-     */
-    result: z.string(),
-    variant: z.enum(['success', 'warning', 'danger', 'neutral'])
+  /**
+   * The latest result per project, summed up, such as `2 projects failing`.
+   */
+  result: z.string(),
+  variant: z.enum(['success', 'warning', 'danger', 'neutral']),
 });
 
 /**
@@ -208,23 +218,23 @@ export type RulePackRule = z.output<typeof RulePackRuleSchema>;
  * @public
  */
 export const RulePackEntrySchema = z.strictObject({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    locked: z.boolean(),
-    enabled: z.boolean(),
-    rules: z.array(RulePackRuleSchema),
-    refusal: RulePackRefusalSchema.nullable(),
-    source: z.string(),
-    version: z.string().nullable(),
-    commit: z.string().nullable(),
-    hash: z.string().nullable(),
-    access: RulePackAccessSchema,
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  locked: z.boolean(),
+  enabled: z.boolean(),
+  rules: z.array(RulePackRuleSchema),
+  refusal: RulePackRefusalSchema.nullable(),
+  source: z.string(),
+  version: z.string().nullable(),
+  commit: z.string().nullable(),
+  hash: z.string().nullable(),
+  access: RulePackAccessSchema,
 
-    /**
-     * The repositories of the workspace that pin it.
-     */
-    repositories: z.array(z.string())
+  /**
+   * The repositories of the workspace that pin it.
+   */
+  repositories: z.array(z.string()),
 });
 
 /**
@@ -238,10 +248,10 @@ export type RulePackEntry = z.output<typeof RulePackEntrySchema>;
  * @public
  */
 export const RulePackAvailableSchema = z.strictObject({
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    source: z.string()
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  source: z.string(),
 });
 
 /**
@@ -255,9 +265,9 @@ export type RulePackAvailable = z.output<typeof RulePackAvailableSchema>;
  * @public
  */
 export const RulePackRuleChangeSchema = z.strictObject({
-    id: z.string(),
-    change: z.enum(['added', 'changed', 'removed']),
-    description: z.string()
+  id: z.string(),
+  change: z.enum(['added', 'changed', 'removed']),
+  description: z.string(),
 });
 
 /**
@@ -272,34 +282,38 @@ export type RulePackRuleChange = z.output<typeof RulePackRuleChangeSchema>;
  * @public
  */
 export const RulePackUpdateSchema = z.strictObject({
-    packId: z.string(),
-    name: z.string(),
-    available: z.boolean(),
+  packId: z.string(),
+  name: z.string(),
+  available: z.boolean(),
 
-    /**
-     * Why no answer came from the source. The pack stays as it is pinned.
-     */
-    failure: z.string().nullable(),
+  /**
+   * Why no answer came from the source. The pack stays as it is pinned.
+   */
+  failure: z.string().nullable(),
 
-    /**
-     * Names what was fetched for this review, so approving writes exactly that.
-     */
-    updateId: IdSchema.nullable(),
-    summary: z.string(),
-    next: z.strictObject({
-        version: z.string().nullable(),
-        commit: z.string().nullable(),
-        hash: z.string()
-    }).nullable(),
-    access: RulePackAccessSchema.nullable(),
-    rules: z.array(RulePackRuleChangeSchema),
-    repositories: z.array(z.strictObject({
-        repository: z.string(),
-        commit: z.string().nullable(),
-        version: z.string().nullable(),
-        hash: z.string(),
-        files: z.array(ReviewFileSchema)
-    }))
+  /**
+   * Names what was fetched for this review, so approving writes exactly that.
+   */
+  updateId: IdSchema.nullable(),
+  summary: z.string(),
+  next: z
+    .strictObject({
+      version: z.string().nullable(),
+      commit: z.string().nullable(),
+      hash: z.string(),
+    })
+    .nullable(),
+  access: RulePackAccessSchema.nullable(),
+  rules: z.array(RulePackRuleChangeSchema),
+  repositories: z.array(
+    z.strictObject({
+      repository: z.string(),
+      commit: z.string().nullable(),
+      version: z.string().nullable(),
+      hash: z.string(),
+      files: z.array(ReviewFileSchema),
+    }),
+  ),
 });
 
 /**

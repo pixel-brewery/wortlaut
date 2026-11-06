@@ -15,7 +15,7 @@ export type Match = Record<string, string> & { value?: string };
  * @public
  */
 export namespace Match {
-    export const EMPTY: Match = {};
+  export const EMPTY: Match = {};
 }
 
 /**
@@ -24,8 +24,8 @@ export namespace Match {
  * @public
  */
 export interface IDetectorEventMap {
-    detected: [change: IDetectorResult];
-    failed: [error: any];
+  detected: [change: IDetectorResult];
+  failed: [error: any];
 }
 
 /**
@@ -34,17 +34,17 @@ export interface IDetectorEventMap {
  * @public
  */
 export interface IDetectorResult {
-    isStatic: boolean;
-    lineNumber: number;
-    columnNumber: number;
-    match: Match;
-    context: string;
+  isStatic: boolean;
+  lineNumber: number;
+  columnNumber: number;
+  match: Match;
+  context: string;
 
-    /**
-     * Where the value stands in its line, exactly as the source spells it. The value in `match` is unescaped and trimmed,
-     * so only this says what a rewrite has to replace.
-     */
-    position?: IDetectorPosition;
+  /**
+   * Where the value stands in its line, exactly as the source spells it. The value in `match` is unescaped and trimmed,
+   * so only this says what a rewrite has to replace.
+   */
+  position?: IDetectorPosition;
 }
 
 /**
@@ -53,38 +53,36 @@ export interface IDetectorResult {
  * @public
  */
 export interface IDetectorPosition {
-    start: number;
-    end: number;
-    raw: string;
+  start: number;
+  end: number;
+  raw: string;
 }
 
 interface IDetectorResourceKeyOptions {
+  /**
+   * The prefix for resource keys.
+   *
+   * @default ''
+   */
+  prefix?: string;
 
-    /**
-     * The prefix for resource keys.
-     *
-     * @default ''
-     */
-    prefix?: string;
-
-    /**
-     * The suffix for resource keys.
-     *
-     * @default ''
-     */
-    suffix?: string;
+  /**
+   * The suffix for resource keys.
+   *
+   * @default ''
+   */
+  suffix?: string;
 }
 
 export interface IDetectOptions extends Record<string, unknown> {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The resource key check configuration for the detector.
+   */
+  resourceKey?: IDetectorResourceKeyOptions;
 
-    /**
-     * The resource key check configuration for the detector.
-     */
-    resourceKey?: IDetectorResourceKeyOptions;
-
-    // #endregion
+  // #endregion
 }
 
 /**
@@ -93,18 +91,16 @@ export interface IDetectOptions extends Record<string, unknown> {
  * @public
  */
 export interface IDetector extends Pick<EventEmitter<IDetectorEventMap>, 'on'> {
+  // #region Methods
 
-    // #region Methods
+  /**
+   * Detects content and extracts translatable strings.
+   *
+   * @param content The content to detect.
+   * @param options The optional detector options.
+   * @returns An array of extracted results.
+   */
+  detect(content: string, options?: IDetectOptions): Array<IDetectorResult>;
 
-    /**
-     * Detects content and extracts translatable strings.
-     *
-     * @param content The content to detect.
-     * @param options The optional detector options.
-     * @returns An array of extracted results.
-     */
-    detect(content: string, options?: IDetectOptions): Array<IDetectorResult>;
-
-    // #endregion
-
+  // #endregion
 }

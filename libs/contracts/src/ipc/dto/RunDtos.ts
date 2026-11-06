@@ -14,35 +14,34 @@ import { IdSchema } from './ShellDtos.js';
  * @public
  */
 export const RunSummarySchema = z.strictObject({
-    id: IdSchema,
-    title: z.string(),
-    command: RunCommandNameSchema,
-    state: RunStateSchema,
-    surface: SurfaceSchema,
+  id: IdSchema,
+  title: z.string(),
+  command: RunCommandNameSchema,
+  state: RunStateSchema,
+  surface: SurfaceSchema,
 
-    /**
-     * The assistant behind a run through MCP, as a person reads its name.
-     */
-    client: z.string().nullable(),
-    dryRun: z.boolean(),
+  /**
+   * The assistant behind a run through MCP, as a person reads its name.
+   */
+  client: z.string().nullable(),
+  dryRun: z.boolean(),
 
-    /**
-     * The change set waits in Review instead of having been written.
-     */
-    forReview: z.boolean(),
+  /**
+   * The change set waits in Review instead of having been written.
+   */
+  forReview: z.boolean(),
 
-    /**
-     * Whether the run can start again from its stored options.
-     */
-    canRepeat: z.boolean(),
-    startedAt: z.iso.datetime(),
-    detail: z.string(),
+  /**
+   * Whether the run can start again from its stored options.
+   */
+  canRepeat: z.boolean(),
+  startedAt: z.iso.datetime(),
+  detail: z.string(),
 
-    /**
-     * The rules that failed in an analysis that itself ran fine.
-     */
-    failedRules: z.number().int()
-        .nonnegative()
+  /**
+   * The rules that failed in an analysis that itself ran fine.
+   */
+  failedRules: z.number().int().nonnegative(),
 });
 
 /**
@@ -56,9 +55,9 @@ export type RunSummary = z.output<typeof RunSummarySchema>;
  * @public
  */
 export const RunChangeSchema = z.strictObject({
-    file: z.string(),
-    action: z.enum(['create', 'update']),
-    state: z.enum(['proposed', 'pending', 'applied', 'discarded'])
+  file: z.string(),
+  action: z.enum(['create', 'update']),
+  state: z.enum(['proposed', 'pending', 'applied', 'discarded']),
 });
 
 /**
@@ -72,20 +71,18 @@ export type RunChange = z.output<typeof RunChangeSchema>;
  * @public
  */
 export const RunDetailSchema = RunSummarySchema.extend({
-    durationMs: z.number().int()
-        .nonnegative(),
-    equivalentCommand: z.string(),
+  durationMs: z.number().int().nonnegative(),
+  equivalentCommand: z.string(),
 
-    /**
-     * The same command as it fits on a screen. Only `equivalentCommand` is meant to run.
-     */
-    equivalentCommandShown: z.string(),
-    log: z.string(),
-    droppedLogEntries: z.number().int()
-        .nonnegative(),
-    changes: z.array(RunChangeSchema),
-    configuration: z.string(),
-    failure: z.string().nullable()
+  /**
+   * The same command as it fits on a screen. Only `equivalentCommand` is meant to run.
+   */
+  equivalentCommandShown: z.string(),
+  log: z.string(),
+  droppedLogEntries: z.number().int().nonnegative(),
+  changes: z.array(RunChangeSchema),
+  configuration: z.string(),
+  failure: z.string().nullable(),
 });
 
 /**

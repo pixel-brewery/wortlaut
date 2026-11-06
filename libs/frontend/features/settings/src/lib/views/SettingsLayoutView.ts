@@ -10,29 +10,27 @@ import { MenuItemComponent } from '@pixel-brewery/mosaik-elements-angular/compon
  * The frame of the settings: their sections and the open one.
  */
 @Component({
-    selector: 'wortlaut-settings-layout',
-    host: { class: 'page-frame' },
-    imports: [MenuItemComponent, RouterLink, RouterLinkActive, RouterOutlet],
-    templateUrl: './SettingsLayoutView.html',
-    styleUrl: './SettingsLayoutView.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wortlaut-settings-layout',
+  host: { class: 'page-frame' },
+  imports: [MenuItemComponent, RouterLink, RouterLinkActive, RouterOutlet],
+  templateUrl: './SettingsLayoutView.html',
+  styleUrl: './SettingsLayoutView.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsLayoutView {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * Gets the sections.
+   *
+   * @readonly
+   */
+  protected readonly sections = [
+    { label: 'Workspace', icon: 'folder', route: '/settings/workspace' },
+    { label: 'Project', icon: 'folderOpen', route: '/settings/project' },
+    { label: 'AI', icon: 'sparkle', route: '/settings/ai' },
+    { label: 'Application', icon: 'settings', route: '/settings/application' },
+  ];
 
-    /**
-     * Gets the sections.
-     *
-     * @readonly
-     */
-    protected readonly sections = [
-        { label: 'Workspace', icon: 'folder', route: '/settings/workspace' },
-        { label: 'Project', icon: 'folderOpen', route: '/settings/project' },
-        { label: 'AI', icon: 'sparkle', route: '/settings/ai' },
-        { label: 'Application', icon: 'settings', route: '/settings/application' }
-    ];
-
-    // #endregion
-
+  // #endregion
 }

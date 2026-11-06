@@ -1,7 +1,8 @@
 {
   "singleQuote": true,
-  "trailingComma": "all",
   "printWidth": 100,
+  "semi": true,
+  "trailingComma": "all",
   "overrides": [
     {
       "files": "{apps,libs}/frontend/**/*.html",

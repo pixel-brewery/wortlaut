@@ -7,8 +7,8 @@ import { ShellView } from './views/ShellView';
 // #endregion
 
 bootstrapApplication(ShellView, ShellConfig).catch((error: unknown) => {
-    const message = document.createElement('p');
+  const message = document.createElement('p');
 
-    message.textContent = `Wortlaut could not start: ${error instanceof Error ? error.message : 'Unknown error'}`;
-    document.body.replaceChildren(message);
+  message.textContent = `Wortlaut could not start: ${error instanceof Error ? error.message : 'Unknown error'}`;
+  document.body.replaceChildren(message);
 });

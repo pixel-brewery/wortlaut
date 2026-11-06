@@ -15,16 +15,19 @@ import { join } from 'node:path';
  * @param log Says where the file is, once.
  * @returns What takes an answer.
  */
-export function createRawOutputFile(runId: string, log: (line: string) => void): (text: string) => void {
-    const file = join(tmpdir(), `wortlaut-raw-${runId}.log`);
-    let isAnnounced = false;
+export function createRawOutputFile(
+  runId: string,
+  log: (line: string) => void,
+): (text: string) => void {
+  const file = join(tmpdir(), `wortlaut-raw-${runId}.log`);
+  let isAnnounced = false;
 
-    return (text) => {
-        appendFileSync(file, `${text}\n`, { mode: 0o600 });
+  return (text) => {
+    appendFileSync(file, `${text}\n`, { mode: 0o600 });
 
-        if (!isAnnounced) {
-            isAnnounced = true;
-            log(`Raw answers go to ${file}`);
-        }
-    };
+    if (!isAnnounced) {
+      isAnnounced = true;
+      log(`Raw answers go to ${file}`);
+    }
+  };
 }

@@ -1,4 +1,3 @@
-
 // #region Imports
 
 import { bold, gray, type IFileSystem, type ILogger, magenta, t } from '@pixel-brewery/utilities';
@@ -10,17 +9,15 @@ import type { IResourceInfo } from '../models/interfaces/IResourceInfo';
  * Interface for the options required to sort resources.
  */
 export interface IResourceSorterOptions {
+  /**
+   * Whether to perform a dry run.
+   */
+  dryRun: boolean;
 
-    /**
-     * Whether to perform a dry run.
-    */
-    dryRun: boolean;
-
-    /**
-     * The order to sort resources.
-     */
-    order: 'asc' | 'desc';
-
+  /**
+   * The order to sort resources.
+   */
+  order: 'asc' | 'desc';
 }
 
 /**
@@ -29,122 +26,120 @@ export interface IResourceSorterOptions {
  * @public
  */
 export interface IResourceSortPlan {
+  /**
+   * The resource with its keys in the requested order.
+   */
+  sortedResource: IResourceInfo;
 
-    /**
-     * The resource with its keys in the requested order.
-     */
-    sortedResource: IResourceInfo;
-
-    /**
-     * The number of keys whose position changes. Without any, the file keeps its content.
-     */
-    keysSorted: number;
-
+  /**
+   * The number of keys whose position changes. Without any, the file keeps its content.
+   */
+  keysSorted: number;
 }
 
 /**
  * The `ResourceSorter` class is responsible for sorting resources.
  */
 export class ResourceSorter {
+  // #region Fields
 
-    // #region Fields
+  private readonly _logger: ILogger;
+  private readonly _fileSystem: IFileSystem;
+  private readonly _options: IResourceSorterOptions;
 
-    private readonly _logger: ILogger;
-    private readonly _fileSystem: IFileSystem;
-    private readonly _options: IResourceSorterOptions;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new ResourceSorter.
+   *
+   * @public
+   * @param logger The logger interface.
+   * @param fileSystem The file system interface.
+   * @param options The options for sorting resources.
+   */
+  public constructor(logger: ILogger, fileSystem: IFileSystem, options: IResourceSorterOptions) {
+    this._logger = logger;
+    this._fileSystem = fileSystem;
+    this._options = options;
+  }
 
-    /**
-     * Constructs a new ResourceSorter.
-     *
-     * @public
-     * @param logger The logger interface.
-     * @param fileSystem The file system interface.
-     * @param options The options for sorting resources.
-     */
-    public constructor(logger: ILogger, fileSystem: IFileSystem, options: IResourceSorterOptions) {
-        this._logger = logger;
-        this._fileSystem = fileSystem;
-        this._options = options;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Sorts resource keys in .resx files based on the provided options.
+   * @param resources The resources to sort.
+   * @returns The sorted resources.
+   */
+  public sort(resources: Array<IResourceInfo>): Array<IResourceInfo> {
+    const plans = this.plan(resources);
+
+    for (const plan of plans) {
+      if (!this._options.dryRun && plan.keysSorted > 0) {
+        this._fileSystem.fileWriteAllText(plan.sortedResource.path, plan.sortedResource.toString());
+        this._logger.info(`  ${plan.sortedResource.name} ${bold(gray('Updated'))}`);
+      } else if (this._options.dryRun) {
+        this._logger.log(t`${gray('  Dry run enabled, skipping...')}`);
+      }
     }
 
-    // #endregion
+    return plans.map((plan) => plan.sortedResource);
+  }
 
-    // #region Methods
+  /**
+   * Works out what sorting the resources would change, without writing anything.
+   *
+   * @public
+   * @param resources The resources to sort.
+   * @returns One plan per resource.
+   */
+  public plan(resources: Array<IResourceInfo>): Array<IResourceSortPlan> {
+    this._logger.log(t`${magenta('Sorting resources keys...')}`);
 
-    /**
-     * Sorts resource keys in .resx files based on the provided options.
-     * @param resources The resources to sort.
-     * @returns The sorted resources.
-     */
-    public sort(resources: Array<IResourceInfo>): Array<IResourceInfo> {
-        const plans = this.plan(resources);
+    const plans = resources.map((resource) => {
+      this._logger.info(`  Sorting ${gray(resource.name)}`);
 
-        for (const plan of plans) {
-            if (!this._options.dryRun && plan.keysSorted > 0) {
-                this._fileSystem.fileWriteAllText(plan.sortedResource.path, plan.sortedResource.toString());
-                this._logger.info(`  ${plan.sortedResource.name} ${bold(gray('Updated'))}`);
-            } else if (this._options.dryRun) {
-                this._logger.log(t`${gray('  Dry run enabled, skipping...')}`);
-            }
-        }
+      const plan = this.sortResource(resource);
 
-        return plans.map((plan) => plan.sortedResource);
-    }
+      if (plan.keysSorted > 0) {
+        this._logger.info(t`    ${bold(resource.name)}: ${plan.keysSorted} key(s) were sorted.`);
+      } else {
+        this._logger.info(t`    ${bold(resource.name)}: No keys needed sorting.`);
+      }
 
-    /**
-     * Works out what sorting the resources would change, without writing anything.
-     *
-     * @public
-     * @param resources The resources to sort.
-     * @returns One plan per resource.
-     */
-    public plan(resources: Array<IResourceInfo>): Array<IResourceSortPlan> {
-        this._logger.log(t`${magenta('Sorting resources keys...')}`);
+      return plan;
+    });
 
-        const plans = resources.map((resource) => {
-            this._logger.info(`  Sorting ${gray(resource.name)}`);
+    this._logger.log(t`${magenta('Resource keys sorted.')}`);
 
-            const plan = this.sortResource(resource);
+    return plans;
+  }
 
-            if (plan.keysSorted > 0) {
-                this._logger.info(t`    ${bold(resource.name)}: ${plan.keysSorted} key(s) were sorted.`);
-            } else {
-                this._logger.info(t`    ${bold(resource.name)}: No keys needed sorting.`);
-            }
+  /**
+   * Sorts a single resource and collects sorting information.
+   *
+   * @param resource The resource to sort.
+   * @returns The sorted resource and sorting details.
+   */
+  private sortResource(resource: IResourceInfo): IResourceSortPlan {
+    const clonedResource = resource.clone();
+    // `entries` keeps the document order, while `keys` is always sorted and would never show a difference.
+    const keysBeforeSort = clonedResource.entries().map(([key]) => key);
+    const sortedResource = clonedResource.sort(this._options.order);
+    const keysAfterSort = sortedResource.entries().map(([key]) => key);
 
-            return plan;
-        });
+    const sortedKeysCount = keysBeforeSort.filter(
+      (key, index) => key !== keysAfterSort[index],
+    ).length;
 
-        this._logger.log(t`${magenta('Resource keys sorted.')}`);
+    return {
+      sortedResource: sortedResource,
+      keysSorted: sortedKeysCount,
+    };
+  }
 
-        return plans;
-    }
-
-    /**
-     * Sorts a single resource and collects sorting information.
-     *
-     * @param resource The resource to sort.
-     * @returns The sorted resource and sorting details.
-     */
-    private sortResource(resource: IResourceInfo): IResourceSortPlan {
-        const clonedResource = resource.clone();
-        // `entries` keeps the document order, while `keys` is always sorted and would never show a difference.
-        const keysBeforeSort = clonedResource.entries().map(([key]) => key);
-        const sortedResource = clonedResource.sort(this._options.order);
-        const keysAfterSort = sortedResource.entries().map(([key]) => key);
-
-        const sortedKeysCount = keysBeforeSort.filter((key, index) => key !== keysAfterSort[index]).length;
-
-        return {
-            sortedResource: sortedResource,
-            keysSorted: sortedKeysCount
-        };
-    }
-
-    // #endregion
-
+  // #endregion
 }

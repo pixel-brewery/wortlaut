@@ -5,26 +5,55 @@
         <h1>Transform and sort</h1>
         <p class="lead">Convert catalogs to other formats and keep their keys in order.</p>
       </div>
-      <mosaik-button variant="primary" appearance="solid" icon="sync" iconSize="small" [label]="presenter.transformLabel()" [disabled]="!presenter.canTransform()" (click)="presenter.transform()" />
+      <mosaik-button
+        variant="primary"
+        appearance="solid"
+        icon="sync"
+        iconSize="small"
+        [label]="presenter.transformLabel()"
+        [disabled]="!presenter.canTransform()"
+        (click)="presenter.transform()"
+      />
     </div>
 
     @if (presenter.overview.isLoading()) {
       <wortlaut-loading-state label="Reading the catalogs" />
     } @else if (presenter.overview.isFailed()) {
-      <wortlaut-failure-state header="This project could not be read" [message]="presenter.overview.error()" (retry)="presenter.load()" />
+      <wortlaut-failure-state
+        header="This project could not be read"
+        [message]="presenter.overview.error()"
+        (retry)="presenter.load()"
+      />
     } @else if (presenter.overview.value(); as overview) {
       <wortlaut-dry-run-notice />
 
-      <mosaik-split class="pane-split page-content" test-id="transform-split" paneSizeKey="transform.workspace" paneSize="280px" lock="start" min="220px" max="55%" [intl]="{ resizeLabel: 'Resize transform settings' }">
+      <mosaik-split
+        class="pane-split page-content"
+        test-id="transform-split"
+        paneSizeKey="transform.workspace"
+        paneSize="280px"
+        lock="start"
+        min="220px"
+        max="55%"
+        [intl]="{ resizeLabel: 'Resize transform settings' }"
+      >
         <div slot="start" class="page-column-side pane-start">
           <section aria-label="Target formats" class="card-section">
             <mosaik-card>
               <mosaik-card-header slot="header" text="Target formats" />
               <div slot="content" class="card-pad">
-                <p class="muted">Source is <code class="inline">{{ overview.source }}</code>. A file is only written when its content changes.</p>
+                <p class="muted">
+                  Source is <code class="inline">{{ overview.source }}</code
+                  >. A file is only written when its content changes.
+                </p>
                 @for (format of presenter.formats(); track format.id) {
                   <div class="format">
-                    <mosaik-checkbox [label]="format.name" [isChecked]="format.isChecked" (checked)="presenter.setFormat(format.id, true)" (unchecked)="presenter.setFormat(format.id, false)" />
+                    <mosaik-checkbox
+                      [label]="format.name"
+                      [isChecked]="format.isChecked"
+                      (checked)="presenter.setFormat(format.id, true)"
+                      (unchecked)="presenter.setFormat(format.id, false)"
+                    />
                     <span class="note format-note">{{ format.description }}</span>
                   </div>
                 }
@@ -41,10 +70,26 @@
               </div>
               <div slot="footer" class="sort-actions">
                 <mosaik-segment appearance="soft" size="small" aria-label="Sort order">
-                  <mosaik-segment-item label="Ascending" [isChecked]="presenter.order() === 'asc'" (click)="presenter.setOrder('asc')" />
-                  <mosaik-segment-item label="Descending" [isChecked]="presenter.order() === 'desc'" (click)="presenter.setOrder('desc')" />
+                  <mosaik-segment-item
+                    label="Ascending"
+                    [isChecked]="presenter.order() === 'asc'"
+                    (click)="presenter.setOrder('asc')"
+                  />
+                  <mosaik-segment-item
+                    label="Descending"
+                    [isChecked]="presenter.order() === 'desc'"
+                    (click)="presenter.setOrder('desc')"
+                  />
                 </mosaik-segment>
-                <mosaik-button test-id="transform-sort" label="Sort files" variant="neutral" appearance="outline" size="small" [disabled]="presenter.isRunning()" (click)="presenter.sort()" />
+                <mosaik-button
+                  test-id="transform-sort"
+                  label="Sort files"
+                  variant="neutral"
+                  appearance="outline"
+                  size="small"
+                  [disabled]="presenter.isRunning()"
+                  (click)="presenter.sort()"
+                />
               </div>
             </mosaik-card>
           </section>
@@ -68,7 +113,11 @@
           @if (presenter.shown().failure(); as failure) {
             <mosaik-message variant="danger" header="Nothing was written" [content]="failure" />
           } @else if (presenter.shown().wasStopped()) {
-            <mosaik-message variant="info" header="The run was stopped" content="Nothing was written." />
+            <mosaik-message
+              variant="info"
+              header="The run was stopped"
+              content="Nothing was written."
+            />
           }
           <wortlaut-write-result [outcome]="presenter.outcome()" />
 
@@ -89,10 +138,31 @@
                         </mosaik-table-header>
                         <mosaik-table-body>
                           @for (row of presenter.rows(); track row.file) {
-                            <mosaik-table-body-row tabindex="0" [attr.test-id]="'transform-result-' + row.file" [attr.aria-selected]="row.isSelected" [isSelected]="row.isSelected" (click)="presenter.pick(row.file)" (keydown.enter)="presenter.pick(row.file)" (keydown.space)="$event.preventDefault(); presenter.pick(row.file)">
-                              <mosaik-table-body-cell><code class="inline cell-text">{{ row.file }}</code></mosaik-table-body-cell>
-                              <mosaik-table-body-cell><span class="muted">{{ row.keysLabel }}</span></mosaik-table-body-cell>
-                              <mosaik-table-body-cell><mosaik-badge appearance="soft" [label]="row.badge.label" [variant]="row.badge.variant" /></mosaik-table-body-cell>
+                            <mosaik-table-body-row
+                              tabindex="0"
+                              [attr.test-id]="'transform-result-' + row.file"
+                              [attr.aria-selected]="row.isSelected"
+                              [isSelected]="row.isSelected"
+                              (click)="presenter.pick(row.file)"
+                              (keydown.enter)="presenter.pick(row.file)"
+                              (keydown.space)="$event.preventDefault(); presenter.pick(row.file)"
+                            >
+                              <mosaik-table-body-cell
+                                ><code class="inline cell-text">{{
+                                  row.file
+                                }}</code></mosaik-table-body-cell
+                              >
+                              <mosaik-table-body-cell
+                                ><span class="muted">{{
+                                  row.keysLabel
+                                }}</span></mosaik-table-body-cell
+                              >
+                              <mosaik-table-body-cell
+                                ><mosaik-badge
+                                  appearance="soft"
+                                  [label]="row.badge.label"
+                                  [variant]="row.badge.variant"
+                              /></mosaik-table-body-cell>
                             </mosaik-table-body-row>
                           }
                         </mosaik-table-body>
@@ -101,7 +171,10 @@
                   </div>
                 } @else if (!presenter.isRunning()) {
                   <div class="row-line">
-                    <mosaik-empty-state header="No result yet" content="Transform or sort to see what happens to each file." />
+                    <mosaik-empty-state
+                      header="No result yet"
+                      content="Transform or sort to see what happens to each file."
+                    />
                   </div>
                 }
               </div>
@@ -112,12 +185,16 @@
             <section aria-label="Preview" class="card-section">
               <mosaik-card>
                 <mosaik-card-header slot="header" text="Preview">
-                  <div slot="suffix" class="card-suffix"><code class="small muted">{{ file.file }}</code></div>
+                  <div slot="suffix" class="card-suffix">
+                    <code class="small muted">{{ file.file }}</code>
+                  </div>
                 </mosaik-card-header>
                 <div slot="content" class="card-body">
                   <pre class="preview">{{ file.preview }}</pre>
                   @if (file.previewTruncated) {
-                    <div class="table-footer note row-line">The rest of this file is too long to show here.</div>
+                    <div class="table-footer note row-line">
+                      The rest of this file is too long to show here.
+                    </div>
                   }
                 </div>
               </mosaik-card>

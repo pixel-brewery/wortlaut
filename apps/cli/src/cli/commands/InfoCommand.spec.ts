@@ -8,18 +8,28 @@ import { InfoCommand } from './InfoCommand';
 // #endregion
 
 describe('InfoCommand', () => {
-    it('prints the machine', async () => {
-        // arrange
-        const logger = { log: vi.fn(), warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() } as unknown as ILogger;
-        const command = new InfoCommand({ ...DEFAULT_INFO_COMMAND_ARGS_CONFIG }, logger, new FileSystem());
+  it('prints the machine', async () => {
+    // arrange
+    const logger = {
+      log: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+    } as unknown as ILogger;
+    const command = new InfoCommand(
+      { ...DEFAULT_INFO_COMMAND_ARGS_CONFIG },
+      logger,
+      new FileSystem(),
+    );
 
-        // act
-        await command.execute();
+    // act
+    await command.execute();
 
-        // assert
-        const printed = vi.mocked(logger.log).mock.calls.flat().join('\n');
+    // assert
+    const printed = vi.mocked(logger.log).mock.calls.flat().join('\n');
 
-        expect(printed).toContain('Platform');
-        expect(printed).toContain(process.platform);
-    });
+    expect(printed).toContain('Platform');
+    expect(printed).toContain(process.platform);
+  });
 });

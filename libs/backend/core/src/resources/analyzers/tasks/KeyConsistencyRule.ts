@@ -1,7 +1,11 @@
 // #region Imports
 
 import { getOtherCatalogLocales } from '../ResourceCatalog';
-import type { IAnalyzerRule, IAnalyzerRuleExecutionContext, IAnalyzerRuleResult } from './interfaces/IAnalyzerRule';
+import type {
+  IAnalyzerRule,
+  IAnalyzerRuleExecutionContext,
+  IAnalyzerRuleResult,
+} from './interfaces/IAnalyzerRule';
 
 // #endregion
 
@@ -11,27 +15,25 @@ import type { IAnalyzerRule, IAnalyzerRuleExecutionContext, IAnalyzerRuleResult 
  * @public
  */
 export interface IKeyConsistencyRuleResultData {
+  /**
+   * The locale of the resource being analyzed.
+   */
+  locale: string;
 
-    /**
-     * The locale of the resource being analyzed.
-     */
-    locale: string;
+  /**
+   * The keys that another locale of the catalog defines and this locale lacks, sorted.
+   */
+  missingKeys: Array<string>;
 
-    /**
-     * The keys that another locale of the catalog defines and this locale lacks, sorted.
-     */
-    missingKeys: Array<string>;
+  /**
+   * Indicates if the locale is empty.
+   */
+  isEmpty: boolean;
 
-    /**
-     * Indicates if the locale is empty.
-     */
-    isEmpty: boolean;
-
-    /**
-     * The other locales of the catalog that the locale was compared with, sorted.
-     */
-    comparedLocales: Array<string>;
-
+  /**
+   * The other locales of the catalog that the locale was compared with, sorted.
+   */
+  comparedLocales: Array<string>;
 }
 
 /**
@@ -46,64 +48,68 @@ export interface IKeyConsistencyRuleResultData {
  * @public
  */
 export class KeyConsistencyRule implements IAnalyzerRule<Array<IKeyConsistencyRuleResultData>> {
+  /**
+   * Executes the key consistency check.
+   *
+   * @param context The execution context containing resources and parameters.
+   * @returns The rule result with information about missing keys and empty locales.
+   */
+  public execute(
+    context: IAnalyzerRuleExecutionContext,
+  ): IAnalyzerRuleResult<Array<IKeyConsistencyRuleResultData>> {
+    const locale = context.resource.locale;
+    const keys = new Set(context.resource.keys());
+    const otherLocales = getOtherCatalogLocales(context.resource, context.resources ?? []);
+    const missingKeys = new Set<string>();
 
-    /**
-     * Executes the key consistency check.
-     *
-     * @param context The execution context containing resources and parameters.
-     * @returns The rule result with information about missing keys and empty locales.
-     */
-    public execute(context: IAnalyzerRuleExecutionContext): IAnalyzerRuleResult<Array<IKeyConsistencyRuleResultData>> {
-        const locale = context.resource.locale;
-        const keys = new Set(context.resource.keys());
-        const otherLocales = getOtherCatalogLocales(context.resource, context.resources ?? []);
-        const missingKeys = new Set<string>();
-
-        for (const otherLocale of otherLocales) {
-            for (const key of otherLocale.keys()) {
-                if (!keys.has(key)) {
-                    missingKeys.add(key);
-                }
-            }
+    for (const otherLocale of otherLocales) {
+      for (const key of otherLocale.keys()) {
+        if (!keys.has(key)) {
+          missingKeys.add(key);
         }
-
-        const data: IKeyConsistencyRuleResultData = {
-            locale,
-            missingKeys: Array.from(missingKeys).sort((a, b) => a.localeCompare(b)),
-            isEmpty: keys.size === 0,
-            comparedLocales: Array.from(new Set(otherLocales.map((otherLocale) => otherLocale.locale))).sort((a, b) => a.localeCompare(b))
-        };
-        const success = !data.isEmpty && data.missingKeys.length === 0;
-
-        return {
-            resource: context.resource,
-            success,
-            message: this.createMessage(data),
-            data: [data]
-        };
+      }
     }
 
-    /**
-     * @private
-     */
-    private createMessage(data: IKeyConsistencyRuleResultData): string {
-        const messages = new Array<string>();
+    const data: IKeyConsistencyRuleResultData = {
+      locale,
+      missingKeys: Array.from(missingKeys).sort((a, b) => a.localeCompare(b)),
+      isEmpty: keys.size === 0,
+      comparedLocales: Array.from(
+        new Set(otherLocales.map((otherLocale) => otherLocale.locale)),
+      ).sort((a, b) => a.localeCompare(b)),
+    };
+    const success = !data.isEmpty && data.missingKeys.length === 0;
 
-        if (data.isEmpty) {
-            messages.push(`The locale '${data.locale}' contains no keys.`);
-        }
+    return {
+      resource: context.resource,
+      success,
+      message: this.createMessage(data),
+      data: [data],
+    };
+  }
 
-        if (data.missingKeys.length > 0) {
-            messages.push(`The locale '${data.locale}' is missing ${data.missingKeys.length} key(s) that other locales of its catalog (${data.comparedLocales.join(', ')}) define: ${data.missingKeys.join(', ')}`);
-        }
+  /**
+   * @private
+   */
+  private createMessage(data: IKeyConsistencyRuleResultData): string {
+    const messages = new Array<string>();
 
-        if (messages.length > 0) {
-            return messages.join(' ');
-        }
-
-        return data.comparedLocales.length > 0
-            ? `The locale '${data.locale}' defines the same keys as the other locales of its catalog (${data.comparedLocales.join(', ')}).`
-            : `The locale '${data.locale}' has no other locale in its catalog to compare with.`;
+    if (data.isEmpty) {
+      messages.push(`The locale '${data.locale}' contains no keys.`);
     }
 
+    if (data.missingKeys.length > 0) {
+      messages.push(
+        `The locale '${data.locale}' is missing ${data.missingKeys.length} key(s) that other locales of its catalog (${data.comparedLocales.join(', ')}) define: ${data.missingKeys.join(', ')}`,
+      );
+    }
+
+    if (messages.length > 0) {
+      return messages.join(' ');
+    }
+
+    return data.comparedLocales.length > 0
+      ? `The locale '${data.locale}' defines the same keys as the other locales of its catalog (${data.comparedLocales.join(', ')}).`
+      : `The locale '${data.locale}' has no other locale in its catalog to compare with.`;
+  }
 }

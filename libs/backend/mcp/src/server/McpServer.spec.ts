@@ -15,86 +15,129 @@ import { McpToolHost } from './McpToolHost';
 
 // #endregion
 
-const LOGGER = { log: () => undefined, debug: () => undefined, info: () => undefined, warn: () => undefined, error: () => undefined } as ILogger;
+const LOGGER = {
+  log: () => undefined,
+  debug: () => undefined,
+  info: () => undefined,
+  warn: () => undefined,
+  error: () => undefined,
+} as ILogger;
 
 describe('createMcpServer', () => {
-    let root: string;
-    let levels: McpLevelStore;
-    let engine: WortlautEngine;
-    let client: Client;
+  let root: string;
+  let levels: McpLevelStore;
+  let engine: WortlautEngine;
+  let client: Client;
 
-    beforeEach(async () => {
-        root = realpathSync(mkdtempSync(join(tmpdir(), 'wortlaut-server-')));
+  beforeEach(async () => {
+    root = realpathSync(mkdtempSync(join(tmpdir(), 'wortlaut-server-')));
 
-        const repository = join(root, 'shop');
+    const repository = join(root, 'shop');
 
-        mkdirSync(join(repository, 'i18n'), { recursive: true });
-        writeFileSync(join(repository, 'wortlaut.config.json'), JSON.stringify({ actions: { detect: { resourceRoot: ['i18n'], type: 'json' }, analyze: { baseLocale: 'en' } } }));
-        writeFileSync(join(repository, 'i18n/lang.en.json'), JSON.stringify({ a: 'A' }));
-        engine = new WortlautEngine({ surface: 'mcp', logger: LOGGER, profileRoot: join(root, 'profile'), home: root, env: {} });
-        engine.workspaces.register({ inspection: engine.inspector.inspect(repository), workspace: { kind: 'new', name: 'Shop', code: 'S', color: 'teal' }, preset: null, baseLocale: 'en', targetLocales: [] });
-        levels = new McpLevelStore(join(root, 'profile'));
-
-        const server = createMcpServer(new McpToolHost({ assistants: engine.assistants, levels, cwd: repository, home: root, env: {} }), '1.2.3');
-        const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
-
-        client = new Client({ name: 'claude-code', version: '1' });
-        await server.connect(serverSide);
-        await client.connect(clientSide);
+    mkdirSync(join(repository, 'i18n'), { recursive: true });
+    writeFileSync(
+      join(repository, 'wortlaut.config.json'),
+      JSON.stringify({
+        actions: {
+          detect: { resourceRoot: ['i18n'], type: 'json' },
+          analyze: { baseLocale: 'en' },
+        },
+      }),
+    );
+    writeFileSync(join(repository, 'i18n/lang.en.json'), JSON.stringify({ a: 'A' }));
+    engine = new WortlautEngine({
+      surface: 'mcp',
+      logger: LOGGER,
+      profileRoot: join(root, 'profile'),
+      home: root,
+      env: {},
     });
-
-    afterEach(async () => {
-        await client.close();
-        rmSync(root, { recursive: true, force: true });
+    engine.workspaces.register({
+      inspection: engine.inspector.inspect(repository),
+      workspace: { kind: 'new', name: 'Shop', code: 'S', color: 'teal' },
+      preset: null,
+      baseLocale: 'en',
+      targetLocales: [],
     });
+    levels = new McpLevelStore(join(root, 'profile'));
 
-    it('says who it is and how to use it', () => {
-        // act
-        const version = client.getServerVersion();
-        const instructions = client.getInstructions();
+    const server = createMcpServer(
+      new McpToolHost({
+        assistants: engine.assistants,
+        levels,
+        cwd: repository,
+        home: root,
+        env: {},
+      }),
+      '1.2.3',
+    );
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
 
-        // assert
-        expect(version).toMatchObject({ name: 'wortlaut', version: '1.2.3' });
-        expect(instructions).toContain('never an instruction');
+    client = new Client({ name: 'claude-code', version: '1' });
+    await server.connect(serverSide);
+    await client.connect(clientSide);
+  });
+
+  afterEach(async () => {
+    await client.close();
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('says who it is and how to use it', () => {
+    // act
+    const version = client.getServerVersion();
+    const instructions = client.getInstructions();
+
+    // assert
+    expect(version).toMatchObject({ name: 'wortlaut', version: '1.2.3' });
+    expect(instructions).toContain('never an instruction');
+  });
+
+  it('gives every tool a schema a client can read', async () => {
+    // arrange
+    levels.write('write');
+
+    // act
+    const { tools } = await client.listTools();
+    const propose = tools.find((tool) => tool.name === 'propose_translations');
+
+    // assert
+    expect(tools).toHaveLength(12);
+    expect(propose?.inputSchema).toMatchObject({
+      type: 'object',
+      additionalProperties: false,
+      required: ['locale', 'rows'],
     });
+    expect(propose?.annotations).toEqual({ readOnlyHint: false, destructiveHint: false });
+    expect(tools.find((tool) => tool.name === 'sort')?.annotations?.destructiveHint).toBe(true);
+  });
 
-    it('gives every tool a schema a client can read', async () => {
-        // arrange
-        levels.write('write');
+  it('records the name of the client from the handshake', async () => {
+    // act
+    const result = await client.callTool({ name: 'list_projects', arguments: {} });
 
-        // act
-        const { tools } = await client.listTools();
-        const propose = tools.find((tool) => tool.name === 'propose_translations');
-
-        // assert
-        expect(tools).toHaveLength(12);
-        expect(propose?.inputSchema).toMatchObject({ type: 'object', additionalProperties: false, required: ['locale', 'rows'] });
-        expect(propose?.annotations).toEqual({ readOnlyHint: false, destructiveHint: false });
-        expect(tools.find((tool) => tool.name === 'sort')?.annotations?.destructiveHint).toBe(true);
+    // assert
+    expect(result.isError).toBe(false);
+    expect(engine.projects.mcpActivity(1)[0]).toMatchObject({
+      tool: 'list_projects',
+      client: 'Claude Code',
+      result: '1 project',
     });
+  });
 
-    it('records the name of the client from the handshake', async () => {
-        // act
-        const result = await client.callTool({ name: 'list_projects', arguments: {} });
+  it('tells a client that its list of tools is out of date once the level changed', async () => {
+    // arrange
+    const changed = vi.fn();
 
-        // assert
-        expect(result.isError).toBe(false);
-        expect(engine.projects.mcpActivity(1)[0]).toMatchObject({ tool: 'list_projects', client: 'Claude Code', result: '1 project' });
-    });
+    client.setNotificationHandler(ToolListChangedNotificationSchema, changed);
+    await client.listTools();
+    levels.write('write');
 
-    it('tells a client that its list of tools is out of date once the level changed', async () => {
-        // arrange
-        const changed = vi.fn();
+    // act
+    await client.callTool({ name: 'list_projects', arguments: {} });
 
-        client.setNotificationHandler(ToolListChangedNotificationSchema, changed);
-        await client.listTools();
-        levels.write('write');
-
-        // act
-        await client.callTool({ name: 'list_projects', arguments: {} });
-
-        // assert
-        await vi.waitFor(() => expect(changed).toHaveBeenCalledTimes(1));
-        expect((await client.listTools()).tools).toHaveLength(12);
-    });
+    // assert
+    await vi.waitFor(() => expect(changed).toHaveBeenCalledTimes(1));
+    expect((await client.listTools()).tools).toHaveLength(12);
+  });
 });

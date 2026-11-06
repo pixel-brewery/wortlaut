@@ -11,11 +11,9 @@ import type { IResourceModel } from '../../../models/interfaces/IResourceModel';
  * @public
  */
 export interface IResourceTransformerAdapter<T extends IResourceInfo> {
+  // #region Methods
 
-    // #region Methods
+  transform(resource: T): Array<IResourceModel>;
 
-    transform(resource: T): Array<IResourceModel>;
-
-    // #endregion
-
+  // #endregion
 }

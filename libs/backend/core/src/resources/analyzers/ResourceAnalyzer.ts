@@ -6,7 +6,11 @@ import { createRuleFindings, severityOfRule, type RuleSeverity } from './finding
 import { DuplicateKeysRule } from './tasks/DuplicateKeysRule';
 import { DuplicateValuesRule } from './tasks/DuplicateValuesRule';
 import { EmptyValuesRule } from './tasks/EmptyValuesRule';
-import type { IAnalyzerRule, IAnalyzerRuleExecutionContext, IAnalyzerRuleResult } from './tasks/interfaces/IAnalyzerRule';
+import type {
+  IAnalyzerRule,
+  IAnalyzerRuleExecutionContext,
+  IAnalyzerRuleResult,
+} from './tasks/interfaces/IAnalyzerRule';
 import { KeyConsistencyRule } from './tasks/KeyConsistencyRule';
 import { MissingTranslationsRule } from './tasks/MissingTranslationsRule';
 import { MultipleKeyUsageRule } from './tasks/MultipleKeyUsageRule';
@@ -20,7 +24,7 @@ import { UnusedKeysRule } from './tasks/UnusedKeysRule';
  * @public
  */
 export interface IResourceAnalyzerEventMap {
-    ruleExecuted: [ruleName: string, result: IAnalyzerRuleResult];
+  ruleExecuted: [ruleName: string, result: IAnalyzerRuleResult];
 }
 
 /**
@@ -29,160 +33,168 @@ export interface IResourceAnalyzerEventMap {
  * @public
  */
 export class ResourceAnalyzer extends EventEmitter {
+  // #region Fields
 
-    // #region Fields
+  private readonly _logger: ILogger;
+  private readonly _rules: Map<string, IAnalyzerRule>;
 
-    private readonly _logger: ILogger;
-    private readonly _rules: Map<string, IAnalyzerRule>;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `ResourceAnalyzer` class.
+   *
+   * @public
+   */
+  public constructor(logger: ILogger) {
+    super();
 
-    /**
-     * Constructs a new instance of the `ResourceAnalyzer` class.
-     *
-     * @public
-     */
-    public constructor(logger: ILogger) {
-        super();
+    this._logger = logger;
+    this._rules = new Map();
 
-        this._logger = logger;
-        this._rules = new Map();
+    // pre-defined rules
+    this.registerRule('duplicate-keys', new DuplicateKeysRule());
+    this.registerRule('duplicate-values', new DuplicateValuesRule());
+    this.registerRule('empty-values', new EmptyValuesRule());
+    this.registerRule('key-consistency', new KeyConsistencyRule());
+    this.registerRule('missing-translations', new MissingTranslationsRule());
+    this.registerRule('unused-keys', new UnusedKeysRule());
+    this.registerRule('multiple-key-usage', new MultipleKeyUsageRule());
+  }
 
-        // pre-defined rules
-        this.registerRule('duplicate-keys', new DuplicateKeysRule());
-        this.registerRule('duplicate-values', new DuplicateValuesRule());
-        this.registerRule('empty-values', new EmptyValuesRule());
-        this.registerRule('key-consistency', new KeyConsistencyRule());
-        this.registerRule('missing-translations', new MissingTranslationsRule());
-        this.registerRule('unused-keys', new UnusedKeysRule());
-        this.registerRule('multiple-key-usage', new MultipleKeyUsageRule());
+  // #endregion
+
+  // #region Properties
+
+  /**
+   * Gets the names of the registered rules.
+   *
+   * @public
+   * @readonly
+   */
+  public get ruleNames(): Array<string> {
+    return Array.from(this._rules.keys());
+  }
+
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * Registers a rule.
+   *
+   * @param name The name of the rule.
+   * @param rule The rule instance.
+   * @throws Error if the rule name is already registered.
+   */
+  public registerRule(name: string, rule: IAnalyzerRule): void {
+    if (this._rules.has(name)) {
+      throw new Error(`Rule '${name}' is already registered.`);
     }
 
-    // #endregion
+    this._rules.set(name, rule);
+  }
 
-    // #region Properties
+  /**
+   * Unregister an analyzer rule.
+   *
+   * @param name The name of the rule to unregister.
+   * @returns `true` if the rule was successfully unregistered; otherwise, `false`.
+   */
+  public unregisterRule(name: string): boolean {
+    return this._rules.delete(name);
+  }
 
-    /**
-     * Gets the names of the registered rules.
-     *
-     * @public
-     * @readonly
-     */
-    public get ruleNames(): Array<string> {
-        return Array.from(this._rules.keys());
+  /**
+   * Executes the specified analyzer rule.
+   *
+   * @public
+   * @param name The name of the rule to execute.
+   * @param context The execution context containing resources and additional parameters.
+   * @returns The result of the rule execution.
+   * @throws Error if the rule is not registered.
+   */
+  public executeRule(name: string, context: IAnalyzerRuleExecutionContext): IAnalyzerRuleResult {
+    const rule = this._rules.get(name);
+
+    if (!rule) {
+      throw new Error(`Rule ${bold(name)} is not registered.`);
     }
 
-    // #endregion
+    const result = this.describe(name, rule, context);
+    this.emit('ruleExecuted', name, result);
 
-    // #region Methods
+    return result;
+  }
 
-    /**
-     * Registers a rule.
-     *
-     * @param name The name of the rule.
-     * @param rule The rule instance.
-     * @throws Error if the rule name is already registered.
-     */
-    public registerRule(name: string, rule: IAnalyzerRule): void {
-        if (this._rules.has(name)) {
-            throw new Error(`Rule '${name}' is already registered.`);
-        }
+  /**
+   * Executes all registered rules.
+   *
+   * @public
+   * @param context The execution context containing resources and additional parameters.
+   * @returns An array of rule results.
+   */
+  public executeAllRules(context: IAnalyzerRuleExecutionContext): Array<IAnalyzerRuleResult> {
+    this._logger.log(t`  ${'Executing all rules...'}`);
 
-        this._rules.set(name, rule);
+    const results: Array<IAnalyzerRuleResult> = [];
+
+    for (const [name, rule] of this._rules) {
+      const result = this.describe(name, rule, context);
+      this.emit('ruleExecuted', name, result);
+
+      if (result.success) {
+        this._logger.log(t`    ${symbol('success')} ${bold(name)} completed.`);
+        this._logger.log(t`      ${result.message}`);
+      } else {
+        this._logger.log(t`    ${symbol('error')} ${bold(name)} failed.`);
+        this._logger.log(t`      ${result.message}`);
+      }
+
+      results.push(result);
     }
 
-    /**
-     * Unregister an analyzer rule.
-     *
-     * @param name The name of the rule to unregister.
-     * @returns `true` if the rule was successfully unregistered; otherwise, `false`.
-     */
-    public unregisterRule(name: string): boolean {
-        return this._rules.delete(name);
-    }
+    this._logger.log(t`  ${magenta('All rules completed.')}`);
 
-    /**
-     * Executes the specified analyzer rule.
-     *
-     * @public
-     * @param name The name of the rule to execute.
-     * @param context The execution context containing resources and additional parameters.
-     * @returns The result of the rule execution.
-     * @throws Error if the rule is not registered.
-     */
-    public executeRule(name: string, context: IAnalyzerRuleExecutionContext): IAnalyzerRuleResult {
-        const rule = this._rules.get(name);
+    return results;
+  }
 
-        if (!rule) {
-            throw new Error(`Rule ${bold(name)} is not registered.`);
-        }
+  /**
+   * Lists all registered rules.
+   *
+   * @public
+   * @returns An array of registered rule names.
+   */
+  public listRules(): Array<string> {
+    return Array.from(this._rules.keys());
+  }
 
-        const result = this.describe(name, rule, context);
-        this.emit('ruleExecuted', name, result);
+  /**
+   * Runs a rule and adds what every result has in common: its severity and its findings in the one shape, so built-in
+   * rules and rules of a pack take one path.
+   *
+   * @private
+   */
+  private describe(
+    name: string,
+    rule: IAnalyzerRule,
+    context: IAnalyzerRuleExecutionContext,
+  ): IAnalyzerRuleResult {
+    const result = rule.execute(context);
+    const severity = severityOfRule(
+      name,
+      context.parameters.severities as Readonly<Record<string, RuleSeverity>> | undefined,
+      rule.severity,
+    );
 
-        return result;
-    }
+    result.severity = severity;
+    result.findings = (result.findings ?? createRuleFindings(name, result, severity)).map(
+      (finding) => ({ ...finding, severity }),
+    );
 
-    /**
-     * Executes all registered rules.
-     *
-     * @public
-     * @param context The execution context containing resources and additional parameters.
-     * @returns An array of rule results.
-     */
-    public executeAllRules(context: IAnalyzerRuleExecutionContext): Array<IAnalyzerRuleResult> {
-        this._logger.log(t`  ${'Executing all rules...'}`);
+    return result;
+  }
 
-        const results: Array<IAnalyzerRuleResult> = [];
-
-        for (const [name, rule] of this._rules) {
-            const result = this.describe(name, rule, context);
-            this.emit('ruleExecuted', name, result);
-
-            if (result.success) {
-                this._logger.log(t`    ${symbol('success')} ${bold(name)} completed.`);
-                this._logger.log(t`      ${result.message}`);
-            } else {
-                this._logger.log(t`    ${symbol('error')} ${bold(name)} failed.`);
-                this._logger.log(t`      ${result.message}`);
-            }
-
-            results.push(result);
-        }
-
-        this._logger.log(t`  ${magenta('All rules completed.')}`);
-
-        return results;
-    }
-
-    /**
-     * Lists all registered rules.
-     *
-     * @public
-     * @returns An array of registered rule names.
-     */
-    public listRules(): Array<string> {
-        return Array.from(this._rules.keys());
-    }
-
-    /**
-     * Runs a rule and adds what every result has in common: its severity and its findings in the one shape, so built-in
-     * rules and rules of a pack take one path.
-     *
-     * @private
-     */
-    private describe(name: string, rule: IAnalyzerRule, context: IAnalyzerRuleExecutionContext): IAnalyzerRuleResult {
-        const result = rule.execute(context);
-        const severity = severityOfRule(name, context.parameters.severities as Readonly<Record<string, RuleSeverity>> | undefined, rule.severity);
-
-        result.severity = severity;
-        result.findings = (result.findings ?? createRuleFindings(name, result, severity)).map((finding) => ({ ...finding, severity }));
-
-        return result;
-    }
-
-    // #endregion
-
+  // #endregion
 }

@@ -3,27 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/desktop/src",
-  "tags": [
-    "runtime:desktop",
-    "kind:app"
-  ],
+  "tags": ["runtime:desktop", "kind:app"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
       "options": {
         "command": "node apps/desktop/tools/build.mjs"
       },
-      "inputs": [
-        "production",
-        "^production"
-      ],
+      "inputs": ["production", "^production"],
       "cache": true,
-      "outputs": [
-        "{workspaceRoot}/dist/apps/desktop"
-      ],
-      "dependsOn": [
-        "^build"
-      ]
+      "outputs": ["{workspaceRoot}/dist/apps/desktop"],
+      "dependsOn": ["^build"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
@@ -31,9 +21,7 @@
         "cwd": "{projectRoot}",
         "command": "yarn run typecheck"
       },
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
       "executor": "nx:run-commands",
@@ -42,9 +30,7 @@
         "command": "yarn run test"
       },
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "lint": {
       "executor": "nx:run-commands",
@@ -60,9 +46,7 @@
       },
       "dependsOn": [
         {
-          "projects": [
-            "wortlaut-frontend"
-          ],
+          "projects": ["wortlaut-frontend"],
           "target": "build"
         },
         "build"
@@ -75,9 +59,7 @@
       },
       "dependsOn": [
         {
-          "projects": [
-            "wortlaut-frontend"
-          ],
+          "projects": ["wortlaut-frontend"],
           "target": "build"
         },
         "build"

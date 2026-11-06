@@ -3,7 +3,11 @@
     <div class="sidebar-group">
       <div class="sidebar-label">{{ group.label }}</div>
       @for (item of group.items; track item.route) {
-        <a class="sidebar-link" [routerLink]="item.disabled ? null : item.route" [attr.aria-disabled]="item.disabled">
+        <a
+          class="sidebar-link"
+          [routerLink]="item.disabled ? null : item.route"
+          [attr.aria-disabled]="item.disabled"
+        >
           <mosaik-menu-item
             size="small"
             [label]="item.label"
@@ -12,7 +16,12 @@
             [disabled]="item.disabled"
           >
             @if (item.count > 0) {
-              <mosaik-badge slot="end" appearance="soft" variant="warning" [label]="'' + item.count" />
+              <mosaik-badge
+                slot="end"
+                appearance="soft"
+                variant="warning"
+                [label]="'' + item.count"
+              />
             }
           </mosaik-menu-item>
         </a>
@@ -21,7 +30,12 @@
   }
   <div class="sidebar-group sidebar-footer">
     <a class="sidebar-link" routerLink="/settings/workspace">
-      <mosaik-menu-item label="Settings" icon="settings" size="small" [isActive]="presenter.settingsActive()" />
+      <mosaik-menu-item
+        label="Settings"
+        icon="settings"
+        size="small"
+        [isActive]="presenter.settingsActive()"
+      />
     </a>
     <div class="sidebar-version">{{ presenter.versionLabel() }}</div>
   </div>

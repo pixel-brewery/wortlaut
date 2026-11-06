@@ -17,10 +17,10 @@ const [, , journalDirectory, changeSetFile, dieAfter] = process.argv;
 const changeSet = JSON.parse(readFileSync(changeSetFile, 'utf8')) as ChangeSet;
 
 new ChangeSetApplier({
-    journal: new ChangeSetJournal(journalDirectory),
-    onRenamed: (index) => {
-        if (index === Number(dieAfter)) {
-            process.kill(process.pid, 'SIGKILL');
-        }
+  journal: new ChangeSetJournal(journalDirectory),
+  onRenamed: (index) => {
+    if (index === Number(dieAfter)) {
+      process.kill(process.pid, 'SIGKILL');
     }
+  },
 }).apply(changeSet);

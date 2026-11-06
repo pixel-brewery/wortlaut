@@ -9,64 +9,62 @@ import { DEFAULT_CLI_ARGS_CONFIG, type ICliArgsConfig } from './ICliArgsConfig.j
  * @internal
  */
 export interface ICatalogCommandArgsConfig extends ICliArgsConfig {
+  // #region Properties
 
-    // #region Properties
+  /**
+   * The sub-command: `set`, `comment`, `delete`, `merge` or `add-locale`. Read from the positionals.
+   *
+   * @default ''
+   */
+  action: string;
 
-    /**
-     * The sub-command: `set`, `comment`, `delete`, `merge` or `add-locale`. Read from the positionals.
-     *
-     * @default ''
-     */
-    action: string;
+  /**
+   * What the sub-command works on. Read from the positionals.
+   *
+   * @default []
+   */
+  words: Array<string>;
 
-    /**
-     * What the sub-command works on. Read from the positionals.
-     *
-     * @default []
-     */
-    words: Array<string>;
+  /**
+   * The locale of `set` and `comment`.
+   *
+   * @default ''
+   */
+  locale: string;
 
-    /**
-     * The locale of `set` and `comment`.
-     *
-     * @default ''
-     */
-    locale: string;
+  /**
+   * The folder of the catalogs.
+   *
+   * @default ''
+   */
+  resourceRoot: string;
 
-    /**
-     * The folder of the catalogs.
-     *
-     * @default ''
-     */
-    resourceRoot: string;
+  /**
+   * The format of the catalogs.
+   *
+   * @default ResourceMode.Json
+   */
+  type: ResourceMode;
 
-    /**
-     * The format of the catalogs.
-     *
-     * @default ResourceMode.Json
-     */
-    type: ResourceMode;
+  /**
+   * The base locale.
+   *
+   * @default 'en'
+   */
+  baseLocale: string;
 
-    /**
-     * The base locale.
-     *
-     * @default 'en'
-     */
-    baseLocale: string;
-
-    // #endregion
-
+  // #endregion
 }
 
 /**
  * @internal
  */
 export const DEFAULT_CATALOG_COMMAND_ARGS_CONFIG: ICatalogCommandArgsConfig = {
-    ...DEFAULT_CLI_ARGS_CONFIG,
-    action: '',
-    words: [],
-    locale: '',
-    resourceRoot: '',
-    type: ResourceMode.Json,
-    baseLocale: 'en'
+  ...DEFAULT_CLI_ARGS_CONFIG,
+  action: '',
+  words: [],
+  locale: '',
+  resourceRoot: '',
+  type: ResourceMode.Json,
+  baseLocale: 'en',
 };

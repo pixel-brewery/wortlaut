@@ -12,12 +12,8 @@
         "command": "yarn run build"
       },
       "cache": true,
-      "outputs": [
-        "{projectRoot}/dist"
-      ],
-      "dependsOn": [
-        "^build"
-      ]
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["^build"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
@@ -25,9 +21,7 @@
         "cwd": "{projectRoot}",
         "command": "yarn run typecheck"
       },
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "test": {
       "executor": "nx:run-commands",
@@ -36,9 +30,7 @@
         "command": "yarn run test"
       },
       "cache": true,
-      "dependsOn": [
-        "build"
-      ]
+      "dependsOn": ["build"]
     },
     "lint": {
       "executor": "nx:run-commands",

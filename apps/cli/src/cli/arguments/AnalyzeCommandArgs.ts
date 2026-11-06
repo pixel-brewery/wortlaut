@@ -15,30 +15,28 @@ import { DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG } from './configurations/IAnalyzeCo
  * @returns The trimmed, non-empty patterns.
  */
 function splitKeyPatterns(value: string): Array<string> {
-    const patterns = new Array<string>();
-    let depth = 0;
-    let start = 0;
+  const patterns = new Array<string>();
+  let depth = 0;
+  let start = 0;
 
-    for (let index = 0; index < value.length; index++) {
-        const character = value[index];
+  for (let index = 0; index < value.length; index++) {
+    const character = value[index];
 
-        if (character === '\\') {
-            index++;
-        } else if (character === '{') {
-            depth++;
-        } else if (character === '}') {
-            depth = Math.max(0, depth - 1);
-        } else if (character === ',' && depth === 0) {
-            patterns.push(value.slice(start, index));
-            start = index + 1;
-        }
+    if (character === '\\') {
+      index++;
+    } else if (character === '{') {
+      depth++;
+    } else if (character === '}') {
+      depth = Math.max(0, depth - 1);
+    } else if (character === ',' && depth === 0) {
+      patterns.push(value.slice(start, index));
+      start = index + 1;
     }
+  }
 
-    patterns.push(value.slice(start));
+  patterns.push(value.slice(start));
 
-    return patterns
-        .map((pattern) => pattern.trim())
-        .filter((pattern) => pattern.length > 0);
+  return patterns.map((pattern) => pattern.trim()).filter((pattern) => pattern.length > 0);
 }
 
 // #region Arguments
@@ -49,14 +47,14 @@ function splitKeyPatterns(value: string): Array<string> {
  * @internal
  */
 export const TYPE_ARG: IProgramArg = {
-    alias: ['-t', '--type'], // Changed to kebab-case for long alias
-    options: {
-        required: true,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.type,
-        metavar: 'string',
-        help: 'The type of the resource.',
-        choices: ['json', 'resx', 'po'] // Limited to supported resource types
-    }
+  alias: ['-t', '--type'], // Changed to kebab-case for long alias
+  options: {
+    required: true,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.type,
+    metavar: 'string',
+    help: 'The type of the resource.',
+    choices: ['json', 'resx', 'po'], // Limited to supported resource types
+  },
 };
 
 /**
@@ -65,15 +63,18 @@ export const TYPE_ARG: IProgramArg = {
  * @internal
  */
 export const RULES_ARG: IProgramArg = {
-    alias: ['-u', '--rules'], // Changed short alias to a single character
-    options: {
-        type: (value: string) => value.split(',').map((rule) => rule.trim())
-            .filter((rule) => rule.length > 0),
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.rules,
-        metavar: 'string',
-        help: 'The rules to analyze the resources. If empty, all rules will be applied.'
-    }
+  alias: ['-u', '--rules'], // Changed short alias to a single character
+  options: {
+    type: (value: string) =>
+      value
+        .split(',')
+        .map((rule) => rule.trim())
+        .filter((rule) => rule.length > 0),
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.rules,
+    metavar: 'string',
+    help: 'The rules to analyze the resources. If empty, all rules will be applied.',
+  },
 };
 
 /**
@@ -82,13 +83,13 @@ export const RULES_ARG: IProgramArg = {
  * @internal
  */
 export const RESOURCE_ROOT_ARG: IProgramArg = {
-    alias: ['-R', '--resource-root'], // Short alias set to -R, long alias changed to kebab-case
-    options: {
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceRoot,
-        metavar: 'string',
-        help: 'The resource root directory.'
-    }
+  alias: ['-R', '--resource-root'], // Short alias set to -R, long alias changed to kebab-case
+  options: {
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceRoot,
+    metavar: 'string',
+    help: 'The resource root directory.',
+  },
 };
 
 /**
@@ -97,13 +98,13 @@ export const RESOURCE_ROOT_ARG: IProgramArg = {
  * @internal
  */
 export const ROOT_ARG: IProgramArg = {
-    alias: ['-r', '--root'], // Long alias changed to kebab-case
-    options: {
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.root,
-        metavar: 'string',
-        help: 'The root directory to locate the used resources.'
-    }
+  alias: ['-r', '--root'], // Long alias changed to kebab-case
+  options: {
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.root,
+    metavar: 'string',
+    help: 'The root directory to locate the used resources.',
+  },
 };
 
 /**
@@ -112,13 +113,13 @@ export const ROOT_ARG: IProgramArg = {
  * @internal
  */
 export const PRESET_ARG: IProgramArg = {
-    alias: ['-p', '--preset'], // Long alias changed to kebab-case
-    options: {
-        required: false,
-        metavar: 'string',
-        help: 'The preset to analyze the resources.',
-        choices: ['angular', 'react', 'vue', 'lit', 'stencil'] // Defined supported frameworks
-    }
+  alias: ['-p', '--preset'], // Long alias changed to kebab-case
+  options: {
+    required: false,
+    metavar: 'string',
+    help: 'The preset to analyze the resources.',
+    choices: ['angular', 'react', 'vue', 'lit', 'stencil'], // Defined supported frameworks
+  },
 };
 
 /**
@@ -127,13 +128,13 @@ export const PRESET_ARG: IProgramArg = {
  * @internal
  */
 export const RESOURCE_KEY_PREFIX_ARG: IProgramArg = {
-    alias: ['-P', '--resource-key-prefix'], // Changed long alias to kebab-case, short alias to -P
-    options: {
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceKeyPrefix,
-        metavar: 'string',
-        help: 'The prefix of the resource key.'
-    }
+  alias: ['-P', '--resource-key-prefix'], // Changed long alias to kebab-case, short alias to -P
+  options: {
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceKeyPrefix,
+    metavar: 'string',
+    help: 'The prefix of the resource key.',
+  },
 };
 
 /**
@@ -142,13 +143,13 @@ export const RESOURCE_KEY_PREFIX_ARG: IProgramArg = {
  * @internal
  */
 export const RESOURCE_KEY_SUFFIX_ARG: IProgramArg = {
-    alias: ['-S', '--resource-key-suffix'], // Changed long alias to kebab-case, short alias to -S
-    options: {
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceKeySuffix,
-        metavar: 'string',
-        help: 'The suffix of the resource key.'
-    }
+  alias: ['-S', '--resource-key-suffix'], // Changed long alias to kebab-case, short alias to -S
+  options: {
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.resourceKeySuffix,
+    metavar: 'string',
+    help: 'The suffix of the resource key.',
+  },
 };
 
 /**
@@ -157,14 +158,14 @@ export const RESOURCE_KEY_SUFFIX_ARG: IProgramArg = {
  * @internal
  */
 export const USED_KEYS_ARG: IProgramArg = {
-    alias: ['-U', '--used-keys'],
-    options: {
-        type: splitKeyPatterns,
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.usedKeys,
-        metavar: 'Array',
-        help: 'A comma-separated list of keys that count as used although no source mentions them, for example keys another library composes. An entry is an exact key, a glob or a /regular expression/: `*` matches within one segment and, at the end, the rest of the key, `**` any number of segments, `?` one character and `{a,b}` either alternative. Commas inside braces do not separate entries, e.g. loc.api.error.*,loc.orders.{open,closed}.label'
-    }
+  alias: ['-U', '--used-keys'],
+  options: {
+    type: splitKeyPatterns,
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.usedKeys,
+    metavar: 'Array',
+    help: 'A comma-separated list of keys that count as used although no source mentions them, for example keys another library composes. An entry is an exact key, a glob or a /regular expression/: `*` matches within one segment and, at the end, the rest of the key, `**` any number of segments, `?` one character and `{a,b}` either alternative. Commas inside braces do not separate entries, e.g. loc.api.error.*,loc.orders.{open,closed}.label',
+  },
 };
 
 /**
@@ -173,13 +174,13 @@ export const USED_KEYS_ARG: IProgramArg = {
  * @internal
  */
 export const BASE_LOCALE_ARG: IProgramArg = {
-    alias: ['-bl', '--base-locale'],
-    options: {
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.baseLocale,
-        metavar: 'string',
-        help: 'The base locale that the missing-translations rule compares the values of the other locales with, e.g. en'
-    }
+  alias: ['-bl', '--base-locale'],
+  options: {
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.baseLocale,
+    metavar: 'string',
+    help: 'The base locale that the missing-translations rule compares the values of the other locales with, e.g. en',
+  },
 };
 
 /**
@@ -188,16 +189,18 @@ export const BASE_LOCALE_ARG: IProgramArg = {
  * @internal
  */
 export const IDENTICAL_KEYS_ARG: IProgramArg = {
-    alias: ['-ik', '--identical-keys'],
-    options: {
-        type: (value: string) => value.split(',')
-            .map((pattern) => pattern.trim())
-            .filter((pattern) => pattern.length > 0),
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.identicalKeys,
-        metavar: 'Array',
-        help: 'A comma-separated list of key patterns whose value may be identical to the base locale\'s value. `*` matches any characters, e.g. loc.integrations.*.name'
-    }
+  alias: ['-ik', '--identical-keys'],
+  options: {
+    type: (value: string) =>
+      value
+        .split(',')
+        .map((pattern) => pattern.trim())
+        .filter((pattern) => pattern.length > 0),
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.identicalKeys,
+    metavar: 'Array',
+    help: "A comma-separated list of key patterns whose value may be identical to the base locale's value. `*` matches any characters, e.g. loc.integrations.*.name",
+  },
 };
 
 /**
@@ -206,16 +209,18 @@ export const IDENTICAL_KEYS_ARG: IProgramArg = {
  * @internal
  */
 export const IDENTICAL_VALUES_ARG: IProgramArg = {
-    alias: ['-iv', '--identical-values'],
-    options: {
-        type: (value: string) => value.split(',')
-            .map((identicalValue) => identicalValue.trim())
-            .filter((identicalValue) => identicalValue.length > 0),
-        required: false,
-        default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.identicalValues,
-        metavar: 'Array',
-        help: 'A comma-separated list of values that need no translation, such as brand names or units, e.g. PDF,DATEV'
-    }
+  alias: ['-iv', '--identical-values'],
+  options: {
+    type: (value: string) =>
+      value
+        .split(',')
+        .map((identicalValue) => identicalValue.trim())
+        .filter((identicalValue) => identicalValue.length > 0),
+    required: false,
+    default: DEFAULT_ANALYZE_COMMAND_ARGS_CONFIG.identicalValues,
+    metavar: 'Array',
+    help: 'A comma-separated list of values that need no translation, such as brand names or units, e.g. PDF,DATEV',
+  },
 };
 
 // #endregion
@@ -228,18 +233,18 @@ export const IDENTICAL_VALUES_ARG: IProgramArg = {
  * @internal
  */
 export const ANALYZE_COMMAND_ARGS = [
-    ...CLI_ARGS,
-    TYPE_ARG,
-    RULES_ARG,
-    RESOURCE_ROOT_ARG,
-    ROOT_ARG,
-    PRESET_ARG,
-    RESOURCE_KEY_PREFIX_ARG,
-    RESOURCE_KEY_SUFFIX_ARG,
-    USED_KEYS_ARG,
-    BASE_LOCALE_ARG,
-    IDENTICAL_KEYS_ARG,
-    IDENTICAL_VALUES_ARG
+  ...CLI_ARGS,
+  TYPE_ARG,
+  RULES_ARG,
+  RESOURCE_ROOT_ARG,
+  ROOT_ARG,
+  PRESET_ARG,
+  RESOURCE_KEY_PREFIX_ARG,
+  RESOURCE_KEY_SUFFIX_ARG,
+  USED_KEYS_ARG,
+  BASE_LOCALE_ARG,
+  IDENTICAL_KEYS_ARG,
+  IDENTICAL_VALUES_ARG,
 ];
 
 // #endregion

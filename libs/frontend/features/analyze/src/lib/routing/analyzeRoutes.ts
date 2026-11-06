@@ -10,9 +10,9 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const analyzeRoutes: Routes = [
-    {
-        path: 'analyze',
-        title: 'Analyze · Wortlaut',
-        loadComponent: () => import('../views/AnalyzeView').then((module) => module.AnalyzeView)
-    }
+  {
+    path: 'analyze',
+    title: 'Analyze · Wortlaut',
+    loadComponent: () => import('../views/AnalyzeView').then((module) => module.AnalyzeView),
+  },
 ];

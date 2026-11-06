@@ -13,8 +13,8 @@ import type { IUseCase, IUseCaseContext, IUseCaseOutput } from '../runs/CommandR
  * @public
  */
 export interface IConfigSetOptions {
-    key: string;
-    value: unknown;
+  key: string;
+  value: unknown;
 }
 
 /**
@@ -23,46 +23,47 @@ export interface IConfigSetOptions {
  * @internal
  */
 export class ConfigSetUseCase implements IUseCase<IConfigSetOptions, string> {
+  // #region Fields
 
-    // #region Fields
+  public readonly command = 'config.set';
 
-    public readonly command = 'config.set';
+  private readonly _configuration: IResolvedConfiguration;
 
-    private readonly _configuration: IResolvedConfiguration;
+  // #endregion
 
-    // #endregion
+  // #region Ctor
 
-    // #region Ctor
+  /**
+   * Constructs a new instance of the `ConfigSetUseCase` class.
+   *
+   * @param configuration The resolved configuration.
+   */
+  public constructor(configuration: IResolvedConfiguration) {
+    this._configuration = configuration;
+  }
 
-    /**
-     * Constructs a new instance of the `ConfigSetUseCase` class.
-     *
-     * @param configuration The resolved configuration.
-     */
-    public constructor(configuration: IResolvedConfiguration) {
-        this._configuration = configuration;
+  // #endregion
+
+  // #region Methods
+
+  /**
+   * @override
+   */
+  public execute(
+    options: IConfigSetOptions,
+    context: IUseCaseContext,
+  ): Promise<IUseCaseOutput<string>> {
+    // A refused secret must not reach the record of this run through its options.
+    if (isSecretName(options.key.split('.').at(-1) ?? '')) {
+      context.scrubber.add(String(options.value));
     }
 
-    // #endregion
+    const edit = ConfigurationWriter.edit(this._configuration, options.key, options.value);
 
-    // #region Methods
+    context.changes.propose(edit.file, edit.content);
 
-    /**
-     * @override
-     */
-    public execute(options: IConfigSetOptions, context: IUseCaseContext): Promise<IUseCaseOutput<string>> {
-        // A refused secret must not reach the record of this run through its options.
-        if (isSecretName(options.key.split('.').at(-1) ?? '')) {
-            context.scrubber.add(String(options.value));
-        }
+    return Promise.resolve({ result: edit.file, data: { key: options.key, file: edit.file } });
+  }
 
-        const edit = ConfigurationWriter.edit(this._configuration, options.key, options.value);
-
-        context.changes.propose(edit.file, edit.content);
-
-        return Promise.resolve({ result: edit.file, data: { key: options.key, file: edit.file } });
-    }
-
-    // #endregion
-
+  // #endregion
 }

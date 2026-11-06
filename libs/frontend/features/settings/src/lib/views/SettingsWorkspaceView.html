@@ -1,207 +1,383 @@
 @if (presenter.workspace.isLoading()) {
   <wortlaut-loading-state label="Loading the workspace" />
 } @else if (presenter.workspace.isFailed()) {
-  <wortlaut-failure-state header="This workspace could not be read" [message]="presenter.workspace.error()" (retry)="presenter.load()" />
+  <wortlaut-failure-state
+    header="This workspace could not be read"
+    [message]="presenter.workspace.error()"
+    (retry)="presenter.load()"
+  />
 } @else if (presenter.workspace.value()) {
   <div class="page-content page-content-scroll">
-  @if (presenter.message(); as message) {
-    <mosaik-message variant="danger" header="That did not work" [content]="message" />
-  }
-  @if (presenter.saved()) {
-    <mosaik-message variant="success" header="Saved" content="These values live on this computer, so no repository changed." />
-  }
-
-  <section aria-label="Workspace">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Workspace" subText="A workspace owns its projects, AI connections, rule packs and shared defaults." />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <div class="field-label"><span>Name</span></div>
-          <div class="field-control"><mosaik-textbox aria-label="Name" [formField]="presenter.form.name" /></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">
-            <span>Short code</span>
-            <span class="note">Shown next to the name in the title bar.</span>
-          </div>
-          <div class="field-control">
-            <mosaik-textbox aria-label="Short code" [invalid]="presenter.codeError() !== null" [formField]="presenter.form.code" />
-            @if (presenter.codeError(); as error) {
-              <span role="alert" class="note">{{ error }}</span>
-            }
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">
-            <span>Color</span>
-            <span class="note">Tells workspaces apart at a glance.</span>
-          </div>
-          <div class="field-control chips" aria-label="Color">
-            @for (color of presenter.colors(); track color.id) {
-              <mosaik-color-swatch [value]="color.token" [name]="color.id" [isChecked]="color.isChecked" (click)="presenter.pickColor(color.id)" />
-            }
-          </div>
-        </div>
-      </div>
-    </mosaik-card>
-  </section>
-
-  <section aria-label="Folders">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Folders" subText="Repositories that belong to this workspace. Wortlaut finds projects in them." />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <div class="field-label"><span>Repositories</span><span class="note">Closing one removes it from the workspace only.</span></div>
-          <div class="field-control chips">
-            @for (repository of presenter.repositories(); track repository.id) {
-              <mosaik-chip [label]="repository.label" [closeable]="true" [variant]="repository.missing ? 'danger' : 'default'" (closed)="presenter.removeRepository(repository)" />
-            }
-            <mosaik-button label="Add folder" icon="add" size="small" appearance="plain" (click)="presenter.addFolder()" />
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">
-            <span>Scan for projects</span>
-            <span class="note">Finds Nx projects with a wortlaut target and folders with catalogs.</span>
-          </div>
-          <div class="field-control"><mosaik-toggle-switch aria-label="Scan for projects" [isChecked]="presenter.scanForProjects()" (checked)="presenter.setScan(true)" (unchecked)="presenter.setScan(false)" /></div>
-        </div>
-      </div>
-    </mosaik-card>
-  </section>
-
-  <section aria-label="Shared defaults">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Shared defaults" subText="New projects start from these values. The repository stays the source, so the CLI reads the same." />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <div class="field-label"><span>Base locale</span></div>
-          <div class="field-control">
-            <mosaik-textbox aria-label="Base locale" placeholder="For example en" [formField]="presenter.form.baseLocale">
-              @if (presenter.form.baseLocale().value() | localeFlag; as flag) {
-                <mosaik-icon class="locale-flag" slot="prefix" [icon]="flag" size="small" aria-hidden="true" />
-              }
-            </mosaik-textbox>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field-label"><span>Target locales</span><span class="note">Separated by commas.</span></div>
-          <div class="field-control"><mosaik-textbox aria-label="Target locales" placeholder="For example de, fr" [formField]="presenter.form.targetLocales" /></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label"><span>Framework preset</span></div>
-          <div class="field-control">
-            <mosaik-select aria-label="Framework preset" placeholder="Not set yet" [formField]="presenter.form.preset">
-              @for (preset of presenter.presets; track preset.id) {
-                <mosaik-select-item [value]="preset.id" [label]="preset.name" />
-              }
-            </mosaik-select>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field-label"><span>AI assistant</span></div>
-          <div class="field-control"><mosaik-textbox aria-label="AI assistant" [value]="presenter.provider()" [readonly]="true" /></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label"><span>Rule packs</span></div>
-          <div class="field-control actions">
-            <span>{{ presenter.rulePacks() }}</span>
-            <mosaik-button routerLink="/rule-packs" label="Manage rule packs" variant="neutral" appearance="outline" size="small" />
-          </div>
-        </div>
-      </div>
-    </mosaik-card>
-  </section>
-
-  <section aria-label="Where it runs">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Where it runs" subText="Everything runs on this computer today. Cloud workspaces use the same projects, rules and tools." />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <div class="field-label"><span>Location</span></div>
-          <div class="field-control actions">
-            <mosaik-segment aria-label="Location" appearance="soft" size="small">
-              <mosaik-segment-item label="This computer" [isChecked]="true" />
-              <mosaik-segment-item label="Cloud" [disabled]="true" />
-            </mosaik-segment>
-            <mosaik-badge label="Later" variant="neutral" appearance="soft" />
-          </div>
-        </div>
-      </div>
-    </mosaik-card>
-  </section>
-
-  <section aria-label="Move a workspace">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Move a workspace" subText="Exports settings and pinned rule packs. Keys and logins stay on this computer." />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <div class="actions">
-            <mosaik-button label="Export workspace" variant="neutral" appearance="outline" size="small" (click)="presenter.exportWorkspace()" />
-            <mosaik-button label="Import workspace" variant="neutral" appearance="outline" size="small" (click)="presenter.chooseImport()" />
-          </div>
-          @if (presenter.exported(); as file) {
-            <span class="note">Saved to {{ file }}</span>
-          }
-        </div>
-      </div>
-    </mosaik-card>
-  </section>
-
-  @if (presenter.importResult(); as result) {
-    <mosaik-message variant="success" header="The workspace was added" [content]="result.discovered === 1 ? 'The scan found 1 project in the folders you chose.' : 'The scan found ' + result.discovered + ' projects in the folders you chose.'">
-      <mosaik-button slot="actions" label="Open it" size="small" variant="neutral" appearance="outline" (click)="presenter.openImported()" />
-    </mosaik-message>
-    @for (line of presenter.importResultLines(); track line) {
-      <span class="note">{{ line }}</span>
+    @if (presenter.message(); as message) {
+      <mosaik-message variant="danger" header="That did not work" [content]="message" />
     }
-  }
+    @if (presenter.saved()) {
+      <mosaik-message
+        variant="success"
+        header="Saved"
+        content="These values live on this computer, so no repository changed."
+      />
+    }
 
-  <section aria-label="Remove">
-    <mosaik-card>
-      <mosaik-card-header slot="header" text="Remove" />
-      <div slot="content" class="card-body">
-        <div class="field-row">
-          <span>Removes the workspace from Wortlaut. Your files stay where they are.</span>
-          <div class="actions"><mosaik-button label="Remove workspace" variant="danger" appearance="outline" size="small" (click)="presenter.askRemove()" /></div>
+    <section aria-label="Workspace">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="Workspace"
+          subText="A workspace owns its projects, AI connections, rule packs and shared defaults."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-label"><span>Name</span></div>
+            <div class="field-control">
+              <mosaik-textbox aria-label="Name" [formField]="presenter.form.name" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">
+              <span>Short code</span>
+              <span class="note">Shown next to the name in the title bar.</span>
+            </div>
+            <div class="field-control">
+              <mosaik-textbox
+                aria-label="Short code"
+                [invalid]="presenter.codeError() !== null"
+                [formField]="presenter.form.code"
+              />
+              @if (presenter.codeError(); as error) {
+                <span role="alert" class="note">{{ error }}</span>
+              }
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">
+              <span>Color</span>
+              <span class="note">Tells workspaces apart at a glance.</span>
+            </div>
+            <div class="field-control chips" aria-label="Color">
+              @for (color of presenter.colors(); track color.id) {
+                <mosaik-color-swatch
+                  [value]="color.token"
+                  [name]="color.id"
+                  [isChecked]="color.isChecked"
+                  (click)="presenter.pickColor(color.id)"
+                />
+              }
+            </div>
+          </div>
         </div>
-      </div>
-    </mosaik-card>
-  </section>
+      </mosaik-card>
+    </section>
 
+    <section aria-label="Folders">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="Folders"
+          subText="Repositories that belong to this workspace. Wortlaut finds projects in them."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-label">
+              <span>Repositories</span
+              ><span class="note">Closing one removes it from the workspace only.</span>
+            </div>
+            <div class="field-control chips">
+              @for (repository of presenter.repositories(); track repository.id) {
+                <mosaik-chip
+                  [label]="repository.label"
+                  [closeable]="true"
+                  [variant]="repository.missing ? 'danger' : 'default'"
+                  (closed)="presenter.removeRepository(repository)"
+                />
+              }
+              <mosaik-button
+                label="Add folder"
+                icon="add"
+                size="small"
+                appearance="plain"
+                (click)="presenter.addFolder()"
+              />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">
+              <span>Scan for projects</span>
+              <span class="note"
+                >Finds Nx projects with a wortlaut target and folders with catalogs.</span
+              >
+            </div>
+            <div class="field-control">
+              <mosaik-toggle-switch
+                aria-label="Scan for projects"
+                [isChecked]="presenter.scanForProjects()"
+                (checked)="presenter.setScan(true)"
+                (unchecked)="presenter.setScan(false)"
+              />
+            </div>
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="Shared defaults">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="Shared defaults"
+          subText="New projects start from these values. The repository stays the source, so the CLI reads the same."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-label"><span>Base locale</span></div>
+            <div class="field-control">
+              <mosaik-textbox
+                aria-label="Base locale"
+                placeholder="For example en"
+                [formField]="presenter.form.baseLocale"
+              >
+                @if (presenter.form.baseLocale().value() | localeFlag; as flag) {
+                  <mosaik-icon
+                    class="locale-flag"
+                    slot="prefix"
+                    [icon]="flag"
+                    size="small"
+                    aria-hidden="true"
+                  />
+                }
+              </mosaik-textbox>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">
+              <span>Target locales</span><span class="note">Separated by commas.</span>
+            </div>
+            <div class="field-control">
+              <mosaik-textbox
+                aria-label="Target locales"
+                placeholder="For example de, fr"
+                [formField]="presenter.form.targetLocales"
+              />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label"><span>Framework preset</span></div>
+            <div class="field-control">
+              <mosaik-select
+                aria-label="Framework preset"
+                placeholder="Not set yet"
+                [formField]="presenter.form.preset"
+              >
+                @for (preset of presenter.presets; track preset.id) {
+                  <mosaik-select-item [value]="preset.id" [label]="preset.name" />
+                }
+              </mosaik-select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label"><span>AI assistant</span></div>
+            <div class="field-control">
+              <mosaik-textbox
+                aria-label="AI assistant"
+                [value]="presenter.provider()"
+                [readonly]="true"
+              />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-label"><span>Rule packs</span></div>
+            <div class="field-control actions">
+              <span>{{ presenter.rulePacks() }}</span>
+              <mosaik-button
+                routerLink="/rule-packs"
+                label="Manage rule packs"
+                variant="neutral"
+                appearance="outline"
+                size="small"
+              />
+            </div>
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="Where it runs">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="Where it runs"
+          subText="Everything runs on this computer today. Cloud workspaces use the same projects, rules and tools."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="field-label"><span>Location</span></div>
+            <div class="field-control actions">
+              <mosaik-segment aria-label="Location" appearance="soft" size="small">
+                <mosaik-segment-item label="This computer" [isChecked]="true" />
+                <mosaik-segment-item label="Cloud" [disabled]="true" />
+              </mosaik-segment>
+              <mosaik-badge label="Later" variant="neutral" appearance="soft" />
+            </div>
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="Move a workspace">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="Move a workspace"
+          subText="Exports settings and pinned rule packs. Keys and logins stay on this computer."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <div class="actions">
+              <mosaik-button
+                label="Export workspace"
+                variant="neutral"
+                appearance="outline"
+                size="small"
+                (click)="presenter.exportWorkspace()"
+              />
+              <mosaik-button
+                label="Import workspace"
+                variant="neutral"
+                appearance="outline"
+                size="small"
+                (click)="presenter.chooseImport()"
+              />
+            </div>
+            @if (presenter.exported(); as file) {
+              <span class="note">Saved to {{ file }}</span>
+            }
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    @if (presenter.importResult(); as result) {
+      <mosaik-message
+        variant="success"
+        header="The workspace was added"
+        [content]="
+          result.discovered === 1
+            ? 'The scan found 1 project in the folders you chose.'
+            : 'The scan found ' + result.discovered + ' projects in the folders you chose.'
+        "
+      >
+        <mosaik-button
+          slot="actions"
+          label="Open it"
+          size="small"
+          variant="neutral"
+          appearance="outline"
+          (click)="presenter.openImported()"
+        />
+      </mosaik-message>
+      @for (line of presenter.importResultLines(); track line) {
+        <span class="note">{{ line }}</span>
+      }
+    }
+
+    <section aria-label="Remove">
+      <mosaik-card>
+        <mosaik-card-header slot="header" text="Remove" />
+        <div slot="content" class="card-body">
+          <div class="field-row">
+            <span>Removes the workspace from Wortlaut. Your files stay where they are.</span>
+            <div class="actions">
+              <mosaik-button
+                label="Remove workspace"
+                variant="danger"
+                appearance="outline"
+                size="small"
+                (click)="presenter.askRemove()"
+              />
+            </div>
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
   </div>
 
   <div class="footer-actions">
-    <mosaik-button label="Discard" appearance="plain" [disabled]="!presenter.isDirty()" (click)="presenter.discard()" />
-    <mosaik-button label="Save changes" variant="primary" appearance="solid" [disabled]="!presenter.canSave()" [isBusy]="presenter.busy()" (click)="presenter.save()" />
+    <mosaik-button
+      label="Discard"
+      appearance="plain"
+      [disabled]="!presenter.isDirty()"
+      (click)="presenter.discard()"
+    />
+    <mosaik-button
+      label="Save changes"
+      variant="primary"
+      appearance="solid"
+      [disabled]="!presenter.canSave()"
+      [isBusy]="presenter.busy()"
+      (click)="presenter.save()"
+    />
   </div>
 
-  <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.importPreview() !== null" [pressEscapeToClose]="true" (closed)="presenter.cancelImport()">
-    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text slot="header" text="Import this workspace?" /></mosaik-dialog-header>
+  <mosaik-dialog
+    [hasBackdrop]="true"
+    [isOpen]="presenter.importPreview() !== null"
+    [pressEscapeToClose]="true"
+    (closed)="presenter.cancelImport()"
+  >
+    <mosaik-dialog-header slot="header"
+      ><mosaik-dialog-header-text slot="header" text="Import this workspace?"
+    /></mosaik-dialog-header>
     <mosaik-dialog-content slot="content">
       @if (presenter.importPreview(); as preview) {
         <div class="import-preview">
-          <span class="muted">{{ preview.fileName }} adds a new workspace. Nothing changes until you import it, and keys and logins are not part of it.</span>
+          <span class="muted"
+            >{{ preview.fileName }} adds a new workspace. Nothing changes until you import it, and
+            keys and logins are not part of it.</span
+          >
           @if (presenter.importMessage(); as message) {
             <mosaik-message variant="danger" header="That did not work" [content]="message" />
           }
           @if (preview.nameTaken) {
-            <mosaik-message variant="warning" header="This name is taken" content="A workspace of this name exists already. It stays as it is, and this one comes next to it." />
+            <mosaik-message
+              variant="warning"
+              header="This name is taken"
+              content="A workspace of this name exists already. It stays as it is, and this one comes next to it."
+            />
           }
-          <div class="import-name"><wortlaut-workspace-tile size="small" [code]="preview.code" [color]="preview.color" /><span class="name">{{ preview.name }}</span></div>
+          <div class="import-name">
+            <wortlaut-workspace-tile
+              size="small"
+              [code]="preview.code"
+              [color]="preview.color"
+            /><span class="name">{{ preview.name }}</span>
+          </div>
           <dl class="import-facts">
             @for (fact of presenter.importFacts(); track fact.label) {
-              <div class="import-fact"><dt class="note">{{ fact.label }}</dt><dd>{{ fact.value }}</dd></div>
+              <div class="import-fact">
+                <dt class="note">{{ fact.label }}</dt>
+                <dd>{{ fact.value }}</dd>
+              </div>
             }
           </dl>
           <div class="import-group">
             <span class="name">Repositories</span>
-            <span class="note">The file names no folders. Choose where each repository is on this computer, and the scan finds its projects.</span>
+            <span class="note"
+              >The file names no folders. Choose where each repository is on this computer, and the
+              scan finds its projects.</span
+            >
             @for (repository of presenter.importRepositories(); track repository.index) {
               <div class="import-row">
                 <span>{{ repository.name }}</span>
-                @if (repository.folder; as folder) { <code class="small muted">{{ folder }}</code> }
-                <mosaik-button label="Choose folder" variant="neutral" appearance="outline" size="small" (click)="presenter.chooseImportFolder(repository.index)" />
+                @if (repository.folder; as folder) {
+                  <code class="small muted">{{ folder }}</code>
+                }
+                <mosaik-button
+                  label="Choose folder"
+                  variant="neutral"
+                  appearance="outline"
+                  size="small"
+                  (click)="presenter.chooseImportFolder(repository.index)"
+                />
               </div>
             } @empty {
               <span class="note">None.</span>
@@ -209,9 +385,15 @@
           </div>
           <div class="import-group">
             <span class="name">Pinned rule packs</span>
-            <span class="note">They go through the check of any other pack, with one change set per repository.</span>
+            <span class="note"
+              >They go through the check of any other pack, with one change set per
+              repository.</span
+            >
             @for (pack of preview.packs; track pack.id) {
-              <div class="import-row"><span>{{ pack.name }}</span><code class="small muted">{{ pack.source }}</code></div>
+              <div class="import-row">
+                <span>{{ pack.name }}</span
+                ><code class="small muted">{{ pack.source }}</code>
+              </div>
             } @empty {
               <span class="note">None.</span>
             }
@@ -220,17 +402,44 @@
       }
     </mosaik-dialog-content>
     <mosaik-dialog-actions slot="actions">
-      <mosaik-button label="Keep things as they are" appearance="plain" (click)="presenter.cancelImport()" />
-      <mosaik-button label="Import workspace" variant="primary" appearance="solid" [isBusy]="presenter.importing()" (click)="presenter.confirmImport()" />
+      <mosaik-button
+        label="Keep things as they are"
+        appearance="plain"
+        (click)="presenter.cancelImport()"
+      />
+      <mosaik-button
+        label="Import workspace"
+        variant="primary"
+        appearance="solid"
+        [isBusy]="presenter.importing()"
+        (click)="presenter.confirmImport()"
+      />
     </mosaik-dialog-actions>
   </mosaik-dialog>
 
-  <mosaik-dialog [hasBackdrop]="true" [isOpen]="presenter.confirmingRemove()" [pressEscapeToClose]="true" (closed)="presenter.cancelRemove()">
-    <mosaik-dialog-header slot="header"><mosaik-dialog-header-text slot="header" text="Remove this workspace?" /></mosaik-dialog-header>
-    <mosaik-dialog-content slot="content"><span class="muted">It goes from Wortlaut. Your repositories and their files stay where they are.</span></mosaik-dialog-content>
+  <mosaik-dialog
+    [hasBackdrop]="true"
+    [isOpen]="presenter.confirmingRemove()"
+    [pressEscapeToClose]="true"
+    (closed)="presenter.cancelRemove()"
+  >
+    <mosaik-dialog-header slot="header"
+      ><mosaik-dialog-header-text slot="header" text="Remove this workspace?"
+    /></mosaik-dialog-header>
+    <mosaik-dialog-content slot="content"
+      ><span class="muted"
+        >It goes from Wortlaut. Your repositories and their files stay where they are.</span
+      ></mosaik-dialog-content
+    >
     <mosaik-dialog-actions slot="actions">
       <mosaik-button label="Keep it" appearance="plain" (click)="presenter.cancelRemove()" />
-      <mosaik-button label="Remove workspace" variant="danger" appearance="solid" [isBusy]="presenter.busy()" (click)="presenter.remove()" />
+      <mosaik-button
+        label="Remove workspace"
+        variant="danger"
+        appearance="solid"
+        [isBusy]="presenter.busy()"
+        (click)="presenter.remove()"
+      />
     </mosaik-dialog-actions>
   </mosaik-dialog>
 }

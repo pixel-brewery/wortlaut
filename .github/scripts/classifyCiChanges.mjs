@@ -10,7 +10,8 @@ import { pathToFileURL } from 'node:url';
 const revisionPattern = /^(?!0{40}$)[a-f0-9]{40}$/u;
 const proseExtension = /\.(?:md|mdx|markdown|rst|adoc|asciidoc)$/iu;
 const imageExtension = /\.(?:png|jpe?g|gif|webp|svg)$/iu;
-const operationalPath = /(?:^|\/)(?:\.agents|\.claude|\.codex|\.opencode|\.vscode|\.design-sync|\.ds-sync|prompts?|skills?)(?:\/|$)/iu;
+const operationalPath =
+  /(?:^|\/)(?:\.agents|\.claude|\.codex|\.opencode|\.vscode|\.design-sync|\.ds-sync|prompts?|skills?)(?:\/|$)/iu;
 
 /**
  * Classifies the complete event diff before CI spends native runner or dependency-install time.
@@ -52,18 +53,28 @@ export function classifyCiChanges(context, { cwd = process.cwd() } = {}) {
     return full('No complete event comparison is available.');
   }
 
-  const git = (args) => execFileSync('git', args, {
-    cwd,
-    encoding: 'utf8',
-    maxBuffer: 16 * 1024 * 1024,
-    timeout: 30_000,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  const git = (args) =>
+    execFileSync('git', args, {
+      cwd,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+      timeout: 30_000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
   if (mergeBase) base = git(['merge-base', base, head]).trim();
 
   // A rename must include its old and new paths: moving runtime code into docs is still a code change.
-  const files = git(['diff', '--no-ext-diff', '--no-renames', '--name-only', '-z', base, head, '--'])
+  const files = git([
+    'diff',
+    '--no-ext-diff',
+    '--no-renames',
+    '--name-only',
+    '-z',
+    base,
+    head,
+    '--',
+  ])
     .split('\0')
     .filter(Boolean);
 
@@ -73,22 +84,30 @@ export function classifyCiChanges(context, { cwd = process.cwd() } = {}) {
   return {
     documentationOnly,
     changedFiles: files.length,
-    reason: documentationOnly ? 'Only documentation changed.' : 'Changes require full verification.',
+    reason: documentationOnly
+      ? 'Only documentation changed.'
+      : 'Changes require full verification.',
   };
 }
 
 function isDocumentation(path) {
   // Skills, prompts and agent instructions affect execution even when their format is Markdown.
-  if (operationalPath.test(path) || /(?:^|\/)(?:AGENTS|CLAUDE|CODEX|GEMINI|SKILL)\.md$/iu.test(path)) return false;
+  if (
+    operationalPath.test(path) ||
+    /(?:^|\/)(?:AGENTS|CLAUDE|CODEX|GEMINI|SKILL)\.md$/iu.test(path)
+  )
+    return false;
   if (/(?:^|\/)\.github(?:\/|$)/iu.test(path)) {
     return path.startsWith('.github/assets/') && imageExtension.test(path);
   }
 
-  return proseExtension.test(path)
-    || /^(?:LICENSE|NOTICE|COPYING)(?:\.txt)?$/u.test(path)
-    || (path.startsWith('docs/') && /\.txt$/iu.test(path))
-    || /(?:^|\/)README[^/]*\.txt$/iu.test(path)
-    || (path.startsWith('docs/') && imageExtension.test(path));
+  return (
+    proseExtension.test(path) ||
+    /^(?:LICENSE|NOTICE|COPYING)(?:\.txt)?$/u.test(path) ||
+    (path.startsWith('docs/') && /\.txt$/iu.test(path)) ||
+    /(?:^|\/)README[^/]*\.txt$/iu.test(path) ||
+    (path.startsWith('docs/') && imageExtension.test(path))
+  );
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

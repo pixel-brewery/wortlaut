@@ -10,13 +10,11 @@ import type { IResourceInfo } from '../../models/interfaces/IResourceInfo';
  * @public
  */
 export interface IResourceTransformerResult {
+  // #region Properties
 
-    // #region Properties
+  originalResource: IResourceInfo;
 
-    originalResource: IResourceInfo;
+  transformedResource: IResourceInfo;
 
-    transformedResource: IResourceInfo;
-
-    // #endregion
-
+  // #endregion
 }

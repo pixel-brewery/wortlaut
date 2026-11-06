@@ -1,7 +1,7 @@
 # 📦 @pixel-brewery/wortlaut-core
 
-| Package Status | Source |
-|----------------|--------|
+| Package Status                                                                                                                                                                                 | Source                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | [![GitHub Packages](https://img.shields.io/github/v/release/RueDeRennes/mosaik?label=GitHub%20Packages&logo=github)](https://github.com/orgs/pixel-brewery/packages/npm/package/wortlaut-core) | [tools/wortlaut/core](../../tools/wortlaut/core) |
 
 > Core logic, resource models, analyzers, transformers, and formatters for the Wortlaut toolchain.
@@ -30,13 +30,20 @@ npm install @pixel-brewery/wortlaut-core
 ## 🔧 Usage
 
 ```typescript
-import { ResourceReader, ResourceTransformer, ResourceAnalyzer } from '@pixel-brewery/wortlaut-core';
+import {
+  ResourceReader,
+  ResourceTransformer,
+  ResourceAnalyzer,
+} from '@pixel-brewery/wortlaut-core';
 
 // Example: Read and analyze resources
 const reader = new ResourceReader(console, fileSystem);
 const resources = reader.scanDirectory('./locales', 'json');
 const analyzer = new ResourceAnalyzer(console);
-const result = analyzer.executeTask('missing-translation', { resource: resources[0], parameters: {} });
+const result = analyzer.executeTask('missing-translation', {
+  resource: resources[0],
+  parameters: {},
+});
 ```
 
 ---

@@ -10,4 +10,6 @@ import type { IShellNavigationGroup } from './IShellNavigation';
  *
  * @public
  */
-export const SHELL_NAVIGATION = new InjectionToken<ReadonlyArray<IShellNavigationGroup>>('SHELL_NAVIGATION');
+export const SHELL_NAVIGATION = new InjectionToken<ReadonlyArray<IShellNavigationGroup>>(
+  'SHELL_NAVIGATION',
+);

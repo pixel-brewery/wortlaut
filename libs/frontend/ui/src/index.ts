@@ -3,7 +3,10 @@ export { LogoComponent } from './lib/components/logo/LogoComponent';
 export { LocaleLabelComponent } from './lib/components/locale-label/LocaleLabelComponent';
 export { RunProgressComponent } from './lib/components/run-progress/RunProgressComponent';
 export { DryRunNoticeComponent } from './lib/components/write-result/DryRunNoticeComponent';
-export { describeWrite, WriteResultComponent } from './lib/components/write-result/WriteResultComponent';
+export {
+  describeWrite,
+  WriteResultComponent,
+} from './lib/components/write-result/WriteResultComponent';
 export { FailureStateComponent } from './lib/components/view-states/FailureStateComponent';
 export { LoadingStateComponent } from './lib/components/view-states/LoadingStateComponent';
 export { WorkspaceTileComponent } from './lib/components/workspace-tile/WorkspaceTileComponent';

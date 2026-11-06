@@ -11,7 +11,7 @@
     "declarationDir": "./dist",
     "tsBuildInfoFile": "./.cache/.tscbuildinfo",
     "ignoreDeprecations": "6.0",
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
   "exclude": [
     "**/*.spec.ts",

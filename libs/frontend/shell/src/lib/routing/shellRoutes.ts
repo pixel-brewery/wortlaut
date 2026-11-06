@@ -10,8 +10,8 @@ import type { Route } from '@angular/router';
  * @public
  */
 export const shellRoute: Route = {
-    path: '',
-    loadComponent: () => import('../views/AppShellView').then((module) => module.AppShellView)
+  path: '',
+  loadComponent: () => import('../views/AppShellView').then((module) => module.AppShellView),
 };
 
 /**
@@ -24,10 +24,11 @@ export const shellRoute: Route = {
  * @returns The route.
  */
 export function notAvailableRoute(path: string, title: string, description: string): Route {
-    return {
-        path,
-        title: `${title} · Wortlaut`,
-        data: { title, description },
-        loadComponent: () => import('../views/NotAvailableView').then((module) => module.NotAvailableView)
-    };
+  return {
+    path,
+    title: `${title} · Wortlaut`,
+    data: { title, description },
+    loadComponent: () =>
+      import('../views/NotAvailableView').then((module) => module.NotAvailableView),
+  };
 }

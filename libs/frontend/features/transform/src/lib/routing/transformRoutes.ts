@@ -10,9 +10,9 @@ import type { Routes } from '@angular/router';
  * @public
  */
 export const transformRoutes: Routes = [
-    {
-        path: 'transform',
-        title: 'Transform and sort · Wortlaut',
-        loadComponent: () => import('../views/TransformView').then((module) => module.TransformView)
-    }
+  {
+    path: 'transform',
+    title: 'Transform and sort · Wortlaut',
+    loadComponent: () => import('../views/TransformView').then((module) => module.TransformView),
+  },
 ];
