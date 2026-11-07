@@ -21,6 +21,7 @@ For repository setup or structural work, read [Repository structure](references/
 | Boundary | Shared foundation |
 | --- | --- |
 | Repository layout, application/package placement, documentation and tooling ownership | [Repository structure](references/common/repository-structure.md) |
+| Nx workspace automation, custom checks, code generation, build tooling or script migration | [Nx tooling contract](references/common/nx-tooling.md), with [tooling placement](references/common/repository-structure.md#7-repository-tooling-and-infrastructure) |
 | Solution design, ownership, extraction, refactoring, migration | [Architecture](references/common/architecture.md) |
 | TypeScript abstraction, SOLID, composition, source/API documentation | [OOP and design patterns](references/common/oop.md) |
 | Application services, orchestration, persistence, errors | [Backend](references/common/backend.md) |
@@ -29,6 +30,7 @@ For repository setup or structural work, read [Repository structure](references/
 | Authorization, reads/files, AI, outbound destinations, events, cleanup | [Integration safety](references/common/backend-safety.md) |
 | Application UI and framework integration | [Frontend](references/common/frontend.md) |
 | Angular application Views, Signal Forms, Commands, routing and composition | [Angular application contract](references/common/angular.md), with [presenters](references/common/angular-presenters.md) and [service APIs](references/common/angular-services.md) for the affected boundary |
+| Angular collections with one or several presentations, custom collection implementations, field-driven filtering and saved filters | [Collections and filtering](references/common/angular-collections.md) |
 | Forms, commands, asynchronous collections, localization, routing | [Frontend patterns](references/common/frontend-patterns.md) |
 | Calendar dates, instants, time zones, expiry and scheduling | [Date and time](references/common/date-time.md) |
 | Unit, integration, component, API and contract evidence | [Testing](references/common/testing.md), plus the production foundation |

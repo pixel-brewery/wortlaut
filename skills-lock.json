@@ -3,15 +3,15 @@
   "skills": {
     "architect": {
       "source": "pixel-brewery/skills",
-      "ref": "f20bfcb1aed3a77d9cb1a3af9626ace8768409ec",
+      "ref": "5ffad4f9f15c2034235c24d50da7df32ecc2fb3d",
       "sourceType": "github",
       "skillPath": "skills/architect/SKILL.md",
-      "computedHash": "6b489649170553ef0df6d1690577bcc649fa6664e1765a70742d8c470ad0969d",
+      "computedHash": "7e44ad522e28d37f86438b0dfa78f627b5112ad4635b1d30e1c88190392dba73",
       "installMode": "copy"
     },
     "designer": {
       "source": "pixel-brewery/skills",
-      "ref": "f20bfcb1aed3a77d9cb1a3af9626ace8768409ec",
+      "ref": "5ffad4f9f15c2034235c24d50da7df32ecc2fb3d",
       "sourceType": "github",
       "skillPath": "skills/designer/SKILL.md",
       "computedHash": "55ad6fa49c44b1e3538762f842e1ed3db40b4ab68a3165345eb7cc02c812a0d0",

@@ -2,6 +2,8 @@
 
 Read for forms, commands, async options, drawers, routing, localization and server-state synchronization. Preserve the actual framework/owner. Angular application work also loads the mandatory [Angular contract](angular.md); other frameworks keep their actual composition model.
 
+For Angular collections with a single, several or an application-specific presentation, also read [collections and filtering](angular-collections.md). It applies to collection models/projections, custom implementations, field-driven filters, saved filters and their query/paging integration, including filter-only work. Switching between views is an optional capability of this pattern.
+
 ## Forms and actions
 
 Use the framework's typed form model, schema validators and existing form-state integration; the Angular contract requires typed Signal Forms and `effect()` for field dependencies. Observe owned state without feedback loops. Invalid submit reveals inline feedback, a validation notification and focus/scroll through a UI owner without calling the mutation. Keep duplicate-request protection separate from validity. Angular drawer footers retain executable visible actions; permissions and immutable state determine rendering, not a validity-based disabled button.

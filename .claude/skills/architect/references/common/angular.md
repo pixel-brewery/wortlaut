@@ -8,6 +8,7 @@ Select the detailed guides for the boundary being changed:
 | --- | --- |
 | View classes, Commands, DOM/display ownership, Close and Undo/Redo composition | [Angular presenters](angular-presenters.md) |
 | Drawers, message boxes, dialogs, toasts and other public UI services | [Angular service APIs and origins](angular-services.md) |
+| Collections with one or several presentations, custom views, field metadata, filters and saved presets | [Collections and filtering](angular-collections.md) |
 | Instants, date controls, day filters and display pipes | [Date and time](date-time.md) |
 | Form, Command, invalid-submit and browser evidence | [Testing](testing.md), with the production guide and local runner/selector contract |
 

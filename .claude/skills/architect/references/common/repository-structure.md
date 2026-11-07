@@ -104,13 +104,17 @@ repository/
 │   ├── plans/
 │   └── legacy/
 ├── tools/
-│   ├── workspace/
-│   ├── generators/
-│   ├── contracts/
-│   ├── lint/
-│   ├── testing/
-│   ├── docs/
-│   └── <tool>/
+│   ├── nx-plugins/                   # Nx repositories: common automation owner
+│   │   └── <plugin>/
+│   │       ├── executors.json
+│   │       ├── generators.json       # When this plugin owns generators
+│   │       ├── package.json
+│   │       ├── project.json
+│   │       └── src/
+│   │           ├── executors/
+│   │           ├── generators/
+│   │           └── lib/             # Actually shared plugin implementation
+│   └── <tool>/                      # Other real tool/package or configuration owner
 ├── infra/
 │   ├── containers/
 │   ├── environments/
@@ -261,15 +265,13 @@ Place a document's supporting assets beside its owner. A central assets director
 
 ## 7. Repository tooling and infrastructure
 
-`tools` owns repository automation. A useful vocabulary includes:
+`tools` owns maintained development tooling. In Nx repositories, [the binding Nx tooling contract](nx-tooling.md) governs its implementation and invocation: reuse existing targets and plugins; custom recurring automation belongs in typed Executors, Generators or another appropriate Nx extension. New standalone utility scripts are not another supported automation architecture.
 
-- `tools/workspace`: workspace checks, dependency boundaries and repository maintenance.
-- `tools/generators`: maintained project/code generators and their templates.
-- `tools/contracts`: contract export, client generation and generated-output drift checks.
-- `tools/lint`: custom lint rules and their executable checks.
-- `tools/testing`: reusable test runner/configuration infrastructure and genuinely shared test utilities. Feature specifications, owner-specific helpers and fixtures remain beside their production owner; this is not a central feature-test directory.
-- `tools/docs`: documentation validation and generation.
-- `tools/<tool>`: another clearly named development tool, such as a build plugin or token generator.
+The common target layout is `tools/nx-plugins/<plugin>/src/executors/<capability>` and `src/generators/<capability>`, with the plugin's schemas, registries, tests and real shared implementation. Use the existing workspace plugin before adding a plugin package. Additional packages express actual reusable ownership boundaries, not a new bucket for each task. Existing owners elsewhere, such as an established plugin under `infra`, are reused until their callers and configuration migrate together; do not create a parallel implementation simply to match the target path.
+
+Workspace checks, contract/client generation, generated-output drift checks, documentation tools, AI-configuration synchronization and repository maintenance follow that same Nx owner. Names such as `tools/workspace`, `tools/contracts`, `tools/docs`, `scripts` or `.agents/scripts` do not justify independent executable pipelines. Task-specific schemas, templates and fixtures remain with their capability; a central helper bucket is not a substitute for responsibility.
+
+Tool-required configuration, lint-rule implementations, test-runner integration and independently published developer tools retain their real public contracts. In an Nx repository their executable development tasks use the appropriate Nx integration. In repositories with another build system, use its maintained tooling owners instead of introducing Nx implicitly. Feature specs and owner-specific fixtures remain beside production source; this is not a central feature-test directory.
 
 Build-system plugins are tooling, even when a previous repository placed them under `infra`. An independently published developer tool can retain its own package contract here when this is its actual ownership boundary. Executable status alone does not make a tool a product backend.
 
@@ -287,7 +289,7 @@ Keep canonical guidance and generated client projections distinct:
 - `skills-lock.json`: source, immutable revision and content-hash evidence for imported skills.
 - `.github/rules`: maintained rule modules, where this repository uses them.
 - `.vscode/mcp.json`: the single repository MCP connection registry; generate other client formats from it.
-- `.agents/scripts`: canonical AI-configuration generation, synchronization and drift checks when required.
+- `.agents/scripts`: an existing AI-configuration tooling owner where the project uses it. In Nx repositories, new recurring generation/synchronization/drift-check logic follows [the Nx tooling contract](nx-tooling.md); this path does not authorize another standalone script pipeline.
 
 The shared foundation belongs to its source repository; its installed consumer copy is not edited in place. Project-specific domains, environments, account connections and private identifiers stay in the derived project guidance.
 
@@ -325,7 +327,7 @@ Keep `libs` as the package root instead of introducing a competing `packages` tr
 
 Published skills belong to `skills/<skill>`, with the native `SKILL.md`, optional `agents/openai.yaml` and relevant `references`, `scripts` or `assets`. Repository automation and documentation follow the common responsibility boundaries. Consumer-local `.agents/skills` and publisher-owned `skills` have different roles.
 
-This profile does not create backend/frontend applications for a repository whose product is reusable instructions. Skill-local scripts remain with the skill when they must be distributed as part of it.
+This profile does not create backend/frontend applications for a repository whose product is reusable instructions. Skill-local scripts remain with the skill when they must be distributed as part of its versioned public contract. An Nx consumer uses those immutable upstream tools through its Nx integration; it does not copy them into new utility scripts or edit their installed source. Publisher-owned recurring automation follows the publisher's configured build-system profile.
 
 ## 11. Existing repositories and adoption
 
@@ -337,7 +339,8 @@ This is a target for both new and existing repositories. Adoption records the ac
 | A separate web renderer for a native host | A documented web application owner with native-host consumption | Confirm its real rendering/process model before deciding the target. |
 | Authored documentation in `.docs` | `docs` | Distinguish authored sources from generated documentation-site output. |
 | Functional handbooks in `docs/proy` | `docs/product` | Move links and catalog references with the documents; preserve their meaning and history. |
-| Build plugins or generators under `infra` | Their matching `tools` owner | Retain actual deployment infrastructure under `infra`. |
+| Build plugins or generators under `infra` | The adopted `tools/nx-plugins/<plugin>` owner in Nx repositories | Migrate registrations, targets, imports and callers together; retain actual deployment infrastructure under `infra`. |
+| Standalone repository utility scripts or multiple script entry points in an Nx repository | The matching Executor, Generator or Nx extension in its existing plugin | Move the implementation and all affected callers; adding a `run-commands` wrapper or changing the file extension is not a migration. |
 | Domain implementation in a composition root | A cohesive feature-library owner where adoption requires it | Preserve contracts and behavior; avoid a generic abstraction added only to satisfy a tree. |
 | A shared contracts package | An explicit reviewed transport owner | Determine whether it is an HTTP-generated client, runtime-neutral IPC schema or an accidental business-model dependency. |
 
