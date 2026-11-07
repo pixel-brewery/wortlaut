@@ -1,0 +1,13 @@
+{
+  "context": {
+    "fileName": ["AGENTS.md"]
+  },
+  "mcpServers": {
+    "mosaik": {
+      "command": "yarn",
+      "args": ["exec", "mosaik-mcp"],
+      "cwd": ".",
+      "timeout": 60000
+    }
+  }
+}

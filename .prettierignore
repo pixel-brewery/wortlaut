@@ -15,3 +15,7 @@ node_modules/
 out/
 CHANGELOG.md
 yarn.lock
+
+# Imported Designer projections retain the pinned upstream bytes.
+.agents/skills/designer/
+.claude/skills/designer/

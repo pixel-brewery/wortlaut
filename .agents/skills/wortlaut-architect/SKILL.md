@@ -60,6 +60,13 @@ Examples of combined selection:
 - A new screen: Frontend + Frontend patterns + Testing; combine Frontend and Desktop so
   it renders real Mosaik components, reads through typed IPC and owns no engine logic.
 
+## Interface and design work
+
+For every UI question, new idea and interface/design decision, also apply
+[Wortlaut Designer](../wortlaut-designer/SKILL.md). Its local contract owns this product's
+actual design system and runtime; it explicitly reads the pinned shared Designer and
+mandatory catalog workflow. Engineering ownership and environment constraints stay here.
+
 ## Maintaining the derivation
 
 Maintain project rules here and shared rules upstream in `pixel-brewery/skills`.

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mosaik": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": ["exec", "mosaik-mcp"],
+      "tools": ["*"]
+    }
+  }
+}

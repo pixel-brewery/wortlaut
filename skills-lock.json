@@ -7,6 +7,14 @@
       "sourceType": "github",
       "skillPath": "skills/architecture/SKILL.md",
       "computedHash": "5c4b77d54eb556d31572f6020653628ec6d7da83969d04909e53e1928d8a212a"
+    },
+    "designer": {
+      "source": "pixel-brewery/skills",
+      "ref": "c8edaf6c9dea60a96e0f75f09dc3c7ea6ec30c46",
+      "sourceType": "github",
+      "skillPath": "skills/designer/SKILL.md",
+      "computedHash": "55ad6fa49c44b1e3538762f842e1ed3db40b4ab68a3165345eb7cc02c812a0d0",
+      "installMode": "copy"
     }
   }
 }

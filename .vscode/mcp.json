@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "mosaik": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": ["exec", "mosaik-mcp"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

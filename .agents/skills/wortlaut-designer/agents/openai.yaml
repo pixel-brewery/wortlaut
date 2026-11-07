@@ -1,0 +1,12 @@
+interface:
+  display_name: 'Wortlaut Designer'
+  short_description: "Design and review Wortlaut's own Mosaik interface"
+  default_prompt: 'Use $wortlaut-designer to design or review the requested interface through its local design system and the shared Designer.'
+dependencies:
+  tools:
+    - type: 'mcp'
+      value: 'mosaik'
+      description: 'Installed Mosaik 0.1.192 public catalog via yarn exec mosaik-mcp'
+      transport: 'stdio'
+policy:
+  allow_implicit_invocation: true

@@ -2,7 +2,9 @@
 
 Read [the base frontend module](../../architecture/references/common/frontend.md),
 [frontend patterns](../../architecture/references/common/frontend-patterns.md) and the
-`mosaik-design` skill with this page.
+[Wortlaut Designer](../../wortlaut-designer/SKILL.md) with this page. That local role
+combines the shared Designer and mandatory catalog workflow with the product's concrete
+[design contract](../../wortlaut-designer/references/project.md).
 
 ## Foundations
 

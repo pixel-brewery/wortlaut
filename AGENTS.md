@@ -18,7 +18,11 @@ configuration and verified runtime behavior take precedence over older prose.
   update the base through the Skills CLI. Do not edit or reformat the imported base or
   duplicate its common modules locally.
 - After skill changes, run `yarn verify:skills`.
-- For any interface, screen or theme work also apply the `mosaik-design` skill.
+- For every UI question, new idea or interface/design decision, apply
+  [Wortlaut Designer](.agents/skills/wortlaut-designer/SKILL.md). It explicitly composes
+  the pinned shared [Designer](.agents/skills/designer/SKILL.md), the shared mandatory
+  catalog workflow and Wortlaut's own theme/runtime/product contract. The legacy
+  `mosaik-design` entrypoints only forward to this role; do not maintain a second workflow.
 
 ## Workspace and authority
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Mosaik Design"
   short_description: "Foundations and component rules for every Mosaik interface"
-  default_prompt: "Use $mosaik-design to settle the design foundations and build this interface from real Mosaik components."
+  default_prompt: "Use $wortlaut-designer to apply the shared Designer and Wortlaut's concrete design-system contract."
