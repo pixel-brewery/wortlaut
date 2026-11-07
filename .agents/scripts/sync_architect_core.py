@@ -17,7 +17,7 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="Validate only (the default).")
     args = parser.parse_args()
     root = args.root.resolve()
-    checker = root / ".agents/skills/architecture/scripts/check_inheritance.py"
+    checker = root / ".agents/skills/architect/scripts/check_inheritance.py"
     if not checker.is_file():
         print(
             "Missing Architecture base. Restore the pinned dependency from skills-lock.json "

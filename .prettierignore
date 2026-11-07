@@ -1,5 +1,6 @@
 # Installed guidance and vendored release inputs retain their original bytes.
-.agents/skills/architecture/
+.agents/skills/architect/
+.claude/skills/architect/
 .claude/skills/mosaik-design/
 vendor/synapse/
 

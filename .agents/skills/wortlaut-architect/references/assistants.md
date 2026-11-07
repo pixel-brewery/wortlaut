@@ -1,7 +1,7 @@
 # Assistants
 
-Read [the base platform module](../../architecture/references/common/platform.md) and
-[integration safety](../../architecture/references/common/backend-safety.md) with this page.
+Read [the base platform module](../../architect/references/common/platform.md) and
+[integration safety](../../architect/references/common/backend-safety.md) with this page.
 
 ## Providers
 

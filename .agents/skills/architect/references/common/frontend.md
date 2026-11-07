@@ -11,13 +11,13 @@ Read for TypeScript/HTML/SCSS application UI, Angular and wrappers. Combine [fro
 
 ## Angular
 
-Apply this section only to Angular consumers and their local supported-version contract. It does not request Angular dependencies in other projects.
+Apply this section only to Angular consumers and their local supported-version contract. Read the binding [Angular application contract](angular.md) for Views, typed Signal Forms, Commands, routing, styling and transport, and its focused presenter/service guides for the affected boundary. It does not request Angular or companion dependencies in other projects.
 
 Use standalone components without redundant `standalone: true`, signals/read-only derived state, `input()`/`output()`, OnPush and native `@if`/`@for`/`@switch`. Use framework-appropriate `inject()` and run effects in an injection/lifecycle context. Signals and observables have no `$` suffix. Keep observable subscriptions scoped or use async pipe/`toSignal`.
 
-Use Signal Forms for supported new form workflows and follow the local migration policy. Do not mix form ownership models. Cross-field validation lives in the form schema/reusable validators; reactive field invariants observe signals rather than duplicating state through DOM value-change handlers.
+Use typed Signal Forms exclusively in this Angular application contract and migrate touched legacy form owners as specified in [Angular forms and submit behavior](angular.md#typed-signal-forms-and-submit-behavior). Schema validators own validity; `effect()` owns reactive field dependencies. Unsupported versions are explicit prerequisites, not a reason to silently mix form ownership or upgrade packages.
 
-Keep templates declarative: property/signal reads, simple comparisons/arithmetic/interpolation and pure pipes. Use class/style bindings rather than `ngClass`/`ngStyle`, no `$any`, and `NgOptimizedImage` for applicable static images. Keep required external View files distinct according to the owning framework.
+Keep templates declarative: property/signal reads, simple comparisons/arithmetic/interpolation, verified Command bindings and pure pipes. Use class/style bindings rather than `ngClass`/`ngStyle`, no `$any`, and `NgOptimizedImage` for applicable static images. Concrete application Views have empty classes and own external HTML/SCSS siblings; see [presenter ownership](angular-presenters.md).
 
 Use the real Mosaik animation bindings `mosaikAnimate`/`mosaikAnimateOptions` where available. Automation targets follow the local runner's configured explicit test-ID policy; component accessibility contracts remain behavior and use the local testing rules.
 

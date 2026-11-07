@@ -1,6 +1,6 @@
 # Surfaces
 
-Read [the base contracts module](../../architecture/references/common/backend-contracts.md)
+Read [the base contracts module](../../architect/references/common/backend-contracts.md)
 with this page.
 
 ## CLI
@@ -81,5 +81,5 @@ Mosaik does not use Wortlaut itself. It only handed the tool on through `infra/n
 
 Until then `tools/localizator` in Mosaik stays untouched.
 
-Check [the base platform module](../../architecture/references/common/platform.md) before
+Check [the base platform module](../../architect/references/common/platform.md) before
 changing the published surface of a package these owners depend on.

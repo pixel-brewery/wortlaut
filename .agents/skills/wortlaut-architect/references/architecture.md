@@ -1,6 +1,6 @@
 # Architecture and source owners
 
-Read [the base architecture module](../../architecture/references/common/architecture.md)
+Read [the base architecture module](../../architect/references/common/architecture.md)
 with this page. It records who owns what, so a feature lands in one place and every surface
 gets it.
 

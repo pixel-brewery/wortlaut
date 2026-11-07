@@ -117,7 +117,7 @@ repository/
 │   └── deployment/
 ├── .agents/
 │   ├── skills/
-│   │   ├── architecture/
+│   │   ├── architect/
 │   │   └── <repository>-architect/
 │   │       ├── SKILL.md
 │   │       ├── agents/
@@ -283,7 +283,7 @@ Keep canonical guidance and generated client projections distinct:
 
 - `AGENTS.md`: compact repository authority, essential boundaries and routing to detailed guidance.
 - `.agents/skills/<repository>-architect`: the repository's derived architecture skill and its local references.
-- `.agents/skills/architecture`: a deliberately installed and pinned shared foundation in a consuming repository.
+- `.agents/skills/architect`: a deliberately installed and pinned shared foundation in a consuming repository.
 - `skills-lock.json`: source, immutable revision and content-hash evidence for imported skills.
 - `.github/rules`: maintained rule modules, where this repository uses them.
 - `.vscode/mcp.json`: the single repository MCP connection registry; generate other client formats from it.

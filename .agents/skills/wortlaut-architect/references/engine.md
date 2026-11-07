@@ -1,7 +1,7 @@
 # Engine
 
-Read [the base backend module](../../architecture/references/common/backend.md) and
-[integration safety](../../architecture/references/common/backend-safety.md) with this page.
+Read [the base backend module](../../architect/references/common/backend.md) and
+[integration safety](../../architect/references/common/backend-safety.md) with this page.
 
 ## Commands
 

@@ -38,7 +38,7 @@ async function inspect(directory) {
       const name = relative(root, path).replaceAll('\\', '/');
 
       // The imported skill is pinned by its hash and cannot change here.
-      if (name.startsWith('.agents/skills/architecture/')) {
+      if (name.startsWith('.agents/skills/architect/')) {
         continue;
       }
 

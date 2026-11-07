@@ -1,7 +1,7 @@
 # Verification
 
-Read [the base testing module](../../architecture/references/common/testing.md) and, for UI
-acceptance, [the E2E module](../../architecture/references/common/e2e.md).
+Read [the base testing module](../../architect/references/common/testing.md) and, for UI
+acceptance, [the E2E module](../../architect/references/common/e2e.md).
 
 ## Commands
 

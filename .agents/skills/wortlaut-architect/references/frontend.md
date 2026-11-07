@@ -1,7 +1,7 @@
 # Frontend and design
 
-Read [the base frontend module](../../architecture/references/common/frontend.md),
-[frontend patterns](../../architecture/references/common/frontend-patterns.md) and the
+Read [the base frontend module](../../architect/references/common/frontend.md),
+[frontend patterns](../../architect/references/common/frontend-patterns.md) and the
 [Wortlaut Designer](../../wortlaut-designer/SKILL.md) with this page. That local role
 combines the shared Designer and mandatory catalog workflow with the product's concrete
 [design contract](../../wortlaut-designer/references/project.md).

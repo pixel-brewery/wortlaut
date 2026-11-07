@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate an installed Architecture base and its explicit local derivation."""
+"""Validate an installed Architect base and its explicit local derivation."""
 
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def declares_inheritance(path: Path) -> bool:
             in_metadata = True
         elif line and not line[0].isspace():
             in_metadata = False
-        elif in_metadata and re.fullmatch(r'  inherits:\s*[\'"]?architecture[\'"]?\s*', line):
+        elif in_metadata and re.fullmatch(r'  inherits:\s*[\'"]?architect[\'"]?\s*', line):
             return True
     return False
 
@@ -81,7 +81,7 @@ def validate_links(folder: Path, *, inherited_only: bool = False) -> list[str]:
     errors = []
     for path in sorted(folder.rglob('*.md')):
         for target in relative_links(path):
-            if inherited_only and path.name != 'SKILL.md' and 'architecture' not in target.parts:
+            if inherited_only and path.name != 'SKILL.md' and 'architect' not in target.parts:
                 continue
             if not target.exists():
                 errors.append(f'Broken relative reference in {path}: {target}')
@@ -90,46 +90,46 @@ def validate_links(folder: Path, *, inherited_only: bool = False) -> list[str]:
 
 def validate(root: Path, derived: str) -> list[str]:
     errors = []
-    if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', derived) or derived == 'architecture':
+    if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', derived) or derived == 'architect':
         return ['Expected the name of a distinct local derived skill.']
-    base = root / '.agents/skills/architecture'
+    base = root / '.agents/skills/architect'
     local = root / '.agents/skills' / derived
     lock_path = root / 'skills-lock.json'
     try:
         lock = json.loads(lock_path.read_text(encoding='utf-8'))
         if lock.get('version') != 1 or not isinstance(lock.get('skills'), dict):
             return ['skills-lock.json must use the standard Skills CLI version-1 skills map.']
-        entry = lock['skills'].get('architecture')
+        entry = lock['skills'].get('architect')
         if not isinstance(entry, dict):
-            return ['Architecture is missing from skills-lock.json; install it with the Skills CLI.']
+            return ['Architect is missing from skills-lock.json; install it with the Skills CLI.']
         if entry.get('source') != 'pixel-brewery/skills' or entry.get('sourceType') != 'github':
-            errors.append('Architecture must come from the GitHub source pixel-brewery/skills.')
-        if entry.get('skillPath') != 'skills/architecture/SKILL.md':
-            errors.append('Unexpected Architecture skillPath in skills-lock.json.')
+            errors.append('Architect must come from the GitHub source pixel-brewery/skills.')
+        if entry.get('skillPath') != 'skills/architect/SKILL.md':
+            errors.append('Unexpected Architect skillPath in skills-lock.json.')
         if not re.fullmatch(r'[0-9a-f]{40}', str(entry.get('ref', ''))):
-            errors.append('Architecture must be pinned to a full 40-character Git commit in ref.')
+            errors.append('Architect must be pinned to a full 40-character Git commit in ref.')
         expected_hash = entry.get('computedHash', '')
         if not re.fullmatch(r'[0-9a-f]{64}', str(expected_hash)):
-            errors.append('Architecture requires a Skills CLI computedHash.')
+            errors.append('Architect requires a Skills CLI computedHash.')
         if not (base / 'SKILL.md').is_file():
-            return errors + ['Installed Architecture base is missing.']
+            return errors + ['Installed Architect base is missing.']
         if any(p.is_symlink() for folder in (base, local) for p in [folder, *folder.rglob('*')]):
             return errors + ['Base and derived skills must be self-contained copies, not symlinks.']
         if folder_hash(base) != expected_hash:
-            errors.append('Installed Architecture content differs from skills-lock.json; reinstall the pinned source.')
+            errors.append('Installed Architect content differs from skills-lock.json; reinstall the pinned source.')
         local_entry = local / 'SKILL.md'
         if not local_entry.is_file():
             return errors + [f'Derived skill is missing: {local_entry}']
         if not declares_inheritance(local_entry):
-            errors.append('The local skill must declare metadata.inherits: architecture.')
+            errors.append('The local skill must declare metadata.inherits: architect.')
         if (base / 'SKILL.md').resolve() not in list(relative_links(local_entry)):
-            errors.append('The local skill must explicitly link to ../architecture/SKILL.md.')
+            errors.append('The local skill must explicitly link to ../architect/SKILL.md.')
         if (local / 'references/common').exists():
             errors.append('The derived skill still contains a duplicate common foundation; use the installed base.')
         errors.extend(validate_links(base))
         errors.extend(validate_links(local, inherited_only=True))
     except (OSError, ValueError, AttributeError, subprocess.SubprocessError) as error:
-        errors.append(f'Cannot validate Architecture inheritance: {error}')
+        errors.append(f'Cannot validate Architect inheritance: {error}')
     return errors
 
 
@@ -140,9 +140,9 @@ def main() -> int:
     args = parser.parse_args()
     errors = validate(args.root.resolve(), args.derived)
     if errors:
-        print('\n'.join(f'Architecture inheritance: {error}' for error in errors), file=sys.stderr)
+        print('\n'.join(f'Architect inheritance: {error}' for error in errors), file=sys.stderr)
         return 1
-    print(f'{args.derived} derives from the pinned Architecture base; lock, content and references match.')
+    print(f'{args.derived} derives from the pinned Architect base; lock, content and references match.')
     return 0
 
 

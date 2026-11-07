@@ -1,16 +1,17 @@
 {
   "version": 1,
   "skills": {
-    "architecture": {
+    "architect": {
       "source": "pixel-brewery/skills",
-      "ref": "ddba975005a71eab31dd3586483e798d866c50da",
+      "ref": "f20bfcb1aed3a77d9cb1a3af9626ace8768409ec",
       "sourceType": "github",
-      "skillPath": "skills/architecture/SKILL.md",
-      "computedHash": "5c4b77d54eb556d31572f6020653628ec6d7da83969d04909e53e1928d8a212a"
+      "skillPath": "skills/architect/SKILL.md",
+      "computedHash": "6b489649170553ef0df6d1690577bcc649fa6664e1765a70742d8c470ad0969d",
+      "installMode": "copy"
     },
     "designer": {
       "source": "pixel-brewery/skills",
-      "ref": "c8edaf6c9dea60a96e0f75f09dc3c7ea6ec30c46",
+      "ref": "f20bfcb1aed3a77d9cb1a3af9626ace8768409ec",
       "sourceType": "github",
       "skillPath": "skills/designer/SKILL.md",
       "computedHash": "55ad6fa49c44b1e3538762f842e1ed3db40b4ab68a3165345eb7cc02c812a0d0",

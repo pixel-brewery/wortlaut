@@ -1,6 +1,6 @@
 # Desktop transport and native lifecycle
 
-Read [the base platform module](../../architecture/references/common/platform.md) with this
+Read [the base platform module](../../architect/references/common/platform.md) with this
 page. Resonanz shows the established Electron shape; read it and do not depend on it.
 
 ## Typed IPC
