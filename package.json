@@ -45,7 +45,7 @@
     "format:check": "prettier --check .",
     "test": "nx run-many -t test --parallel=1",
     "typecheck": "nx run-many -t typecheck --parallel=1",
-    "lint": "nx run-many -t lint --parallel=1",
+    "lint": "nx run-many -t lint --parallel=${WORTLAUT_LINT_JOBS:-1}",
     "verify:skills": "python3 .agents/scripts/sync_architect_core.py --check",
     "agents:check": "yarn verify:skills",
     "verify:structure": "node tools/workspace/verify-structure.mjs",

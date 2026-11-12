@@ -100,6 +100,7 @@ jobs:
         if: ${{ !cancelled() && needs.changes.outputs.documentation_only == 'false' }}
         env:
           NODE_OPTIONS: --max-old-space-size=6144
+          WORTLAUT_LINT_JOBS: '2'
         run: yarn lint
 
       - name: Check types
