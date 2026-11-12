@@ -499,16 +499,3 @@ jobs:
             out/published-release.json
           if-no-files-found: ignore
           retention-days: 14
-
-  refresh-dependabot:
-    name: Refresh dependencies after the durable release
-    needs: publish
-    if: always() && needs.publish.outputs.metadata_committed == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      actions: write
-    steps:
-      - env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run rebase-dependabot.yml --repo "$GITHUB_REPOSITORY" --ref main
