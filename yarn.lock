@@ -4180,7 +4180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pixel-brewery/wortlaut-ai@npm:0.2.6, @pixel-brewery/wortlaut-ai@workspace:^, @pixel-brewery/wortlaut-ai@workspace:libs/backend/ai":
+"@pixel-brewery/wortlaut-ai@npm:0.2.7, @pixel-brewery/wortlaut-ai@workspace:^, @pixel-brewery/wortlaut-ai@workspace:libs/backend/ai":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-ai@workspace:libs/backend/ai"
   dependencies:
@@ -4194,7 +4194,7 @@ __metadata:
     "@pixel-brewery/synapse-provider-opencode": "npm:0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:0.0.3"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-core": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-core": "npm:0.2.7"
     "@toon-format/toon": "npm:4.4.0"
     "@types/node": "npm:26.6.5"
     "@vitest/coverage-v8": "npm:5.0.5"
@@ -4212,7 +4212,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pixel-brewery/wortlaut-app@npm:0.2.6, @pixel-brewery/wortlaut-app@workspace:apps/cli":
+"@pixel-brewery/wortlaut-app@npm:0.2.7, @pixel-brewery/wortlaut-app@workspace:apps/cli":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-app@workspace:apps/cli"
   dependencies:
@@ -4224,11 +4224,11 @@ __metadata:
     "@pixel-brewery/synapse-provider-opencode": "npm:0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:0.0.3"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-ai": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-contracts": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-core": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-engine": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-mcp": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-ai": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-contracts": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-core": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-engine": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-mcp": "npm:0.2.7"
     diff: "npm:9.0.0"
     dir-glob: "npm:3.0.1"
     es-toolkit: "npm:1.52.0"
@@ -4244,7 +4244,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pixel-brewery/wortlaut-contracts@npm:0.2.6, @pixel-brewery/wortlaut-contracts@workspace:^, @pixel-brewery/wortlaut-contracts@workspace:libs/contracts":
+"@pixel-brewery/wortlaut-contracts@npm:0.2.7, @pixel-brewery/wortlaut-contracts@workspace:^, @pixel-brewery/wortlaut-contracts@workspace:libs/contracts":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-contracts@workspace:libs/contracts"
   dependencies:
@@ -4258,7 +4258,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pixel-brewery/wortlaut-core@npm:0.2.6, @pixel-brewery/wortlaut-core@workspace:libs/backend/core":
+"@pixel-brewery/wortlaut-core@npm:0.2.7, @pixel-brewery/wortlaut-core@workspace:libs/backend/core":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-core@workspace:libs/backend/core"
   dependencies:
@@ -4306,15 +4306,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pixel-brewery/wortlaut-engine@npm:0.2.6, @pixel-brewery/wortlaut-engine@workspace:^, @pixel-brewery/wortlaut-engine@workspace:libs/backend/engine":
+"@pixel-brewery/wortlaut-engine@npm:0.2.7, @pixel-brewery/wortlaut-engine@workspace:^, @pixel-brewery/wortlaut-engine@workspace:libs/backend/engine":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-engine@workspace:libs/backend/engine"
   dependencies:
     "@pixel-brewery/eslint-config": "npm:0.1.187"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-ai": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-contracts": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-core": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-ai": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-contracts": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-core": "npm:0.2.7"
     "@types/node": "npm:26.6.5"
     diff: "npm:9.0.0"
     dir-glob: "npm:3.0.1"
@@ -4337,7 +4337,7 @@ __metadata:
     "@eslint/json": "npm:2.1.1"
     "@pixel-brewery/eslint-config": "npm:0.1.187"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-core": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-core": "npm:0.2.7"
     "@types/node": "npm:26.6.5"
     eslint: "npm:10.13.0"
     jsonc-eslint-parser: "npm:3.3.0"
@@ -4678,15 +4678,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@pixel-brewery/wortlaut-mcp@npm:0.2.6, @pixel-brewery/wortlaut-mcp@workspace:^, @pixel-brewery/wortlaut-mcp@workspace:libs/backend/mcp":
+"@pixel-brewery/wortlaut-mcp@npm:0.2.7, @pixel-brewery/wortlaut-mcp@workspace:^, @pixel-brewery/wortlaut-mcp@workspace:libs/backend/mcp":
   version: 0.0.0-use.local
   resolution: "@pixel-brewery/wortlaut-mcp@workspace:libs/backend/mcp"
   dependencies:
     "@modelcontextprotocol/sdk": "npm:1.32.1"
     "@pixel-brewery/eslint-config": "npm:0.1.187"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-contracts": "npm:0.2.6"
-    "@pixel-brewery/wortlaut-engine": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-contracts": "npm:0.2.7"
+    "@pixel-brewery/wortlaut-engine": "npm:0.2.7"
     "@types/node": "npm:26.6.5"
     tslib: "npm:2.8.1"
     typescript: "npm:6.0.3"
@@ -4703,7 +4703,7 @@ __metadata:
     "@nx/devkit": "npm:24.0.0"
     "@pixel-brewery/eslint-config": "npm:0.1.187"
     "@pixel-brewery/utilities": "npm:0.1.187"
-    "@pixel-brewery/wortlaut-app": "npm:0.2.6"
+    "@pixel-brewery/wortlaut-app": "npm:0.2.7"
     "@types/node": "npm:26.6.5"
     dotenv: "npm:18.0.8"
     dotenv-expand: "npm:1000.0.0"
