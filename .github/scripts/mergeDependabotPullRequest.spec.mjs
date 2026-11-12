@@ -53,6 +53,8 @@ function fixture() {
       base: { ref: 'main', sha: source, repo: identity },
     },
     jobs: [
+      'Classify changes',
+      'Build and exercise desktop (ubuntu-latest)',
       'Build and exercise desktop (macos-latest)',
       'Build and exercise desktop (windows-latest)',
       'Quality Gate',

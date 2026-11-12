@@ -4,12 +4,12 @@ A release works as in Symphony and Resonanz: a source change pushed to `main` re
 Documentation-only pushes skip the release. `dev` is where work happens, and merging a code change
 into `main` releases it. Releases belong to the owner.
 
-| Workflow                                             | When                                                       | What it does                                                                                                                                 |
-| ---------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                                             | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
-| `release.yml`                                        | Code push to `main`, or by hand                            | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation                     |
-| `release-rehearsal.yml`                              | Changes to the release on `dev`, or by hand                | The same on the real runners, and it publishes nothing                                                                                       |
-| `dependabot-auto-merge.yml`, `rebase-dependabot.yml` | After a green Dependabot pull request, after a release     | Merges only the unchanged head, requests its release and refreshes the others                                                                |
+| Workflow                    | When                                                       | What it does                                                                                                                                 |
+| --------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                    | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
+| `release.yml`               | Code push to `main`, or by hand                            | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation                     |
+| `release-rehearsal.yml`     | Changes to the release on `dev`, or by hand                | The same on the real runners, and it publishes nothing                                                                                       |
+| `dependabot-auto-merge.yml` | After a green Dependabot pull request                      | Merges the verified head and requests its release                                                                                            |
 
 ## What a release does
 
