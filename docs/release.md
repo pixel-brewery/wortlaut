@@ -20,6 +20,7 @@ empty comparisons run in full; a Git comparison failure fails classification. Ma
 reusable-workflow calls, including rehearsals, always run the full pipeline. Reusable calls retain
 the caller's event, so their `force_verification` input defaults to `true` rather than relying on
 the event name.
+When `dev` predates the latest tag on `main`, the rehearsal uses the patch version after that tag.
 
 1. `configure` resolves the version, the changelog, the commit and the tag once, on the runner. It pushes nothing, and it hands them on as a bundle.
 2. `build` checks out exactly that commit on macOS arm64 and Windows x64 and runs `yarn verify:code`. It then installs and exercises the eight packed packages in fresh npm and Yarn consumers, runs a real Nx target and ESLint run, verifies the built app, makes the installers and exercises the packaged app.

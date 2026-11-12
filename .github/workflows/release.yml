@@ -118,12 +118,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           RELEASE_SPECIFIER: ${{ inputs.specifier || 'patch' }}
+          REHEARSAL: ${{ inputs.rehearsal }}
         run: |
           set -euo pipefail
           case "$RELEASE_SPECIFIER" in patch|minor|major) ;; *) exit 1 ;; esac
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           release_args=("$RELEASE_SPECIFIER")
+          if [ "$REHEARSAL" = true ]; then
+            git fetch origin main --tags
+            published_tag=$(git tag --merged origin/main --list 'v[0-9]*' --sort=-version:refname |
+              awk '/^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/ && !found++ { print }')
+            if [ -n "$published_tag" ] && ! git merge-base --is-ancestor "$published_tag" HEAD; then
+              # A rehearsal on dev may precede the latest release metadata on main.
+              IFS=. read -r major minor patch <<< "${published_tag#v}"
+              release_args=("$major.$minor.$((patch + 1))")
+            fi
+          fi
           stable_tags="$(git tag --list)"
           if ! grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' <<< "$stable_tags"; then
             release_args+=(--first-release)
