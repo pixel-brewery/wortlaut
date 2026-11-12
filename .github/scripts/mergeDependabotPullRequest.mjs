@@ -11,6 +11,8 @@ import { resolveDependabotRepository } from './resolveDependabotRepository.mjs';
 const workflowPath = '.github/workflows/ci.yml';
 const workflowName = 'Desktop quality';
 const requiredJobs = [
+  'Classify changes',
+  'Build and exercise desktop (ubuntu-latest)',
   'Build and exercise desktop (macos-latest)',
   'Build and exercise desktop (windows-latest)',
   'Quality Gate',

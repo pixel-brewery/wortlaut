@@ -75,9 +75,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MERGE_COMMIT_SHA: ${{ needs.merge.outputs.merge_sha }}
         run: node .github/scripts/requestMergedRelease.mjs
-
-      - name: Refresh the remaining Dependabot updates
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run rebase-dependabot.yml --repo "$GITHUB_REPOSITORY" --ref main
