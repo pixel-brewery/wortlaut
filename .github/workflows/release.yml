@@ -220,6 +220,7 @@ jobs:
         run: yarn install --immutable
       - env:
           NODE_OPTIONS: --max-old-space-size=6144
+          WORTLAUT_LINT_JOBS: '2'
         run: yarn verify
       - name: Exercise the packed packages in fresh consumers
         env:
