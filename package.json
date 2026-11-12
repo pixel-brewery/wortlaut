@@ -1,7 +1,7 @@
 {
   "name": "wortlaut",
   "productName": "Wortlaut",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Keeps the texts of an application correct in every language.",
   "author": "Pixel Brewery",
   "private": true,
