@@ -25,6 +25,7 @@ import {
 } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import {
+  CodexFileAccessNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
   LocaleFlagPipe,
@@ -45,6 +46,7 @@ import { TestTranslationViewPresenter } from '../view-presenters/TestTranslation
     ButtonComponent,
     CardComponent,
     CardHeaderComponent,
+    CodexFileAccessNoticeComponent,
     FailureStateComponent,
     FormFieldDirective,
     IconComponent,

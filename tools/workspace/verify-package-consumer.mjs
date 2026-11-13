@@ -273,7 +273,7 @@ function listTheMcpTools(consumer, cli, env) {
 /**
  * Runs the executor as a real target. Only Nx reads `executors.json` and the schema, and only its exit code tells a target's result.
  */
-function runTheNxTarget(consumer, env) {
+function runTheNxTarget(consumer, cli, env) {
   const bin = join(
     consumer,
     'node_modules',
@@ -297,6 +297,7 @@ function runTheNxTarget(consumer, env) {
               actions: {
                 detect: { resourceRoot: ['i18n'] },
                 analyze: {
+                  expectedLocales: ['en', 'de'],
                   rules: ['key-consistency'],
                   severities: { 'key-consistency': severity },
                 },
@@ -344,6 +345,50 @@ function runTheNxTarget(consumer, env) {
     0,
     `A warning must not fail the target.\n${passed.stdout}${passed.stderr}`,
   );
+
+  const project = join(consumer, 'demo');
+  const catalog = join(project, 'i18n', 'lang.de.json');
+  const originalCatalog = readFileSync(catalog, 'utf8');
+  writeFileSync(
+    join(project, 'wortlaut.config.json'),
+    JSON.stringify({
+      actions: {
+        detect: { resourceRoot: ['i18n'] },
+        analyze: { expectedLocales: ['en', 'de'], rules: ['key-consistency'] },
+      },
+    }),
+  );
+  const analyze = [
+    () => nx('demo:intl:analyze'),
+    () =>
+      spawnSync(process.execPath, [cli, 'analyze', '--dry-run'], {
+        cwd: project,
+        env,
+        encoding: 'utf8',
+      }),
+  ];
+
+  for (const [content, message] of [
+    [null, /expected locale\(s\) de/],
+    ['{}', /expected locale\(s\) de/],
+    ['{"nav":{"name":"Eins","n\\u0061me":"Zwei"}}', /JSON member "name" more than once/],
+  ]) {
+    if (content === null) {
+      rmSync(catalog);
+    } else {
+      writeFileSync(catalog, content);
+    }
+
+    for (const run of analyze) {
+      const invalid = run();
+      const output = invalid.stdout + invalid.stderr;
+
+      assert.equal(invalid.status, 1, output);
+      assert.match(output, message);
+    }
+  }
+
+  writeFileSync(catalog, originalCatalog);
 
   const sorted = nx('demo:intl:sort');
 
@@ -426,6 +471,8 @@ async function exercise(consumer, env) {
   transformARepository(consumer, cli, env);
   readTheProviders(consumer, cli, env);
   await listTheMcpTools(consumer, cli, env);
+
+  return cli;
 }
 
 const root = mkdtempSync(
@@ -454,10 +501,10 @@ try {
       existsSync(join(consumer, 'node_modules', packageNameOf('app'))),
       `${name} did not install the packages.`,
     );
-    await exercise(consumer, env);
+    const cli = await exercise(consumer, env);
 
     if (hostsTheTools) {
-      runTheNxTarget(consumer, env);
+      runTheNxTarget(consumer, cli, env);
       lintACatalog(consumer, env);
     }
 

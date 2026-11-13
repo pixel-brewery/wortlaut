@@ -321,6 +321,9 @@
                 </div>
               </div>
               <div slot="footer" class="start">
+                @if (presenter.provider()?.id === 'codex') {
+                  <wortlaut-codex-file-access-notice />
+                }
                 <mosaik-button
                   test-id="generate-start"
                   label="Start translation"

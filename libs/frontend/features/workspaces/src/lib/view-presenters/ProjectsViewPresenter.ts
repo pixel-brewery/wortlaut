@@ -184,6 +184,11 @@ export class ProjectsViewPresenter {
   public readonly filter = this._filter.asReadonly();
 
   /**
+   * Gets the selected batch command.
+   */
+  public readonly command = this._command.asReadonly();
+
+  /**
    * Gets the commands with the picked one.
    *
    * @readonly

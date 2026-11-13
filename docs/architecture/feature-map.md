@@ -193,7 +193,9 @@ a CLI, an Nx executor, ESLint rules and an MCP server on one engine.
 
 - See every workspace as a card: code, color, name, folder, facts (projects, keys, locales, AI) and tags
   (location, rule packs, Nx target, open problems) from the last known state.
-- Settings: opens Settings: workspace for that workspace. Open: goes to Overview or Projects.
+- Settings: opens Settings: workspace for that workspace. Open: with Scan for projects enabled, discovers
+  newly configured projects in the saved folders and keeps existing registrations. Then goes to Overview
+  or Projects.
 - Hold to remove: completing the Mosaik PressButton opens a Mosaik MessageBox. Only an explicit
   confirmation removes the saved workspace; Cancel and Escape leave it in place. Repository
   folders and files are never deleted. The workspace list and selected shell state refresh afterwards.
@@ -821,10 +823,8 @@ pressing Escape does not close it.
   approves its own change set automatically, and every change appears in Runs.
 - "They get the same commands as the app", but no `generate` tool is listed. This map keeps the 12 tools: the
   assistant translates through `next_translations` and `propose_translations`.
-- `npx -y @pixel-brewery/wortlaut-app mcp` fails on a clean machine: GitHub Packages needs a token even for public
-  packages. The owner decides between another registry and a documented `.npmrc` step. Until then the screen shows the command
-  line next to the app, says that the plugin needs the published package, and calls the server ready only when that command line
-  and Node.js are found.
+- The direct setup prefers the command line next to the app and reports it ready when Node.js is found. Plugins use
+  `npx -y @pixel-brewery/wortlaut-app mcp` and require [npm access to GitHub Packages](../release.md#package-installation).
 - The "Installed" badge needs a way to see an assistant's setup without reading credentials. Synapse cannot say whether a
   server is connected, so the badge says Installed when `AssistantLocator` finds the command, and Connected only once a run of
   that client through MCP is on record.
@@ -920,7 +920,7 @@ pressing Escape does not close it.
 
 - Workspace: name, short code, color.
 - Folders: repositories as closable chips (closing removes them from the workspace only). Add folder opens a native
-  dialog. Scan for projects on or off.
+  dialog. Scan for projects controls discovery when adding folders or reopening the workspace.
 - Shared defaults: base locale, target locales, framework preset, AI assistant, count of enabled rule packs, with
   Manage rule packs.
 - Where it runs: This computer. Cloud is disabled with "Later".
@@ -1039,7 +1039,7 @@ pressing Escape does not close it.
 
 - Start in dry run: sets the title bar switch at launch, on by default. Verbose log: maps to `debug`. Cache results:
   reuses results of files that did not change. Cache folder: `.wortlaut/cache`, relative to the working directory.
-- Color mode: Light or Dark, in Soho. Interface language.
+- Color mode: System, Light or Dark, in Soho. System follows the operating system's appearance.
 - Keyboard shortcuts: search (⌘K), run the current command (⌘Enter), suggest with AI (⌘J), next open finding (⌘↓).
   All really work, and with Ctrl on Windows and Linux.
 - Command line and CI: copy `yarn add @pixel-brewery/wortlaut-app`. Export run configuration saves the effective
@@ -1064,7 +1064,6 @@ pressing Escape does not close it.
 - The cache folder sits in the user's repository. `wortlaut init` adds it to `.gitignore` through its change set. It holds only what can
   be worked out again, so it is the one write outside of a change set: it ignores itself in Git, and with Dry run on it is read and not
   written.
-- Color mode has no way back to the system on the board. The app follows the system until the user picks a mode.
 
 ---
 

@@ -113,6 +113,9 @@
           </div>
         </div>
 
+        @if (run.command === 'generate' && run.canRepeat) {
+          <wortlaut-codex-file-access-notice />
+        }
         @if (presenter.message(); as message) {
           <mosaik-message variant="danger" header="This run did not start" [content]="message" />
         }

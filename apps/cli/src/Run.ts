@@ -102,6 +102,11 @@ export interface IRunConfig {
       baseLocale?: string;
 
       /**
+       * Each of these locales must have at least one translation key in the catalog roots.
+       */
+      expectedLocales?: Array<string>;
+
+      /**
        * Patterns of keys whose value may be identical to the base locale's value, for `missing-translations`.
        * `*` matches any sequence of characters, e.g. `loc.integrations.*.name`.
        */
@@ -337,6 +342,7 @@ class RunExecutor {
         resourceKeySuffix: this.resourceKey.suffix,
         rules: analyze?.rules ?? [],
         usedKeys: analyze?.usedKeys ?? [],
+        ...(analyze?.expectedLocales?.length ? { expectedLocales: analyze.expectedLocales } : {}),
         ...(analyze?.severities ? { severities: analyze.severities } : {}),
         ...(analyze?.ruleExceptions ? { ruleExceptions: analyze.ruleExceptions } : {}),
         ...(analyze?.disabledPacks ? { disabledPacks: analyze.disabledPacks } : {}),

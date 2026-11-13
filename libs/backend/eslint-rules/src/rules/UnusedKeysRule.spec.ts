@@ -57,6 +57,13 @@ describe('unusedKeysRule', () => {
     ],
     invalid: [
       {
+        name: 'reports a stopped key pattern without reporting any unused keys',
+        filename: 'translations.en.json',
+        options: [{ usedKeys: ['/(a+)+/'] }],
+        code: JSON.stringify({ [`${'a'.repeat(36)}!`]: 'A', title: 'Title' }),
+        errors: [{ messageId: 'stoppedPattern' }],
+      },
+      {
         name: 'json/json resource linted without options, whose keys are all unused',
         filename: 'translations.en.json',
         code: JSON.stringify(

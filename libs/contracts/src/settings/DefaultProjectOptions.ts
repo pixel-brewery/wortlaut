@@ -32,6 +32,7 @@ export const DEFAULT_PROJECT_OPTIONS = {
       rules: [],
       usedKeys: [],
       baseLocale: 'en',
+      expectedLocales: [],
       identicalKeys: [],
       identicalValues: [],
     },

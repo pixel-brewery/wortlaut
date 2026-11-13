@@ -112,6 +112,10 @@ and `missing`, and `--namespace`, `--keys` and `--limit` narrow it down. `--inst
 text. Each answer of a model is checked for shape, row count, keys and placeholders, and a chunk is asked again within a budget. A
 chunk that stays wrong fails the run, a failed or stopped run writes nothing, and what it finished waits for `wortlaut changes apply`.
 
+When a run uses Codex, it can read local files outside the translation workspace. Its output
+may include text from those files. Review the output before saving or sharing it. With
+`--review`, proposed catalog changes wait for approval.
+
 ## 🛠 Development
 
 Run `yarn nx run wortlaut-app:build` from the workspace root. Compilation replaces `dist` with a complete fresh output before preparing the package, so directory casing changes and removed sources cannot leave stale modules behind. Make changes in `src` and rebuild instead of editing generated files.

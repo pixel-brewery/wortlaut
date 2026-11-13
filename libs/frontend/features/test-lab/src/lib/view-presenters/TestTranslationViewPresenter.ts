@@ -160,6 +160,13 @@ export class TestTranslationViewPresenter {
   public readonly form = form(this._model);
 
   /**
+   * Gets whether either translation setup uses Codex.
+   */
+  public readonly usesCodex = computed(() =>
+    this._setups().some(({ provider }) => provider === 'codex'),
+  );
+
+  /**
    * Gets the two setups with what they did.
    *
    * @readonly

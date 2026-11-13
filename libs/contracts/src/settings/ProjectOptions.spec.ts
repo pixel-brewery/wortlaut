@@ -13,7 +13,7 @@ describe('ProjectOptionsSchema', () => {
       ProjectOptionsSchema.safeParse({
         actions: {
           generate: { locales: [locale], baseLocale: locale },
-          analyze: { baseLocale: locale },
+          analyze: { baseLocale: locale, expectedLocales: [locale] },
           detect: { languages: [locale] },
         },
       }).success,
@@ -32,6 +32,10 @@ describe('ProjectOptionsSchema', () => {
       ).toBe(false);
       expect(
         ProjectOptionsSchema.safeParse({ actions: { analyze: { baseLocale: locale } } }).success,
+      ).toBe(false);
+      expect(
+        ProjectOptionsSchema.safeParse({ actions: { analyze: { expectedLocales: [locale] } } })
+          .success,
       ).toBe(false);
       expect(
         ProjectOptionsSchema.safeParse({ actions: { detect: { languages: [locale] } } }).success,

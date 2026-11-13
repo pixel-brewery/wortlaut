@@ -14,8 +14,10 @@ The user sets the level in the app under MCP and plugins. It lives in `mcp.json`
 argument can raise it. Without a level or a known project the server is read only. No tool takes a path, and a project is named by
 its id from `list_projects`.
 
-`plugins/claude` and `plugins/codex` carry the server and a skill in the format of each tool, and no logic. They start the published
-package.
+`plugins/claude` and `plugins/codex` each carry a server definition and a skill. They start the published package with
+`npx -y @pixel-brewery/wortlaut-app mcp`. Configure
+[npm access to GitHub Packages](https://github.com/pixel-brewery/wortlaut/blob/main/docs/release.md#package-installation)
+in the environment that starts the assistant.
 
 ## Package installation
 

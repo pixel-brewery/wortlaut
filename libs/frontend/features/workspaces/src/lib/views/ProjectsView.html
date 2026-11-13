@@ -57,6 +57,9 @@
             </div>
             <div slot="content" class="card-pad">
               <span class="note">{{ presenter.runNote() }}</span>
+              @if (presenter.command() === 'generate') {
+                <wortlaut-codex-file-access-notice />
+              }
               <wortlaut-dry-run-notice
                 text="Transform, Sort and Generate leave one change set per repository in Review. Nothing is written to your repository."
               />

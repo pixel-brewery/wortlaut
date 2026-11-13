@@ -190,39 +190,28 @@ export class TestLab {
       return none('An empty entry matches no key.');
     }
 
-    let exact: ReadonlySet<string> = new Set();
-    let expressions: ReadonlyArray<RegExp>;
+    let hit: ReadonlySet<string>;
 
     try {
-      if (list === 'usedKeys') {
-        const matcher = new KeyMatcher([pattern], 'usedKeys');
+      const guard = new PatternGuard();
 
-        exact = matcher.exactKeys;
-        expressions = matcher.patterns;
+      if (list === 'usedKeys') {
+        hit = new KeyMatcher([pattern], 'usedKeys').matchKeys(keys, guard);
       } else {
-        expressions = [createKeyPattern(pattern)];
+        const expression = createKeyPattern(pattern);
+        const outcome = guard.test(expression.source, expression.flags, keys, true);
+
+        if (outcome.kind === 'stopped') {
+          return none(`This pattern was stopped: ${outcome.reason}`);
+        }
+
+        hit = new Set(keys.filter((_, index) => outcome.matches[index]));
       }
     } catch (error) {
       return none((error as Error).message.replace('The usedKeys entry', 'The entry'));
     }
 
-    // A pattern can backtrack catastrophically, and whoever typed it is not always the user.
-    const guard = new PatternGuard();
-    const hit = new Array<boolean>(keys.length).fill(false);
-
-    for (const expression of expressions) {
-      const outcome = guard.test(expression.source, expression.flags, keys);
-
-      if (outcome.kind === 'stopped') {
-        return none(`This pattern was stopped: ${outcome.reason}`);
-      }
-
-      outcome.matches.forEach((isMatch, index) => {
-        hit[index] ||= isMatch;
-      });
-    }
-
-    const results = keys.map((key, index) => ({ key, isMatch: hit[index] || exact.has(key) }));
+    const results = keys.map((key) => ({ key, isMatch: hit.has(key) }));
     const hits = results.filter((result) => result.isMatch);
 
     return {

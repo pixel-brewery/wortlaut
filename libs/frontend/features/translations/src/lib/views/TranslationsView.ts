@@ -38,6 +38,7 @@ import {
 } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import {
+  CodexFileAccessNoticeComponent,
   DryRunNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
@@ -59,6 +60,7 @@ import { TranslationsViewPresenter } from '../view-presenters/TranslationsViewPr
     BadgeComponent,
     ButtonComponent,
     CardComponent,
+    CodexFileAccessNoticeComponent,
     DialogActionsComponent,
     DialogComponent,
     DialogContentComponent,

@@ -66,6 +66,17 @@ describe('AnalyzeCommand', () => {
     expect(ruleCount(result.result)).toBe(2);
   });
 
+  it('uses expected locales from the project configuration', async () => {
+    writeFileSync(join(resources, 'lang.de.json'), '{}');
+    writeFileSync(
+      join(root, 'wortlaut.config.json'),
+      JSON.stringify({ actions: { analyze: { expectedLocales: ['en', 'de'] } } }),
+    );
+    const command = createCommand({ cwd: root, resourceRoot: resources });
+
+    await expect(command.execute()).rejects.toThrow(/expected locale\(s\) de/);
+  });
+
   it('reads its rules as a comma-separated list', () => {
     // act
     const rules = (RULES_ARG.options.type as (value: string) => Array<string>)(

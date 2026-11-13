@@ -27,6 +27,7 @@ import {
 } from '@pixel-brewery/mosaik-elements-angular/components/table';
 import { ProgressBarComponent } from '@pixel-brewery/mosaik-elements-angular/components/progress-bar';
 import {
+  CodexFileAccessNoticeComponent,
   DryRunNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
@@ -48,6 +49,7 @@ import { ProjectsViewPresenter } from '../view-presenters/ProjectsViewPresenter'
     ButtonComponent,
     CardComponent,
     CardHeaderComponent,
+    CodexFileAccessNoticeComponent,
     EmptyStateComponent,
     FailureStateComponent,
     DryRunNoticeComponent,

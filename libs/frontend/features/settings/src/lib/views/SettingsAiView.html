@@ -41,6 +41,9 @@
               @if (provider.hint; as hint) {
                 <span class="note provider-hint">{{ hint }}</span>
               }
+              @if (provider.id === 'codex') {
+                <wortlaut-codex-file-access-notice />
+              }
             </div>
           }
           <div class="provider-group">

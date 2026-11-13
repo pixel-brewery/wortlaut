@@ -41,6 +41,49 @@ describe('run', () => {
 
   const detect = { root: 'src', resourceRoot: ['assets/i18n'] };
 
+  describe('catalog input to analysis', () => {
+    const analyze = (expectedLocales: Array<string>): ReturnType<typeof run> =>
+      run({
+        cwd: root,
+        dryRun: true,
+        actions: { detect, analyze: { expectedLocales, rules: ['key-consistency'] } },
+      });
+
+    it.each([undefined, '{}', '{"loc": { "nav": {} }}'])(
+      'rejects an expected locale without translation keys (%s)',
+      async (content) => {
+        if (content !== undefined) {
+          writeFileSync(join(root, 'src', 'assets', 'i18n', 'lang.de.json'), content);
+        }
+
+        await expect(analyze(['en', 'de'])).rejects.toThrow(/expected locale\(s\) de/);
+      },
+    );
+
+    it('recognizes a populated nested catalog and equivalent locale tag spelling', async () => {
+      writeFileSync(
+        join(root, 'src', 'assets', 'i18n', 'lang.de-DE.json'),
+        '{"loc": { "a": "Ein", "b": "Zwei" }}',
+      );
+
+      const result = await analyze(['en', 'de_DE']);
+
+      expect(result.analyze?.map((rule) => rule.success)).toEqual([true, true]);
+    });
+
+    it.each([
+      '{"name":"One","name":"Two"}',
+      '{"loc":{"name":"One","n\\u0061me":"Two"}}',
+      '{"loc":[{"name":"One","name":"Two"}]}',
+    ])('rejects raw duplicate members before running rules (%s)', async (content) => {
+      writeFileSync(file, content);
+
+      await expect(analyze([])).rejects.toThrow(
+        /lang\.en\.json.*JSON member "name" more than once/,
+      );
+    });
+  });
+
   describe('rule packs', () => {
     const pack = `${JSON.stringify({ schemaVersion: 1, id: 'our-pack', name: 'Our pack', description: 'Ours.', version: '1.0.0', rules: [{ id: 'no-a', description: 'No A.', severity: 'error', message: 'Found.', pattern: { regex: '^A$' } }] }, null, 2)}\n`;
 

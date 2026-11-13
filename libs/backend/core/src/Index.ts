@@ -35,7 +35,7 @@ export {
 } from './services/UsedKeysFinder.js';
 export { createKeyPattern } from './services/KeyPattern.js';
 export { KeyGenerator, type IKeyAffixes } from './services/KeyGenerator.js';
-export { KeyMatcher } from './services/KeyMatcher.js';
+export { KeyMatcher, KeyPatternStoppedError } from './services/KeyMatcher.js';
 export { isTestFile } from './services/SourceText.js';
 export {
   comparePlaceholders,

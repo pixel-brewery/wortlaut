@@ -13,6 +13,7 @@ import type { Finding } from '@pixel-brewery/wortlaut-contracts';
 import {
   foundItemsOf,
   isTestFile,
+  KeyPatternStoppedError,
   PatternGuard,
   Presets,
   ResourceAnalyzer,
@@ -91,7 +92,8 @@ export class AnalyzeUseCase implements IUseCase<IAnalyzeOptions, Array<IAnalyzer
     const analyzer = new ResourceAnalyzer(logger);
     const packs = RulePackLoader.load(resolve(context.cwd), options.disabledPacks ?? []);
     const refusedPacks = this.refusalsOf(packs);
-    const packRules = RulePackLoader.registerRules(analyzer, packs.packs, new PatternGuard());
+    const guard = new PatternGuard();
+    const packRules = RulePackLoader.registerRules(analyzer, packs.packs, guard);
     const usesSeverities =
       packs.directory !== null || Object.keys(options.severities ?? {}).length > 0;
     const results = new Array<IAnalyzerRuleResult>();
@@ -108,28 +110,59 @@ export class AnalyzeUseCase implements IUseCase<IAnalyzeOptions, Array<IAnalyzer
       options.resourceRoot,
       options.type,
     );
+
+    this.requireExpectedLocales(options.expectedLocales ?? [], resources);
+
     const keys = Array.from(new Set(resources.flatMap((resource) => resource.keys())));
     const sources = await this.readSources(options, context);
     const rules = this.resolveRules(options, analyzer, sources.length > 0, packRules, packs);
     const findUsedKeys = (): Array<string> =>
       Array.from(
-        new UsedKeysFinder().find(sources, keys, {
-          prefix: options.resourceKeyPrefix,
-          usedKeys: options.usedKeys,
-        }),
-      ).sort((a, b) => a.localeCompare(b));
-    const usedKeys = context.cache
-      ? context.cache.remember(
-          'analyze.used-keys',
+        new UsedKeysFinder().find(
+          sources,
+          keys,
           {
-            sources: sources.map(hashText),
-            keys,
             prefix: options.resourceKeyPrefix,
             usedKeys: options.usedKeys,
           },
-          findUsedKeys,
-        )
-      : findUsedKeys();
+          guard,
+        ),
+      ).sort((a, b) => a.localeCompare(b));
+    let usedKeys: ReadonlyArray<string> = [];
+    let stopped: string | null = null;
+
+    try {
+      usedKeys = context.cache
+        ? context.cache.remember(
+            'analyze.used-keys.bounded',
+            {
+              sources: sources.map(hashText),
+              keys,
+              prefix: options.resourceKeyPrefix,
+              usedKeys: options.usedKeys,
+            },
+            findUsedKeys,
+          )
+        : findUsedKeys();
+    } catch (error) {
+      if (!(error instanceof KeyPatternStoppedError)) {
+        throw error;
+      }
+
+      stopped = error.message;
+
+      if (!rules.includes('unused-keys')) {
+        logger.error(stopped);
+        findings.push({
+          rule: 'used-key-pattern',
+          severity: 'error',
+          message: stopped,
+          file: null,
+          locale: null,
+        });
+      }
+    }
+
     const inputs = context.cache
       ? this.inputsOf(context.cache, options, resources, packs, usedKeys, context)
       : null;
@@ -153,20 +186,23 @@ export class AnalyzeUseCase implements IUseCase<IAnalyzeOptions, Array<IAnalyzer
       logger.log(t`  ${`[${rules.indexOf(rule) + 1}/${rules.length}]`} ${bold(rule)}`);
 
       for (const resource of resources) {
-        const result = this.resultOf(inputs, rule, resource, () =>
-          analyzer.executeRule(rule, {
-            resource,
-            resources,
-            parameters: {
-              usedKeys,
-              baseLocale: options.baseLocale,
-              identicalKeys: options.identicalKeys,
-              identicalValues: options.identicalValues,
-              severities: options.severities,
-              ruleExceptions: options.ruleExceptions,
-            },
-          }),
-        );
+        const result: IAnalyzerRuleResult =
+          rule === 'unused-keys' && stopped
+            ? { resource, success: false, message: stopped, data: [{ stopped }], severity: 'error' }
+            : this.resultOf(inputs, rule, resource, () =>
+                analyzer.executeRule(rule, {
+                  resource,
+                  resources,
+                  parameters: {
+                    usedKeys,
+                    baseLocale: options.baseLocale,
+                    identicalKeys: options.identicalKeys,
+                    identicalValues: options.identicalValues,
+                    severities: options.severities,
+                    ruleExceptions: options.ruleExceptions,
+                  },
+                }),
+              );
 
         logger.log(t`    ${symbol(result.success ? 'success' : 'error')} ${t`${result.message}`}`);
         logger.log(t`      ${t`Resource: ${resource.locale} (${resource.path})`}`);
@@ -196,15 +232,16 @@ export class AnalyzeUseCase implements IUseCase<IAnalyzeOptions, Array<IAnalyzer
 
     logger.log(t`${magenta(`Analyzer rules completed.${StringExtensions.newLine}`)}`);
 
-    const gate: IAnalysisGate | null = usesSeverities
-      ? {
-          errors: findings.filter(
-            (finding) => finding.severity === 'error' && finding.rule !== VERIFICATION_RULE,
-          ).length,
-          warnings: findings.filter((finding) => finding.severity === 'warning').length,
-          refusedPacks,
-        }
-      : null;
+    const gate: IAnalysisGate | null =
+      usesSeverities || stopped !== null
+        ? {
+            errors: findings.filter(
+              (finding) => finding.severity === 'error' && finding.rule !== VERIFICATION_RULE,
+            ).length,
+            warnings: findings.filter((finding) => finding.severity === 'warning').length,
+            refusedPacks,
+          }
+        : null;
 
     return {
       result: results,
@@ -212,6 +249,43 @@ export class AnalyzeUseCase implements IUseCase<IAnalyzeOptions, Array<IAnalyzer
       findings,
       executedRules: rules,
     };
+  }
+
+  /**
+   * Checks the configured languages independently of the rules selected for this run.
+   *
+   * @private
+   */
+  private requireExpectedLocales(
+    expected: ReadonlyArray<string>,
+    resources: ReadonlyArray<IResourceInfo>,
+  ): void {
+    if (expected.length === 0) {
+      return;
+    }
+
+    const normalize = (locale: string): string => locale.replaceAll('_', '-').toLowerCase();
+    const populated = new Set(
+      resources
+        .filter((resource) => resource.keys().length > 0)
+        .map((resource) => normalize(resource.locale)),
+    );
+    const missing = new Map<string, string>();
+
+    for (const locale of expected) {
+      const normalized = normalize(locale);
+
+      if (!populated.has(normalized) && !missing.has(normalized)) {
+        missing.set(normalized, locale);
+      }
+    }
+
+    if (missing.size > 0) {
+      throw new EngineError(
+        'invalid-configuration',
+        `No non-empty catalog found for the expected locale(s) ${Array.from(missing.values()).join(', ')}. Check actions.analyze.expectedLocales and the catalog files under actions.detect.resourceRoot.`,
+      );
+    }
   }
 
   /**

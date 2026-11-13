@@ -66,6 +66,9 @@ export class SettingsAppViewPresenter {
   private readonly _message = signal<string | null>(null);
   private readonly _note = signal<string | null>(null);
   private readonly _current = signal<AppSettingsView | null>(null);
+  private readonly _githubTokenDraft = signal('');
+  private readonly _githubTokenSaving = signal(false);
+  private readonly _githubTokenConfigured = signal<boolean | null>(null);
 
   // #endregion
 
@@ -113,6 +116,15 @@ export class SettingsAppViewPresenter {
    * @readonly
    */
   public readonly values = this._current.asReadonly();
+
+  /** The GitHub credential status; the saved token is never returned by main. */
+  public readonly githubTokenConfigured = this._githubTokenConfigured.asReadonly();
+
+  /** The token entered for the next save. */
+  public readonly githubTokenDraft = this._githubTokenDraft.asReadonly();
+
+  /** Whether a credential change is in flight. */
+  public readonly githubTokenSaving = this._githubTokenSaving.asReadonly();
 
   /**
    * Gets what the app says about this computer.
@@ -175,7 +187,37 @@ export class SettingsAppViewPresenter {
    * @returns When it is loaded.
    */
   public async load(): Promise<void> {
-    await Promise.all([this.settings.reload(), this._shell.loadInfo()]);
+    await Promise.all([this.settings.reload(), this._shell.loadInfo(), this.loadGithubToken()]);
+  }
+
+  /** Updates the unsaved GitHub token. */
+  public typeGithubToken(token: string): void {
+    this._githubTokenDraft.set(token);
+  }
+
+  /** Saves the new token in the system keychain or clears it. */
+  public async saveGithubToken(clear = false): Promise<void> {
+    const token = clear ? null : this._githubTokenDraft().trim();
+
+    if (this._githubTokenSaving() || token === '') {
+      return;
+    }
+
+    this._githubTokenSaving.set(true);
+    this._message.set(null);
+    this._note.set(null);
+
+    try {
+      const { configured } = await this._api.request('app.setGithubToken', { token });
+
+      this._githubTokenConfigured.set(configured);
+      this._githubTokenDraft.set('');
+      this._note.set(configured ? 'GitHub token saved.' : 'GitHub token cleared.');
+    } catch (error) {
+      this._message.set(error instanceof Error ? error.message : String(error));
+    } finally {
+      this._githubTokenSaving.set(false);
+    }
   }
 
   /**
@@ -211,10 +253,10 @@ export class SettingsAppViewPresenter {
   /**
    * Picks the color mode.
    *
-   * @param colorMode The mode.
+   * @param colorMode The mode, or null to follow the system.
    * @returns When main knows.
    */
-  public setColorMode(colorMode: ColorMode): Promise<void> {
+  public setColorMode(colorMode: ColorMode | null): Promise<void> {
     return this.change({ colorMode });
   }
 
@@ -276,6 +318,17 @@ export class SettingsAppViewPresenter {
     try {
       await this._api.request('clipboard.writeText', { text });
       this._note.set(note);
+    } catch (error) {
+      this._message.set(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  /** Reads just the presence of a GitHub token. */
+  private async loadGithubToken(): Promise<void> {
+    try {
+      const { configured } = await this._api.request('app.githubTokenStatus', {});
+
+      this._githubTokenConfigured.set(configured);
     } catch (error) {
       this._message.set(error instanceof Error ? error.message : String(error));
     }

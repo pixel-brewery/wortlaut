@@ -9,6 +9,7 @@ import {
 } from '@pixel-brewery/mosaik-elements-angular/components/card';
 import { KbdComponent } from '@pixel-brewery/mosaik-elements-angular/components/kbd';
 import { MessageComponent } from '@pixel-brewery/mosaik-elements-angular/components/message';
+import { PasswordBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/password-box';
 import {
   SegmentComponent,
   SegmentItemComponent,
@@ -34,6 +35,7 @@ import { SettingsAppViewPresenter } from '../view-presenters/SettingsAppViewPres
     KbdComponent,
     LoadingStateComponent,
     MessageComponent,
+    PasswordBoxComponent,
     RouterLink,
     SegmentComponent,
     SegmentItemComponent,
@@ -65,6 +67,11 @@ export class SettingsAppView implements OnInit {
    */
   public ngOnInit(): void {
     void this.presenter.load();
+  }
+
+  /** Passes the password box value to the presenter without exposing the stored token. */
+  protected onGithubToken(event: unknown): void {
+    this.presenter.typeGithubToken(String(event));
   }
 
   // #endregion

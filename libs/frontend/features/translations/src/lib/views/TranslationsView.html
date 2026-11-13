@@ -376,6 +376,9 @@
                   >Uses the {{ presenter.baseHeader() }} value, the comment and your project
                   instructions.</span
                 >
+                @if (presenter.codexAvailable()) {
+                  <wortlaut-codex-file-access-notice />
+                }
                 <mosaik-button
                   variant="neutral"
                   appearance="outline"

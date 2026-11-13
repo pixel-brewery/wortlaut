@@ -13,6 +13,7 @@ import {
   CatalogComments,
   COMMENTS_FILE_NAME,
   isTestFile,
+  KeyPatternStoppedError,
   PoText,
   MissingTranslationsRule,
   placeholdersOf,
@@ -440,6 +441,22 @@ export class CatalogService {
     const sources = this.readSources(configuration, project.folder, catalogs);
     const finder = new UsedKeysFinder();
     const finderOptions = { prefix, usedKeys: actions?.analyze?.usedKeys ?? [] };
+    let used: Set<string> | null = null;
+
+    if (sources) {
+      try {
+        used = finder.find(
+          sources.map((source) => source.content),
+          keys,
+          finderOptions,
+        );
+      } catch (error) {
+        if (!(error instanceof KeyPatternStoppedError)) {
+          throw error;
+        }
+        // Analysis reports the stopped expression. A catalog can still show its translations and source locations.
+      }
+    }
 
     return {
       signature: this.signatureOf(catalogs, configuration.cwd),
@@ -454,13 +471,7 @@ export class CatalogService {
       },
       keys,
       values,
-      used: sources
-        ? finder.find(
-            sources.map((source) => source.content),
-            keys,
-            finderOptions,
-          )
-        : null,
+      used,
       usages: sources ? finder.locate(sources, keys, finderOptions) : new Map(),
       duplicates: this.findDuplicates(keys, values, baseLocale),
       namespaceOf: createNamespaceOf(keys, prefix),

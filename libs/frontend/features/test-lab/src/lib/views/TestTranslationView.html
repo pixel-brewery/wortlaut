@@ -16,6 +16,9 @@
   @if (presenter.message(); as message) {
     <mosaik-message variant="danger" header="That did not work" [content]="message" />
   }
+  @if (presenter.usesCodex()) {
+    <wortlaut-codex-file-access-notice />
+  }
   <mosaik-split
     class="pane-split pane-split-vertical page-content"
     test-id="test-translation-split"

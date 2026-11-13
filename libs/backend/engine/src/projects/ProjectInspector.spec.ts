@@ -75,6 +75,64 @@ describe('ProjectInspector', () => {
     expect(existsSync(join(repository, 'wortlaut.config.json'))).toBe(false);
   });
 
+  describe('integrated Angular Nx workspaces', () => {
+    beforeEach(() => {
+      write('nx.json', {});
+      write('package.json', { dependencies: { '@angular/core': '22.0.0' } });
+      rmSync(join(repository, 'apps/frontend/app/package.json'));
+      write('apps/frontend/app/project.json', {
+        projectType: 'application',
+        sourceRoot: 'apps/frontend/app/client',
+        targets: { build: { executor: '@nx/angular:application' } },
+      });
+      write('apps/frontend/app/client/Main.ts', 'export const client = true;');
+    });
+
+    it('uses the Angular app metadata when the dependency is declared only in the workspace manifest', () => {
+      write('libs/backend/core/project.json', {
+        projectType: 'application',
+        sourceRoot: 'libs/backend/core/src',
+        targets: { build: { executor: '@nx/js:tsc' } },
+      });
+
+      const { inspection } = engine.inspector.inspect(repository);
+
+      expect(inspection.preset).toEqual({
+        value: 'angular',
+        evidence: 'Found @angular/core in package.json',
+      });
+      expect(inspection.sourceRoot).toMatchObject({
+        value: 'apps/frontend/app/client',
+        fileCount: 1,
+      });
+    });
+
+    it('leaves the source folder for the user to choose when several Angular apps are present', () => {
+      write('apps/admin/project.json', {
+        projectType: 'application',
+        sourceRoot: 'apps/admin/src',
+        targets: { build: { executor: '@angular/build:application' } },
+      });
+      write('apps/admin/src/main.ts', 'export const admin = true;');
+
+      const { inspection } = engine.inspector.inspect(repository);
+
+      expect(inspection.sourceRoot).toMatchObject({ value: '', fileCount: 0 });
+    });
+
+    it('falls back to the app source folder if the declared root leaves the workspace', () => {
+      write('apps/frontend/app/project.json', {
+        projectType: 'application',
+        sourceRoot: '../elsewhere',
+        targets: { build: { executor: '@angular-devkit/build-angular:browser' } },
+      });
+
+      const { inspection } = engine.inspector.inspect(repository);
+
+      expect(inspection.sourceRoot).toMatchObject({ value: 'apps/frontend/app/src', fileCount: 2 });
+    });
+  });
+
   it('uses a declared custom Nx source root inside the selected repository', () => {
     write('apps/frontend/app/project.json', { sourceRoot: 'client/application' });
     write('client/application/Main.ts', 'export const client = true;');

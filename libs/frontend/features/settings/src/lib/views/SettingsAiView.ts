@@ -18,6 +18,7 @@ import {
 import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/components/text-box';
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import {
+  CodexFileAccessNoticeComponent,
   DryRunNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
@@ -39,6 +40,7 @@ import { SettingsAiViewPresenter } from '../view-presenters/SettingsAiViewPresen
     ButtonComponent,
     CardComponent,
     CardHeaderComponent,
+    CodexFileAccessNoticeComponent,
     DryRunNoticeComponent,
     EmptyStateComponent,
     FailureStateComponent,

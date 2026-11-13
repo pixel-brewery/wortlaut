@@ -579,15 +579,16 @@ export class AnalyzeViewPresenter {
     this._aiMessage.set(null);
 
     try {
-      const { patterns, providerName } = await this._api.request('ai.suggestPatterns', {
+      const { patterns, providerName, dropped } = await this._api.request('ai.suggestPatterns', {
         requestId: crypto.randomUUID(),
         projectId: this.requireProject(),
         keys: this.selectedKeys().slice(0, 2000),
       });
       const [best] = patterns;
+      const checks = dropped.length > 0 ? ` ${dropped.join(' ')}` : '';
 
       if (!best) {
-        this._aiMessage.set(`${providerName} proposed no pattern that covers these keys.`);
+        this._aiMessage.set(`${providerName} proposed no pattern that covers these keys.${checks}`);
 
         return;
       }
@@ -596,7 +597,7 @@ export class AnalyzeViewPresenter {
 
       this._handoff.offerPattern({
         pattern: best.pattern,
-        note: `${providerName} proposed this pattern, which covers ${countOf(best.matchCount, 'key')} of this list.${others.length > 0 ? ` Others: ${others.join(', ')}` : ''}`,
+        note: `${providerName} proposed this pattern, which covers ${countOf(best.matchCount, 'key')} of this list.${others.length > 0 ? ` Others: ${others.join(', ')}` : ''}${checks}`,
       });
       await this._router.navigate(['/test-lab/patterns']);
     } catch (error) {

@@ -354,6 +354,14 @@ describe('UsedKeysFinder', () => {
       expect([...usedKeys].sort()).toEqual(['loc.faq.what?', 'loc.faq.{id}']);
     });
 
+    it('matches the entire key even when it exceeds the catalog value preview limit', () => {
+      const key = `long.${'x'.repeat(16 * 1024)}.title`;
+
+      const usedKeys = new UsedKeysFinder().find([], [key], { usedKeys: ['/long\\..+\\.title/'] });
+
+      expect([...usedKeys]).toEqual([key]);
+    });
+
     it.each([
       ['loc.orders.{open,closed', "the '{' at position 12 has no closing '}'"],
       ['loc.orders.open}', "the '}' at position 16 has no opening '{'"],

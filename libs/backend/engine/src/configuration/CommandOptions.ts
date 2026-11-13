@@ -94,6 +94,9 @@ export namespace CommandOptions {
       rules: actions.analyze?.rules ?? [],
       usedKeys: actions.analyze?.usedKeys ?? [],
       baseLocale: actions.analyze?.baseLocale ?? '',
+      ...(actions.analyze?.expectedLocales?.length
+        ? { expectedLocales: actions.analyze.expectedLocales }
+        : {}),
       identicalKeys: actions.analyze?.identicalKeys ?? [],
       identicalValues: actions.analyze?.identicalValues ?? [],
       ...(actions.analyze?.severities ? { severities: actions.analyze.severities } : {}),

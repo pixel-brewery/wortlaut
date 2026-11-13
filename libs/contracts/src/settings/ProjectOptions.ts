@@ -90,6 +90,7 @@ export const ProjectOptionsSchema = z
             rules: z.array(z.string()),
             usedKeys: z.array(z.string()),
             baseLocale: LocaleTagSchema,
+            expectedLocales: z.array(LocaleTagSchema),
             identicalKeys: z.array(z.string()),
             identicalValues: z.array(z.string()),
 

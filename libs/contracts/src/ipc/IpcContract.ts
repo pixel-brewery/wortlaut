@@ -161,6 +161,14 @@ export const IPC_CONTRACT = {
   'app.getInfo': { request: EmptySchema, response: AppInfoSchema },
   'app.getSettings': { request: EmptySchema, response: AppSettingsViewSchema },
   'app.saveSettings': { request: AppSettingsSchema, response: AppSettingsViewSchema },
+  'app.githubTokenStatus': {
+    request: EmptySchema,
+    response: z.strictObject({ configured: z.boolean() }),
+  },
+  'app.setGithubToken': {
+    request: z.strictObject({ token: z.string().trim().min(1).max(512).nullable() }),
+    response: z.strictObject({ configured: z.boolean() }),
+  },
   'search.query': { request: SearchQueryRequestSchema, response: SearchResultsSchema },
   'search.openFile': { request: z.strictObject({ id: IdSchema }), response: EmptySchema },
   'shell.state': { request: EmptySchema, response: ShellStateSchema },

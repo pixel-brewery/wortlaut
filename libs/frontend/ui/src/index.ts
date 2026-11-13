@@ -7,6 +7,7 @@ export {
   describeWrite,
   WriteResultComponent,
 } from './lib/components/write-result/WriteResultComponent';
+export { CodexFileAccessNoticeComponent } from './lib/components/view-states/CodexFileAccessNoticeComponent';
 export { FailureStateComponent } from './lib/components/view-states/FailureStateComponent';
 export { LoadingStateComponent } from './lib/components/view-states/LoadingStateComponent';
 export { WorkspaceTileComponent } from './lib/components/workspace-tile/WorkspaceTileComponent';

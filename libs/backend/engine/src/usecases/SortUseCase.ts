@@ -48,7 +48,7 @@ export class SortUseCase implements IUseCase<ISortOptions, Array<IResourceInfo>>
       );
 
       if (plan.keysSorted > 0) {
-        context.changes.propose(plan.sortedResource.path, plan.sortedResource.toString());
+        context.changes.propose(plan.sortedResource.path, sorter.serialize(plan.sortedResource));
       }
     }
 

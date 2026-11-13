@@ -41,6 +41,16 @@ The supported consumer routes are npm and Yarn with `nodeLinker: node-modules` i
 Utilities peers; they do not rely on this repository's devDependencies or Synapse
 vendor resolutions.
 
+The Claude Code and Codex plugins use npm's `npx` to start the published CLI.
+Configure the following in the npm user configuration available to the assistant.
+Set `NODE_AUTH_TOKEN` in the environment that starts the assistant to a GitHub token
+with `read:packages` access.
+
+```ini
+@pixel-brewery:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
 Yarn Plug'n'Play is currently unsupported for the CLI, AI, Engine and MCP packages:
 Utilities 0.1.187 exposes one root entrypoint that eagerly imports its optional
 `ts-morph` and `xml2js` peers. This is an upstream Utilities packaging defect. Use

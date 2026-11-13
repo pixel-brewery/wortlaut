@@ -244,6 +244,18 @@ export function createDesktopRequests(init: IDesktopRequestsInit): IpcHandlers {
   void refreshProvider();
 
   return {
+    'app.githubTokenStatus': () => ({ configured: requireSecrets().has('github') }),
+    'app.setGithubToken': ({ token }) => {
+      const store = requireSecrets();
+
+      if (token === null) {
+        store.clear('github');
+      } else {
+        store.set('github', token);
+      }
+
+      return { configured: store.has('github') };
+    },
     'app.getInfo': () => ({
       name: init.name,
       version: init.version,

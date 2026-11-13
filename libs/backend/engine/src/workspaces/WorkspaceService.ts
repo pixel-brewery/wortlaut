@@ -252,7 +252,7 @@ export class WorkspaceService {
    */
   public create(creation: IWorkspaceCreation): WorkspaceCreateResult {
     const now = this._now();
-    const discovered = discoverProjects(creation.repository);
+    const projects = this.discoverNewProjects([creation.repository], [], now);
     const workspace: WorkspaceRecord = {
       id: createSortableId(now),
       name: creation.name,
@@ -261,16 +261,7 @@ export class WorkspaceService {
       repositories: [creation.repository],
       scanForProjects: true,
       defaults: { baseLocale: null, targetLocales: [], preset: null },
-      projects: discovered.map((project) => ({
-        id: createSortableId(now),
-        name: project.name,
-        folder: project.folder,
-        kind: project.kind,
-        nxTarget: project.nxTarget,
-        setup: null,
-        snapshot: null,
-        addedAt: now.toISOString(),
-      })),
+      projects,
       createdAt: now.toISOString(),
       openedAt: now.toISOString(),
     };
@@ -279,8 +270,8 @@ export class WorkspaceService {
 
     return {
       workspaceId: workspace.id,
-      discovered: discovered.length,
-      next: discovered.length > 0 ? 'projects' : 'setup',
+      discovered: projects.length,
+      next: projects.length > 0 ? 'projects' : 'setup',
     };
   }
 
@@ -299,8 +290,8 @@ export class WorkspaceService {
   ): { workspaceId: string; discovered: number } {
     const now = this._now();
     const repositories = Array.from(new Set(adoption.repositories));
-    const discovered = adoption.scanForProjects
-      ? repositories.flatMap((repository) => discoverProjects(repository))
+    const projects = adoption.scanForProjects
+      ? this.discoverNewProjects(repositories, [], now)
       : [];
     const workspace: WorkspaceRecord = {
       id: createSortableId(now),
@@ -310,23 +301,14 @@ export class WorkspaceService {
       repositories,
       scanForProjects: adoption.scanForProjects,
       defaults: adoption.defaults,
-      projects: discovered.map((project) => ({
-        id: createSortableId(now),
-        name: project.name,
-        folder: project.folder,
-        kind: project.kind,
-        nxTarget: project.nxTarget,
-        setup: null,
-        snapshot: null,
-        addedAt: now.toISOString(),
-      })),
+      projects,
       createdAt: now.toISOString(),
       openedAt: null,
     };
 
     this._store.update((workspaces) => [...workspaces, workspace]);
 
-    return { workspaceId: workspace.id, discovered: discovered.length };
+    return { workspaceId: workspace.id, discovered: projects.length };
   }
 
   /**
@@ -453,7 +435,7 @@ export class WorkspaceService {
             !removed.some((repository) => PathResolver.isInside(repository, project.folder)),
         );
         const discovered = change.scanForProjects
-          ? added.flatMap((repository) => discoverProjects(repository))
+          ? this.discoverNewProjects(added, known, now)
           : [];
 
         return {
@@ -464,21 +446,7 @@ export class WorkspaceService {
           scanForProjects: change.scanForProjects,
           defaults: change.defaults,
           repositories: [...kept, ...added],
-          projects: [
-            ...known,
-            ...discovered
-              .filter((project) => !known.some((candidate) => candidate.folder === project.folder))
-              .map((project) => ({
-                id: createSortableId(now),
-                name: project.name,
-                folder: project.folder,
-                kind: project.kind,
-                nxTarget: project.nxTarget,
-                setup: null,
-                snapshot: null,
-                addedAt: now.toISOString(),
-              })),
-          ],
+          projects: [...known, ...discovered],
         };
       }),
     );
@@ -498,18 +466,33 @@ export class WorkspaceService {
   }
 
   /**
-   * Marks a workspace as opened now.
+   * Marks a workspace as opened and discovers newly configured projects when scanning is enabled.
+   * Existing project registrations and their history stay intact.
    *
    * @public
    * @param id The workspace.
    * @returns The workspace.
    */
   public open(id: string): WorkspaceRecord {
-    const openedAt = this._now().toISOString();
+    const now = this._now();
 
     this.require(id);
     this._store.update((workspaces) =>
-      workspaces.map((workspace) => (workspace.id === id ? { ...workspace, openedAt } : workspace)),
+      workspaces.map((workspace) => {
+        if (workspace.id !== id) {
+          return workspace;
+        }
+
+        const discovered = workspace.scanForProjects
+          ? this.discoverNewProjects(workspace.repositories, workspace.projects, now)
+          : [];
+
+        return {
+          ...workspace,
+          openedAt: now.toISOString(),
+          projects: [...workspace.projects, ...discovered],
+        };
+      }),
     );
 
     return this.require(id);
@@ -544,6 +527,37 @@ export class WorkspaceService {
    */
   public refOf(workspace: WorkspaceRecord): WorkspaceRef {
     return { id: workspace.id, code: workspace.code, color: workspace.color, name: workspace.name };
+  }
+
+  /**
+   * Registers only folders not already represented, including when two repository roots overlap.
+   *
+   * @private
+   */
+  private discoverNewProjects(
+    repositories: ReadonlyArray<string>,
+    known: ReadonlyArray<ProjectRecord>,
+    now: Date,
+  ): Array<ProjectRecord> {
+    const folders = new Set(known.map((project) => project.folder));
+    const projects: Array<ProjectRecord> = [];
+
+    for (const repository of repositories) {
+      for (const project of discoverProjects(repository)) {
+        if (!folders.has(project.folder)) {
+          folders.add(project.folder);
+          projects.push({
+            ...project,
+            id: createSortableId(now),
+            setup: null,
+            snapshot: null,
+            addedAt: now.toISOString(),
+          });
+        }
+      }
+    }
+
+    return projects;
   }
 
   /**

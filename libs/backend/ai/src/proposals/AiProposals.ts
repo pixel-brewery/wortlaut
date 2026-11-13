@@ -1,6 +1,11 @@
 // #region Imports
 
-import { KeyMatcher, type IResourceModel } from '@pixel-brewery/wortlaut-core';
+import {
+  KeyMatcher,
+  KeyPatternStoppedError,
+  PatternGuard,
+  type IResourceModel,
+} from '@pixel-brewery/wortlaut-core';
 import { translateChunk, type IChunkRequest } from '../generator/ChunkTranslator.js';
 import type { IResourceGeneratorStrategy } from '../generator/strategies/interfaces/IResourceGeneratorStrategy.js';
 import { readRows } from '../generator/strategies/LocalAssistantResourceGeneratorStrategy.js';
@@ -192,6 +197,7 @@ export async function suggestPatterns(
   });
   const proposals = new Array<IPatternProposal>();
   const dropped = new Array<string>();
+  const guard = new PatternGuard();
 
   for (const row of asRows(answer)) {
     if (typeof row !== 'string') {
@@ -201,15 +207,19 @@ export async function suggestPatterns(
 
     try {
       const matcher = new KeyMatcher([row], 'usedKeys');
-      const matchCount = request.keys.filter((key) => matcher.matches(key)).length;
+      const matchCount = matcher.matchKeys(request.keys, guard).size;
 
       if (matchCount > 0) {
         proposals.push({ pattern: row, matchCount });
       } else {
         dropped.push(`The pattern ${row} covers none of the keys and was left out.`);
       }
-    } catch {
-      dropped.push(`The pattern ${row} is not valid and was left out.`);
+    } catch (error) {
+      dropped.push(
+        error instanceof KeyPatternStoppedError
+          ? error.message
+          : `The pattern ${row} is not valid and was left out.`,
+      );
     }
   }
 

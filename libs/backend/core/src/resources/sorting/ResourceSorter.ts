@@ -2,6 +2,7 @@
 
 import { bold, gray, type IFileSystem, type ILogger, magenta, t } from '@pixel-brewery/utilities';
 import type { IResourceInfo } from '../models/interfaces/IResourceInfo';
+import { ResourceType } from '../models/interfaces/ResourceType';
 
 // #endregion
 
@@ -70,7 +71,7 @@ export class ResourceSorter {
   // #region Methods
 
   /**
-   * Sorts resource keys in .resx files based on the provided options.
+   * Sorts resource keys based on the provided options.
    * @param resources The resources to sort.
    * @returns The sorted resources.
    */
@@ -79,7 +80,10 @@ export class ResourceSorter {
 
     for (const plan of plans) {
       if (!this._options.dryRun && plan.keysSorted > 0) {
-        this._fileSystem.fileWriteAllText(plan.sortedResource.path, plan.sortedResource.toString());
+        this._fileSystem.fileWriteAllText(
+          plan.sortedResource.path,
+          this.serialize(plan.sortedResource),
+        );
         this._logger.info(`  ${plan.sortedResource.name} ${bold(gray('Updated'))}`);
       } else if (this._options.dryRun) {
         this._logger.log(t`${gray('  Dry run enabled, skipping...')}`);
@@ -87,6 +91,32 @@ export class ResourceSorter {
     }
 
     return plans.map((plan) => plan.sortedResource);
+  }
+
+  /**
+   * Serializes a sorted catalog for writing or review, keeping its original file ending.
+   *
+   * @public
+   * @param resource The sorted resource.
+   * @returns The text to write.
+   */
+  public serialize(resource: IResourceInfo): string {
+    const serialized = resource.toString();
+
+    if (resource.isVirtual || !this._fileSystem.fileExists(resource.path)) {
+      return serialized;
+    }
+
+    const original = this._fileSystem.fileReadAllText(resource.path);
+    const ending = original.slice(original.trimEnd().length);
+    const body = serialized.trimEnd();
+    // JSON escapes line breaks inside values, so this only changes the document's formatting.
+    const formatted =
+      resource.type === ResourceType.Json && original.includes('\r\n')
+        ? body.replace(/\r?\n/g, '\r\n')
+        : body;
+
+    return formatted + ending;
   }
 
   /**

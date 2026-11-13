@@ -27,7 +27,12 @@ import {
 } from '@pixel-brewery/wortlaut-ai';
 import { FileSystem } from '@pixel-brewery/utilities';
 import { IPC_CHANNELS, IpcEventSchema, type IpcEvent } from '@pixel-brewery/wortlaut-contracts';
-import { DisplayPath, resolveProfileRoot, WortlautEngine } from '@pixel-brewery/wortlaut-engine';
+import {
+  DisplayPath,
+  HttpPackFetcher,
+  resolveProfileRoot,
+  WortlautEngine,
+} from '@pixel-brewery/wortlaut-engine';
 import { McpLevelStore } from '@pixel-brewery/wortlaut-mcp';
 import { AppSettingsStore } from './host/AppSettingsStore.js';
 import { FolderGrants } from './host/FolderGrants.js';
@@ -320,6 +325,10 @@ function connectRequests(): void {
     profileRoot: profile,
     home,
     ai,
+    packFetcher: new HttpPackFetcher({
+      env: process.env,
+      githubToken: () => secrets.get('github'),
+    }),
     tool: toolFingerprint(),
   });
   const runs = new RunHost({

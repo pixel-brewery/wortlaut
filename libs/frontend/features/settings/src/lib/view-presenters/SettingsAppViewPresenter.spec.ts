@@ -30,6 +30,10 @@ function setUp(options: { failSave?: boolean; file?: string | null } = {}) {
     switch (method) {
       case 'app.getSettings':
         return Promise.resolve(SETTINGS);
+      case 'app.githubTokenStatus':
+        return Promise.resolve({ configured: false });
+      case 'app.setGithubToken':
+        return Promise.resolve({ configured: payload.token !== null });
       case 'app.saveSettings':
         return options.failSave
           ? Promise.reject(new Error('The profile cannot be written.'))
@@ -110,6 +114,39 @@ describe('SettingsAppViewPresenter', () => {
 
     // assert
     expect(request).not.toHaveBeenCalledWith('app.saveSettings', expect.anything());
+  });
+
+  it('returns from a fixed appearance to the operating system setting', async () => {
+    const { presenter, request } = setUp();
+
+    await presenter.load();
+    await presenter.setColorMode('dark');
+    await presenter.setColorMode(null);
+
+    expect(request).toHaveBeenLastCalledWith('app.saveSettings', {
+      startInDryRun: true,
+      verboseLog: false,
+      cacheResults: true,
+      colorMode: null,
+    });
+    expect(presenter.values()).toMatchObject({ colorMode: null, activeColorMode: 'light' });
+  });
+
+  it('clears the typed token after saving and only keeps its status', async () => {
+    const { presenter, request } = setUp();
+
+    await presenter.load();
+    presenter.typeGithubToken('fixture-token');
+    await presenter.saveGithubToken();
+
+    expect(request).toHaveBeenLastCalledWith('app.setGithubToken', { token: 'fixture-token' });
+    expect(presenter.githubTokenDraft()).toBe('');
+    expect(presenter.githubTokenConfigured()).toBe(true);
+
+    await presenter.saveGithubToken(true);
+
+    expect(request).toHaveBeenLastCalledWith('app.setGithubToken', { token: null });
+    expect(presenter.githubTokenConfigured()).toBe(false);
   });
 
   it('says why a change failed', async () => {

@@ -33,6 +33,45 @@ async function problemOf(
 }
 
 describe('HttpPackFetcher', () => {
+  it('authenticates private GitHub requests without forwarding the token to archive or registry hosts', async () => {
+    const token = 'fixture-token';
+    const fetch = vi.fn(async (url: string, init: RequestInit) => {
+      const authorization = new Headers(init.headers).get('authorization');
+
+      if (url.startsWith('https://api.github.com/repos/owner/repo/')) {
+        expect(authorization).toBe(`Bearer ${token}`);
+
+        return url.includes('/commits/')
+          ? respond(COMMIT)
+          : respond(null, {
+              status: 302,
+              headers: { location: 'https://codeload.github.com/owner/repo/legacy.tar.gz/x' },
+            });
+      }
+
+      expect(authorization).toBeNull();
+
+      return url.startsWith('https://registry.npmjs.org/')
+        ? respond(JSON.stringify({ version: '1.0.0', dist: { tarball: 'unused' } }))
+        : respond(TARBALL);
+    });
+    const github = new HttpPackFetcher({ env: { WORTLAUT_GITHUB_TOKEN: token }, fetch });
+    const mirror = new HttpPackFetcher({
+      env: { WORTLAUT_GITHUB_API_URL: 'https://github-mirror.example' },
+      githubToken: () => token,
+      fetch: vi.fn(async (_url: string, init: RequestInit) => {
+        expect(new Headers(init.headers).get('authorization')).toBeNull();
+
+        return respond(COMMIT);
+      }),
+    });
+
+    expect(await github.resolveCommit('owner', 'repo', 'main')).toBe(COMMIT);
+    expect(await github.downloadCommit('owner', 'repo', COMMIT)).toHaveLength(1);
+    expect(await github.resolvePackage('public-pack', null)).toMatchObject({ version: '1.0.0' });
+    expect(await mirror.resolveCommit('owner', 'repo', null)).toBe(COMMIT);
+  });
+
   it('finds a commit and follows GitHub to its archives', async () => {
     // arrange
     const urls = new Array<string>();

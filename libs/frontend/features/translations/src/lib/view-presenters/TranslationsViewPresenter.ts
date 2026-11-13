@@ -478,6 +478,15 @@ export class TranslationsViewPresenter {
   );
 
   /**
+   * Gets whether Codex is available to the engine for a suggestion.
+   */
+  public readonly codexAvailable = computed(() =>
+    (this.providers.value() ?? []).some(
+      (provider) => provider.id === 'codex' && provider.state === 'ready',
+    ),
+  );
+
+  /**
    * Gets a suggested value. It stays a proposal: Apply fills the editor and saves nothing.
    *
    * @readonly

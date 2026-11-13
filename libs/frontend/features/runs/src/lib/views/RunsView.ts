@@ -16,6 +16,7 @@ import {
 } from '@pixel-brewery/mosaik-elements-angular/components/tab-strip';
 import { SplitComponent } from '@pixel-brewery/mosaik-elements-angular/components/split';
 import {
+  CodexFileAccessNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
   PaneSizeDirective,
@@ -36,6 +37,7 @@ import { RunsViewPresenter } from '../view-presenters/RunsViewPresenter';
     BadgeComponent,
     ButtonComponent,
     CardComponent,
+    CodexFileAccessNoticeComponent,
     EmptyStateComponent,
     FailureStateComponent,
     ListComponent,

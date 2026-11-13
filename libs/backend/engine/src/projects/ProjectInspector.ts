@@ -29,7 +29,7 @@ import { QUIET_LOGGER } from '../io/QuietLogger.js';
 import { DisplayPath } from '../paths/DisplayPath.js';
 import { PathResolver } from '../paths/PathResolver.js';
 import { CatalogScanner, type ICatalogFolder } from './CatalogScanner.js';
-import { walkRepository } from './RepositoryWalker.js';
+import { walkRepository, type IRepositoryContent } from './RepositoryWalker.js';
 
 // #endregion
 
@@ -54,6 +54,22 @@ const SUGGESTED_LOCALES = ['de', 'en', 'fr', 'nl', 'es', 'it'];
  * Test and specification files, which are no sources of a project.
  */
 const TEST_FILE = /\.(spec|test)\.[cm]?[jt]sx?$/i;
+
+/**
+ * Nx application targets can use Angular's builders directly or through the Nx plugin.
+ */
+const ANGULAR_BUILD_EXECUTOR = /^(?:@nx\/angular|@angular\/build|@angular-devkit\/build-angular):/;
+
+/**
+ * Bound the size of each project manifest examined during source inference.
+ */
+const MAX_PROJECT_METADATA_BYTES = 1024 * 1024;
+
+interface INxProjectMetadata {
+  projectType?: unknown;
+  sourceRoot?: unknown;
+  targets?: { build?: { executor?: unknown } };
+}
 
 /**
  * What an inspection found, with the absolute paths that stay in main.
@@ -141,7 +157,7 @@ export class ProjectInspector {
     const source = this.inferSourceRoot(
       configuration,
       configured?.file ?? null,
-      content.files,
+      content,
       catalogs,
       folder,
       presetResult.value,
@@ -351,14 +367,14 @@ export class ProjectInspector {
   private inferSourceRoot(
     configuration: IResolvedConfiguration,
     configuredFile: string | null,
-    files: ReadonlyArray<string>,
+    content: IRepositoryContent,
     catalogs: ReadonlyArray<ICatalogFolder>,
     folder: string,
     preset: string | null,
     chosen: string | null,
   ): { path: string; fileCount: number; evidence: string } {
     const extensions = preset ? Presets.get(QUIET_LOGGER, preset).getExtensions() : [];
-    const sources = files
+    const sources = content.files
       .filter(
         (file) => extensions.some((extension) => file.endsWith(extension)) && !TEST_FILE.test(file),
       )
@@ -403,23 +419,32 @@ export class ProjectInspector {
       return { path: '', fileCount: 0, evidence: 'Choose a framework preset to find the sources' };
     }
 
-    const manifests = this.frameworkManifests(preset, files, folder);
+    const manifests = this.frameworkManifests(preset, content.files, folder);
+
+    if (
+      preset === Presets.Angular &&
+      manifests[0] === join(folder, 'package.json') &&
+      content.files.includes(join(folder, 'nx.json'))
+    ) {
+      const angular = this.inferNxAngularSource(content, folder, sources);
+
+      if (angular) {
+        return angular;
+      }
+    }
 
     for (const manifest of manifests) {
       const projectFolder = dirname(manifest);
+      const metadata = this.readProjectMetadata(join(projectFolder, 'project.json'), folder);
       const declared = this.declaredSourceRoot(
-        join(projectFolder, 'project.json'),
+        metadata?.sourceRoot,
         configuration.workspaceRoot,
         folder,
       );
-      const candidates = [...(declared ? [declared] : []), join(projectFolder, 'src')];
+      const match = this.matchingSourceRoot(projectFolder, declared, sources);
 
-      for (const candidate of candidates) {
-        const fileCount = sources.filter((file) => PathResolver.isInside(candidate, file)).length;
-
-        if (fileCount > 0) {
-          return { path: candidate, fileCount, evidence: this.countText(fileCount) };
-        }
+      if (match) {
+        return match;
       }
     }
 
@@ -451,11 +476,95 @@ export class ProjectInspector {
   }
 
   /**
-   * Reads Nx's workspace-relative source root from a regular file inside the selected repository.
+   * The Angular dependency belongs to the Nx workspace, so use project metadata to find the application.
+   * Several applications need an explicit selection because any default could scan the wrong sources.
    *
    * @private
    */
-  private declaredSourceRoot(file: string, workspaceRoot: string, folder: string): string | null {
+  private inferNxAngularSource(
+    content: IRepositoryContent,
+    folder: string,
+    sources: ReadonlyArray<string>,
+  ): { path: string; fileCount: number; evidence: string } | null {
+    let application: { file: string; metadata: INxProjectMetadata } | null = null;
+
+    for (const file of content.files) {
+      if (basename(file) !== 'project.json') {
+        continue;
+      }
+
+      const metadata = this.readProjectMetadata(file, folder);
+      const executor = metadata?.targets?.build?.executor;
+
+      if (
+        metadata?.projectType !== 'application' ||
+        typeof executor !== 'string' ||
+        !ANGULAR_BUILD_EXECUTOR.test(executor)
+      ) {
+        continue;
+      }
+
+      if (application) {
+        return {
+          path: '',
+          fileCount: 0,
+          evidence: 'Several Angular apps found. Choose a source folder.',
+        };
+      }
+
+      application = { file, metadata };
+    }
+
+    if (!application) {
+      return null;
+    }
+
+    if (content.truncated) {
+      return {
+        path: '',
+        fileCount: 0,
+        evidence: 'Project scan incomplete. Choose a source folder.',
+      };
+    }
+
+    const declared = this.declaredSourceRoot(application.metadata.sourceRoot, folder, folder);
+
+    return (
+      this.matchingSourceRoot(dirname(application.file), declared, sources) ?? {
+        path: '',
+        fileCount: 0,
+        evidence: 'No matching files in the Angular app source folder',
+      }
+    );
+  }
+
+  /**
+   * @private
+   */
+  private matchingSourceRoot(
+    projectFolder: string,
+    declared: string | null,
+    sources: ReadonlyArray<string>,
+  ): { path: string; fileCount: number; evidence: string } | null {
+    const fallback = join(projectFolder, 'src');
+
+    for (const path of declared ? [declared, fallback] : [fallback]) {
+      const fileCount = sources.filter((file) => PathResolver.isInside(path, file)).length;
+
+      if (fileCount > 0) {
+        return { path, fileCount, evidence: this.countText(fileCount) };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Reads Nx project metadata from a regular file inside the selected repository.
+   *
+   * @private
+   */
+  private readProjectMetadata(file: string, folder: string): INxProjectMetadata | null {
     let descriptor: number | null = null;
 
     try {
@@ -471,22 +580,13 @@ export class ProjectInspector {
         constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW,
       );
 
-      if (!fstatSync(descriptor).isFile()) {
+      const stat = fstatSync(descriptor);
+
+      if (!stat.isFile() || stat.size > MAX_PROJECT_METADATA_BYTES) {
         return null;
       }
 
-      const metadata = JSON.parse(readFileSync(descriptor, 'utf8')) as { sourceRoot?: unknown };
-
-      if (typeof metadata.sourceRoot !== 'string' || !metadata.sourceRoot) {
-        return null;
-      }
-
-      const path = resolve(workspaceRoot, metadata.sourceRoot);
-
-      return PathResolver.isInside(folder, path) &&
-        PathResolver.isInside(PathResolver.realPathOf(folder), PathResolver.realPathOf(path))
-        ? path
-        : null;
+      return JSON.parse(readFileSync(descriptor, 'utf8')) as INxProjectMetadata;
     } catch {
       return null;
     } finally {
@@ -494,6 +594,28 @@ export class ProjectInspector {
         closeSync(descriptor);
       }
     }
+  }
+
+  /**
+   * Resolves the workspace-relative source root without following paths outside the selected repository.
+   *
+   * @private
+   */
+  private declaredSourceRoot(
+    sourceRoot: unknown,
+    workspaceRoot: string,
+    folder: string,
+  ): string | null {
+    if (typeof sourceRoot !== 'string' || !sourceRoot) {
+      return null;
+    }
+
+    const path = resolve(workspaceRoot, sourceRoot);
+
+    return PathResolver.isInside(folder, path) &&
+      PathResolver.isInside(PathResolver.realPathOf(folder), PathResolver.realPathOf(path))
+      ? path
+      : null;
   }
 
   /**

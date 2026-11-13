@@ -92,16 +92,65 @@
             <div class="field-control">
               <mosaik-segment aria-label="Color mode" appearance="soft" size="small">
                 <mosaik-segment-item
+                  label="System"
+                  [isChecked]="values.colorMode === null"
+                  (click)="presenter.setColorMode(null)"
+                />
+                <mosaik-segment-item
                   label="Light"
-                  [isChecked]="values.activeColorMode === 'light'"
+                  [isChecked]="values.colorMode === 'light'"
                   (click)="presenter.setColorMode('light')"
                 />
                 <mosaik-segment-item
                   label="Dark"
-                  [isChecked]="values.activeColorMode === 'dark'"
+                  [isChecked]="values.colorMode === 'dark'"
                   (click)="presenter.setColorMode('dark')"
                 />
               </mosaik-segment>
+            </div>
+          </div>
+        </div>
+      </mosaik-card>
+    </section>
+
+    <section aria-label="GitHub rule packs">
+      <mosaik-card>
+        <mosaik-card-header
+          slot="header"
+          text="GitHub rule packs"
+          subText="For private repositories, use a token with read access to their contents. Wortlaut keeps it in the system keychain."
+        />
+        <div slot="content" class="card-body">
+          <div class="field-row field-row-center">
+            <div class="field-label">
+              <span>GitHub token</span>
+              @if (presenter.githubTokenConfigured()) {
+                <span class="note">Token saved</span>
+              }
+            </div>
+            <div class="field-control">
+              <mosaik-passwordbox
+                aria-label="GitHub token"
+                [value]="presenter.githubTokenDraft()"
+                [disabled]="presenter.githubTokenSaving()"
+                (input)="onGithubToken($event)"
+              />
+              <div class="actions">
+                <mosaik-button
+                  label="Save token"
+                  [isBusy]="presenter.githubTokenSaving()"
+                  [disabled]="!presenter.githubTokenDraft().trim()"
+                  (click)="presenter.saveGithubToken()"
+                />
+                @if (presenter.githubTokenConfigured()) {
+                  <mosaik-button
+                    label="Clear token"
+                    appearance="plain"
+                    [disabled]="presenter.githubTokenSaving()"
+                    (click)="presenter.saveGithubToken(true)"
+                  />
+                }
+              </div>
             </div>
           </div>
         </div>

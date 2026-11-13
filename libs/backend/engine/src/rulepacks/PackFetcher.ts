@@ -94,6 +94,11 @@ export interface IHttpPackFetcherInit {
   fetch?: typeof fetch;
 
   /**
+   * Reads the current token from a desktop secret store. Other surfaces use the explicit environment variable.
+   */
+  githubToken?: () => string | null;
+
+  /**
    * How long a request may take. The default is the bound of all packs.
    */
   timeoutMs?: number;
@@ -112,7 +117,8 @@ const NPM_REGISTRY = 'https://registry.npmjs.org';
 
 /**
  * Fetches packs over HTTPS. Every request has a deadline that covers its whole body, reads no more than its bound, follows a
- * redirect only to a host that serves this source, sends no credential, and refuses plain HTTP except to this computer.
+ * redirect only to a host that serves this source, sends a GitHub credential only to the official GitHub API,
+ * and refuses plain HTTP except to this computer.
  *
  * @public
  */
@@ -123,6 +129,7 @@ export class HttpPackFetcher implements IPackFetcher {
   private readonly _timeoutMs: number;
   private readonly _github: string;
   private readonly _githubHosts: ReadonlyArray<string>;
+  private readonly _githubToken: () => string | null;
   private readonly _npm: string;
 
   // #endregion
@@ -141,6 +148,7 @@ export class HttpPackFetcher implements IPackFetcher {
     this._githubHosts = init.env.WORTLAUT_GITHUB_API_URL
       ? [this._github]
       : [GITHUB_API, GITHUB_ARCHIVES];
+    this._githubToken = init.githubToken ?? (() => init.env.WORTLAUT_GITHUB_TOKEN ?? null);
     this._npm = init.env.WORTLAUT_NPM_REGISTRY_URL || NPM_REGISTRY;
   }
 
@@ -164,6 +172,7 @@ export class HttpPackFetcher implements IPackFetcher {
       hosts: this._githubHosts,
       signal,
       name: `${owner}/${repository}`,
+      github: true,
     });
     const commit = body.toString('utf8').trim();
 
@@ -190,6 +199,7 @@ export class HttpPackFetcher implements IPackFetcher {
       hosts: this._githubHosts,
       signal,
       name: `${owner}/${repository}`,
+      github: true,
     });
 
     return readPackArchive(archive);
@@ -284,6 +294,7 @@ export class HttpPackFetcher implements IPackFetcher {
       hosts: ReadonlyArray<string>;
       signal?: AbortSignal;
       name: string;
+      github?: boolean;
     },
   ): Promise<Buffer> {
     const signal = options.signal
@@ -295,10 +306,16 @@ export class HttpPackFetcher implements IPackFetcher {
       for (let hop = 0; hop <= PACK_LIMITS.maxRedirects; hop++) {
         this.checkDestination(url, options.hosts);
 
+        const token =
+          options.github && new URL(url).origin === GITHUB_API ? this._githubToken()?.trim() : null;
         const response = await this._fetch(url, {
           redirect: 'manual',
           signal,
-          headers: { accept: options.accept, 'user-agent': 'wortlaut' },
+          headers: {
+            accept: options.accept,
+            'user-agent': 'wortlaut',
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+          },
         });
 
         if (response.status >= 300 && response.status < 400) {
@@ -322,7 +339,9 @@ export class HttpPackFetcher implements IPackFetcher {
 
           throw new PackProblem(
             'not-found',
-            `${options.name} was not found. Check the name, and that it is public.`,
+            options.github
+              ? `${options.name} was not found. Check the name and your GitHub read access.`
+              : `${options.name} was not found. Check the name, and that it is public.`,
           );
         }
 
@@ -349,10 +368,7 @@ export class HttpPackFetcher implements IPackFetcher {
         );
       }
 
-      throw new PackProblem(
-        'network',
-        `${options.name} could not be reached: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      throw new PackProblem('network', `${options.name} could not be reached.`);
     }
 
     throw new PackProblem('network', `${options.name} redirects too often.`);

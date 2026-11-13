@@ -140,7 +140,16 @@ proposes a change to the owning file. The old `localizator.config.json`,
 in `wortlaut.lock.json`. Use `list`, `update`, `enable`, `disable` and
 `severity <rule> <error|warning|off>` to manage it. A pack that no longer matches its pin is
 refused. Once a repository has a lock file or configured severities, `analyze` exits with 1
-for an error finding or a refused pack; without them it retains its compatible exit code of 0.
+for an error finding or a refused pack. In `wortlaut.config.json` or an Nx target's options,
+set `actions.analyze.expectedLocales` to a list such as `["en", "de"]` to require at least
+one translation key for each locale across the configured catalog roots. A missing or
+empty expected locale fails analysis regardless of rule severities. JSON catalogs with
+duplicate member names also fail before any rules run.
+
+For a rule pack in a private GitHub repository, use a token with read access to that
+repository's contents. Store it under **Settings → Application → GitHub rule packs**
+in the desktop app, or set `WORTLAUT_GITHUB_TOKEN` for the CLI or CI. Wortlaut sends
+the token only to GitHub's official API.
 
 `wortlaut mcp` starts the MCP server over stdio. It is read only until the user selects a
 different level in the app under MCP and plugins. Assistant proposals wait in Review.

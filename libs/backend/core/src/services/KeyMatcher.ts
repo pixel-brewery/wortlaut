@@ -1,3 +1,9 @@
+// #region Imports
+
+import { PatternGuard } from '../resources/analyzers/declarative/PatternGuard';
+
+// #endregion
+
 /**
  * The most patterns that the braces of one entry may expand to.
  */
@@ -30,6 +36,22 @@ type GlobToken = string | typeof STAR | typeof ANY;
 type GlobPart = string | ReadonlyArray<ReadonlyArray<GlobPart>>;
 
 /**
+ * A configured key pattern could not finish, so it would be unsafe to treat its keys as unmatched.
+ *
+ * @public
+ */
+export class KeyPatternStoppedError extends Error {
+  /**
+   * @param entry The pattern as entered.
+   * @param reason Why its evaluation stopped.
+   */
+  public constructor(entry: string, reason: string) {
+    super(`The key pattern '${entry}' was stopped. ${reason}`);
+    this.name = 'KeyPatternStoppedError';
+  }
+}
+
+/**
  * Matches keys against entries that are exact keys, globs or regular expressions, such as the `usedKeys` of the
  * `analyze` command.
  *
@@ -49,7 +71,7 @@ export class KeyMatcher {
   // #region Fields
 
   private readonly _keys: Set<string>;
-  private readonly _patterns: Array<RegExp>;
+  private readonly _patterns: Array<{ entry: string; expression: RegExp }>;
 
   // #endregion
 
@@ -100,7 +122,7 @@ export class KeyMatcher {
    * @readonly
    */
   public get patterns(): ReadonlyArray<RegExp> {
-    return this._patterns;
+    return this._patterns.map(({ expression }) => expression);
   }
 
   // #endregion
@@ -113,9 +135,47 @@ export class KeyMatcher {
    * @public
    * @param key The key.
    * @returns `true` if an entry matches the whole key; otherwise, `false`.
+   * @throws KeyPatternStoppedError when a pattern cannot finish in time.
    */
   public matches(key: string): boolean {
-    return this._keys.has(key) || this._patterns.some((pattern) => pattern.test(key));
+    return this._keys.has(key) || this.matchKeys([key]).has(key);
+  }
+
+  /**
+   * Matches all candidate keys with one bounded evaluation per pattern, using a shared time budget.
+   *
+   * @public
+   * @param keys The keys to match.
+   * @param guard The guard to share with other pattern evaluations in the same operation.
+   * @returns The matching keys in input order.
+   * @throws KeyPatternStoppedError when a pattern cannot finish in time.
+   */
+  public matchKeys(keys: ReadonlyArray<string>, guard = new PatternGuard()): Set<string> {
+    const matched = new Set(keys.filter((key) => this._keys.has(key)));
+    let remaining = keys.filter((key) => !matched.has(key));
+
+    for (const { entry, expression } of this._patterns) {
+      if (remaining.length === 0) {
+        break;
+      }
+
+      const outcome = guard.test(expression.source, expression.flags, remaining, true);
+
+      if (outcome.kind === 'stopped') {
+        throw new KeyPatternStoppedError(entry, outcome.reason);
+      }
+
+      remaining = remaining.filter((key, index) => {
+        if (outcome.matches[index]) {
+          matched.add(key);
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    return new Set(keys.filter((key) => matched.has(key)));
   }
 
   /**
@@ -133,7 +193,7 @@ export class KeyMatcher {
     }
 
     if (entry.startsWith('/')) {
-      this._patterns.push(this.createRegularExpression(entry));
+      this._patterns.push({ entry, expression: this.createRegularExpression(entry) });
       return;
     }
 
@@ -143,7 +203,7 @@ export class KeyMatcher {
       if (tokens.every((token) => typeof token === 'string')) {
         this._keys.add(tokens.join(''));
       } else {
-        this._patterns.push(this.compile(tokens));
+        this._patterns.push({ entry, expression: this.compile(tokens) });
       }
     }
   }

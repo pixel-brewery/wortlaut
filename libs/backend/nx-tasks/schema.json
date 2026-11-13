@@ -34,6 +34,18 @@
     "actions": {
       "type": "object",
       "description": "The options of each command: detect, analyze, transform, sort and generate.",
+      "properties": {
+        "analyze": {
+          "type": "object",
+          "properties": {
+            "expectedLocales": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Each of these locales must have at least one translation key in the catalog roots."
+            }
+          }
+        }
+      },
       "additionalProperties": true
     }
   },

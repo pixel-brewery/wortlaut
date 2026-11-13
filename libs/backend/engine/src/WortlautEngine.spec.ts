@@ -88,14 +88,18 @@ describe('WortlautEngine', () => {
     it('builds a change set and applies it straight away by default', async () => {
       // arrange
       const engine = createEngine();
+      const before = `${unsorted}\r\n`;
+      writeFileSync(en, before);
 
       // act
       const outcome = await sort(engine);
 
       // assert
-      expect(readFileSync(en, 'utf8')).toBe(JSON.stringify({ loc: { a: 'A', b: 'B' } }, null, 2));
+      const sorted = JSON.stringify({ loc: { a: 'A', b: 'B' } }, null, 2).replaceAll('\n', '\r\n');
+
+      expect(readFileSync(en, 'utf8')).toBe(`${sorted}\r\n`);
       expect(outcome.changeSet?.state).toBe('applied');
-      expect(outcome.changeSet?.files.map((file) => file.oldContent)).toEqual([unsorted]);
+      expect(outcome.changeSet?.files.map((file) => file.oldContent)).toEqual([before]);
       expect(pending()).toEqual([]);
     });
 
@@ -694,6 +698,43 @@ describe('WortlautEngine', () => {
 
       // assert
       expect(outcome.result).toHaveLength(6);
+    });
+
+    it('reports a stopped used-key expression without offering keys as unused', async () => {
+      const entry = '/(a+)+/';
+      const key = `${'a'.repeat(36)}!`;
+      const catalog = JSON.stringify({ [key]: '', title: 'Title' });
+      writeFileSync(en, catalog);
+      const engine = createEngine();
+
+      const outcome = await engine.analyze({
+        cwd: root,
+        options: {
+          resourceRoot: [i18n],
+          type: ResourceMode.Json,
+          root: '',
+          preset: '',
+          resourceKeyPrefix: '',
+          resourceKeySuffix: '',
+          rules: ['unused-keys', 'empty-values'],
+          usedKeys: [entry],
+          baseLocale: 'en',
+          identicalKeys: [],
+          identicalValues: [],
+        },
+      });
+
+      expect(outcome.report.findings).toEqual([
+        expect.objectContaining({
+          rule: 'unused-keys',
+          severity: 'error',
+          message: expect.stringContaining(`'${entry}' was stopped`),
+        }),
+        expect.objectContaining({ rule: 'empty-values', count: 1 }),
+      ]);
+      expect(outcome.result[0].data).toEqual([{ stopped: expect.any(String) }]);
+      expect(outcome.report.data).toMatchObject({ gate: { errors: 2 } });
+      expect(readFileSync(en, 'utf8')).toBe(catalog);
     });
   });
 

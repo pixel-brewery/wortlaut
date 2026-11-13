@@ -1,5 +1,6 @@
 // #region Imports
 
+import { PatternGuard } from '../resources/analyzers/declarative/PatternGuard';
 import { KeyMatcher } from './KeyMatcher';
 
 // #endregion
@@ -92,13 +93,16 @@ export class UsedKeysFinder {
    * @param sources The contents of the source files.
    * @param keys The keys of the resources.
    * @param options The options.
+   * @param guard The guard to share with other pattern evaluations in the same operation.
    * @returns The used keys.
    * @throws Error if an entry of `usedKeys` is invalid. The message names the entry.
+   * @throws KeyPatternStoppedError if evaluating a declared pattern exceeds its budget.
    */
   public find(
     sources: Iterable<string>,
     keys: ReadonlyArray<string>,
     options?: IUsedKeysFinderOptions,
+    guard?: PatternGuard,
   ): Set<string> {
     const knownKeys = new Set(keys);
     const usedKeys = new Set<string>();
@@ -128,11 +132,11 @@ export class UsedKeysFinder {
       }
     }
 
-    for (const key of keys) {
-      if (
-        !usedKeys.has(key) &&
-        (declaredKeys.matches(key) || patterns.some((pattern) => pattern.test(key)))
-      ) {
+    const remaining = keys.filter((key) => !usedKeys.has(key));
+    const declared = declaredKeys.matchKeys(remaining, guard);
+
+    for (const key of remaining) {
+      if (declared.has(key) || patterns.some((pattern) => pattern.test(key))) {
         usedKeys.add(key);
       }
     }

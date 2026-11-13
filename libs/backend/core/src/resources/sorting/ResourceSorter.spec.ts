@@ -3,6 +3,7 @@
 import type { IFileSystem, ILogger } from '@pixel-brewery/utilities';
 import { describe, expect, it, vi } from 'vitest';
 import type { IResourceInfo } from '../models/interfaces/IResourceInfo';
+import { JsonResourceInfo } from '../models/JsonResourceInfo';
 import { ResourceSorter } from './ResourceSorter';
 
 // #endregion
@@ -17,6 +18,23 @@ describe('ResourceSorter', () => {
 
     // assert
     expect(fileSystem.fileWriteAllText).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    { name: 'LF', eol: '\n', ending: '\n' },
+    { name: 'CRLF', eol: '\r\n', ending: '\r\n' },
+    { name: 'no final newline', eol: '\n', ending: '' },
+  ])('preserves $name when sorting a JSON catalog', ({ eol, ending }) => {
+    const path = 'lang.en.json';
+    const data = { b: 'B\nB', a: 'A' };
+    const original = JSON.stringify(data, null, 2).replaceAll('\n', eol) + ending;
+    const { sorter, fileSystem } = createSorter(false, original);
+
+    sorter.sort([new JsonResourceInfo({ name: path, path, content: () => data })]);
+
+    const expected = JSON.stringify({ a: data.a, b: data.b }, null, 2).replaceAll('\n', eol);
+
+    expect(fileSystem.fileWriteAllText).toHaveBeenCalledExactlyOnceWith(path, expected + ending);
   });
 
   it('leaves a resource alone that is already in order', () => {
@@ -54,8 +72,12 @@ describe('ResourceSorter', () => {
   });
 });
 
-function createSorter(dryRun: boolean) {
-  const fileSystem = { fileWriteAllText: vi.fn() } as unknown as IFileSystem;
+function createSorter(dryRun: boolean, original?: string) {
+  const fileSystem = {
+    fileExists: vi.fn(() => original !== undefined),
+    fileReadAllText: vi.fn(() => original ?? ''),
+    fileWriteAllText: vi.fn(),
+  } as unknown as IFileSystem;
   const logger = {
     log: vi.fn(),
     info: vi.fn(),

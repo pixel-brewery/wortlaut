@@ -115,9 +115,15 @@ export class PatternGuard {
    * @param source The pattern.
    * @param flags Its flags.
    * @param inputs The values.
+   * @param preserveInput Whether to match full keys instead of only the start of long catalog values.
    * @returns Which values matched, or why it was stopped.
    */
-  public test(source: string, flags: string, inputs: ReadonlyArray<string>): PatternOutcome {
+  public test(
+    source: string,
+    flags: string,
+    inputs: ReadonlyArray<string>,
+    preserveInput = false,
+  ): PatternOutcome {
     const id = `${flags}/${source}`;
 
     if (this._stopped.has(id)) {
@@ -144,9 +150,11 @@ export class PatternGuard {
 
     context['source'] = source;
     context['flags'] = flags;
-    context['inputs'] = inputs.map((input) =>
-      input.length > MAX_INPUT_LENGTH ? input.slice(0, MAX_INPUT_LENGTH) : input,
-    );
+    context['inputs'] = preserveInput
+      ? inputs
+      : inputs.map((input) =>
+          input.length > MAX_INPUT_LENGTH ? input.slice(0, MAX_INPUT_LENGTH) : input,
+        );
 
     try {
       return {

@@ -325,7 +325,7 @@ describe('AnalyzeViewPresenter', () => {
               { pattern: 'loc.pdf', matchCount: 1 },
             ],
             providerName: 'OpenAI',
-            dropped: [],
+            dropped: ['The key pattern was stopped. It ran longer than 250 ms.'],
           })
         : original(method, payload),
     );
@@ -334,7 +334,10 @@ describe('AnalyzeViewPresenter', () => {
     await presenter.suggestPatterns();
 
     // assert
-    expect(TestBed.inject(AiHandoff).takePattern()).toMatchObject({ pattern: 'loc.*' });
+    expect(TestBed.inject(AiHandoff).takePattern()).toMatchObject({
+      pattern: 'loc.*',
+      note: expect.stringContaining('The key pattern was stopped.'),
+    });
     expect(navigate).toHaveBeenCalledWith(['/test-lab/patterns']);
     expect(request.mock.calls.map(([method]) => method)).not.toContain('config.addException');
   });

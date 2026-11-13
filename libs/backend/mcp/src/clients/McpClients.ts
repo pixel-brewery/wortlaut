@@ -48,6 +48,9 @@ const PLAIN_SHELL_WORD = /^[A-Za-z0-9_\-./:@%+=,~]+$/;
  */
 const PLUGIN_REPOSITORY = 'pixel-brewery/wortlaut';
 
+const PLUGIN_PACKAGE_ACCESS =
+  'The plugin downloads Wortlaut with npx. Configure npm access to GitHub Packages for @pixel-brewery before connecting.';
+
 /**
  * Writes the words of a command as a line a shell reads as those words.
  *
@@ -73,8 +76,7 @@ function stateOf(facts: IMcpClientFacts): Pick<McpClient, 'state' | 'variant'> {
 }
 
 /**
- * Writes what it takes to connect each assistant to the server of this computer. A plugin starts the published package, so
- * until that exists its step says so and comes second.
+ * Writes what it takes to connect each assistant. Direct setup can use the local CLI, and plugins use the published package.
  *
  * @public
  * @param connection How the server starts.
@@ -87,9 +89,7 @@ export function describeMcpClients(
 ): Array<McpClient> {
   const line = shellLine(connection.command);
   const [command, ...args] = connection.command;
-  const pluginTitle = connection.isPublished
-    ? 'Install the plugin'
-    : 'Or install the plugin, once the package is published';
+  const pluginTitle = connection.isPublished ? 'Install the plugin' : 'Or install the plugin';
   const claudePlugin: McpStep = {
     title: pluginTitle,
     code: `claude plugin marketplace add ${PLUGIN_REPOSITORY}\nclaude plugin install wortlaut@pixel-brewery`,
@@ -116,14 +116,14 @@ export function describeMcpClients(
       id: 'claude-code',
       label: 'Claude Code',
       ...stateOf(facts['claude-code']),
-      about: 'The plugin adds the MCP server and a skill that explains the workflow.',
+      about: `The plugin adds the MCP server and a skill that explains the workflow. ${PLUGIN_PACKAGE_ACCESS}`,
       steps: connection.isPublished ? [claudePlugin, claudeServer] : [claudeServer, claudePlugin],
     },
     {
       id: 'codex',
       label: 'Codex',
       ...stateOf(facts.codex),
-      about: 'The same server and skill, packaged for Codex.',
+      about: `The same server and skill, packaged for Codex. ${PLUGIN_PACKAGE_ACCESS}`,
       steps: connection.isPublished
         ? [codexPlugin, codexServer, codexFile]
         : [codexServer, codexFile, codexPlugin],
@@ -133,7 +133,9 @@ export function describeMcpClients(
       label: 'Other MCP clients',
       state: 'Standard MCP',
       variant: 'neutral',
-      about: 'Works with every client that starts a local MCP server.',
+      about: connection.isPublished
+        ? 'Configure npm access to GitHub Packages for @pixel-brewery before connecting.'
+        : 'Works with every client that starts a local MCP server.',
       steps: [
         {
           title: 'Add it to .mcp.json',

@@ -185,7 +185,8 @@ interface ISynapseHost {
  * @remarks
  * Construction is inert. Synapse isolates a profile by default, which would hide the login of the user, so a profile here
  * names the folders of the tool itself and only the temporary and execution folders of Wortlaut. A chunk runs in an empty folder of
- * Wortlaut in read-only mode, so an assistant sees nothing of a repository but the text of the prompt.
+ * Wortlaut in read-only mode. Tool filtering applies where the driver supports it. Codex can read outside the
+ * working directory because its driver cannot filter individual tools.
  *
  * Those two folders hold a working copy of a login and the sessions of a tool while it runs, because Codex keeps both in the home
  * Synapse gives it. They belong to this process alone, so another process of the same profile is never pulled out from under

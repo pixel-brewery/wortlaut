@@ -1,10 +1,11 @@
 // #region Imports
 
-import { bold, gray, Path, type IFileSystem, type ILogger } from '@pixel-brewery/utilities';
+import { bold, gray, Json, Path, type IFileSystem, type ILogger } from '@pixel-brewery/utilities';
+import { visit } from 'jsonc-parser';
+import { COMMENTS_FILE_NAME } from '../../comments/CatalogComments';
 import type { IJsonResourceInfo } from '../../models/interfaces/IJsonResourceInfo';
 import { ResourceType } from '../../models/interfaces/ResourceType';
 import { JsonResourceInfo } from '../../models/JsonResourceInfo';
-import { COMMENTS_FILE_NAME } from '../../comments/CatalogComments';
 import type { IResourceReaderAdapter } from './interfaces/IResourceReaderAdapter';
 
 // #endregion
@@ -85,7 +86,10 @@ export class JsonResourceReaderAdapter implements IResourceReaderAdapter {
       return null;
     }
 
-    const json = this._fileSystem.fileReadAllJson(path);
+    const content = this._fileSystem.fileReadAllText(path);
+    this.requireUniqueMembers(content, path);
+
+    const json = Json.parse(content).entries;
 
     if (Object.keys(json).length === 0) {
       this._logger.warn(`The file ${gray(path)} does not contain any valid JSON data.`);
@@ -106,6 +110,35 @@ export class JsonResourceReaderAdapter implements IResourceReaderAdapter {
     );
 
     return resource;
+  }
+
+  /**
+   * Rejects duplicate decoded member names in the same object before the parser can discard them.
+   *
+   * @private
+   */
+  private requireUniqueMembers(content: string, path: string): void {
+    const objects = new Array<Set<string>>();
+
+    visit(content, {
+      onObjectBegin: () => {
+        objects.push(new Set());
+      },
+      onObjectProperty: (name, _offset, _length, line, column) => {
+        const names = objects[objects.length - 1];
+
+        if (names.has(name)) {
+          throw new Error(
+            `The resource '${path}' defines the JSON member ${JSON.stringify(name)} more than once (line ${line + 1}, column ${column + 1}).`,
+          );
+        }
+
+        names.add(name);
+      },
+      onObjectEnd: () => {
+        objects.pop();
+      },
+    });
   }
 
   /**

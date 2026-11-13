@@ -7,20 +7,25 @@ import { writePrivateFileAtomically } from '@pixel-brewery/wortlaut-engine';
 // #endregion
 
 /**
+ * Credentials kept in main; the GitHub token is only used for rule packs.
+ */
+type SecretId = KeyProviderId | 'github';
+
+/**
  * Where the API keys of the app live. Main holds them: a request of the renderer can set, test and clear a key and learn whether
  * one exists, and nothing it receives holds one.
  *
  * @public
  */
 export interface ISecretStore {
-  set(provider: KeyProviderId, key: string): void;
+  set(provider: SecretId, key: string): void;
 
   /**
    * Returns a key, for main only.
    */
-  get(provider: KeyProviderId): string | null;
-  has(provider: KeyProviderId): boolean;
-  clear(provider: KeyProviderId): void;
+  get(provider: SecretId): string | null;
+  has(provider: SecretId): boolean;
+  clear(provider: SecretId): void;
 }
 
 /**
@@ -71,7 +76,7 @@ export class KeychainSecretStore implements ISecretStore {
    * @override
    * @throws Error when the system cannot encrypt.
    */
-  public set(provider: KeyProviderId, key: string): void {
+  public set(provider: SecretId, key: string): void {
     if (!this._safeStorage.isEncryptionAvailable()) {
       throw new Error('The system keychain is not available, so this key is not stored.');
     }
@@ -85,7 +90,7 @@ export class KeychainSecretStore implements ISecretStore {
   /**
    * @override
    */
-  public get(provider: KeyProviderId): string | null {
+  public get(provider: SecretId): string | null {
     const stored = this.read()[provider];
 
     if (!stored) {
@@ -102,14 +107,14 @@ export class KeychainSecretStore implements ISecretStore {
   /**
    * @override
    */
-  public has(provider: KeyProviderId): boolean {
+  public has(provider: SecretId): boolean {
     return Boolean(this.read()[provider]);
   }
 
   /**
    * @override
    */
-  public clear(provider: KeyProviderId): void {
+  public clear(provider: SecretId): void {
     const { [provider]: _removed, ...others } = this.read();
 
     this.write(others);
@@ -118,10 +123,10 @@ export class KeychainSecretStore implements ISecretStore {
   /**
    * @private
    */
-  private read(): Partial<Record<KeyProviderId, string>> {
+  private read(): Partial<Record<SecretId, string>> {
     try {
       return existsSync(this._file)
-        ? (JSON.parse(readFileSync(this._file, 'utf8')) as Partial<Record<KeyProviderId, string>>)
+        ? (JSON.parse(readFileSync(this._file, 'utf8')) as Partial<Record<SecretId, string>>)
         : {};
     } catch {
       return {};
@@ -131,7 +136,7 @@ export class KeychainSecretStore implements ISecretStore {
   /**
    * @private
    */
-  private write(keys: Partial<Record<KeyProviderId, string>>): void {
+  private write(keys: Partial<Record<SecretId, string>>): void {
     writePrivateFileAtomically(this._file, `${JSON.stringify(keys, null, 2)}\n`);
   }
 
@@ -146,7 +151,7 @@ export class KeychainSecretStore implements ISecretStore {
 export class MemorySecretStore implements ISecretStore {
   // #region Fields
 
-  private readonly _keys = new Map<KeyProviderId, string>();
+  private readonly _keys = new Map<SecretId, string>();
 
   // #endregion
 
@@ -155,28 +160,28 @@ export class MemorySecretStore implements ISecretStore {
   /**
    * @override
    */
-  public set(provider: KeyProviderId, key: string): void {
+  public set(provider: SecretId, key: string): void {
     this._keys.set(provider, key);
   }
 
   /**
    * @override
    */
-  public get(provider: KeyProviderId): string | null {
+  public get(provider: SecretId): string | null {
     return this._keys.get(provider) ?? null;
   }
 
   /**
    * @override
    */
-  public has(provider: KeyProviderId): boolean {
+  public has(provider: SecretId): boolean {
     return this._keys.has(provider);
   }
 
   /**
    * @override
    */
-  public clear(provider: KeyProviderId): void {
+  public clear(provider: SecretId): void {
     this._keys.delete(provider);
   }
 

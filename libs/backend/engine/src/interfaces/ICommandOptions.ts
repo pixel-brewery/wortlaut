@@ -71,6 +71,11 @@ export interface IAnalyzeOptions extends IDetectOptions {
   identicalValues: Array<string>;
 
   /**
+   * Each of these locales must have at least one translation key in the catalog roots.
+   */
+  expectedLocales?: ReadonlyArray<string>;
+
+  /**
    * What each rule is worth. A rule that is `off` does not run, unless this run names it.
    */
   severities?: Record<string, RuleSeverity>;

@@ -1,6 +1,11 @@
 // #region Imports
 
-import { UnusedKeysRule, UsedKeysFinder, resourceTypeFormFile } from '@pixel-brewery/wortlaut-core';
+import {
+  KeyPatternStoppedError,
+  UnusedKeysRule,
+  UsedKeysFinder,
+  resourceTypeFormFile,
+} from '@pixel-brewery/wortlaut-core';
 import { FileSystem } from '@pixel-brewery/utilities';
 import type { TSESLint } from '@typescript-eslint/utils';
 import {
@@ -13,7 +18,9 @@ import {
 
 // #endregion
 
-export const unusedKeysRule: TSESLint.RuleModule<'unusedKey'> = {
+type MessageId = 'unusedKey' | 'stoppedPattern';
+
+export const unusedKeysRule: TSESLint.RuleModule<MessageId> = {
   meta: {
     type: 'problem',
     docs: {
@@ -42,10 +49,11 @@ export const unusedKeysRule: TSESLint.RuleModule<'unusedKey'> = {
     ],
     messages: {
       unusedKey: 'The translation key "{{ key }}" in locale "{{ locale }}" is unused.',
+      stoppedPattern: '{{ reason }}',
     },
   },
   defaultOptions: [],
-  create(context: TSESLint.RuleContext<'unusedKey', []>): TSESLint.RuleListener {
+  create(context: TSESLint.RuleContext<MessageId, []>): TSESLint.RuleListener {
     interface Options {
       usedKeys?: Array<string>;
       mode?: string;
@@ -67,13 +75,29 @@ export const unusedKeysRule: TSESLint.RuleModule<'unusedKey'> = {
         return;
       }
 
+      let declaredKeys: Set<string>;
+
+      try {
+        // ESLint reads no sources. Its declared keys use the same grammar and time limit as Analyze.
+        declaredKeys = new UsedKeysFinder().find([], resourceInfo.keys(), { usedKeys });
+      } catch (error) {
+        if (!(error instanceof KeyPatternStoppedError)) {
+          throw error;
+        }
+
+        context.report({
+          node,
+          messageId: 'stoppedPattern',
+          data: { reason: error.message },
+        });
+        return;
+      }
+
       const rule = new UnusedKeysRule();
       const result = rule.execute({
         resource: resourceInfo,
         parameters: {
-          // The rule scans no sources, so the used keys are the keys that the entries match, with the
-          // same syntax and matcher as the `usedKeys` of Wortlaut's `analyze` command.
-          usedKeys: new UsedKeysFinder().find([], resourceInfo.keys(), { usedKeys: usedKeys }),
+          usedKeys: declaredKeys,
         },
       });
 

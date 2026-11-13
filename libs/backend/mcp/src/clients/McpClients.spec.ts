@@ -46,17 +46,21 @@ describe('describeMcpClients', () => {
     });
   });
 
-  it('says that a plugin needs the published package, because it travels without the paths of this computer', () => {
+  it('offers plugins and explains package access even when the direct connection uses a local CLI', () => {
     // act
-    const [local] = describeMcpClients(LOCAL, NOTHING);
-    const [published] = describeMcpClients(PUBLISHED, NOTHING);
+    const [local, localCodex, localOther] = describeMcpClients(LOCAL, NOTHING);
+    const [published, , publishedOther] = describeMcpClients(PUBLISHED, NOTHING);
 
     // assert
-    expect(local.steps[1].title).toBe('Or install the plugin, once the package is published');
+    expect(local.steps[1].title).toBe('Or install the plugin');
+    expect(local.about).toContain('GitHub Packages');
+    expect(localCodex.about).toContain('GitHub Packages');
+    expect(localOther.about).not.toContain('GitHub Packages');
     expect(published.steps[0].title).toBe('Install the plugin');
     expect(published.steps[1].code).toBe(
       'claude mcp add wortlaut -- npx -y @pixel-brewery/wortlaut-app mcp',
     );
+    expect(publishedOther.about).toContain('GitHub Packages');
   });
 
   it('only claims a connection a run proves, and otherwise says whether the tool is there', () => {

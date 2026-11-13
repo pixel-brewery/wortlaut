@@ -37,6 +37,7 @@ import { TextBoxComponent } from '@pixel-brewery/mosaik-elements-angular/compone
 import { ToggleSwitchComponent } from '@pixel-brewery/mosaik-elements-angular/components/toggle-switch';
 import type { AiProvider } from '@pixel-brewery/wortlaut-contracts';
 import {
+  CodexFileAccessNoticeComponent,
   FailureStateComponent,
   LoadingStateComponent,
   LocaleFlagPipe,
@@ -61,6 +62,7 @@ import { GenerateSetupViewPresenter } from '../view-presenters/GenerateSetupView
     ChipComponent,
     ChoiceComponent,
     ChoiceGroupComponent,
+    CodexFileAccessNoticeComponent,
     DialogActionsComponent,
     DialogComponent,
     DialogContentComponent,
