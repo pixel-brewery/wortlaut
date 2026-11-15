@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Find hard-coded text, analyze translation catalogs and review localization changes with Wortlaut."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Wortlaut · Localization tools for application teams</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="./">Wortlaut</a>
+        <a class="source-link" href="https://github.com/pixel-brewery/wortlaut"
+          >View on GitHub <span aria-hidden="true">↗</span></a
+        >
+      </header>
+      <main id="main">
+        <section class="hero" aria-labelledby="title">
+          <h1 id="title">Find and fix gaps in your translations</h1>
+          <p class="lead">
+            Detect hard-coded text and check your language catalogs. Review the proposed changes
+            before writing them to your repository.
+          </p>
+          <div class="actions">
+            <a
+              class="button primary"
+              href="https://github.com/pixel-brewery/wortlaut/releases/latest"
+              >Download Wortlaut</a
+            >
+            <a
+              class="button"
+              href="https://github.com/pixel-brewery/wortlaut/blob/main/docs/README.md"
+              >Read the docs</a
+            >
+          </div>
+          <p>Available for macOS (Apple Silicon) and Windows (x64).</p>
+        </section>
+        <img class="project-art" src="project-card.webp" width="960" height="540" alt="" />
+        <section class="section" aria-labelledby="features">
+          <h2 id="features">From source text to reviewed changes</h2>
+          <div class="cards">
+            <article class="card">
+              <h3>Find issues</h3>
+              <p>
+                Locate hard-coded strings and spot missing translations, unused keys and placeholder
+                errors.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Update catalogs</h3>
+              <p>
+                Edit translations, request AI suggestions and convert between JSON, RESX and PO
+                catalogs.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Review before writing</h3>
+              <p>
+                Inspect each proposed change and choose whether to apply it. Wortlaut checks that
+                the files still match before it writes.
+              </p>
+            </article>
+          </div>
+        </section>
+        <section class="section" aria-labelledby="automation">
+          <h2 id="automation">Run the same checks from your terminal</h2>
+          <p>
+            Use the <code>@pixel-brewery/wortlaut-app</code> package with Node.js 24.15 or newer.
+            Set up GitHub Packages authentication using the
+            <a
+              href="https://github.com/pixel-brewery/wortlaut/blob/main/docs/release.md#package-installation"
+              >package installation guide</a
+            >.
+          </p>
+          <pre><code>npx -y @pixel-brewery/wortlaut-app analyze --json</code></pre>
+          <p>Detection, analysis, sorting and format conversion work without an AI provider.</p>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <a href="https://github.com/pixel-brewery">Pixel Brewery</a>
+        <a href="https://github.com/pixel-brewery/wortlaut/releases">Releases</a>
+        <a href="https://github.com/pixel-brewery/wortlaut/blob/main/LICENSE">MIT license</a>
+      </footer>
+    </div>
+  </body>
+</html>
