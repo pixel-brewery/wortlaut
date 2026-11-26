@@ -6,6 +6,12 @@ on:
   push:
     branches: [main, dev]
   workflow_dispatch:
+    inputs:
+      expected_head_sha:
+        description: Exact dependency head requested by the trusted controller
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -22,6 +28,11 @@ jobs:
     outputs:
       documentation_only: ${{ steps.changes.outputs.documentation_only }}
     steps:
+      - name: Require the requested dependency revision
+        if: github.event_name == 'workflow_dispatch' && inputs.expected_head_sha != ''
+        env:
+          EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
+        run: test "$GITHUB_SHA" = "$EXPECTED_HEAD_SHA"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0

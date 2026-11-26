@@ -1,0 +1,17 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "types": ["node"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "incremental": false
+  },
+  "include": [
+    "src/executors/dependabot/executor.ts",
+    "src/executors/dependabot/interfaces/IDependabotExecutorOptions.ts"
+  ]
+}

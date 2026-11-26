@@ -31,8 +31,7 @@ send only what the chunk needs. Tokens and cost estimates are labeled as estimat
 
 ## Composition
 
-`vendor/synapse` holds the unmodified archives, verified by `node vendor/synapse/verify.mjs`, and root `resolutions` point the
-family at them. `libs/backend/ai` holds `LocalAssistants`, `AiProviderHost` and the strategies, and imports Synapse for types
+`libs/backend/ai` declares the six published Synapse `0.0.3` packages directly. The Yarn lockfile binds their GitHub Packages integrity; do not redirect this family to local archives or dependency-source patches. `libs/backend/ai` holds `LocalAssistants`, `AiProviderHost` and the strategies, and imports Synapse for types
 only. `apps/desktop` and `apps/cli` load the modules and compose them, each with its own source of keys: the keychain through
 `safeStorage` in main, or the environment and `--api-key` on the command line. The engine receives the result.
 
