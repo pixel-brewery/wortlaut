@@ -1,3 +1,13 @@
+## 0.2.9 (2026-11-26)
+
+### 🩹 Fixes
+
+- **ci:** authorize and resume protected native dependency checks ([#53](https://github.com/pixel-brewery/wortlaut/pull/53))
+
+### ❤️ Thank You
+
+- André Wehlert @RueDeRennes
+
 ## 0.2.8 (2026-11-26)
 
 This was a version bump only, there were no code changes.
