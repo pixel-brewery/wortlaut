@@ -9,7 +9,46 @@ into `main` releases it. Releases belong to the owner.
 | `ci.yml` | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
 | `release.yml` | Code push to `main`, or by hand | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation |
 | `release-rehearsal.yml` | Changes to the release on `dev`, or by hand | The same on the real runners, and it publishes nothing |
-| `dependabot-auto-merge.yml` | After a green Dependabot pull request | Merges the verified head and requests its release |
+| `dependabot-auto-merge.yml` | After quality/release completion and hourly recovery | Refreshes stale dependency heads and continues verified main CI and the source-bound release |
+
+## Dependency automation
+
+All npm and GitHub Actions update types, including majors and TypeScript, use the
+same complete CI and protected merge policy. Related published package families
+are grouped rather than excluded. The six Synapse packages are consumed from
+GitHub Packages at the declared `0.0.3` versions; no root file-resolution override
+can hide their actual installed version from dependency verification. The canonical implementation is the private
+`repository-tasks:dependabot` Nx executor under `tools/nx-plugins/repository-tasks`;
+it is separate from the published Wortlaut translation executor. Its modes are
+`merge`, `reconcile` and `continue`, and external mutations are never cached.
+
+The controller runs trusted default-branch code with no dependency installation
+or PR artifacts. Repository ID, public visibility and default branch are checked.
+It refreshes stale same-repository bot PRs with `expected_head_sha`, waits for the
+replacement and dispatches full CI with the same expected revision. CI rejects a
+changed revision before classification. Existing failed exact-head attempts stay
+available for diagnosis; a run waiting for approval does not suppress explicit CI.
+Conflicts block the affected PR without preventing other bot PRs from proceeding.
+
+A dispatched verification without direct PR metadata must map uniquely to an open
+Dependabot PR with the same repository, branch and head. All five current-attempt
+jobs must succeed. The final ordinary squash request guards the tested head after
+re-reading the PR, run and current main; GitHub's strict branch rules remain
+binding. No reviews or branch-rule bypasses are created.
+
+A successful native-token merge explicitly requests full main CI and the existing
+patch release, since GitHub suppresses ordinary push workflows for `GITHUB_TOKEN`.
+Both continuations check the exact merged source, retain existing attempts and
+stop for a superseding main revision. The existing release input remains
+`source_sha`; CI receives `expected_head_sha`. Quality/release completion and the
+hourly fallback reconcile remaining bot PRs after release metadata advances main.
+Privileged workflows use a native Node bootstrap of the same Nx-owned implementation
+so no workspace dependencies execute with write permissions.
+
+Development delivery on `dev` does not activate this default-branch controller.
+Activation requires the separately owner-authorized integration of these exact
+changes into `main`, which also starts the existing automatic desktop/package
+release. Development branding and unrelated dev history are not prerequisites.
 
 ## What a release does
 
@@ -37,8 +76,7 @@ Installers are not signed, as in Symphony and Resonanz: macOS uses ad-hoc sealin
 
 The supported consumer routes are npm and Yarn with `nodeLinker: node-modules` in
 `.yarnrc.yml`. The published packages declare their runtime SDKs and required
-Utilities peers; they do not rely on this repository's devDependencies or Synapse
-vendor resolutions.
+Utilities peers; they do not rely on this repository's devDependencies or local dependency overrides.
 
 Yarn Plug'n'Play is currently unsupported for the CLI, AI, Engine and MCP packages:
 Utilities 0.1.187 exposes one root entrypoint that eagerly imports its optional
