@@ -4,7 +4,7 @@
   "properties": {
     "mode": {
       "type": "string",
-      "enum": ["merge", "reconcile", "continue"],
+      "enum": ["merge", "reconcile", "continue", "authorize"],
       "default": "merge"
     }
   },

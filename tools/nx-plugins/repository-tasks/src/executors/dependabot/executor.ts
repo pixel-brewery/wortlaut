@@ -12,9 +12,9 @@ import type { IDependabotExecutorOptions } from './interfaces/IDependabotExecuto
  * @internal
  */
 export default async function executor(
-  options: IDependabotExecutorOptions,
+    options: IDependabotExecutorOptions
 ): Promise<{ success: boolean }> {
-  const { runDependabotAutomation } = await import('./runDependabotAutomation.mjs');
-  await runDependabotAutomation(options.mode);
-  return { success: true };
+    const { runDependabotAutomation } = await import('./runDependabotAutomation.mjs');
+    await runDependabotAutomation(options.mode);
+    return { success: true };
 }

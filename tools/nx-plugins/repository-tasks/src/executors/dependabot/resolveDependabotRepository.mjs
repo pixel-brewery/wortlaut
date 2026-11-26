@@ -15,30 +15,28 @@ import { releaseRepository } from '../../../../../../.github/scripts/releaseRepo
  * @internal
  */
 export async function resolveDependabotRepository(context, request) {
-  if (
-    ![releaseRepository.id, String(releaseRepository.id)].includes(context?.repositoryId) ||
-    context?.repository !== releaseRepository.fullName ||
-    context?.defaultBranch !== releaseRepository.defaultBranch
-  )
-    return undefined;
+    if (
+        ![releaseRepository.id, String(releaseRepository.id)].includes(context?.repositoryId) ||
+        context?.repository !== releaseRepository.fullName ||
+        context?.defaultBranch !== releaseRepository.defaultBranch
+    ) return undefined;
 
-  const repository = await request('GET', `repositories/${releaseRepository.id}`);
+    const repository = await request('GET', `repositories/${releaseRepository.id}`);
 
-  if (
-    repository?.id !== releaseRepository.id ||
-    repository?.name !== releaseRepository.name ||
-    repository?.full_name !== releaseRepository.fullName ||
-    repository?.default_branch !== releaseRepository.defaultBranch ||
-    repository?.fork !== false ||
-    repository?.private !== false ||
-    repository?.visibility !== 'public'
-  )
-    return undefined;
+    if (
+        repository?.id !== releaseRepository.id ||
+        repository?.name !== releaseRepository.name ||
+        repository?.full_name !== releaseRepository.fullName ||
+        repository?.default_branch !== releaseRepository.defaultBranch ||
+        repository?.fork !== false ||
+        repository?.private !== false ||
+        repository?.visibility !== 'public'
+    ) return undefined;
 
-  return {
-    id: releaseRepository.id,
-    fullName: releaseRepository.fullName,
-    defaultBranch: releaseRepository.defaultBranch,
-    path: `repos/${releaseRepository.fullName}`,
-  };
+    return {
+        id: releaseRepository.id,
+        fullName: releaseRepository.fullName,
+        defaultBranch: releaseRepository.defaultBranch,
+        path: `repos/${releaseRepository.fullName}`
+    };
 }

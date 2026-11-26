@@ -5,7 +5,7 @@ import { execFile } from 'node:child_process';
 // #endregion
 
 const requestFailure =
-  'Dependabot GitHub API request failed; inspect the workflow and pull request before retrying.';
+    'Dependabot GitHub API request failed; inspect the workflow and pull request before retrying.';
 
 /**
  * Calls GitHub REST with the workflow's existing token and bounded native CLI execution.
@@ -20,56 +20,63 @@ const requestFailure =
  * @internal
  */
 export async function requestDependabotGitHub(method, endpoint, body) {
-  try {
-    if (!process.env.GH_TOKEN) throw new Error(requestFailure);
+    try {
+        if (!process.env.GH_TOKEN) throw new Error(requestFailure);
 
-    return await new Promise((resolveRequest, reject) => {
-      const child = execFile(
-        'gh',
-        [
-          'api',
-          '--hostname',
-          'github.com',
-          '--method',
-          method,
-          '--header',
-          'Accept: application/vnd.github+json',
-          '--header',
-          'X-GitHub-Api-Version: 2022-11-28',
-          endpoint,
-          ...(body === undefined ? [] : ['--input', '-']),
-        ],
-        {
-          encoding: 'utf8',
-          env: { ...process.env, GH_PROMPT_DISABLED: '1' },
-          maxBuffer: 1024 * 1024,
-          timeout: 15_000,
-          killSignal: 'SIGKILL',
-          windowsHide: true,
-        },
-        (error, stdout) => {
-          if (error) {
-            reject(new Error(requestFailure));
+        return await new Promise((resolveRequest, reject) => {
+            const child = execFile(
+                'gh',
+                [
+                    'api',
+                    '--hostname',
+                    'github.com',
+                    '--method',
+                    method,
+                    '--header',
+                    'Accept: application/vnd.github+json',
+                    '--header',
+                    'X-GitHub-Api-Version: 2022-11-28',
+                    endpoint,
+                    ...body === undefined ? [] : ['--input', '-']
+                ],
+                {
+                    encoding: 'utf8',
+                    env: { ...process.env,
+                        GH_PROMPT_DISABLED: '1' },
+                    maxBuffer: 1024 * 1024,
+                    timeout: 15_000,
+                    killSignal: 'SIGKILL',
+                    windowsHide: true
+                },
+                (error, stdout) => {
+                    if (error) {
+                        reject(new Error(requestFailure));
 
-            return;
-          }
+                        return;
+                    }
 
-          try {
-            if (method === 'POST' && endpoint.endsWith('/dispatches') && stdout.trim() === '') {
-              resolveRequest(undefined);
-              return;
-            }
-            resolveRequest(JSON.parse(stdout));
-          } catch {
-            reject(new Error(requestFailure));
-          }
-        },
-      );
+                    try {
+                        if (
+                            method === 'POST' &&
+                            (endpoint.endsWith('/dispatches') ||
+                              endpoint.endsWith('/approve') ||
+                              endpoint.endsWith('/rerun-failed-jobs')) &&
+                              stdout.trim() === ''
+                        ) {
+                            resolveRequest(undefined);
+                            return;
+                        }
+                        resolveRequest(JSON.parse(stdout));
+                    } catch {
+                        reject(new Error(requestFailure));
+                    }
+                }
+            );
 
-      child.stdin?.on('error', () => reject(new Error(requestFailure)));
-      child.stdin?.end(body === undefined ? undefined : JSON.stringify(body));
-    });
-  } catch {
-    throw new Error(requestFailure);
-  }
+            child.stdin?.on('error', () => reject(new Error(requestFailure)));
+            child.stdin?.end(body === undefined ? undefined : JSON.stringify(body));
+        });
+    } catch {
+        throw new Error(requestFailure);
+    }
 }

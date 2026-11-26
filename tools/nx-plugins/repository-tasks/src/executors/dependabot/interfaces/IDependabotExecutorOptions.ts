@@ -4,10 +4,11 @@
  * @internal
  */
 export interface IDependabotExecutorOptions {
-  /**
+
+    /**
    * Selects an external workflow operation that must never be cached.
    *
    * @internal
    */
-  readonly mode: 'merge' | 'reconcile' | 'continue';
+    readonly mode: 'merge' | 'reconcile' | 'continue' | 'authorize';
 }
