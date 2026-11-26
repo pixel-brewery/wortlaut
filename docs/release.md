@@ -4,12 +4,12 @@ A release works as in Symphony and Resonanz: a source change pushed to `main` re
 Documentation-only pushes skip the release. `dev` is where work happens, and merging a code change
 into `main` releases it. Releases belong to the owner.
 
-| Workflow | When | What it does |
-| --- | --- | --- |
-| `ci.yml` | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
-| `release.yml` | Code push to `main`, or by hand | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation |
-| `release-rehearsal.yml` | Changes to the release on `dev`, or by hand | The same on the real runners, and it publishes nothing |
-| `dependabot-auto-merge.yml` | After quality/release completion and hourly recovery | Refreshes stale dependency heads and continues verified main CI and the source-bound release |
+| Workflow                    | When                                                       | What it does                                                                                                                                 |
+| --------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                    | Pull requests, the merge queue, pushes to `main` and `dev` | Classifies the complete diff; code changes verify on Linux, macOS and Windows, then exercise the built and packaged app on macOS and Windows |
+| `release.yml`               | Code push to `main`, or by hand                            | One release candidate, then the installers and the packages; documentation-only automatic pushes stop before preparation                     |
+| `release-rehearsal.yml`     | Changes to the release on `dev`, or by hand                | The same on the real runners, and it publishes nothing                                                                                       |
+| `dependabot-auto-merge.yml` | After quality/release completion and hourly recovery       | Refreshes stale dependency heads and continues verified main CI and the source-bound release                                                 |
 
 ## Dependency automation
 
@@ -20,35 +20,72 @@ GitHub Packages at the declared `0.0.3` versions; no root file-resolution overri
 can hide their actual installed version from dependency verification. The canonical implementation is the private
 `repository-tasks:dependabot` Nx executor under `tools/nx-plugins/repository-tasks`;
 it is separate from the published Wortlaut translation executor. Its modes are
-`merge`, `reconcile` and `continue`, and external mutations are never cached.
+`merge`, `reconcile`, `authorize` and `continue`, and external mutations are never cached.
 
-The controller runs trusted default-branch code with no dependency installation
-or PR artifacts. Repository ID, public visibility and default branch are checked.
-It refreshes stale same-repository bot PRs with `expected_head_sha`, waits for the
-replacement and dispatches full CI with the same expected revision. CI rejects a
-changed revision before classification. Existing failed exact-head attempts stay
-available for diagnosis; a run waiting for approval does not suppress explicit CI.
-Conflicts block the affected PR without preventing other bot PRs from proceeding.
+The privileged controller executes only the trusted default-branch Nx owner,
+without installing workspace dependencies or executing PR code or PR artifacts.
+Its `merge`, `reconcile`, `authorize` and `continue` operations are non-cacheable.
+Branch refresh and merge have Contents/PR write with Actions read. A separate
+`authorize` job has only Contents read, PR read and Actions write. It approves
+workflow execution through GitHub's native run-approval endpoint; it creates no
+PR review, status, check or branch-rule exemption.
 
-A dispatched verification without direct PR metadata must map uniquely to an open
-Dependabot PR with the same repository, branch and head. All five current-attempt
-jobs must succeed. The final ordinary squash request guards the tested head after
-re-reading the PR, run and current main; GitHub's strict branch rules remain
-binding. No reviews or branch-rule bypasses are created.
+Reconciliation after verification/release completion and hourly checks bounded
+same-repository bot inventories. A stale branch uses `expected_head_sha` and waits
+for the replacement. Only real `pull_request` CI is merge proof. If it is waiting
+for execution approval, the isolated authorizer verifies the exact Dependabot or
+GitHub Actions service identity of both run actors before one approval request.
+A missing native run remains pending. Manual diagnostic `workflow_dispatch` runs
+remain available but cannot satisfy protected PR checks or shadow a native run.
+Conflicts, real failures and rejected approvals retain the affected PR and attempt.
 
-A successful native-token merge explicitly requests full main CI and the existing
-patch release, since GitHub suppresses ordinary push workflows for `GITHUB_TOKEN`.
-Both continuations check the exact merged source, retain existing attempts and
-stop for a superseding main revision. The existing release input remains
-`source_sha`; CI receives `expected_head_sha`. Quality/release completion and the
-hourly fallback reconcile remaining bot PRs after release metadata advances main.
-Privileged workflows use a native Node bootstrap of the same Nx-owned implementation
-so no workspace dependencies execute with write permissions.
+The isolated authorization job waits for branch reconciliation before reading the
+complete bounded current open bot inventory. Every permitted maintenance trigger,
+including completed own CI and release runs, inspects those current candidates;
+the triggering run's old head, conclusion or attempt does not replace any
+candidate's source and native-attempt proof. Approval after a refresh therefore
+does not depend on another workflow notification. The hourly pass remains a
+fallback for an interrupted event or a not-yet-visible native run.
 
-Development delivery on `dev` does not activate this default-branch controller.
-Activation requires the separately owner-authorized integration of these exact
-changes into `main`, which also starts the existing automatic desktop/package
-release. Development branding and unrelated dev history are not prerequisites.
+For every approval and merge, M is current protected main, B the unchanged bot
+head, and C GitHub's actual `refs/pull/<number>/merge` commit. The owner checks
+unique own-repository PR association, M as ancestor of B, C's ordered parents
+[M, B] and C's tree equal to B. Source blobs are verified by Git object digest.
+Only the fixed reviewed read-only CI baseline in trusted-main
+`verificationPolicy.reviewedCiSha256` authorizes execution: its normalized main
+SHA-256 must match that constant, and normalized PR CI must equal normalized main.
+Normalization changes only full 40-character action pins with the same action
+owner/path and optional SemVer comments. CI logic, scopes, secrets or syntax edits
+require a conscious read-only review and explicit policy-digest update; no runtime
+or PR input learns a new baseline. This positive review proof does not rely on a
+partial YAML parser.
+
+The latest eligible native run is selected independently of diagnostics and its
+actual current `run_attempt` is reloaded. All actual jobs must succeed. Ordinary
+maintainer-triggered native CI on the bot PR is valid after the same complete
+source proof. A later reconciliation re-enters the full merger after a transient
+skip, never a reduced path. Workflow/run/PR/M/B/C/protection are re-read immediately
+before the ordinary SHA-guarded squash request. GitHub's strict required checks
+remain the final merge authority; the actual closed, merged PR is then confirmed.
+
+Confirmed merge outputs from either reconciliation or the CI event reach a
+separate continuation job. Recovery resolves the current main commit association
+and reads the full PR with `merged: true`; missing confirmation starts nothing.
+Main verification receives `expected_head_sha`, and the existing patch release
+retains `source_sha`. Existing exact-source main `push` or `workflow_dispatch` runs
+are retained in every state, including queued, failed and cancelled. Diagnostic
+branch runs do not suppress them. Every new request rechecks current main; a
+superseding revision stops it. Interrupted requests can therefore be retried
+without merging twice or preparing a duplicate release. Failed releases retain
+their original source and artifact instead of receiving a blind new dispatch.
+
+All five actual quality jobs are required, including Ubuntu verification,
+classification, macOS, Windows and Quality Gate. Main CI and release continue
+independently; main CI retains `expected_head_sha`, release `source_sha`.
+The Pages workflow's existing `dev` trigger is unchanged; a main dependency merge
+does not deploy Pages. Default-branch activation and its normal package/installer
+release follow the owner's explicit authorization. The permanent `dev` branch
+remains independent of unrelated main history.
 
 ## What a release does
 
@@ -85,12 +122,12 @@ npm or Yarn's node-modules linker until a corrected Utilities release is availab
 
 ## By hand
 
-| Command | What it does |
-| --- | --- |
-| `yarn release:patch`, `:minor`, `:major` | Starts `release.yml` on `main` with that increment |
-| `yarn release:dry-run` | Shows the next version and changelog on this machine |
-| `gh workflow run release-rehearsal.yml --ref dev` | Rehearses the whole release on the real runners |
-| `yarn release:audit` | Checks that the latest tag of every package matches its manifest |
+| Command                                           | What it does                                                     |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `yarn release:patch`, `:minor`, `:major`          | Starts `release.yml` on `main` with that increment               |
+| `yarn release:dry-run`                            | Shows the next version and changelog on this machine             |
+| `gh workflow run release-rehearsal.yml --ref dev` | Rehearses the whole release on the real runners                  |
+| `yarn release:audit`                              | Checks that the latest tag of every package matches its manifest |
 
 ## What the repository needs
 
