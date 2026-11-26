@@ -1,22 +1,25 @@
 // #region Imports
 
 import { setTimeout as delay } from 'node:timers/promises';
+import { isCanonicalPullRequest } from './isCanonicalPullRequest.mjs';
+import { mergeDependabotPullRequest } from './mergeDependabotPullRequest.mjs';
+import { readLatestPullRequestRun } from './readLatestPullRequestRun.mjs';
 import { requestDependabotGitHub } from './requestDependabotGitHub.mjs';
 import { resolveDependabotRepository } from './resolveDependabotRepository.mjs';
+import { verificationPolicy } from './verificationPolicy.mjs';
 
 // #endregion
 
 const shaPattern = /^[a-f0-9]{40}$/u;
-const branchPattern = /^dependabot\/[a-zA-Z0-9_./-]+$/u;
 
 /**
- * Refreshes stale dependency branches and requests full verification without merging them.
+ * Refreshes dependency branches and resumes the strict merger after actual native CI.
  *
  * @param context - Trusted repository identity and workflow event.
  * @param dependencies - Optional GitHub request and bounded waiting boundaries.
  * @returns One fixed, credential-free result per eligible dependency pull request.
  * @throws An Error when GitHub metadata or a branch update cannot be verified.
- * @remarks Executes no pull-request code. The separate merge owner must recheck the new head.
+ * @remarks Executes no pull-request code. A successful ordinary PR is passed to the unchanged full merge gates; diagnostic dispatch never supplies native branch proof.
  *
  * @internal
  */
@@ -34,7 +37,7 @@ export async function reconcileDependabotBranches(context, dependencies = {}) {
         !Number.isSafeInteger(workflow?.id) ||
         workflow.id <= 0 ||
         workflow.path !== '.github/workflows/ci.yml' ||
-        workflow.name !== 'Desktop quality' ||
+        workflow.name !== verificationPolicy.workflowName ||
         workflow.state !== 'active'
     ) throw new Error('The dependency verification workflow changed.');
 
@@ -55,7 +58,7 @@ export async function reconcileDependabotBranches(context, dependencies = {}) {
         const number = item.number;
         if (!Number.isSafeInteger(number) || number <= 0) continue;
         try {
-            results.push(await reconcilePull(number, identity, workflow, request, wait));
+            results.push(await reconcilePull(number, context, identity, workflow, request, wait));
         } catch {
             results.push({ number,
                 status: 'blocked',
@@ -65,7 +68,7 @@ export async function reconcileDependabotBranches(context, dependencies = {}) {
     return results;
 }
 
-async function reconcilePull(number, identity, workflow, request, wait) {
+async function reconcilePull(number, context, identity, workflow, request, wait) {
     const root = identity.path;
     const pullPath = `${root}/pulls/${number}`;
     let pull = await request('GET', pullPath);
@@ -108,46 +111,67 @@ async function reconcilePull(number, identity, workflow, request, wait) {
         'GET',
         `${root}/actions/workflows/ci.yml/runs?head_sha=${pull.head.sha}&per_page=100`
     );
-    if (
-        !Number.isSafeInteger(runs?.total_count) ||
-        runs.total_count < 0 ||
-        runs.total_count > 100 ||
-        !Array.isArray(runs?.workflow_runs) ||
-        runs.workflow_runs.length !== runs.total_count
-    ) throw new Error('Invalid dependency verification inventory.');
-    const alreadyRequested = runs.workflow_runs.some(
-        (run) => run.workflow_id === workflow.id &&
-          run.head_sha === pull.head.sha &&
-          run.head_branch === pull.head.ref &&
-          sameRepository(run.repository, identity) &&
-          sameRepository(run.head_repository, identity) &&
-          (run.event === 'workflow_dispatch' ||
-            (run.event === 'pull_request' &&
-              run.conclusion !== 'action_required' &&
-              run.status !== 'waiting'))
-    );
-    if (alreadyRequested) {
+    const selected = readLatestPullRequestRun(runs, identity, workflow, pull);
+    if (selected) {
+        const run = await request('GET', `${root}/actions/runs/${selected.id}`);
+        const native = readLatestPullRequestRun(
+            { total_count: 1,
+                workflow_runs: [run] },
+            identity,
+            workflow,
+            pull
+        );
+        if (!native || native.id !== selected.id || native.run_attempt < selected.run_attempt) return { number,
+            status: 'waiting',
+            reason: 'workflow-run-changed' };
+        if (native.status === 'completed' && native.conclusion === 'success') {
+            const result = await mergeDependabotPullRequest(
+                { ...context,
+                    eventName: 'workflow_run',
+                    runId: native.id,
+                    runAttempt: native.run_attempt },
+                { request }
+            );
+            return result.status === 'merged'
+                ? { number,
+                    status: 'merged',
+                    sha: result.sha,
+                    head: pull.head.sha }
+                : { number,
+                    status: 'skipped',
+                    reason: result.reason };
+        }
+        if (native.status === 'completed' && native.conclusion === 'action_required') return {
+            number,
+            status: 'approval-required',
+            head: pull.head.sha,
+            runId: native.id,
+            runAttempt: native.run_attempt
+        };
         return { number,
             status: 'waiting',
             reason: 'verification-already-requested' };
     }
-
-    const latest = await request('GET', pullPath);
-    if (
-        !eligible(latest, identity, number) ||
-        latest.head.sha !== pull.head.sha ||
-        latest.head.ref !== pull.head.ref
-    ) {
-        return { number,
-            status: 'skipped',
-            reason: 'pull-request-changed' };
-    }
-    await request('POST', `${root}/actions/workflows/ci.yml/dispatches`, {
-        ref: pull.head.ref,
-        inputs: { expected_head_sha: pull.head.sha }
-    });
+    const diagnostic = runs.workflow_runs.some(
+        (run) => Number.isSafeInteger(run?.id) &&
+          run.id > 0 &&
+          Number.isSafeInteger(run.run_attempt) &&
+          run.run_attempt > 0 &&
+          run.event === 'workflow_dispatch' &&
+          run.workflow_id === workflow.id &&
+          run.name === workflow.name &&
+          run.path === workflow.path &&
+          run.head_sha === pull.head.sha &&
+          run.head_branch === pull.head.ref &&
+      sameRepository(run.repository, identity) &&
+      sameRepository(run.head_repository, identity)
+    );
+    if (diagnostic) return { number,
+        status: 'waiting',
+        reason: 'diagnostic-already-requested' };
     return { number,
-        status: 'verification-requested',
+        status: 'waiting',
+        reason: 'native-ci-not-observed',
         head: pull.head.sha };
 }
 
@@ -156,19 +180,5 @@ function sameRepository(value, identity) {
 }
 
 function eligible(pull, identity, number) {
-    return (
-        pull?.number === number &&
-        pull?.state === 'open' &&
-        pull.draft === false &&
-        pull.merged === false &&
-        pull.user?.login === 'dependabot[bot]' &&
-        pull.user?.type === 'Bot' &&
-        sameRepository(pull.head?.repo, identity) &&
-        sameRepository(pull.base?.repo, identity) &&
-        pull.base.ref === identity.defaultBranch &&
-        shaPattern.test(pull.head.sha ?? '') &&
-    branchPattern.test(pull.head.ref ?? '') &&
-    !pull.head.ref.includes('..') &&
-    !pull.head.ref.includes('//')
-    );
+    return pull?.number === number && isCanonicalPullRequest(pull, identity);
 }

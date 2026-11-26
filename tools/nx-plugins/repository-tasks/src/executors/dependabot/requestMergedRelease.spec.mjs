@@ -32,6 +32,7 @@ function fixture() {
             workflow_runs: [] },
         run: {
             id: 404,
+            run_attempt: 1,
             workflow_id: 303,
             path: '.github/workflows/release.yml',
             head_sha: sourceSha,
@@ -137,4 +138,131 @@ test('rejects private repositories, wrong workflows and foreign source identitie
             false
         );
     }
+});
+
+test('retains a malformed existing continuation attempt: missing', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.run_attempt = undefined;
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act and Assert
+    await assert.rejects(requestMergedRelease(context, f));
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('retains a malformed existing continuation attempt: zero', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.run_attempt = 0;
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act and Assert
+    await assert.rejects(requestMergedRelease(context, f));
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('retains a malformed existing continuation attempt: negative', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.run_attempt = -1;
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act and Assert
+    await assert.rejects(requestMergedRelease(context, f));
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('retains an existing actual main push without a duplicate continuation: queued', async() => {
+    // Arrange
+    const f = fixture();
+    Object.assign(f.records.run, { event: 'push',
+        status: 'queued',
+        conclusion: null });
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'already-requested');
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('retains an existing actual main push without a duplicate continuation: failure', async() => {
+    // Arrange
+    const f = fixture();
+    Object.assign(f.records.run, { event: 'push',
+        status: 'completed',
+        conclusion: 'failure' });
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'already-requested');
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('retains an existing actual main push without a duplicate continuation: cancelled', async() => {
+    // Arrange
+    const f = fixture();
+    Object.assign(f.records.run, { event: 'push',
+        status: 'completed',
+        conclusion: 'cancelled' });
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'already-requested');
+    assert.equal(
+        f.calls.some((call) => call.method === 'POST'),
+        false
+    );
+});
+test('ignores an unrelated valid run before continuation deduplication: head_branch', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.head_branch = 'dev';
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'requested');
+    assert.equal(f.calls.filter((call) => call.method === 'POST').length, 1);
+});
+test('ignores an unrelated valid run before continuation deduplication: event', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.event = 'pull_request';
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'requested');
+    assert.equal(f.calls.filter((call) => call.method === 'POST').length, 1);
+});
+test('ignores an unrelated valid run before continuation deduplication: path', async() => {
+    // Arrange
+    const f = fixture();
+    f.records.run.path = '.github/workflows/unrelated.yml';
+    f.records.runs = { total_count: 1,
+        workflow_runs: [f.records.run] };
+    // Act
+    const result = await requestMergedRelease(context, f);
+    // Assert
+    assert.equal(result.status, 'requested');
+    assert.equal(f.calls.filter((call) => call.method === 'POST').length, 1);
 });

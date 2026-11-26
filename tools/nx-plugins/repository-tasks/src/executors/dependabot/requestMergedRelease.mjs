@@ -26,7 +26,7 @@ const requestFailure =
  */
 export async function requestMergedRelease(context, dependencies = {}) {
     if (
-        context?.eventName !== 'workflow_run' ||
+        !['workflow_run', 'workflow_dispatch', 'schedule'].includes(context?.eventName) ||
         context?.repository !== repository ||
         ![repositoryId, String(repositoryId)].includes(context?.repositoryId) ||
         typeof context?.sourceSha !== 'string' ||
@@ -75,16 +75,23 @@ export async function requestMergedRelease(context, dependencies = {}) {
     if (
         !Number.isSafeInteger(runs?.total_count) ||
         runs.total_count < 0 ||
+        runs.total_count > 100 ||
         !Array.isArray(runs.workflow_runs) ||
         runs.workflow_runs.length > 100 ||
-        runs.workflow_runs.length > runs.total_count ||
+        runs.workflow_runs.length !== runs.total_count ||
         (runs.total_count > 0 && runs.workflow_runs.length === 0) ||
-        runs.workflow_runs.some((run) => !canonicalRun(run, workflow.id, sourceSha))
+        runs.workflow_runs.some(
+            (run) => !Number.isSafeInteger(run?.id) ||
+              run.id <= 0 ||
+          !Number.isSafeInteger(run.run_attempt) ||
+          run.run_attempt <= 0
+        )
     ) throw new Error(requestFailure);
 
-    if (runs.total_count > 0) return { status: 'already-requested',
+    const existingRun = runs.workflow_runs.find((run) => canonicalRun(run, workflow.id, sourceSha));
+    if (existingRun) return { status: 'already-requested',
         sourceSha,
-        runId: runs.workflow_runs[0].id };
+        runId: existingRun.id };
 
     const currentMain = await request('GET', mainPath);
 
@@ -111,14 +118,16 @@ function canonicalRun(run, workflowId, sourceSha) {
     return (
         Number.isSafeInteger(run?.id) &&
         run.id > 0 &&
+        Number.isSafeInteger(run.run_attempt) &&
+        run.run_attempt > 0 &&
         run.workflow_id === workflowId &&
         run.head_sha === sourceSha &&
         run.head_branch === 'main' &&
         ['push', 'workflow_dispatch'].includes(run.event) &&
         typeof run.path === 'string' &&
         (run.path === workflowPath || run.path.startsWith(`${workflowPath}@`)) &&
-        canonicalRepository(run.repository) &&
-        canonicalRepository(run.head_repository)
+    canonicalRepository(run.repository) &&
+    canonicalRepository(run.head_repository)
     );
 }
 
