@@ -151,3 +151,72 @@ test('requires both native platform jobs, the exact bot identity and current mai
     );
   }
 });
+
+test('accepts explicit verification only for one current same-repository bot association', async () => {
+  // arrange
+  const dependencies = fixture();
+  dependencies.records.run.event = 'workflow_dispatch';
+  dependencies.records.run.pull_requests = [];
+  dependencies.records.run.head_branch = 'dependabot/npm_and_yarn/frameworks';
+  dependencies.records.pull.head.ref = dependencies.records.run.head_branch;
+  const request = (method, endpoint, body) =>
+    endpoint === `${prefix}/commits/${head}/pulls?per_page=100`
+      ? [{ ...structuredClone(dependencies.records.pull), merged: undefined, merged_at: null }]
+      : dependencies.request(method, endpoint, body);
+
+  // act
+  const result = await mergeDependabotPullRequest(context, { request });
+
+  // assert
+  assert.equal(result.status, 'merged');
+  assert.deepEqual(dependencies.calls.filter((call) => call.method === 'PUT')[0].body, {
+    sha: head,
+    merge_method: 'squash',
+  });
+});
+
+test('rejects ambiguous dispatched-head pull-request associations', async () => {
+  // arrange
+  const dependencies = fixture();
+  dependencies.records.run.event = 'workflow_dispatch';
+  dependencies.records.run.pull_requests = [];
+  dependencies.records.run.head_branch = 'dependabot/npm_and_yarn/frameworks';
+  dependencies.records.pull.head.ref = dependencies.records.run.head_branch;
+  const candidate = {
+    ...structuredClone(dependencies.records.pull),
+    merged: undefined,
+    merged_at: null,
+  };
+  const request = (method, endpoint, body) =>
+    endpoint === `${prefix}/commits/${head}/pulls?per_page=100`
+      ? [candidate, { ...candidate, number: 8 }]
+      : dependencies.request(method, endpoint, body);
+
+  // act
+  const result = await mergeDependabotPullRequest(context, { request });
+
+  // assert
+  assert.deepEqual(result, { status: 'skipped', reason: 'ambiguous-pull-request' });
+  assert.equal(
+    dependencies.calls.some((call) => call.method !== 'GET'),
+    false,
+  );
+});
+
+test('rejects a manually verified branch outside Dependabot', async () => {
+  // arrange
+  const dependencies = fixture();
+  dependencies.records.run.event = 'workflow_dispatch';
+  dependencies.records.run.pull_requests = [];
+  dependencies.records.run.head_branch = 'feature/manual';
+
+  // act
+  const result = await mergeDependabotPullRequest(context, dependencies);
+
+  // assert
+  assert.deepEqual(result, { status: 'skipped', reason: 'ambiguous-pull-request' });
+  assert.equal(
+    dependencies.calls.some((call) => call.method !== 'GET'),
+    false,
+  );
+});

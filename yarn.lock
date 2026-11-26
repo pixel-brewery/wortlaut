@@ -4148,62 +4148,62 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-auth@file:./vendor/synapse/synapse-auth-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-auth@npm:0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-auth@file:./vendor/synapse/synapse-auth-0.0.3.tgz#./vendor/synapse/synapse-auth-0.0.3.tgz::hash=64f1d1&locator=wortlaut%40workspace%3A."
+  resolution: "@pixel-brewery/synapse-auth@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-auth%2F0.0.3%2F82142309f251159587bf4b66fad6c060cd4a3e7f"
   dependencies:
     "@pixel-brewery/synapse-core": "npm:^0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:^0.0.3"
-  checksum: 10c0/7b136985830764ebaefdea1afdffbd6a45a2edad3125ce3e6378555d5ee97fbe2332c50bae19bf83592adb9502b7d8848349441425146eae4c2df8add261d55d
+  checksum: 10c0/5ca79d5307e514d5e3302f980100b036240ac25f7da60da85e28d3e62bb434952049a4db533ffdce4f583b8f4a60f466d6224dfb2281a16d68e8e0a56cc4d9a4
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-core@file:./vendor/synapse/synapse-core-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-core@npm:0.0.3, @pixel-brewery/synapse-core@npm:^0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-core@file:./vendor/synapse/synapse-core-0.0.3.tgz#./vendor/synapse/synapse-core-0.0.3.tgz::hash=812667&locator=wortlaut%40workspace%3A."
-  checksum: 10c0/07a4270c3044e2adc57543bf34d1d222d23735dc0d3f60f2753cae4c9e2d7947aef3ddf16c7e277cd46787c58617459b29e70d57f96e9c030c5c0ae341b5b2f3
+  resolution: "@pixel-brewery/synapse-core@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-core%2F0.0.3%2Ff395a8dc7dd571101003af9c5a11038e7bd56889"
+  checksum: 10c0/564fa9be0e16a8ba2625f6d125835acf8792ebe736429df00cc49e300cb0b5d5df72ef7e23206d3348a34c1b6b0a4695a53bd2af7f638d6d545f229584f042c6
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-provider-claude@file:./vendor/synapse/synapse-provider-claude-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-provider-claude@npm:0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-provider-claude@file:./vendor/synapse/synapse-provider-claude-0.0.3.tgz#./vendor/synapse/synapse-provider-claude-0.0.3.tgz::hash=17fd2e&locator=wortlaut%40workspace%3A."
+  resolution: "@pixel-brewery/synapse-provider-claude@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-provider-claude%2F0.0.3%2F530a5004d1ff68b12f3828650ee77536e73e5181"
   dependencies:
     "@pixel-brewery/synapse-core": "npm:^0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:^0.0.3"
-  checksum: 10c0/303e110092984178bad3788f88cced2f7a363be2e5837193b9899a7848b57702443104ec33765689f9a1143789f83180ee9b6ea3228ae888d945c33d98176648
+  checksum: 10c0/8bc733e80c0947769af3a14ae12b7b5d8aeb99ce3a0b072de4158370e27a781244330f4b6bbf9af78e1610a97f1132495d81b0c64097c0070685c3ba7bf980c2
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-provider-codex@file:./vendor/synapse/synapse-provider-codex-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-provider-codex@npm:0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-provider-codex@file:./vendor/synapse/synapse-provider-codex-0.0.3.tgz#./vendor/synapse/synapse-provider-codex-0.0.3.tgz::hash=d27946&locator=wortlaut%40workspace%3A."
+  resolution: "@pixel-brewery/synapse-provider-codex@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-provider-codex%2F0.0.3%2F8adc33bb7218be529caa231ae9801011dc967e9b"
   dependencies:
     "@pixel-brewery/synapse-core": "npm:^0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:^0.0.3"
     smol-toml: "npm:1.9.1"
-  checksum: 10c0/629498975827c13ff0e0f24e57ebe40931f8e72da6d4e46189436934eeb280611e896df4c1e062c7d8d3013150613e15428a7f3e9877c52efb4c1d04867f2794
+  checksum: 10c0/4d95be30df414e61aacc5b35323106521df82707dcddf0822747c021ad6faf1616b84bf3836a3d6ca7dff19bad5cd805767f697810c0d4f9405adedf950303cc
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-provider-opencode@file:./vendor/synapse/synapse-provider-opencode-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-provider-opencode@npm:0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-provider-opencode@file:./vendor/synapse/synapse-provider-opencode-0.0.3.tgz#./vendor/synapse/synapse-provider-opencode-0.0.3.tgz::hash=abfa9c&locator=wortlaut%40workspace%3A."
+  resolution: "@pixel-brewery/synapse-provider-opencode@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-provider-opencode%2F0.0.3%2Ffb2042de695bea9226d1ef91b0e515d92a26dbec"
   dependencies:
     "@pixel-brewery/synapse-core": "npm:^0.0.3"
     "@pixel-brewery/synapse-runtime": "npm:^0.0.3"
-  checksum: 10c0/9a1b1f22272a10e79d887e6b3c3f0e3409e9b013b739fa2a14f2e09b2202add559f345a2727957d9b2df60a7c1915204908db33becf29b701ecc4452bc670c7d
+  checksum: 10c0/02114b111ede05e18f5f58582f3ca49dc6ab625a894bcbe86f025cb3357390002f4ef7caed44d2168193f92443b7f657ada0d2831977084f289d7534e454766c
   languageName: node
   linkType: hard
 
-"@pixel-brewery/synapse-runtime@file:./vendor/synapse/synapse-runtime-0.0.3.tgz::locator=wortlaut%40workspace%3A.":
+"@pixel-brewery/synapse-runtime@npm:0.0.3, @pixel-brewery/synapse-runtime@npm:^0.0.3":
   version: 0.0.3
-  resolution: "@pixel-brewery/synapse-runtime@file:./vendor/synapse/synapse-runtime-0.0.3.tgz#./vendor/synapse/synapse-runtime-0.0.3.tgz::hash=c3deee&locator=wortlaut%40workspace%3A."
+  resolution: "@pixel-brewery/synapse-runtime@npm:0.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40pixel-brewery%2Fsynapse-runtime%2F0.0.3%2F3d3e8f4ec43c77e14d287459c52f2d0795c980e6"
   dependencies:
     "@pixel-brewery/synapse-core": "npm:^0.0.3"
     ajv: "npm:8.20.0"
     cross-spawn: "npm:7.0.6"
-  checksum: 10c0/a2cee5ea0db01bd2ce4fc3aeaa052885c555cbd5646ba038f84fac4c88daa1343d621e402691ff26cc39dda679ab64c50fbf44fddb99d519edcb6416be93e0be
+  checksum: 10c0/962e767538c12a47f5d81c822c2967ed68058304b3f697e52bf132e17bd6e4077d42f3486d15b85672700410f4a23d9f4b68d6225b856a1eb600d18c920c9b37
   languageName: node
   linkType: hard
 
@@ -5664,6 +5664,14 @@ __metadata:
   checksum: 10c0/8ec68cd9448b486bc8244d1f2b33d64d4af4b0fc18d33417699ce29345b21e4359d880c5ea5d66872def4576c0cddcfa2a63282d1f4d661c455663c075595e81
   languageName: node
   linkType: hard
+
+"@wortlaut/repository-tasks@workspace:*, @wortlaut/repository-tasks@workspace:tools/nx-plugins/repository-tasks":
+  version: 0.0.0-use.local
+  resolution: "@wortlaut/repository-tasks@workspace:tools/nx-plugins/repository-tasks"
+  dependencies:
+    globals: "npm:17.13.0"
+  languageName: unknown
+  linkType: soft
 
 "@xmldom/xmldom@npm:^0.9.10":
   version: 0.9.12
@@ -12931,6 +12939,7 @@ __metadata:
     "@pixel-brewery/mosaik-mcp": "npm:0.1.192"
     "@stylistic/eslint-plugin": "npm:5.10.0"
     "@types/node": "npm:26.6.5"
+    "@wortlaut/repository-tasks": "workspace:*"
     angular-eslint: "npm:22.6.0"
     electron: "npm:45.1.0"
     esbuild: "npm:0.28.2"

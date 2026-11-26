@@ -1,8 +1,6 @@
 // #region Imports
 
 import { execFileSync } from 'node:child_process';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 
 // #endregion
 
@@ -154,22 +152,4 @@ function requestGitHub(method, endpoint, body) {
   );
 
   return output.trim() ? JSON.parse(output) : undefined;
-}
-
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  try {
-    if (process.argv.length !== 2) throw new Error(requestFailure);
-
-    const result = await requestMergedRelease({
-      eventName: process.env.GITHUB_EVENT_NAME,
-      repository: process.env.GITHUB_REPOSITORY,
-      repositoryId: process.env.GITHUB_REPOSITORY_ID,
-      sourceSha: process.env.MERGE_COMMIT_SHA,
-    });
-
-    console.log(JSON.stringify(result));
-  } catch {
-    console.error(requestFailure);
-    process.exitCode = 1;
-  }
 }

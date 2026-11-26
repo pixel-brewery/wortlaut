@@ -2,7 +2,6 @@
 .agents/skills/architect/
 .claude/skills/architect/
 .claude/skills/mosaik-design/
-vendor/synapse/
 
 # Generated and local files.
 .angular/

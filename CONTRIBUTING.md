@@ -33,7 +33,7 @@ yarn verify
 ```
 
 `yarn format` applies the shared Prettier style to repository-owned source. It uses the
-Angular parser for frontend templates and preserves installed guidance, vendor inputs and
+Angular parser for frontend templates and preserves installed guidance, published dependency inputs and
 generated artifacts. ESLint still applies the shared code and architecture rules.
 
 `yarn verify` first runs `verify:code`, which covers repository rules, Mosaik source

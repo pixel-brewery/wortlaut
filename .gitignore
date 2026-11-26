@@ -7,7 +7,6 @@ out/
 .DS_Store
 *.log
 *.tgz
-!vendor/**/*.tgz
 .env
 .env.*
 *.pem

@@ -32,7 +32,8 @@
     "libs/contracts",
     "libs/backend/*",
     "libs/frontend/*",
-    "libs/frontend/features/*"
+    "libs/frontend/features/*",
+    "tools/nx-plugins/*"
   ],
   "scripts": {
     "dev": "yarn start:unpackaged",
@@ -53,19 +54,18 @@
     "instruction:check": "yarn verify:structure && yarn verify:paths",
     "package": "nx run wortlaut-desktop:package",
     "make": "nx run wortlaut-desktop:make",
-    "test:tooling": "node --test --test-concurrency=1 \"tools/workspace/*.spec.mjs\" \".github/scripts/*.spec.mjs\"",
+    "test:tooling": "nx run repository-tasks:ci-check",
     "test:e2e": "node tools/workspace/verify-desktop.mjs",
     "e2e": "yarn build:app && yarn test:e2e",
     "verify:public-content": "node tools/workspace/verify-public-content.mjs",
     "test:public-content": "node --test tools/workspace/verify-public-content.spec.mjs",
-    "verify:vendor": "node vendor/synapse/verify.mjs",
     "ui:check": "python3 .claude/skills/mosaik-design/scripts/check_design.py --app apps/frontend/app/src libs/frontend",
     "verify:design": "yarn ui:check",
     "verify:package": "node tools/workspace/verify-package.mjs",
     "verify:consumer": "node tools/workspace/verify-package-consumer.mjs",
     "package:smoke": "yarn package && yarn verify:package && yarn test:e2e --packaged",
     "forge:package": "yarn package:smoke",
-    "verify:repository": "yarn agents:check && yarn verify:public-content && yarn instruction:check && yarn verify:vendor && yarn ui:check && yarn format:check && yarn test:tooling",
+    "verify:repository": "yarn agents:check && yarn verify:public-content && yarn instruction:check && yarn ui:check && yarn format:check && yarn test:tooling",
     "verify:code": "yarn verify:repository && yarn lint && yarn typecheck && yarn test && yarn build",
     "verify": "yarn verify:code && yarn verify:consumer && yarn test:e2e && yarn package:smoke",
     "release": "yarn run release:patch",
@@ -100,6 +100,7 @@
     "@pixel-brewery/mosaik-mcp": "0.1.192",
     "@stylistic/eslint-plugin": "5.10.0",
     "@types/node": "26.6.5",
+    "@wortlaut/repository-tasks": "workspace:*",
     "angular-eslint": "22.6.0",
     "electron": "45.1.0",
     "esbuild": "0.28.2",
@@ -118,14 +119,6 @@
     "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
     "vitest": "5.0.5"
-  },
-  "resolutions": {
-    "@pixel-brewery/synapse-auth": "file:./vendor/synapse/synapse-auth-0.0.3.tgz",
-    "@pixel-brewery/synapse-core": "file:./vendor/synapse/synapse-core-0.0.3.tgz",
-    "@pixel-brewery/synapse-provider-claude": "file:./vendor/synapse/synapse-provider-claude-0.0.3.tgz",
-    "@pixel-brewery/synapse-provider-codex": "file:./vendor/synapse/synapse-provider-codex-0.0.3.tgz",
-    "@pixel-brewery/synapse-provider-opencode": "file:./vendor/synapse/synapse-provider-opencode-0.0.3.tgz",
-    "@pixel-brewery/synapse-runtime": "file:./vendor/synapse/synapse-runtime-0.0.3.tgz"
   },
   "config": {
     "forge": "./apps/desktop/forge.config.mjs"

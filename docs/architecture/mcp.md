@@ -28,7 +28,7 @@ When changing the registry, update the affected client definitions together and 
 
 ## Installation and runtime
 
-Install the exact root development dependency through the existing Yarn lockfile with `yarn install --immutable`. The project's `@pixel-brewery` registry settings select `https://npm.pkg.github.com` and read `GITHUB_TOKEN` from the environment. Installation requires authorized package-read access. Keep credentials out of MCP configuration and preserve existing runtime component dependencies and vendor provenance.
+Install the exact root development dependency through the existing Yarn lockfile with `yarn install --immutable`. The project's `@pixel-brewery` registry settings select `https://npm.pkg.github.com` and read `GITHUB_TOKEN` from the environment. Installation requires authorized package-read access. Keep credentials out of MCP configuration and preserve declared runtime component versions and lockfile integrity.
 
 Launch the client from this repository root so Yarn resolves the installed project binary. VS Code explicitly uses `${workspaceFolder}`; the other definitions use the repository working directory. The package reads its bundled data relative to its own installation. Do not replace the binary command with `npx`, `yarn dlx`, a JavaScript path, a peer checkout or an on-demand package install.
 

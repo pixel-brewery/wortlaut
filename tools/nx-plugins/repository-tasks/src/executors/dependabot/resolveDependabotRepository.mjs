@@ -1,6 +1,6 @@
 // #region Imports
 
-import { releaseRepository } from './releaseRepository.mjs';
+import { releaseRepository } from '../../../../../../.github/scripts/releaseRepository.mjs';
 
 // #endregion
 
