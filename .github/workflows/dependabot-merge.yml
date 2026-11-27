@@ -1,0 +1,128 @@
+# Merges every open Dependabot pull request whose checks are all green.
+#
+# GitHub enforces the branch ruleset on each merge, so required checks cannot be
+# skipped. A merge made with GITHUB_TOKEN starts no `push` workflows, so the job
+# then dispatches every default-branch `push` workflow whose branch and path
+# filters match the merged files and that accepts a `source_sha` or
+# `expected_head_sha` input. That input receives the merge commit.
+#
+# This file is the same in every pixel-brewery repository. Only the names under
+# `workflow_run.workflows` differ: they name the workflows that report the
+# required checks. The hourly schedule catches anything an event missed.
+name: Dependabot auto-merge
+
+on:
+  workflow_run:
+    workflows: [Desktop quality]
+    types: [completed]
+  schedule:
+    - cron: '37 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: dependabot-auto-merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: >-
+      github.repository_owner == 'pixel-brewery' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Merge green Dependabot pull requests
+        id: merge
+        run: |
+          set -euo pipefail
+          branch=$(gh api "repos/$GH_REPO" --jq .default_branch)
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          : > "$RUNNER_TEMP/merged-files"
+          sha=''
+          numbers=$(gh pr list --author app/dependabot --base "$branch" --state open --limit 100 --json number --jq '.[].number')
+          for number in $numbers; do
+            # GitHub computes the merge state lazily and reports UNKNOWN until it is ready.
+            for attempt in 1 2 3; do
+              pr=$(gh pr view "$number" --json headRefName,headRefOid,isDraft,isCrossRepository,mergeable,mergeStateStatus)
+              [ "$(jq -r .mergeStateStatus <<< "$pr")" != UNKNOWN ] && break
+              sleep 5
+            done
+            green=$(jq -r '(.isDraft | not) and (.isCrossRepository | not)
+              and (.headRefName | startswith("dependabot/")) and .mergeable == "MERGEABLE"
+              and (.mergeStateStatus | IN("CLEAN", "HAS_HOOKS"))' <<< "$pr")
+            if [ "$green" != true ]; then
+              echo "#$number waits: $(jq -r '"\(.mergeStateStatus), \(.mergeable)"' <<< "$pr")"
+              continue
+            fi
+            # A refusal is usually a race with the previous merge; Dependabot rebases and CI retries.
+            if gh pr merge "$number" --squash --match-head-commit "$(jq -r .headRefOid <<< "$pr")"; then
+              sha=$(gh pr view "$number" --json mergeCommit --jq .mergeCommit.oid)
+              gh api "repos/$GH_REPO/pulls/$number/files" --paginate --jq '.[].filename' >> "$RUNNER_TEMP/merged-files"
+              echo "#$number merged as $sha"
+            else
+              echo "::warning::#$number looked green, but GitHub refused the merge."
+            fi
+          done
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Start the workflows a push would have started
+        if: steps.merge.outputs.sha != ''
+        env:
+          BRANCH: ${{ steps.merge.outputs.branch }}
+          MERGE_SHA: ${{ steps.merge.outputs.sha }}
+        run: |
+          set -euo pipefail
+          filter=$(mktemp)
+          cat > "$filter" << 'JQ'
+          def list: if type == "array" then . elif . == null then [] else [.] end;
+          def glob: "^" + (gsub("(?<c>[.^$(){}|\\\\])"; "\\\(.c)")
+              | gsub("\\*\\*/"; "\u0001") | gsub("\\*\\*"; "\u0002") | gsub("\\*"; "[^/]*")
+              | gsub("\u0001"; "(.*/)?") | gsub("\u0002"; ".*")) + "$";
+          def matches($patterns): . as $value
+              | reduce ($patterns | list)[] as $pattern (false;
+                  if ($pattern | startswith("!")) then (if ($value | test($pattern[1:] | glob)) then false else . end)
+                  elif ($value | test($pattern | glob)) then true
+                  else . end);
+          ($files | split("\n") | map(select(length > 0))) as $changed
+          | (.on // .["true"]) as $on
+          | ($on | if type == "string" then {(.): null} elif type == "array" then (map({(.): null}) | add) else (. // {}) end) as $on
+          | select($on | has("push") and has("workflow_dispatch"))
+          | ($on.push // {}) as $push
+          | select(
+              if $push | has("branches") then $branch | matches($push.branches)
+              elif $push | has("branches-ignore") then $branch | matches($push["branches-ignore"]) | not
+              else $push | has("tags") or has("tags-ignore") | not end)
+          | select(
+              if $push | has("paths") then any($changed[]; matches($push.paths))
+              elif $push | has("paths-ignore") then any($changed[]; matches($push["paths-ignore"]) | not)
+              else true end)
+          | ($on.workflow_dispatch // {} | .inputs // {}) as $inputs
+          | if $inputs | has("source_sha") then "source_sha"
+            elif $inputs | has("expected_head_sha") then "expected_head_sha"
+            else empty end
+          JQ
+          failed=0
+          for path in $(gh api "repos/$GH_REPO/contents/.github/workflows?ref=$MERGE_SHA" --jq '.[] | select(.type == "file" and (.name | test("\\.ya?ml$"))) | .path'); do
+            input=$(gh api -H 'Accept: application/vnd.github.raw+json' "repos/$GH_REPO/contents/$path?ref=$MERGE_SHA" \
+              | yq -o=json '.' | jq -r --arg branch "$BRANCH" --rawfile files "$RUNNER_TEMP/merged-files" -f "$filter")
+            [ -n "$input" ] || continue
+            if gh workflow run "${path##*/}" --ref "$BRANCH" -f "$input=$MERGE_SHA"; then
+              echo "Started ${path##*/} for $MERGE_SHA"
+            else
+              echo "::error::Could not start ${path##*/} for $MERGE_SHA."
+              failed=1
+            fi
+          done
+          exit "$failed"

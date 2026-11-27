@@ -18,8 +18,7 @@
     "libs/contracts",
     "libs/backend/*",
     "libs/frontend/*",
-    "libs/frontend/features/*",
-    "tools/nx-plugins/*"
+    "libs/frontend/features/*"
   ],
   "scripts": {
     "start": "yarn build:app && electron .",
@@ -34,7 +33,7 @@
     "verify:paths": "node tools/workspace/verify-portable-paths.mjs",
     "package": "nx run wortlaut-desktop:package",
     "make": "nx run wortlaut-desktop:make",
-    "test:tooling": "nx run repository-tasks:ci-check",
+    "test:tooling": "node --test --test-concurrency=1 \"tools/workspace/*.spec.mjs\" \".github/scripts/*.spec.mjs\"",
     "test:e2e": "node tools/workspace/verify-desktop.mjs",
     "verify:public-content": "node tools/workspace/verify-public-content.mjs",
     "verify:design": "python3 .claude/skills/mosaik-design/scripts/check_design.py --app apps/frontend/app/src libs/frontend",
@@ -73,7 +72,6 @@
     "@pixel-brewery/eslint-config": "0.1.187",
     "@stylistic/eslint-plugin": "5.10.0",
     "@types/node": "26.6.5",
-    "@wortlaut/repository-tasks": "workspace:*",
     "angular-eslint": "22.6.0",
     "electron": "45.1.0",
     "esbuild": "0.28.2",

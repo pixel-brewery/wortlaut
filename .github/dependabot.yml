@@ -1,4 +1,4 @@
-# .github/dependabot.yml
+# Green Dependabot pull requests merge automatically: .github/workflows/dependabot-merge.yml
 version: 2
 updates:
   - package-ecosystem: npm
@@ -8,7 +8,6 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
-    labels: [dependencies]
     commit-message:
       prefix: 'chore(deps)'
       prefix-development: 'chore(deps-dev)'
@@ -38,7 +37,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    labels: [dependencies, ci]
+    open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore(ci)'
     groups:

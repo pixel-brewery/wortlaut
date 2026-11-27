@@ -5619,14 +5619,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wortlaut/repository-tasks@workspace:*, @wortlaut/repository-tasks@workspace:tools/nx-plugins/repository-tasks":
-  version: 0.0.0-use.local
-  resolution: "@wortlaut/repository-tasks@workspace:tools/nx-plugins/repository-tasks"
-  dependencies:
-    globals: "npm:17.13.0"
-  languageName: unknown
-  linkType: soft
-
 "@xmldom/xmldom@npm:^0.9.10":
   version: 0.9.12
   resolution: "@xmldom/xmldom@npm:0.9.12"
@@ -12872,7 +12864,6 @@ __metadata:
     "@pixel-brewery/eslint-config": "npm:0.1.187"
     "@stylistic/eslint-plugin": "npm:5.10.0"
     "@types/node": "npm:26.6.5"
-    "@wortlaut/repository-tasks": "workspace:*"
     angular-eslint: "npm:22.6.0"
     electron: "npm:45.1.0"
     esbuild: "npm:0.28.2"
