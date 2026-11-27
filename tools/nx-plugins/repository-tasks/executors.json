@@ -1,9 +1,0 @@
-{
-  "executors": {
-    "dependabot": {
-      "implementation": "./src/executors/dependabot/executor",
-      "schema": "./src/executors/dependabot/schema.json",
-      "description": "Reconcile or merge verified dependency requests and continue source-bound CI and releases."
-    }
-  }
-}

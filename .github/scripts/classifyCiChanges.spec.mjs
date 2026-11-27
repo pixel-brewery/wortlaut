@@ -312,7 +312,7 @@ test('release preparation consumes the classification while explicit reusable ca
   // Downstream jobs retain GitHub's default success condition, so skipped preparation cannot publish.
   const build = workflow.slice(workflow.indexOf('\n  build:'), workflow.indexOf('\n  rehearse-publication:'));
   assert.match(build, /^    needs: configure$/mu);
-  const publish = workflow.slice(workflow.indexOf('\n  publish:'), workflow.indexOf('\n  refresh-dependabot:'));
+  const publish = workflow.slice(workflow.indexOf('\n  publish:'));
   assert.match(publish, /^    needs: \[configure, build\]$/mu);
   assert.doesNotMatch(publish.split('    steps:')[0], /(?:always|!cancelled)\(\)/u);
 });

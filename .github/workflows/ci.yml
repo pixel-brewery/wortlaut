@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       expected_head_sha:
-        description: Exact dependency head requested by the trusted controller
+        description: Exact main commit requested by the Dependabot auto-merge workflow
         required: false
         default: ''
         type: string
